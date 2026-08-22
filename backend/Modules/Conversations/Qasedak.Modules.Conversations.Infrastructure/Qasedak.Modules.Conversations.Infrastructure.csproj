@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Qasedak.Modules.Conversations.Application\Qasedak.Modules.Conversations.Application.csproj" />
+    <ProjectReference Include="..\Qasedak.Modules.Conversations.Domain\Qasedak.Modules.Conversations.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Qasedak.BuildingBlocks.Infrastructure\Qasedak.BuildingBlocks.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

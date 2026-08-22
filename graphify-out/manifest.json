@@ -1,0 +1,382 @@
+{
+  ".agent-state/PROJECT_STATE.json": {
+    "mtime": 1787435254.0,
+    "ast_hash": "81bdbc79cb9899e0a20c69c29d81fa2b",
+    "semantic_hash": "81bdbc79cb9899e0a20c69c29d81fa2b"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/IClock.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "bf19412af35625c278fcf45ce9c01dc6",
+    "semantic_hash": "bf19412af35625c278fcf45ce9c01dc6"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/Qasedak.BuildingBlocks.Application.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "d5a9547a43b5474e6a0e9ff839e29c50",
+    "semantic_hash": "d5a9547a43b5474e6a0e9ff839e29c50"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Domain/Entity.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "d6867ef297dceb71464b4d968ee9d660",
+    "semantic_hash": "d6867ef297dceb71464b4d968ee9d660"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Domain/IDomainEvent.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "c1f151d4393814b1bb77f1966ef84e4f",
+    "semantic_hash": "c1f151d4393814b1bb77f1966ef84e4f"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Domain/Qasedak.BuildingBlocks.Domain.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "80f05a21712fbff33d18e570bafa96c3",
+    "semantic_hash": "80f05a21712fbff33d18e570bafa96c3"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure/DependencyInjection.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "81ae882151efe645224e24d07b1cc4d9",
+    "semantic_hash": "81ae882151efe645224e24d07b1cc4d9"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure/Qasedak.BuildingBlocks.Infrastructure.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "99d8a5882394d26794fb17e3c36bd7ce",
+    "semantic_hash": "99d8a5882394d26794fb17e3c36bd7ce"
+  },
+  "backend/BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure/SystemClock.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "ecafb2153875fd2b0b837f60f7cfe677",
+    "semantic_hash": "ecafb2153875fd2b0b837f60f7cfe677"
+  },
+  "backend/Modules/Automations/Qasedak.Modules.Automations.Application/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "69d9fc640ce45b104ce8be566df958a2",
+    "semantic_hash": "69d9fc640ce45b104ce8be566df958a2"
+  },
+  "backend/Modules/Automations/Qasedak.Modules.Automations.Application/Qasedak.Modules.Automations.Application.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "b25628eb1bdc8835b8e55d8d09f37e0e",
+    "semantic_hash": "b25628eb1bdc8835b8e55d8d09f37e0e"
+  },
+  "backend/Modules/Automations/Qasedak.Modules.Automations.Domain/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "43ce11dad69b0a92a5b7cb2ba3338015",
+    "semantic_hash": "43ce11dad69b0a92a5b7cb2ba3338015"
+  },
+  "backend/Modules/Automations/Qasedak.Modules.Automations.Domain/Qasedak.Modules.Automations.Domain.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "056aa723b21cd4b67ef4ff83be922fd8",
+    "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
+  },
+  "backend/Modules/Automations/Qasedak.Modules.Automations.Infrastructure/DependencyInjection.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "2b01c9a1264af938ecb9e1ae05e5dd81",
+    "semantic_hash": "2b01c9a1264af938ecb9e1ae05e5dd81"
+  },
+  "backend/Modules/Automations/Qasedak.Modules.Automations.Infrastructure/Qasedak.Modules.Automations.Infrastructure.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "be7d28591b6a53886c0999f7bda0dce0",
+    "semantic_hash": "be7d28591b6a53886c0999f7bda0dce0"
+  },
+  "backend/Modules/Billing/Qasedak.Modules.Billing.Application/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "fa97e3a5b1d1a688622f65c28b5328e0",
+    "semantic_hash": "fa97e3a5b1d1a688622f65c28b5328e0"
+  },
+  "backend/Modules/Billing/Qasedak.Modules.Billing.Application/Qasedak.Modules.Billing.Application.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "8c25f31b322fdabedb8eb076a463efb9",
+    "semantic_hash": "8c25f31b322fdabedb8eb076a463efb9"
+  },
+  "backend/Modules/Billing/Qasedak.Modules.Billing.Domain/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "cb89a88c4dcd06553551bfefa22b389c",
+    "semantic_hash": "cb89a88c4dcd06553551bfefa22b389c"
+  },
+  "backend/Modules/Billing/Qasedak.Modules.Billing.Domain/Qasedak.Modules.Billing.Domain.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "056aa723b21cd4b67ef4ff83be922fd8",
+    "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
+  },
+  "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/DependencyInjection.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "4b7305bb58017a3d566aec1ec8ad0693",
+    "semantic_hash": "4b7305bb58017a3d566aec1ec8ad0693"
+  },
+  "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Qasedak.Modules.Billing.Infrastructure.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "2d55c2afe8eebeb0ce16b6344a0c5487",
+    "semantic_hash": "2d55c2afe8eebeb0ce16b6344a0c5487"
+  },
+  "backend/Modules/Contacts/Qasedak.Modules.Contacts.Application/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "2baf80193700bcd954dcf98e3d1c175d",
+    "semantic_hash": "2baf80193700bcd954dcf98e3d1c175d"
+  },
+  "backend/Modules/Contacts/Qasedak.Modules.Contacts.Application/Qasedak.Modules.Contacts.Application.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "2ec3f00bb736f1d744e34f5193c4d751",
+    "semantic_hash": "2ec3f00bb736f1d744e34f5193c4d751"
+  },
+  "backend/Modules/Contacts/Qasedak.Modules.Contacts.Domain/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "372558b24cc8b71b725ef1ce83764478",
+    "semantic_hash": "372558b24cc8b71b725ef1ce83764478"
+  },
+  "backend/Modules/Contacts/Qasedak.Modules.Contacts.Domain/Qasedak.Modules.Contacts.Domain.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "056aa723b21cd4b67ef4ff83be922fd8",
+    "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
+  },
+  "backend/Modules/Contacts/Qasedak.Modules.Contacts.Infrastructure/DependencyInjection.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "e847540f4bef7c75648da5473b680281",
+    "semantic_hash": "e847540f4bef7c75648da5473b680281"
+  },
+  "backend/Modules/Contacts/Qasedak.Modules.Contacts.Infrastructure/Qasedak.Modules.Contacts.Infrastructure.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "5d230196ea66d2f3c5091316ff1cb565",
+    "semantic_hash": "5d230196ea66d2f3c5091316ff1cb565"
+  },
+  "backend/Modules/Conversations/Qasedak.Modules.Conversations.Application/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "717371dd9b9bb134cb4dca15760a2d87",
+    "semantic_hash": "717371dd9b9bb134cb4dca15760a2d87"
+  },
+  "backend/Modules/Conversations/Qasedak.Modules.Conversations.Application/Qasedak.Modules.Conversations.Application.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "a9f2e0f76470e3cfbb37908af7061b31",
+    "semantic_hash": "a9f2e0f76470e3cfbb37908af7061b31"
+  },
+  "backend/Modules/Conversations/Qasedak.Modules.Conversations.Domain/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "fc6798881bf2f5e99aa96073bfcdc30b",
+    "semantic_hash": "fc6798881bf2f5e99aa96073bfcdc30b"
+  },
+  "backend/Modules/Conversations/Qasedak.Modules.Conversations.Domain/Qasedak.Modules.Conversations.Domain.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "056aa723b21cd4b67ef4ff83be922fd8",
+    "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
+  },
+  "backend/Modules/Conversations/Qasedak.Modules.Conversations.Infrastructure/DependencyInjection.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "a87cdddeede97c0d35454baa70df72dc",
+    "semantic_hash": "a87cdddeede97c0d35454baa70df72dc"
+  },
+  "backend/Modules/Conversations/Qasedak.Modules.Conversations.Infrastructure/Qasedak.Modules.Conversations.Infrastructure.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "3d794126414d8aa673177484c20efbb4",
+    "semantic_hash": "3d794126414d8aa673177484c20efbb4"
+  },
+  "backend/Modules/Identity/Qasedak.Modules.Identity.Application/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "092ec1d842e482b8a682680b7d2125cd",
+    "semantic_hash": "092ec1d842e482b8a682680b7d2125cd"
+  },
+  "backend/Modules/Identity/Qasedak.Modules.Identity.Application/Qasedak.Modules.Identity.Application.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "c1267115ec7f2df980913bb30beb83bb",
+    "semantic_hash": "c1267115ec7f2df980913bb30beb83bb"
+  },
+  "backend/Modules/Identity/Qasedak.Modules.Identity.Domain/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "c4fd2727aeb74d49313d6f2daaa18e28",
+    "semantic_hash": "c4fd2727aeb74d49313d6f2daaa18e28"
+  },
+  "backend/Modules/Identity/Qasedak.Modules.Identity.Domain/Qasedak.Modules.Identity.Domain.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "056aa723b21cd4b67ef4ff83be922fd8",
+    "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
+  },
+  "backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure/DependencyInjection.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "a36bbcebfb1862186c728a4fc0fa73f2",
+    "semantic_hash": "a36bbcebfb1862186c728a4fc0fa73f2"
+  },
+  "backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure/Qasedak.Modules.Identity.Infrastructure.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "e5be05d8f441602671f680ce5445bde1",
+    "semantic_hash": "e5be05d8f441602671f680ce5445bde1"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "0d1fe25cbcba441154f36e8a45577781",
+    "semantic_hash": "0d1fe25cbcba441154f36e8a45577781"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Qasedak.Modules.Instagram.Application.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "69b96e8f3512d157d390c0cc91b97486",
+    "semantic_hash": "69b96e8f3512d157d390c0cc91b97486"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Domain/AssemblyMarker.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "684b1c727633a92d56160bbbbbc6b7e1",
+    "semantic_hash": "684b1c727633a92d56160bbbbbc6b7e1"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Domain/Qasedak.Modules.Instagram.Domain.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "056aa723b21cd4b67ef4ff83be922fd8",
+    "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/DependencyInjection.cs": {
+    "mtime": 1787434829.0,
+    "ast_hash": "de163d5e9ae973aa887db844aaaf36d3",
+    "semantic_hash": "de163d5e9ae973aa887db844aaaf36d3"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Qasedak.Modules.Instagram.Infrastructure.csproj": {
+    "mtime": 1787434829.0,
+    "ast_hash": "be1974f2ee9ad5525bc07bc3bec43e3d",
+    "semantic_hash": "be1974f2ee9ad5525bc07bc3bec43e3d"
+  },
+  "backend/Qasedak.Api/Program.cs": {
+    "mtime": 1787434849.0,
+    "ast_hash": "28bba4ef4ea61b19e2dabe20a963b025",
+    "semantic_hash": "28bba4ef4ea61b19e2dabe20a963b025"
+  },
+  "backend/Qasedak.Api/Properties/launchSettings.json": {
+    "mtime": 1787434849.0,
+    "ast_hash": "2c12f58cea7eb70e0eabfee6218eb2fe",
+    "semantic_hash": "2c12f58cea7eb70e0eabfee6218eb2fe"
+  },
+  "backend/Qasedak.Api/Qasedak.Api.csproj": {
+    "mtime": 1787434849.0,
+    "ast_hash": "98bbe32be187182b639cb88a27057558",
+    "semantic_hash": "98bbe32be187182b639cb88a27057558"
+  },
+  "backend/Qasedak.Api/appsettings.Development.json": {
+    "mtime": 1787434849.0,
+    "ast_hash": "5cedca37af246d94765fa58d42ad151b",
+    "semantic_hash": "5cedca37af246d94765fa58d42ad151b"
+  },
+  "backend/Qasedak.Api/appsettings.json": {
+    "mtime": 1787434849.0,
+    "ast_hash": "4f719e484d25803e7196d109975efad7",
+    "semantic_hash": "4f719e484d25803e7196d109975efad7"
+  },
+  "backend/Qasedak.slnx": {
+    "mtime": 1787434849.0,
+    "ast_hash": "340783906f2eb2dc78cfa6f2dff0b85b",
+    "semantic_hash": "340783906f2eb2dc78cfa6f2dff0b85b"
+  },
+  "backend/global.json": {
+    "mtime": 1787434829.0,
+    "ast_hash": "be898355a76bba7c9e864e085e83a229",
+    "semantic_hash": "be898355a76bba7c9e864e085e83a229"
+  },
+  "backend/tests/Qasedak.Api.IntegrationTests/ApiSmokeTests.cs": {
+    "mtime": 1787434849.0,
+    "ast_hash": "1333b9f4ee515a0eb6924744d341f8eb",
+    "semantic_hash": "1333b9f4ee515a0eb6924744d341f8eb"
+  },
+  "backend/tests/Qasedak.Api.IntegrationTests/Qasedak.Api.IntegrationTests.csproj": {
+    "mtime": 1787434849.0,
+    "ast_hash": "36273e057a509985d2926452a58aa51d",
+    "semantic_hash": "36273e057a509985d2926452a58aa51d"
+  },
+  "backend/tests/Qasedak.BuildingBlocks.UnitTests/EntityTests.cs": {
+    "mtime": 1787434849.0,
+    "ast_hash": "3213dcfff5cfe818fae44bdea165b02c",
+    "semantic_hash": "3213dcfff5cfe818fae44bdea165b02c"
+  },
+  "backend/tests/Qasedak.BuildingBlocks.UnitTests/Qasedak.BuildingBlocks.UnitTests.csproj": {
+    "mtime": 1787434849.0,
+    "ast_hash": "7601faf027b6a08678d184c65ac1a0cd",
+    "semantic_hash": "7601faf027b6a08678d184c65ac1a0cd"
+  },
+  "frontend/Qasedak.Web/eslint.config.mjs": {
+    "mtime": 1787434869.0,
+    "ast_hash": "b5d7df09a0c46f49dc0840132dfff1ed",
+    "semantic_hash": "b5d7df09a0c46f49dc0840132dfff1ed"
+  },
+  "frontend/Qasedak.Web/next-env.d.ts": {
+    "mtime": 1787434869.0,
+    "ast_hash": "b2d9080440dca4ea0d9b2544c78bc5ab",
+    "semantic_hash": "b2d9080440dca4ea0d9b2544c78bc5ab"
+  },
+  "frontend/Qasedak.Web/next.config.ts": {
+    "mtime": 1787434869.0,
+    "ast_hash": "fc23ef60614cdcf0a0049dab6120f5d6",
+    "semantic_hash": "fc23ef60614cdcf0a0049dab6120f5d6"
+  },
+  "frontend/Qasedak.Web/package.json": {
+    "mtime": 1787434869.0,
+    "ast_hash": "94161d6921db78ba5aada77c2603562a",
+    "semantic_hash": "94161d6921db78ba5aada77c2603562a"
+  },
+  "frontend/Qasedak.Web/src/app/layout.tsx": {
+    "mtime": 1787434869.0,
+    "ast_hash": "94be4201cecbe4d7aff0c85e0871c553",
+    "semantic_hash": "94be4201cecbe4d7aff0c85e0871c553"
+  },
+  "frontend/Qasedak.Web/src/app/page.tsx": {
+    "mtime": 1787434869.0,
+    "ast_hash": "2625d6c0711c64c411b49af34b84e61f",
+    "semantic_hash": "2625d6c0711c64c411b49af34b84e61f"
+  },
+  "frontend/Qasedak.Web/tests/repository-contract.test.mjs": {
+    "mtime": 1787434869.0,
+    "ast_hash": "c6465ea0902de354b4680472310a1352",
+    "semantic_hash": "c6465ea0902de354b4680472310a1352"
+  },
+  "frontend/Qasedak.Web/tsconfig.json": {
+    "mtime": 1787434869.0,
+    "ast_hash": "3b71c39d575a7a2634ccf0955d099e92",
+    "semantic_hash": "3b71c39d575a7a2634ccf0955d099e92"
+  },
+  "scripts/agent_finalize.py": {
+    "mtime": 1787434933.0,
+    "ast_hash": "f54b1af29999ada9f905768263c35a4f",
+    "semantic_hash": "f54b1af29999ada9f905768263c35a4f"
+  },
+  "scripts/agent_preflight.py": {
+    "mtime": 1787434933.0,
+    "ast_hash": "560f6dfc15ec2c1c40389be43f98910a",
+    "semantic_hash": "560f6dfc15ec2c1c40389be43f98910a"
+  },
+  "scripts/check_architecture.py": {
+    "mtime": 1787434933.0,
+    "ast_hash": "84f34480f903b68ca3c97d82773b6dc3",
+    "semantic_hash": "84f34480f903b68ca3c97d82773b6dc3"
+  },
+  "scripts/check_docs.py": {
+    "mtime": 1787434933.0,
+    "ast_hash": "c02f90000de8f0a1a9e5314def894781",
+    "semantic_hash": "c02f90000de8f0a1a9e5314def894781"
+  },
+  "scripts/check_state.py": {
+    "mtime": 1787435254.0,
+    "ast_hash": "d58cc78dc36f2d78dbb102da3b80bb9c",
+    "semantic_hash": "d58cc78dc36f2d78dbb102da3b80bb9c"
+  },
+  "scripts/dev.ps1": {
+    "mtime": 1787434933.0,
+    "ast_hash": "eb86a680ed16e2d3e70d29f52e779b53",
+    "semantic_hash": "eb86a680ed16e2d3e70d29f52e779b53"
+  },
+  "scripts/dev.sh": {
+    "mtime": 1787434933.0,
+    "ast_hash": "9d8373d1fb3a1f7d296d2183d4c53ab4",
+    "semantic_hash": "9d8373d1fb3a1f7d296d2183d4c53ab4"
+  },
+  "scripts/generate_manifest.py": {
+    "mtime": 1787434933.0,
+    "ast_hash": "c969a22148b0ae33bb70d5f8661a17bc",
+    "semantic_hash": "c969a22148b0ae33bb70d5f8661a17bc"
+  },
+  "scripts/record_graphify_evidence.py": {
+    "mtime": 1787434933.0,
+    "ast_hash": "fc7776c9f2dc4cc657f90edac6e534b4",
+    "semantic_hash": "fc7776c9f2dc4cc657f90edac6e534b4"
+  },
+  "scripts/verify.ps1": {
+    "mtime": 1787434933.0,
+    "ast_hash": "0d818bf1b21c16dceda67cd921137184",
+    "semantic_hash": "0d818bf1b21c16dceda67cd921137184"
+  },
+  "scripts/verify.py": {
+    "mtime": 1787435292.0,
+    "ast_hash": "12a6b33f13819be9cca2fcfd00c1973d",
+    "semantic_hash": "12a6b33f13819be9cca2fcfd00c1973d"
+  },
+  "scripts/verify.sh": {
+    "mtime": 1787434933.0,
+    "ast_hash": "35d9defc558b5ff58bc3c19e10c2faaa",
+    "semantic_hash": "35d9defc558b5ff58bc3c19e10c2faaa"
+  }
+}

@@ -1,0 +1,12 @@
+# Graphify evidence log
+
+This file is append-only evidence for AI-agent Graphify use. Do not claim health without an actual CLI run.
+
+| Date (UTC) | Task | Status | Version | Refresh command | Task query | Outputs | Notes |
+|---|---|---|---|---|---|---|---|
+| 2026-08-22 | starter-generation | unavailable | not installed | not run | not run | none | Generation environment had no Graphify CLI and no network/DNS for installing `graphifyy`; no evidence was fabricated. M00-003 must initialize it on the first real workstation. |
+| 2026-08-22 | M00-003 | healthy | graphify 0.9.26 | graphify . --no-viz --code-only; graphify cluster-only . | module dependency structure: how do business modules and building blocks reference each other across Domain/Application/Infrastructure layers? | graphify-out/graph.json; graphify-out/GRAPH_REPORT.md | First real graph: 277 nodes, 297 edges, 43 communities. code-only mode (local AST) because no LLM API key is present in the environment; 60 doc files skipped for semantic extraction. |
+| 2026-08-22 | M00-003 | healthy | graphify 0.9.26 | graphify . --no-viz --code-only | API composition root: what does Qasedak.Api Program.cs reference and how are module infrastructure projects wired? | graphify-out/graph.json | BFS depth=2 traversal confirmed Program.cs imports BuildingBlocks.Infrastructure and each module Infrastructure DI. |
+| 2026-08-22 | M00-003 | healthy | graphify 0.9.26 | graphify . --no-viz --code-only | repository agent-state system: which scripts and state files implement project state, graphify evidence and verification gates? | graphify-out/graph.json | Found record_graphify_evidence.py, check_state.py, agent_finalize.py, check_architecture.py and frontend repository-contract tests. |
+| 2026-08-22 | M00-003 | healthy | graphify 0.9.26 | graphify . --no-viz --code-only | Next.js frontend boundary: how is frontend/Qasedak.Web isolated from backend source projects? | graphify-out/graph.json | 94-node BFS traversal; frontend nodes limited to package.json/tsconfig/next.config; no project references into backend. |
+| 2026-08-22 | M00-004 | healthy | graphify 0.9.26 | graphify . --no-viz --code-only | delivery toolchain: how do CI workflows, Dockerfiles and guard scripts define the backend/frontend/docker gates? | graphify-out/graph.json | BFS traversal over solution, package scripts and guard scripts while locking dependencies and verifying all local gates. |

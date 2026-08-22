@@ -1,0 +1,46 @@
+name: qasedak
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - qasedak-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/${IMAGE_NAMESPACE}/qasedak-api:${IMAGE_TAG}
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Qasedak: ${QASEDAK_CONNECTION_STRING}
+      Cors__AllowedOrigins__0: ${PUBLIC_WEB_ORIGIN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/${IMAGE_NAMESPACE}/qasedak-web:${IMAGE_TAG}
+    environment:
+      QASEDAK_API_INTERNAL_URL: http://api:8080
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+
+volumes:
+  qasedak-postgres:

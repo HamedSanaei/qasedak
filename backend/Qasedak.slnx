@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="BuildingBlocks/Qasedak.BuildingBlocks.Application/Qasedak.BuildingBlocks.Application.csproj" />
+    <Project Path="BuildingBlocks/Qasedak.BuildingBlocks.Domain/Qasedak.BuildingBlocks.Domain.csproj" />
+    <Project Path="BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure/Qasedak.BuildingBlocks.Infrastructure.csproj" />
+    <Project Path="Modules/Automations/Qasedak.Modules.Automations.Application/Qasedak.Modules.Automations.Application.csproj" />
+    <Project Path="Modules/Automations/Qasedak.Modules.Automations.Domain/Qasedak.Modules.Automations.Domain.csproj" />
+    <Project Path="Modules/Automations/Qasedak.Modules.Automations.Infrastructure/Qasedak.Modules.Automations.Infrastructure.csproj" />
+    <Project Path="Modules/Billing/Qasedak.Modules.Billing.Application/Qasedak.Modules.Billing.Application.csproj" />
+    <Project Path="Modules/Billing/Qasedak.Modules.Billing.Domain/Qasedak.Modules.Billing.Domain.csproj" />
+    <Project Path="Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Qasedak.Modules.Billing.Infrastructure.csproj" />
+    <Project Path="Modules/Contacts/Qasedak.Modules.Contacts.Application/Qasedak.Modules.Contacts.Application.csproj" />
+    <Project Path="Modules/Contacts/Qasedak.Modules.Contacts.Domain/Qasedak.Modules.Contacts.Domain.csproj" />
+    <Project Path="Modules/Contacts/Qasedak.Modules.Contacts.Infrastructure/Qasedak.Modules.Contacts.Infrastructure.csproj" />
+    <Project Path="Modules/Conversations/Qasedak.Modules.Conversations.Application/Qasedak.Modules.Conversations.Application.csproj" />
+    <Project Path="Modules/Conversations/Qasedak.Modules.Conversations.Domain/Qasedak.Modules.Conversations.Domain.csproj" />
+    <Project Path="Modules/Conversations/Qasedak.Modules.Conversations.Infrastructure/Qasedak.Modules.Conversations.Infrastructure.csproj" />
+    <Project Path="Modules/Identity/Qasedak.Modules.Identity.Application/Qasedak.Modules.Identity.Application.csproj" />
+    <Project Path="Modules/Identity/Qasedak.Modules.Identity.Domain/Qasedak.Modules.Identity.Domain.csproj" />
+    <Project Path="Modules/Identity/Qasedak.Modules.Identity.Infrastructure/Qasedak.Modules.Identity.Infrastructure.csproj" />
+    <Project Path="Modules/Instagram/Qasedak.Modules.Instagram.Application/Qasedak.Modules.Instagram.Application.csproj" />
+    <Project Path="Modules/Instagram/Qasedak.Modules.Instagram.Domain/Qasedak.Modules.Instagram.Domain.csproj" />
+    <Project Path="Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Qasedak.Modules.Instagram.Infrastructure.csproj" />
+    <Project Path="Qasedak.Api/Qasedak.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Qasedak.Api.IntegrationTests/Qasedak.Api.IntegrationTests.csproj" />
+    <Project Path="tests/Qasedak.BuildingBlocks.UnitTests/Qasedak.BuildingBlocks.UnitTests.csproj" />
+  </Folder>
+</Solution>

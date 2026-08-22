@@ -1,0 +1,44 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+TestResults/
+coverage/
+
+# Node
+**/node_modules/
+**/.next/
+**/out/
+**/.turbo/
+*.tsbuildinfo
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pfx
+*.pem
+*.key
+
+# IDE / OS
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Graphify runtime artifacts
+# graph.json and GRAPH_REPORT.md are intentionally versioned after M00-003.
+graphify-out/graph.html
+graphify-out/.cache/
+graphify-out/cache/
+
+# Agent locks/runs are runtime state; keep placeholders only.
+.agent-state/locks/*
+!.agent-state/locks/.gitkeep
+.agent-state/runs/*
+!.agent-state/runs/.gitkeep
+
+# Local artifacts
+*.zip

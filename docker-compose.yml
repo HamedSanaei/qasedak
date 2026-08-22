@@ -1,0 +1,50 @@
+name: qasedak
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qasedak}
+      POSTGRES_USER: ${POSTGRES_USER:-qasedak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-for-local-only}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - qasedak-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qasedak} -d ${POSTGRES_DB:-qasedak}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Qasedak: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      Cors__AllowedOrigins__0: http://localhost:${WEB_PORT:-3000}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend/Qasedak.Web
+      dockerfile: Dockerfile
+    environment:
+      QASEDAK_API_INTERNAL_URL: http://api:8080
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  qasedak-postgres:

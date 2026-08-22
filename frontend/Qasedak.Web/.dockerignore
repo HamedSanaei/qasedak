@@ -1,0 +1,5 @@
+# Keep host dependencies/build outputs out of the image build context.
+node_modules/
+.next/
+.git/
+*.log

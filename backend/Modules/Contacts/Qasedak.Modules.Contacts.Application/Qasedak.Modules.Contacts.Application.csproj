@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Qasedak.Modules.Contacts.Domain\Qasedak.Modules.Contacts.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Qasedak.BuildingBlocks.Application\Qasedak.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+</Project>

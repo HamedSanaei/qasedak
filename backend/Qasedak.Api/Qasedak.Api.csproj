@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <ProjectReference Include="..\BuildingBlocks\Qasedak.BuildingBlocks.Infrastructure\Qasedak.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Identity\Qasedak.Modules.Identity.Infrastructure\Qasedak.Modules.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Instagram\Qasedak.Modules.Instagram.Infrastructure\Qasedak.Modules.Instagram.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Automations\Qasedak.Modules.Automations.Infrastructure\Qasedak.Modules.Automations.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Conversations\Qasedak.Modules.Conversations.Infrastructure\Qasedak.Modules.Conversations.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Contacts\Qasedak.Modules.Contacts.Infrastructure\Qasedak.Modules.Contacts.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Billing\Qasedak.Modules.Billing.Infrastructure\Qasedak.Modules.Billing.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

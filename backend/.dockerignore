@@ -1,0 +1,6 @@
+# Keep host build outputs out of the image build context/layer cache.
+**/bin/
+**/obj/
+**/.git/
+**/.vs/
+**/*.user

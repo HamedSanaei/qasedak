@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Qasedak.Modules.Identity.Application\Qasedak.Modules.Identity.Application.csproj" />
+    <ProjectReference Include="..\Qasedak.Modules.Identity.Domain\Qasedak.Modules.Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Qasedak.BuildingBlocks.Infrastructure\Qasedak.BuildingBlocks.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
