@@ -1,9 +1,9 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M04 — Webhook Ingestion & Event Normalization  
-**Current task:** M04-001 — Verify Meta webhook requests  
-**Last completed:** M03-004 — Manage token health/revocation  
+**Current milestone:** M05 — Conversations Core  
+**Current task:** M05-001 — Model conversations/messages  
+**Last completed:** M04-004 — Instrument webhook processing  
 **Product implementation:** Not started
 
 ## Baseline established

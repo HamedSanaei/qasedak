@@ -17,6 +17,8 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
 
     public DbSet<StoredAccountToken> AccountTokens => Set<StoredAccountToken>();
 
+    public DbSet<WebhookInboxEntry> WebhookInbox => Set<WebhookInboxEntry>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
@@ -50,6 +52,17 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
             token.HasKey(t => t.AccountId);
             token.Property(t => t.AccountId).ValueGeneratedNever();
             token.Property(t => t.Ciphertext).HasMaxLength(4096);
+        });
+
+        modelBuilder.Entity<WebhookInboxEntry>(entry =>
+        {
+            entry.ToTable("webhook_inbox");
+            // Event identity is the SHA-256 of the exact raw body; the primary key itself
+            // makes duplicate deliveries a no-op.
+            entry.HasKey(e => e.EventId);
+            entry.Property(e => e.EventId).HasMaxLength(64);
+            entry.Property(e => e.Topic).HasMaxLength(32);
+            entry.HasIndex(e => new { e.Status, e.ReceivedAtUtc });
         });
     }
 }

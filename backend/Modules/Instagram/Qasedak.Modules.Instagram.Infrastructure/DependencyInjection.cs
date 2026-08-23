@@ -44,6 +44,16 @@ public static class DependencyInjection
         services.AddScoped<IConnectedAccountRepository, EfConnectedAccountRepository>();
         services.AddSingleton<ITokenProtector, AesGcmTokenProtector>();
         services.AddScoped<IProtectedTokenStore, ProtectedTokenStore>();
+        // Durable idempotent inbox: replaces the M04-001 placeholder boundary.
+        services.AddScoped<IMetaWebhookIngester, InboxWebhookIngester>();
+        services.AddScoped<IWebhookInboxStore, EfWebhookInboxStore>();
+        services.AddSingleton<IIntegrationEventDispatcher, LoggingIntegrationEventDispatcher>();
+        services.AddScoped<ProcessPendingWebhookEventsUseCase>();
+
+        // Webhook observability: shared meter; backlog gauge attached once the host starts.
+        var webhookMetrics = new WebhookMetrics();
+        services.AddSingleton(webhookMetrics);
+        services.AddHostedService<WebhookBacklogGauge>();
 
         // Account lifecycle use cases.
         services.AddScoped<ConnectInstagramAccountUseCase>();

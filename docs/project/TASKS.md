@@ -177,36 +177,44 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(instagram): manage token health and revocation`
 
 ## M04-001 — Verify Meta webhook requests
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Implement endpoint challenge/signature/authenticity rules per verified Meta contract.
+
+**Completion evidence:** `MetaWebhookEndpoints` maps `GET/POST /api/v1/webhooks/instagram`: GET performs the subscription handshake through `IWebhookSubscriptionValidator` (challenge echoed verbatim as text/plain, failures → 403); POST enforces `X-Hub-Signature-256` HMAC over the exact raw received bytes via `IWebhookSignatureVerifier` — missing/bad signature → 401 with an empty body (no content echo), signed-but-non-JSON → 400, oversized payloads → 413 before signature work (1 MB cap). New Application boundary `IMetaWebhookIngester` + `MetaWebhookNotification` keeps transport types out of Application; `DiscardingWebhookIngester` placeholder is registered until M04-002's durable inbox replaces it. Endpoints mounted in Program.cs; fixture now configures real verify-token/app-secret. 7 new end-to-end tests over real HTTP (handshake happy/wrong-mode/wrong-token; POST valid-signature/bad-signature-no-echo/no-header/oversized). Suite total 166 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(instagram): verify meta webhook requests`
 
 ## M04-002 — Create durable idempotent webhook inbox
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Persist event identity/body metadata and guarantee duplicate-safe ingestion.
+
+**Completion evidence:** `WebhookInboxEntry` + `webhook_inbox` table in the instagram schema: event identity is the SHA-256 of the exact raw body (Meta redeliveries are byte-identical), so the primary key enforces at-most-once receipt; row carries topic, canonical body JSON, ReceivedAtUtc, status (pending/processed), ProcessedAtUtc and DeliveryAttempts; index on (Status, ReceivedAtUtc) for later dispatch scans; committed migration `AddWebhookInbox`. `InboxWebhookIngester` implements `IMetaWebhookIngester`: unknown identities insert-and-accept, known ones record a redelivery attempt and accept as no-op, concurrent same-identity races are caught via DbUpdateException and still report accepted — duplicate-safe under retries and parallel delivery. The M04-001 placeholder ingester was removed and DI now binds the real inbox. 3 new real-PostgreSQL tests (first-delivery persistence with pending state, identical redelivery swallowed with attempt counter, distinct payloads → distinct rows). Suite total 169 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(instagram): add idempotent webhook inbox`
 
 ## M04-003 — Normalize integration events
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Translate raw Meta payloads to explicit integration events without leaking transport models into Domain.
+
+**Completion evidence:** Application-level `MetaPayloadNormalizer` translates canonical Meta bodies into explicit, transport-free events: `InstagramMessageReceived` (echoes skipped), `InstagramCommentCreated`, `InstagramMentionCreated`; unknown fields and messaging-without-message surface as `UnrecognizedWebhookFragment` and malformed JSON yields one fragment instead of throwing — nothing is dropped silently. `IWebhookInboxStore` port exposes pending entries to Application (`EfWebhookInboxStore` adapter over webhook_inbox with ExecuteUpdate closing); `ProcessPendingWebhookEventsUseCase` consumes a bounded batch: normalize → dispatch each event via new `IIntegrationEventDispatcher` port → close entry (unrecognized fragments never block closing; raw body stays durable in the inbox). Infrastructure ships `LoggingIntegrationEventDispatcher` (LoggerMessage source-generated structured log carrying event id + provider identity as correlation) until real consumers arrive. API fixture now provisions the Instagram connection string + migrations so the endpoint→inbox path is exercised for real. 9 new tests (6 normalizer shape fixtures incl. echo-skip/malformed JSON, 3 use-case tests incl. batch bound and dispatch-before-close invariant). Suite total 172 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(instagram): normalize webhook integration events`
 
 ## M04-004 — Instrument webhook processing
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Add correlation, structured logs, metrics and failure/retry visibility.
+
+**Completion evidence:** New module meter `Qasedak.Instagram.Webhooks` (`WebhookMetrics`): notifications counter tagged by outcome (accepted/rejected/deferred), events-dispatched counter by kind (message/comment/mention), duplicates counter by topic, ingestion-duration histogram per outcome — all exercised through a real MeterListener in tests so dashboards see exactly these series. Correlation ids: POST honors caller's `X-Correlation-Id`, mints UUIDv7 otherwise, always echoes via response header (asserted end-to-end); correlation flows through structured logs and into inbox redelivery warnings. Structured logs are source-generated LoggerMessage methods (`MetaWebhookLogs`) on every rejection path (oversized/signature-failure/non-JSON) and when a known event exceeds the redelivery attention threshold (≥3 attempts → stuck-consumer visibility); request content is never logged. Failure/retry visibility: pending-backlog observable gauge over the inbox attached via hosted service; dispatcher counts normalized events by kind at the boundary. 5 new tests (2 metric-series fixtures + correlation echo/mint end-to-end). Suite total 175 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 

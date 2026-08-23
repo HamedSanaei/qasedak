@@ -4,8 +4,9 @@
   "updatedAt": "2026-08-23T02:40:00+03:30",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M03",
-  "currentTask": "M04-001",
-  "lastCompletedTask": "M03-004",
+  "currentTask": "M05-001",
+  "lastCompletedTask": "M04-004",
+  "currentMilestone": "M05",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -22,7 +23,11 @@
     "M03-001",
     "M03-002",
     "M03-003",
-    "M03-004"
+    "M03-004",
+    "M04-001",
+    "M04-002",
+    "M04-003",
+    "M04-004"
   ],
   "graphify": {
     "required": true,

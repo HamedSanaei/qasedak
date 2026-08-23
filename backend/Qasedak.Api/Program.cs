@@ -7,6 +7,7 @@ using Qasedak.Modules.Conversations.Infrastructure;
 using Qasedak.Modules.Identity.Infrastructure;
 using Qasedak.Modules.Identity.Infrastructure.Endpoints;
 using Qasedak.Modules.Instagram.Infrastructure;
+using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,7 @@ app.MapGet("/api/v1/system", () => Results.Ok(new
 }));
 
 app.MapIdentityEndpoints();
+app.MapMetaWebhookEndpoints();
 
 app.Run();
 
