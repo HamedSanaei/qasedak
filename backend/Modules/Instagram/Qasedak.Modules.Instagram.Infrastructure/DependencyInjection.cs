@@ -1,6 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Webhooks;
+using Qasedak.Modules.Instagram.Infrastructure.OAuth;
+using Qasedak.Modules.Instagram.Infrastructure.Persistence;
+using Qasedak.Modules.Instagram.Infrastructure.Protection;
 using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 
 namespace Qasedak.Modules.Instagram.Infrastructure;
@@ -10,8 +17,40 @@ public static class DependencyInjection
     public static IServiceCollection AddInstagramModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<MetaWebhookOptions>(configuration.GetSection(MetaWebhookOptions.SectionName));
+        services.Configure<MetaOAuthOptions>(configuration.GetSection(MetaOAuthOptions.SectionName));
+        services.Configure<TokenProtectionOptions>(configuration.GetSection(TokenProtectionOptions.SectionName));
         services.AddSingleton<IWebhookSignatureVerifier, HmacWebhookSignatureVerifier>();
         services.AddSingleton<IWebhookSubscriptionValidator, MetaWebhookSubscriptionValidator>();
+        services.AddSingleton<IAuthorizationUrlBuilder, InstagramAuthorizationUrlBuilder>();
+
+        // Typed OAuth HTTP client; the app secret never leaves server-side code.
+        services.AddHttpClient(GraphInstagramOAuthClient.HttpClientName);
+        services.AddSingleton(sp => new GraphInstagramOAuthClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramOAuthClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaOAuthOptions>>()));
+        services.AddSingleton<IMetaOAuthClient>(sp => sp.GetRequiredService<GraphInstagramOAuthClient>());
+
+        // Live token inspection for health evaluation (OQ-3 taxonomy lives here).
+        services.AddHttpClient(GraphInstagramTokenInspector.HttpClientName);
+        services.AddSingleton(sp => new GraphInstagramTokenInspector(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramTokenInspector.HttpClientName)));
+        services.AddSingleton<IMetaTokenInspector>(sp => sp.GetRequiredService<GraphInstagramTokenInspector>());
+
+        // Module-owned persistence under the "instagram" schema.
+        services.AddDbContext<InstagramDbContext>(options =>
+            options.UseNpgsql(
+                configuration.GetConnectionString("Instagram"),
+                npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", InstagramDbContext.Schema)));
+        services.AddScoped<IConnectedAccountRepository, EfConnectedAccountRepository>();
+        services.AddSingleton<ITokenProtector, AesGcmTokenProtector>();
+        services.AddScoped<IProtectedTokenStore, ProtectedTokenStore>();
+
+        // Account lifecycle use cases.
+        services.AddScoped<ConnectInstagramAccountUseCase>();
+        services.AddScoped<DisconnectInstagramAccountUseCase>();
+        services.AddScoped<ListWorkspaceConnectionsUseCase>();
+        services.AddScoped<EvaluateAccountHealthUseCase>();
+
         return services;
     }
 }

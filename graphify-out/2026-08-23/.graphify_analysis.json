@@ -482,8 +482,41 @@
       "why": "cross-file semantic connection"
     }
   ],
-  "tokens": {
-    "input": 0,
-    "output": 0
-  }
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `Qasedak.BuildingBlocks.Domain` connect `Qasedak.slnx` to `EntityTests.cs`, `Qasedak.BuildingBlocks.UnitTests`?",
+      "why": "High betweenness centrality (0.015) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Qasedak.BuildingBlocks.Infrastructure` connect `IClock` to `Program.cs`?",
+      "why": "High betweenness centrality (0.011) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `devDependencies` connect `devDependencies` to `scripts`?",
+      "why": "High betweenness centrality (0.008) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `Microsoft.NET.Sdk`, `Entity`, `Microsoft.NET.Sdk` to the rest of the system?",
+      "why": "114 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Qasedak.slnx` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Program.cs` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.0625 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `compilerOptions` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected."
+    }
+  ]
 }

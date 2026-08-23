@@ -1,9 +1,9 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M02 — Identity & Workspace Foundation  
-**Current task:** M03-001 — Implement Meta OAuth adapter  
-**Last completed:** M02-004 — Enforce workspace authorization  
+**Current milestone:** M04 — Webhook Ingestion & Event Normalization  
+**Current task:** M04-001 — Verify Meta webhook requests  
+**Last completed:** M03-004 — Manage token health/revocation  
 **Product implementation:** Not started
 
 ## Baseline established

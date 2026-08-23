@@ -133,36 +133,44 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(identity): enforce workspace authorization policies`
 
 ## M03-001 — Implement Meta OAuth adapter
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Create Infrastructure Meta OAuth adapter behind application ports with deterministic contract tests.
+
+**Completion evidence:** Application ports `IAuthorizationUrlBuilder`/`IMetaOAuthClient` in Instagram Application (`InstagramAuthorizationScopes` pinned to the verified `instagram_business_*` set). Infrastructure `InstagramAuthorizationUrlBuilder` emits the documented authorize URL (client_id, redirect_uri, response_type=code, comma scopes, anti-CSRF state — OQ-1 resolved: official query-string table confirms `state` is supported and echoed back). `GraphInstagramOAuthClient` implements the verified token contract: POST `api.instagram.com/oauth/access_token` form exchange (data-array payload parsing), GET `graph.instagram.com/access_token` (`ig_exchange_token`) and `/refresh_access_token` (`ig_refresh_token`); failures are structured results (`RejectedByMeta`/`TransportFailure`/`MalformedResponse`) that never throw and never echo secrets/tokens (redaction tested). Endpoint correction captured in the lifecycle doc (code exchange is api.instagram.com, not graph.instagram.com). OQ-2 resolved with citation: FB Page tokens from long-lived User tokens never expire on schedule — no refresh scheduling for the FB path; invalidation detected via API errors (feeds M03-004). 11 new deterministic contract tests (scripted HttpMessageHandler, zero live Meta calls); suite total 123 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(instagram): add meta oauth infrastructure adapter`
 
 ## M03-002 — Implement account lifecycle
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Connect/disconnect/inspect Instagram professional accounts as application use cases.
+
+**Completion evidence:** Domain aggregate `ConnectedAccount` (path discriminator per ADR-006: InstagramLogin vs FacebookLogin; scope snapshot; health enum `Connected|ExpiringSoon|Expired|Revoked|Unhealthy`; token expiry metadata only — raw tokens never enter the domain) with guarded transitions (`ApplyTokenRotation`, `MarkRevoked/Unhealthy/Expired/ExpiringSoon`, terminal `Disconnect`), `InstagramDomainException` with stable rule codes, and `FromState` rehydration. Application use cases over new ports `IConnectedAccountRepository`/`IProtectedTokenStore`: `ConnectInstagramAccountUseCase` (code→short-lived→long-lived via the M03-001 adapter, duplicate-provider guard, raw token stored only in the protected store, expiry computed from injected clock), `DisconnectInstagramAccountUseCase` (deletes token material, records terminal state), `ListWorkspaceConnectionsUseCase` (token-free projections per the §6 contract sketch). Use-case DI registration intentionally deferred to M03-003 with their repository implementations to keep host scope validation green. 8 new unit tests with fakes (happy paths, OAuth rejection/transport failures write nothing, duplicates, double-disconnect, token-free listing); suite total 131 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(instagram): add account connection lifecycle`
 
 ## M03-003 — Persist accounts and protected tokens
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Create Instagram schema and secure token storage/rotation abstraction.
+
+**Completion evidence:** `InstagramDbContext` owns the module's `instagram` schema — `connected_accounts` (path discriminator int conversion, health int, comma-joined scope snapshot via List-backed value conversion, partial unique index on `(WorkspaceId, ProviderUserId)` filtered to `DisconnectedAtUtc IS NULL` so reconnection after disconnect is allowed) and `account_tokens` (AccountId PK, opaque ciphertext only). Committed migration `InitialInstagramCreation` with design-time factory. `EfConnectedAccountRepository` implements the Application port (tracked loads for mutation paths, no-tracking for reads). Protection: new `ITokenProtector` port with `AesGcmTokenProtector` adapter — AES-GCM 256-bit key, random 96-bit nonce, 128-bit tag, blob base64(nonce‖ct‖tag), runtime-injected key per secret policy (validated lazily at first use); `ProtectedTokenStore` persists only ciphertext and replaces it atomically on rotation; disconnect hard-deletes rows (`ExecuteDeleteAsync`). Lifecycle use cases now fully DI-registered. New Testcontainers project with 5 real-PostgreSQL tests: end-to-end connect persists account + encrypted token (plaintext asserted absent from the row), reconnect-after-disconnect allowed by schema, active duplicate rejected by partial unique index, rotation swaps ciphertext+expiry atomically, disconnect removes token row. Suite total 136 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(instagram): persist connected accounts securely`
 
 ## M03-004 — Manage token health/revocation
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Detect unhealthy/revoked access and surface actionable state.
+
+**Completion evidence:** New `IMetaTokenInspector` port + `GraphInstagramTokenInspector` adapter (GET graph.instagram.com/me as cheapest authenticated probe) mapping Meta's error payload to the OQ-3 taxonomy: 190+"expired"→Expired; 190 subcodes 463/467 or deauthorization→Revoked; codes 10/200→PermissionLoss (surfaced Unhealthy); rate limits 4/17/32, HTTP 429/5xx, transport and unknown shapes→Transient (health deliberately untouched). `EvaluateAccountHealthUseCase` persists the resulting aggregate state: local expiry rule short-circuits without a network call, missing token material is an actionable Unhealthy fault, healthy inspection inside the ≤7-day window flags ExpiringSoon for refresh scheduling, transient outcomes leave persisted health unchanged. Disconnected/unknown accounts return notFound. OQ-3 resolution recorded in the lifecycle doc §7. 17 new tests (taxonomy fixtures + evaluation paths with scripted inspector); suite total 159 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 

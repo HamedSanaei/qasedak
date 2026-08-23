@@ -18,5 +18,8 @@ csharp_new_line_before_open_brace = all
 [backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure/Persistence/Migrations/*.cs]
 generated_code = true
 
+[backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/Migrations/*.cs]
+generated_code = true
+
 [*.{md,html}]
 trim_trailing_whitespace = false

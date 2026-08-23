@@ -24,7 +24,7 @@ From [Business Login for Instagram](https://developers.facebook.com/docs/instagr
    `https://www.instagram.com/oauth/authorize?client_id=<INSTAGRAM_APP_ID>&redirect_uri=<REDIRECT_URI>&response_type=code&scope=<comma-separated scopes>`
    Scopes are the `instagram_business_*` family: `instagram_business_basic`, `instagram_business_content_publish`, `instagram_business_manage_messages`, `instagram_business_manage_comments` (the legacy `business_*` scope names were deprecated by Meta on January 27, 2025).
 2. **Redirect** — Meta redirects the user to our redirect URI with an **authorization code**.
-3. **Exchange code → short-lived token** — the code is exchanged at `graph.instagram.com` for:
+3. **Exchange code → short-lived token** — verified against the official Business Login page (August 2026 refresh): the code is exchanged via **`POST https://api.instagram.com/oauth/access_token`** with form fields `client_id`, `client_secret`, `grant_type=authorization_code`, `redirect_uri`, `code`. Success returns `{data:[{access_token, user_id, permissions}]}` — the object is wrapped in a top-level `data` array; the app-scoped user id rides as `user_id`. The code is valid for **1 hour**, single use, and must be exchanged with the *same* `redirect_uri` used in step 1. This yields:
    - a **short-lived Instagram User access token**,
    - an **Instagram-scoped user ID** (stable per app+account pair),
    - the list of **granted permissions**.
@@ -38,7 +38,12 @@ From [Business Login for Instagram](https://developers.facebook.com/docs/instagr
 
 ### 3.1 Facebook Login for Business path
 
-For messaging-capable workspaces the same OAuth shape runs against Facebook with `instagram_basic` + messaging permissions (`pages_messaging`, `instagram_manage_comments`) and yields Facebook User/Page tokens; Private Replies require a **Page access token** from a user who can perform moderation on the linked Page ([Private Replies](https://developers.facebook.com/docs/messenger-platform/instagram/features/private-replies)). Exact FB-path token-refresh arithmetic is pinned against official reference pages during M03-001 implementation (open question OQ-2 below).
+For messaging-capable workspaces the same OAuth shape runs against Facebook with `instagram_basic` + messaging permissions (`pages_messaging`, `instagram_manage_comments`) and yields Facebook User/Page tokens; Private Replies require a **Page access token** from a user who can perform moderation on the linked Page ([Private Replies](https://developers.facebook.com/docs/messenger-platform/instagram/features/private-replies)).
+
+**OQ-2 resolution (verified August 2026 against [Get Long-Lived Access Tokens](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/get-long-lived)):**
+- A Facebook **User** token becomes long-lived via `GET graph.facebook.com/{version}/oauth/access_token?grant_type=fb_exchange_token&client_id={app-id}&client_secret={app-secret}&fb_exchange_token={short-lived}` → ≈60 days; an expired token can never be exchanged, the user must redo login.
+- A long-lived **Page** token is generated from a long-lived User token of a Page-role user via `GET {app-scoped-user-id}/accounts`; such Page tokens carry **no expiration date** and are only invalidated by events (password change, permission revocation, app deauthorization, role loss).
+- **Consequence for Qasedak:** there is *no refresh endpoint* on the Facebook path. The Instagram module stores the never-expiring Page token and detects invalidation through API error responses at use time (health mapping in M03-004), rather than scheduling refreshes.
 
 ## 4. Ownership and storage inside Qasedak
 
@@ -71,9 +76,9 @@ Health enum (initial): `Connected`, `ExpiringSoon`, `Expired`, `Revoked`, `Unhea
 
 ## 7. Open questions
 
-- **OQ-1:** Server-side CSRF/state parameter support for the embed-URL flow (verify whether current Business Login supports a `state` param; implement anti-CSRF at our callback boundary regardless). Resolves in M03-001.
-- **OQ-2:** Facebook-path long-lived Page token refresh mechanics (extend vs re-exchange). Resolves in M03-001 with citations added to this document.
-- **OQ-3:** Exact revocation/error-code taxonomy for health mapping. Resolves in M03-004 fixture work.
+- **OQ-1 (RESOLVED, M03-001):** The Business Login authorize endpoint **does support an optional `state` parameter** — "An optional value indicating a server-specific state. For example, you can use this to protect against CSRF issues. We will include this parameter and value when redirecting the user back to you." ([Business Login query-string table](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/business-login), verified August 2026). Qasedak always sends a random state and validates the echo at its callback boundary.
+- **OQ-2 (RESOLVED, M03-001):** see §3.1 — Facebook Page tokens from long-lived User tokens never expire on a schedule; invalidation is event-driven and detected via API errors. No refresh scheduling exists for the FB path.
+- **OQ-3 (RESOLVED, M03-004):** Revocation/error-code taxonomy implemented as deterministic fixtures (`MetaErrorTaxonomyTests`): code 190 with "expired" → `Expired`; code 190 with invalidation subcodes 463/467 or "deauthorized" → `Revoked`; codes 10/200 permission errors → `PermissionLoss` (surfaced `Unhealthy`); rate limits (4/17/32), HTTP 429/5xx and unknown shapes → `Transient` (health deliberately untouched — degraded state must be caused by Meta, never by network noise).
 
 ## 8. Sources (fetched August 2026)
 
