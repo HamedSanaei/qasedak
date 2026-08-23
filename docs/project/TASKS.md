@@ -89,36 +89,44 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `docs(adr): finalize meta integration decisions for mvp`
 
 ## M02-001 — Model workspace membership domain
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Define users/workspaces/memberships/roles and invariants.
+
+**Completion evidence:** Identity Domain implemented: `User` aggregate with `EmailAddress` value object (canonicalization + conservative shape validation), `Workspace` aggregate root owning `Membership` entities with `MembershipRole` (Owner/Admin/Member, privilege-ordered). Invariants enforced atomically by the aggregate: at-least-one-owner (creation seeds owner; last-owner demotion/removal rejected; persisted state without owner rejected), no duplicate memberships per user/workspace, actor-privilege rules for membership management, Owner role only grantable via explicit ownership transfer (source-must-be-self). New `Qasedak.Modules.Identity.UnitTests` passes **47/47** deterministic tests; solution build 0 warnings; format clean; architecture check 26 projects OK. Domain events deliberately deferred until an integration consumer exists.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(identity): model workspace membership domain`
 
 ## M02-002 — Implement authentication use cases
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Implement bounded application use cases and security contracts.
+
+**Completion evidence:** `RegisterUserUseCase` and `AuthenticateUserUseCase` in Identity Application over ports `IUserRepository`/`IPasswordHasher`/`ISecurityTokenIssuer`, with stable failure codes (`auth.invalidEmail|invalidDisplayName|emailTaken|weakPassword|invalidCredentials`) and a password policy (10–128 chars, not all alphanumeric). Unknown-email logins burn an equalizer hash so unknown-email and wrong-password are indistinguishable. Infrastructure adapters: PBKDF2-SHA256 hasher (210k iterations floor, per-hash salt, self-describing format, constant-time verify) and HMAC-SHA256 compact token issuer/validator (constant-time signature check, clock-injected expiry). 32 new tests; suite total 102 passing; build 0 warnings; format clean; no plaintext credential ever persisted or logged.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(identity): implement authentication use cases`
 
 ## M02-003 — Persist identity/workspace state
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Implement EF Core/PostgreSQL identity schema and integration tests.
+
+**Completion evidence:** `IdentityDbContext` owns the module's `identity` schema — tables `users` (unique canonical email), `user_credentials` (persistence-only password-hash record), `workspaces`, `memberships` (unique `(WorkspaceId, UserId)`, role stored as int, cascade to users and workspaces). Value conversions keep `EmailAddress`/`WorkspaceName` value objects and membership roles out of the persistence model; memberships materialize through the aggregate backing field. `EfUserRepository`/`EfWorkspaceRepository` implement the Application ports; design-time factory enables `dotnet ef`; committed initial migration `InitialIdentityCreation`. New Testcontainers project runs 5 integration tests against real PostgreSQL 18: migrate-apply, user+credential roundtrip, duplicate-email rejection, duplicate-membership rejection at schema level, workspace-delete cascade. Suite total 107 passing, build 0 warnings; `Microsoft.EntityFrameworkCore.Relational` pinned to 10.0.11 in CPM to kill a floating-version conflict.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(identity): persist users workspaces and memberships`
 
 ## M02-004 — Enforce workspace authorization
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Apply workspace authorization policies at server boundaries with negative-path tests.
+
+**Completion evidence:** `SecurityTokenAuthenticationHandler` ("QasedakBearer" scheme) turns valid `ISecurityTokenIssuer` tokens into ClaimsPrincipals (NameIdentifier + email claims); invalid/missing tokens challenge to plain 401. Identity endpoint group (`register`, `login`, `me`) and workspaces group (`POST /api/v1/workspaces`, `GET /api/v1/workspaces/{id}/members`) enforce the scheme via `RequireAuthorization(AuthenticationSchemes=…)` at the HTTP boundary; `CreateWorkspaceUseCase` (creator becomes Owner) and `ListWorkspaceMembersUseCase` map `workspace.notFound`→404 and `workspace.forbidden`→403. Token signing-key configuration resolves per use so an unconfigured host still boots health endpoints while failing loudly on first token operation; the handler treats that as 401, not 500. 7 API integration tests run the real host against real PostgreSQL 18 (Testcontainers) covering 201/200 happy paths plus no-token, garbage-token, wrong-password, non-member and unknown-workspace negatives; suite total 112 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 

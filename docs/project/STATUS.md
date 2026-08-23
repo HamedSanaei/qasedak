@@ -2,8 +2,8 @@
 
 **Project:** Qasedak  
 **Current milestone:** M02 — Identity & Workspace Foundation  
-**Current task:** M02-001 — Model workspace membership domain  
-**Last completed:** M01-004 — Finalize Meta integration ADRs (milestone M01 complete)  
+**Current task:** M03-001 — Implement Meta OAuth adapter  
+**Last completed:** M02-004 — Enforce workspace authorization  
 **Product implementation:** Not started
 
 ## Baseline established

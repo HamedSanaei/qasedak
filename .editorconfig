@@ -14,5 +14,9 @@ dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
 csharp_new_line_before_open_brace = all
 
+# EF Core migrations are tool-generated; exclude from formatting/analysis.
+[backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure/Persistence/Migrations/*.cs]
+generated_code = true
+
 [*.{md,html}]
 trim_trailing_whitespace = false

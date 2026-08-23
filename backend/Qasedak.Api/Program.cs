@@ -5,6 +5,7 @@ using Qasedak.Modules.Billing.Infrastructure;
 using Qasedak.Modules.Contacts.Infrastructure;
 using Qasedak.Modules.Conversations.Infrastructure;
 using Qasedak.Modules.Identity.Infrastructure;
+using Qasedak.Modules.Identity.Infrastructure.Endpoints;
 using Qasedak.Modules.Instagram.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,8 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -53,6 +56,8 @@ app.MapGet("/api/v1/system", () => Results.Ok(new
     architecture = "Modular Monolith",
     status = "scaffold"
 }));
+
+app.MapIdentityEndpoints();
 
 app.Run();
 
