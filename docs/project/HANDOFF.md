@@ -2,25 +2,21 @@
 
 ## Where we are
 
-Milestone M00 — Engineering Foundation — is complete. The repository builds and tests green on the workstation, dependencies are locked, both container images build, and Graphify is initialized and healthy. No Instagram/product feature exists yet.
+Milestones M00 (engineering foundation) and M01 (Meta/Instagram feasibility & contracts) are complete. The repository builds/tests green, dependencies are locked, both images build, Graphify is healthy, and all Meta integration decisions are documented with citations and ADRs. No product feature code beyond the webhook verification spike exists yet.
 
-## Completed — M00-003 (Graphify)
+## Completed — M01 summary
 
-- Graphify 0.9.26 healthy; code-only graph (277 nodes / 297 edges / 43 communities); outputs and evidence recorded.
-- Limitation: no LLM API key on this machine → doc semantic extraction skipped. Re-run `graphify . --update --no-viz` without `--code-only` once a key is set.
+- **M01-001:** `docs/product/instagram-mvp-capability-matrix.md` — every capability row cites official Meta docs fetched during the task. Key facts: comment→DM only via Private Reply (one message per comment, 7-day window, Live during broadcast); messaging requires Messenger Platform + Facebook Login tokens; `comments`/`live_comments` webhooks need Advanced Access + Live app + public account.
+- **M01-002:** `docs/product/meta-oauth-token-lifecycle.md` — OAuth flow (`www.instagram.com/oauth/authorize` → code → short-lived → 60-day long-lived), refresh preconditions (≥24h old, valid, `instagram_business_basic`), permanent expiry otherwise; ownership split Identity vs Instagram module; health enum; open questions OQ-1..3 routed to M03.
+- **M01-003:** Webhook authenticity spike — `IWebhookSignatureVerifier`/`IWebhookSubscriptionValidator` ports in Instagram Application, HMAC-SHA256 + challenge implementations in Infrastructure; 20/20 deterministic tests in new `Qasedak.Modules.Instagram.UnitTests` with committed fixtures (incl. escaped-unicode raw-bytes case). No persistence/endpoints.
+- **M01-004:** ADR-006 (dual integration paths, capability boundary) + ADR-007 (webhook authenticity contract); SRS §4 binds Meta-facing requirements to these artifacts.
 
-## Completed — M00-004 (locked deps + green gates)
+## Next task — M02-001
 
-- Fixed starter defects so gates could run honestly: added `using Xunit;` to both test projects; renamed underscore test methods for CA1707; pinned TypeScript 7.0.2→6.0.3 (typescript-eslint rejects TS ≥ 7).
-- Committed `package-lock.json`; frontend Dockerfile + CI switched to `npm ci`; `.dockerignore` added to both build contexts; manifest script skips runtime `cache` dirs so CI's `--check` can pass on a fresh checkout.
-- Verified locally: `dotnet build/format/test` Release all green (tests 3/3); `npm run verify` green; `docker build` for `qasedak-api:verify` and `qasedak-web:verify` green.
+1. `python scripts/agent_preflight.py --task M02-001`; refresh graph (`graphify . --update --no-viz --code-only`).
+2. Run a bounded graphify query on Identity module structure; record evidence.
+3. Model users/workspaces/memberships/roles in `Qasedak.Modules.Identity.Domain`: aggregates/value objects/invariants per SRS §3.1 (workspace isolation from day one; UUIDv7 IDs; UTC timestamps).
+4. Domain unit tests (new or existing test project placement consistent with architecture rules).
+5. Gates: build/format/test green; record evidence; update state files; finalize; then continue to M02-002.
 
-## Next task — M01-001
-
-1. Run agent preflight: `python scripts/agent_preflight.py --task M01-001`.
-2. Refresh the graph: `graphify . --update --no-viz --code-only`.
-3. Research current official Meta/Instagram Graph API capabilities relevant to the MVP (messaging windows, comment triggers, webhook fields, permissions/review). Use `web_search` with citations; do not rely on memory for policy numbers.
-4. Write `docs/product/instagram-mvp-capability-matrix.md` (or the location the docs set expects) listing desired automations vs official capability, permission requirements, and open risks.
-5. Record Graphify evidence, update state files, regenerate the manifest, then `python scripts/agent_finalize.py --task M01-001 && python scripts/verify.py`.
-
-Suggested commit: `docs(product): define instagram automation mvp capability matrix`
+Suggested commit for the milestone: `feat(identity): model workspace membership domain` (per-task messages are in `docs/project/TASKS.md`).

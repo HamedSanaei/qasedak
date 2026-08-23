@@ -99,7 +99,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "entity.cs",
-      "community_name": "Entity.cs",
+      "community_name": "EntityTests.cs",
       "id": "backend_buildingblocks_qasedak_buildingblocks_domain_entity"
     },
     {
@@ -115,7 +115,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "qasedak.buildingblocks.domain",
-      "community_name": "Entity.cs",
+      "community_name": "EntityTests.cs",
       "id": "csharp_namespace:aedabdb00d37cc98"
     },
     {
@@ -132,7 +132,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "entity",
-      "community_name": "Entity.cs",
+      "community_name": "EntityTests.cs",
       "id": "backend_buildingblocks_qasedak_buildingblocks_domain_entity_qasedak_buildingblocks_domain_entity"
     },
     {
@@ -143,7 +143,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "idomainevent.cs",
-      "community_name": "Entity.cs",
+      "community_name": "EntityTests.cs",
       "id": "backend_buildingblocks_qasedak_buildingblocks_domain_idomainevent"
     },
     {
@@ -160,7 +160,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "idomainevent",
-      "community_name": "Entity.cs",
+      "community_name": "EntityTests.cs",
       "id": "backend_buildingblocks_qasedak_buildingblocks_domain_idomainevent_qasedak_buildingblocks_domain_idomainevent"
     },
     {
@@ -171,7 +171,7 @@
       "_origin": "ast",
       "community": 9,
       "norm_label": "datetimeoffset",
-      "community_name": "Entity.cs",
+      "community_name": "EntityTests.cs",
       "id": "backend_buildingblocks_qasedak_buildingblocks_domain_idomainevent_cs_datetimeoffset"
     },
     {
@@ -458,7 +458,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "qasedak.modules.automations.infrastructure/dependencyinjection.cs",
-      "community_name": "Program.cs",
+      "community_name": ".AddAutomationsModule",
       "id": "backend_modules_automations_qasedak_modules_automations_infrastructure_dependencyinjection"
     },
     {
@@ -474,7 +474,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "qasedak.modules.automations.infrastructure",
-      "community_name": "Program.cs",
+      "community_name": ".AddAutomationsModule",
       "id": "csharp_namespace:70ac0586534fb146"
     },
     {
@@ -491,7 +491,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "dependencyinjection",
-      "community_name": "Program.cs",
+      "community_name": ".AddAutomationsModule",
       "id": "backend_modules_automations_qasedak_modules_automations_infrastructure_dependencyinjection_qasedak_modules_automations_infrastructure_dependencyinjection"
     },
     {
@@ -508,7 +508,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": ".addautomationsmodule()",
-      "community_name": "Program.cs",
+      "community_name": ".AddAutomationsModule",
       "id": "backend_modules_automations_qasedak_modules_automations_infrastructure_dependencyinjection_qasedak_modules_automations_infrastructure_dependencyinjection_addautomationsmodule"
     },
     {
@@ -519,7 +519,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "iservicecollection",
-      "community_name": "Program.cs",
+      "community_name": ".AddAutomationsModule",
       "id": "backend_modules_automations_qasedak_modules_automations_infrastructure_dependencyinjection_cs_iservicecollection"
     },
     {
@@ -530,7 +530,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "iconfiguration",
-      "community_name": "Program.cs",
+      "community_name": ".AddAutomationsModule",
       "id": "backend_modules_automations_qasedak_modules_automations_infrastructure_dependencyinjection_cs_iconfiguration"
     },
     {
@@ -932,7 +932,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "qasedak.modules.contacts.infrastructure/dependencyinjection.cs",
-      "community_name": "Program.cs",
+      "community_name": ".AddContactsModule",
       "id": "backend_modules_contacts_qasedak_modules_contacts_infrastructure_dependencyinjection"
     },
     {
@@ -948,7 +948,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "qasedak.modules.contacts.infrastructure",
-      "community_name": "Program.cs",
+      "community_name": ".AddContactsModule",
       "id": "csharp_namespace:71b48af5cc9552aa"
     },
     {
@@ -965,7 +965,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "dependencyinjection",
-      "community_name": "Program.cs",
+      "community_name": ".AddContactsModule",
       "id": "backend_modules_contacts_qasedak_modules_contacts_infrastructure_dependencyinjection_qasedak_modules_contacts_infrastructure_dependencyinjection"
     },
     {
@@ -982,7 +982,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": ".addcontactsmodule()",
-      "community_name": "Program.cs",
+      "community_name": ".AddContactsModule",
       "id": "backend_modules_contacts_qasedak_modules_contacts_infrastructure_dependencyinjection_qasedak_modules_contacts_infrastructure_dependencyinjection_addcontactsmodule"
     },
     {
@@ -993,7 +993,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "iservicecollection",
-      "community_name": "Program.cs",
+      "community_name": ".AddContactsModule",
       "id": "backend_modules_contacts_qasedak_modules_contacts_infrastructure_dependencyinjection_cs_iservicecollection"
     },
     {
@@ -1004,7 +1004,7 @@
       "_origin": "ast",
       "community": 1,
       "norm_label": "iconfiguration",
-      "community_name": "Program.cs",
+      "community_name": ".AddContactsModule",
       "id": "backend_modules_contacts_qasedak_modules_contacts_infrastructure_dependencyinjection_cs_iconfiguration"
     },
     {
@@ -1946,7 +1946,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "iclassfixture",
-      "community_name": "ApiSmokeTests",
+      "community_name": "Program.cs",
       "id": "iclassfixture"
     },
     {
@@ -1957,7 +1957,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "webapplicationfactory",
-      "community_name": "ApiSmokeTests",
+      "community_name": "Program.cs",
       "id": "webapplicationfactory"
     },
     {
@@ -1968,7 +1968,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "httpclient",
-      "community_name": "ApiSmokeTests",
+      "community_name": "Program.cs",
       "id": "httpclient"
     },
     {
@@ -1979,7 +1979,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "task",
-      "community_name": "ApiSmokeTests",
+      "community_name": "Program.cs",
       "id": "task"
     },
     {
@@ -1990,7 +1990,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "theory",
-      "community_name": "ApiSmokeTests",
+      "community_name": "Program.cs",
       "id": "theory"
     },
     {
@@ -2001,7 +2001,7 @@
       "_origin": "ast",
       "community": 6,
       "norm_label": "inlinedata",
-      "community_name": "ApiSmokeTests",
+      "community_name": "Program.cs",
       "id": "inlinedata"
     },
     {
@@ -2471,7 +2471,7 @@
       "_origin": "ast",
       "community": 43,
       "norm_label": "path",
-      "community_name": "Path",
+      "community_name": "run",
       "id": "scripts_verify_py_path"
     },
     {
@@ -2510,10 +2510,9 @@
       "source_file": "backend/tests/Qasedak.Api.IntegrationTests/ApiSmokeTests.cs",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 6,
-      "norm_label": "apismoketests.cs",
       "id": "backend_tests_qasedak_api_integrationtests_apismoketests",
-      "community_name": "ApiSmokeTests"
+      "community": 6,
+      "norm_label": "apismoketests.cs"
     },
     {
       "label": "Qasedak.Api.IntegrationTests",
@@ -2526,10 +2525,9 @@
         "namespace": "Qasedak.Api.IntegrationTests"
       },
       "_origin": "ast",
-      "community": 6,
-      "norm_label": "qasedak.api.integrationtests",
       "id": "csharp_namespace:1b8684828f72a159",
-      "community_name": "ApiSmokeTests"
+      "community": 6,
+      "norm_label": "qasedak.api.integrationtests"
     },
     {
       "label": "ApiSmokeTests",
@@ -2543,10 +2541,9 @@
         ]
       },
       "_origin": "ast",
-      "community": 6,
-      "norm_label": "apismoketests",
       "id": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests",
-      "community_name": "ApiSmokeTests"
+      "community": 6,
+      "norm_label": "apismoketests"
     },
     {
       "label": "Program",
@@ -2554,10 +2551,9 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "community": 6,
-      "norm_label": "program",
       "id": "program",
-      "community_name": "ApiSmokeTests"
+      "community": 6,
+      "norm_label": "program"
     },
     {
       "label": ".ScaffoldEndpointsAreAvailable()",
@@ -2571,10 +2567,9 @@
         ]
       },
       "_origin": "ast",
-      "community": 6,
-      "norm_label": ".scaffoldendpointsareavailable()",
       "id": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests_scaffoldendpointsareavailable",
-      "community_name": "ApiSmokeTests"
+      "community": 6,
+      "norm_label": ".scaffoldendpointsareavailable()"
     },
     {
       "label": "EntityTests.cs",
@@ -2582,10 +2577,9 @@
       "source_file": "backend/tests/Qasedak.BuildingBlocks.UnitTests/EntityTests.cs",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 8,
-      "norm_label": "entitytests.cs",
       "id": "backend_tests_qasedak_buildingblocks_unittests_entitytests",
-      "community_name": "EntityTests.cs"
+      "community": 8,
+      "norm_label": "entitytests.cs"
     },
     {
       "label": "Qasedak.BuildingBlocks.UnitTests",
@@ -2598,10 +2592,9 @@
         "namespace": "Qasedak.BuildingBlocks.UnitTests"
       },
       "_origin": "ast",
-      "community": 8,
-      "norm_label": "qasedak.buildingblocks.unittests",
       "id": "csharp_namespace:02dfa7a273c8705e",
-      "community_name": "EntityTests.cs"
+      "community": 8,
+      "norm_label": "qasedak.buildingblocks.unittests"
     },
     {
       "label": "EntityTests",
@@ -2615,10 +2608,9 @@
         ]
       },
       "_origin": "ast",
-      "community": 8,
-      "norm_label": "entitytests",
       "id": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests",
-      "community_name": "EntityTests.cs"
+      "community": 8,
+      "norm_label": "entitytests"
     },
     {
       "label": ".EntityPreservesAssignedId()",
@@ -2632,10 +2624,9 @@
         ]
       },
       "_origin": "ast",
-      "community": 8,
-      "norm_label": ".entitypreservesassignedid()",
       "id": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests_entitypreservesassignedid",
-      "community_name": "EntityTests.cs"
+      "community": 8,
+      "norm_label": ".entitypreservesassignedid()"
     },
     {
       "label": "TestEntity",
@@ -2650,10 +2641,9 @@
         ]
       },
       "_origin": "ast",
-      "community": 8,
-      "norm_label": "testentity",
       "id": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_testentity",
-      "community_name": "EntityTests.cs"
+      "community": 8,
+      "norm_label": "testentity"
     },
     {
       "label": "Entity",
@@ -2661,10 +2651,9 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "community": 8,
-      "norm_label": "entity",
       "id": "entity",
-      "community_name": "EntityTests.cs"
+      "community": 8,
+      "norm_label": "entity"
     },
     {
       "label": "next-env.d.ts",
@@ -2672,10 +2661,9 @@
       "source_file": "frontend/Qasedak.Web/next-env.d.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 31,
-      "norm_label": "next-env.d.ts",
       "id": "frontend_qasedak_web_next_env_d",
-      "community_name": "next-env.d.ts"
+      "community": 31,
+      "norm_label": "next-env.d.ts"
     },
     {
       "label": "NOTE: This file should not be edited",
@@ -2683,10 +2671,9 @@
       "source_file": "frontend/Qasedak.Web/next-env.d.ts",
       "source_location": "L6",
       "_origin": "ast",
-      "community": 31,
-      "norm_label": "note: this file should not be edited",
       "id": "frontend_qasedak_web_next_env_d_rationale_6",
-      "community_name": "next-env.d.ts"
+      "community": 31,
+      "norm_label": "note: this file should not be edited"
     },
     {
       "label": "package.json",
@@ -2694,10 +2681,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "package.json",
       "id": "frontend_qasedak_web_package",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "package.json"
     },
     {
       "label": "name",
@@ -2705,10 +2691,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L2",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "name",
       "id": "frontend_qasedak_web_package_name",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "name"
     },
     {
       "label": "version",
@@ -2716,10 +2701,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L3",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "version",
       "id": "frontend_qasedak_web_package_version",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "version"
     },
     {
       "label": "private",
@@ -2727,10 +2711,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L4",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "private",
       "id": "frontend_qasedak_web_package_private",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "private"
     },
     {
       "label": "engines",
@@ -2738,10 +2721,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L5",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "engines",
       "id": "frontend_qasedak_web_package_engines",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "engines"
     },
     {
       "label": "node",
@@ -2749,10 +2731,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L5",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "node",
       "id": "frontend_qasedak_web_package_engines_node",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "node"
     },
     {
       "label": "scripts",
@@ -2760,10 +2741,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L6",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "scripts",
       "id": "frontend_qasedak_web_package_scripts",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "scripts"
     },
     {
       "label": "dev",
@@ -2771,10 +2751,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L7",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "dev",
       "id": "frontend_qasedak_web_package_scripts_dev",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "dev"
     },
     {
       "label": "build",
@@ -2782,10 +2761,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L8",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "build",
       "id": "frontend_qasedak_web_package_scripts_build",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "build"
     },
     {
       "label": "start",
@@ -2793,10 +2771,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L9",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "start",
       "id": "frontend_qasedak_web_package_scripts_start",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "start"
     },
     {
       "label": "lint",
@@ -2804,10 +2781,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L10",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "lint",
       "id": "frontend_qasedak_web_package_scripts_lint",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "lint"
     },
     {
       "label": "typecheck",
@@ -2815,10 +2791,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L11",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "typecheck",
       "id": "frontend_qasedak_web_package_scripts_typecheck",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "typecheck"
     },
     {
       "label": "test",
@@ -2826,10 +2801,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L12",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "test",
       "id": "frontend_qasedak_web_package_scripts_test",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "test"
     },
     {
       "label": "verify",
@@ -2837,10 +2811,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "verify",
       "id": "frontend_qasedak_web_package_scripts_verify",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "verify"
     },
     {
       "label": "dependencies",
@@ -2848,10 +2821,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "dependencies",
       "id": "frontend_qasedak_web_package_dependencies",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "dependencies"
     },
     {
       "label": "next",
@@ -2859,10 +2831,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "next",
       "id": "frontend_qasedak_web_package_dependencies_next",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "next"
     },
     {
       "label": "next",
@@ -2870,10 +2841,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "next",
       "id": "next",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "next"
     },
     {
       "label": "react",
@@ -2881,10 +2851,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "react",
       "id": "frontend_qasedak_web_package_dependencies_react",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "react"
     },
     {
       "label": "react",
@@ -2892,10 +2861,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "react",
       "id": "react",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "react"
     },
     {
       "label": "react-dom",
@@ -2903,10 +2871,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L18",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "react-dom",
       "id": "frontend_qasedak_web_package_dependencies_react_dom",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "react-dom"
     },
     {
       "label": "react-dom",
@@ -2914,10 +2881,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L18",
       "_origin": "ast",
-      "community": 3,
-      "norm_label": "react-dom",
       "id": "react_dom",
-      "community_name": "scripts"
+      "community": 3,
+      "norm_label": "react-dom"
     },
     {
       "label": "devDependencies",
@@ -2925,10 +2891,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L20",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "devdependencies",
       "id": "frontend_qasedak_web_package_devdependencies",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "devdependencies"
     },
     {
       "label": "@types/node",
@@ -2936,10 +2901,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "@types/node",
       "id": "frontend_qasedak_web_package_devdependencies_types_node",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "@types/node"
     },
     {
       "label": "@types/node",
@@ -2947,10 +2911,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "@types/node",
       "id": "types_node",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "@types/node"
     },
     {
       "label": "@types/react",
@@ -2958,10 +2921,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "@types/react",
       "id": "frontend_qasedak_web_package_devdependencies_types_react",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "@types/react"
     },
     {
       "label": "@types/react",
@@ -2969,10 +2931,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "@types/react",
       "id": "types_react",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "@types/react"
     },
     {
       "label": "@types/react-dom",
@@ -2980,10 +2941,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L23",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "@types/react-dom",
       "id": "frontend_qasedak_web_package_devdependencies_types_react_dom",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "@types/react-dom"
     },
     {
       "label": "@types/react-dom",
@@ -2991,10 +2951,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L23",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "@types/react-dom",
       "id": "types_react_dom",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "@types/react-dom"
     },
     {
       "label": "eslint",
@@ -3002,10 +2961,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L24",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "eslint",
       "id": "frontend_qasedak_web_package_devdependencies_eslint",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "eslint"
     },
     {
       "label": "eslint",
@@ -3013,10 +2971,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L24",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "eslint",
       "id": "eslint",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "eslint"
     },
     {
       "label": "eslint-config-next",
@@ -3024,10 +2981,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "eslint-config-next",
       "id": "frontend_qasedak_web_package_devdependencies_eslint_config_next",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "eslint-config-next"
     },
     {
       "label": "eslint-config-next",
@@ -3035,10 +2991,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "eslint-config-next",
       "id": "eslint_config_next",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "eslint-config-next"
     },
     {
       "label": "typescript",
@@ -3046,10 +3001,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "typescript",
       "id": "frontend_qasedak_web_package_devdependencies_typescript",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "typescript"
     },
     {
       "label": "typescript",
@@ -3057,10 +3011,9 @@
       "source_file": "frontend/Qasedak.Web/package.json",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 4,
-      "norm_label": "typescript",
       "id": "typescript",
-      "community_name": "devDependencies"
+      "community": 4,
+      "norm_label": "typescript"
     },
     {
       "label": "tsconfig.json",
@@ -3068,10 +3021,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "tsconfig.json",
       "id": "frontend_qasedak_web_tsconfig",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "tsconfig.json"
     },
     {
       "label": "compilerOptions",
@@ -3079,10 +3031,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L2",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "compileroptions",
       "id": "frontend_qasedak_web_tsconfig_compileroptions",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "compileroptions"
     },
     {
       "label": "target",
@@ -3090,10 +3041,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L3",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "target",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_target",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "target"
     },
     {
       "label": "lib",
@@ -3101,10 +3051,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L4",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "lib",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_lib",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "lib"
     },
     {
       "label": "dom",
@@ -3112,10 +3061,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L4",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "dom",
       "id": "ref_dom",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "dom"
     },
     {
       "label": "dom.iterable",
@@ -3123,10 +3071,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L4",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "dom.iterable",
       "id": "ref_dom_iterable",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "dom.iterable"
     },
     {
       "label": "esnext",
@@ -3134,10 +3081,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L4",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "esnext",
       "id": "ref_esnext",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "esnext"
     },
     {
       "label": "allowJs",
@@ -3145,10 +3091,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L9",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "allowjs",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_allowjs",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "allowjs"
     },
     {
       "label": "skipLibCheck",
@@ -3156,10 +3101,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L10",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "skiplibcheck",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_skiplibcheck",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "skiplibcheck"
     },
     {
       "label": "strict",
@@ -3167,10 +3111,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L11",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "strict",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_strict",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "strict"
     },
     {
       "label": "noEmit",
@@ -3178,10 +3121,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L12",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "noemit",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_noemit",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "noemit"
     },
     {
       "label": "esModuleInterop",
@@ -3189,10 +3131,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "esmoduleinterop",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_esmoduleinterop",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "esmoduleinterop"
     },
     {
       "label": "module",
@@ -3200,10 +3141,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L14",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "module",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_module",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "module"
     },
     {
       "label": "moduleResolution",
@@ -3211,10 +3151,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "moduleresolution",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_moduleresolution",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "moduleresolution"
     },
     {
       "label": "resolveJsonModule",
@@ -3222,10 +3161,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "resolvejsonmodule",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_resolvejsonmodule",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "resolvejsonmodule"
     },
     {
       "label": "isolatedModules",
@@ -3233,10 +3171,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "isolatedmodules",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_isolatedmodules",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "isolatedmodules"
     },
     {
       "label": "jsx",
@@ -3244,10 +3181,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L18",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "jsx",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_jsx",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "jsx"
     },
     {
       "label": "incremental",
@@ -3255,10 +3191,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L19",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "incremental",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_incremental",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "incremental"
     },
     {
       "label": "plugins",
@@ -3266,10 +3201,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L20",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "plugins",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_plugins",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "plugins"
     },
     {
       "label": "paths",
@@ -3277,10 +3211,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "paths",
       "id": "frontend_qasedak_web_tsconfig_compileroptions_paths",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "paths"
     },
     {
       "label": "include",
@@ -3288,10 +3221,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "include",
       "id": "frontend_qasedak_web_tsconfig_include",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "include"
     },
     {
       "label": "next-env.d.ts",
@@ -3299,10 +3231,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "next-env.d.ts",
       "id": "ref_next_env_d_ts",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "next-env.d.ts"
     },
     {
       "label": "**/*.ts",
@@ -3310,10 +3241,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "**/*.ts",
       "id": "ref_ts",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "**/*.ts"
     },
     {
       "label": "**/*.tsx",
@@ -3321,10 +3251,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "**/*.tsx",
       "id": "ref_tsx",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "**/*.tsx"
     },
     {
       "label": ".next/types/**/*.ts",
@@ -3332,10 +3261,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": ".next/types/**/*.ts",
       "id": "ref_next_types_ts",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": ".next/types/**/*.ts"
     },
     {
       "label": ".next/dev/types/**/*.ts",
@@ -3343,10 +3271,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": ".next/dev/types/**/*.ts",
       "id": "ref_next_dev_types_ts",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": ".next/dev/types/**/*.ts"
     },
     {
       "label": "exclude",
@@ -3354,10 +3281,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "exclude",
       "id": "frontend_qasedak_web_tsconfig_exclude",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "exclude"
     },
     {
       "label": "node_modules",
@@ -3365,10 +3291,9 @@
       "source_file": "frontend/Qasedak.Web/tsconfig.json",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 2,
-      "norm_label": "node_modules",
       "id": "ref_node_modules",
-      "community_name": "compilerOptions"
+      "community": 2,
+      "norm_label": "node_modules"
     },
     {
       "label": "generate_manifest.py",
@@ -3376,10 +3301,9 @@
       "source_file": "scripts/generate_manifest.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 29,
-      "norm_label": "generate_manifest.py",
       "id": "scripts_generate_manifest",
-      "community_name": "generate_manifest.py"
+      "community": 29,
+      "norm_label": "generate_manifest.py"
     },
     {
       "label": "entries()",
@@ -3387,10 +3311,9 @@
       "source_file": "scripts/generate_manifest.py",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 29,
-      "norm_label": "entries()",
       "id": "scripts_generate_manifest_entries",
-      "community_name": "generate_manifest.py"
+      "community": 29,
+      "norm_label": "entries()"
     },
     {
       "label": "main()",
@@ -3398,10 +3321,9 @@
       "source_file": "scripts/generate_manifest.py",
       "source_location": "L23",
       "_origin": "ast",
-      "community": 29,
-      "norm_label": "main()",
       "id": "scripts_generate_manifest_main",
-      "community_name": "generate_manifest.py"
+      "community": 29,
+      "norm_label": "main()"
     },
     {
       "label": "verify.py",
@@ -3409,10 +3331,9 @@
       "source_file": "scripts/verify.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 14,
-      "norm_label": "verify.py",
       "id": "scripts_verify",
-      "community_name": "run"
+      "community": 14,
+      "norm_label": "verify.py"
     },
     {
       "label": "run()",
@@ -3420,10 +3341,9 @@
       "source_file": "scripts/verify.py",
       "source_location": "L11",
       "_origin": "ast",
-      "community": 14,
-      "norm_label": "run()",
       "id": "scripts_verify_run",
-      "community_name": "run"
+      "community": 14,
+      "norm_label": "run()"
     },
     {
       "label": "Path",
@@ -3431,10 +3351,9 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "community": 14,
-      "norm_label": "path",
       "id": "path",
-      "community_name": "run"
+      "community": 14,
+      "norm_label": "path"
     },
     {
       "label": "main()",
@@ -3442,10 +3361,9 @@
       "source_file": "scripts/verify.py",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 14,
-      "norm_label": "main()",
       "id": "scripts_verify_main",
-      "community_name": "run"
+      "community": 14,
+      "norm_label": "main()"
     }
   ],
   "links": [
@@ -3727,9 +3645,9 @@
         "scope_kind": "file"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests",
-      "target": "backend_buildingblocks_qasedak_buildingblocks_domain_qasedak_buildingblocks_domain"
+      "target": "backend_buildingblocks_qasedak_buildingblocks_domain_qasedak_buildingblocks_domain",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -5606,9 +5524,9 @@
         "ref_token": "IClassFixture"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests",
-      "target": "iclassfixture"
+      "target": "iclassfixture",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5621,9 +5539,9 @@
         "ref_token": "WebApplicationFactory"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests",
-      "target": "webapplicationfactory"
+      "target": "webapplicationfactory",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5636,9 +5554,9 @@
         "ref_token": "HttpClient"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests",
-      "target": "httpclient"
+      "target": "httpclient",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5651,9 +5569,9 @@
         "ref_token": "Task"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests_scaffoldendpointsareavailable",
-      "target": "task"
+      "target": "task",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5666,9 +5584,9 @@
         "ref_token": "Theory"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests_scaffoldendpointsareavailable",
-      "target": "theory"
+      "target": "theory",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5681,9 +5599,9 @@
         "ref_token": "InlineData"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests_scaffoldendpointsareavailable",
-      "target": "inlinedata"
+      "target": "inlinedata",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5696,9 +5614,9 @@
         "ref_token": "Fact"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests_entitypreservesassignedid",
-      "target": "fact"
+      "target": "fact",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5711,9 +5629,9 @@
         "ref_token": "Guid"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_testentity",
-      "target": "guid"
+      "target": "guid",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -5958,9 +5876,9 @@
       "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests",
-      "target": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests"
+      "target": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -5969,9 +5887,9 @@
       "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests",
-      "target": "csharp_namespace:1b8684828f72a159"
+      "target": "csharp_namespace:1b8684828f72a159",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -5980,9 +5898,9 @@
       "source_location": "L13",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests",
-      "target": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests_scaffoldendpointsareavailable"
+      "target": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests_scaffoldendpointsareavailable",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5995,9 +5913,9 @@
         "ref_token": "Program"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_api_integrationtests_apismoketests_qasedak_api_integrationtests_apismoketests",
-      "target": "program"
+      "target": "program",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6006,9 +5924,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests",
-      "target": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests"
+      "target": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6017,9 +5935,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests",
-      "target": "csharp_namespace:02dfa7a273c8705e"
+      "target": "csharp_namespace:02dfa7a273c8705e",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -6028,9 +5946,9 @@
       "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests",
-      "target": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests_entitypreservesassignedid"
+      "target": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests_entitypreservesassignedid",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6039,9 +5957,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_entitytests",
-      "target": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_testentity"
+      "target": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_testentity",
+      "confidence_score": 1.0
     },
     {
       "relation": "inherits",
@@ -6053,9 +5971,9 @@
         "ref_token": "Entity"
       },
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "backend_tests_qasedak_buildingblocks_unittests_entitytests_qasedak_buildingblocks_unittests_testentity",
-      "target": "entity"
+      "target": "entity",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -6064,9 +5982,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_next_env_d_rationale_6",
-      "target": "frontend_qasedak_web_next_env_d"
+      "target": "frontend_qasedak_web_next_env_d",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6075,9 +5993,9 @@
       "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package",
-      "target": "frontend_qasedak_web_package_dependencies"
+      "target": "frontend_qasedak_web_package_dependencies",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6086,9 +6004,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package",
-      "target": "frontend_qasedak_web_package_devdependencies"
+      "target": "frontend_qasedak_web_package_devdependencies",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6097,9 +6015,9 @@
       "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package",
-      "target": "frontend_qasedak_web_package_engines"
+      "target": "frontend_qasedak_web_package_engines",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6108,9 +6026,9 @@
       "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package",
-      "target": "frontend_qasedak_web_package_name"
+      "target": "frontend_qasedak_web_package_name",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6119,9 +6037,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package",
-      "target": "frontend_qasedak_web_package_private"
+      "target": "frontend_qasedak_web_package_private",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6130,9 +6048,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package",
-      "target": "frontend_qasedak_web_package_scripts"
+      "target": "frontend_qasedak_web_package_scripts",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6141,9 +6059,9 @@
       "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package",
-      "target": "frontend_qasedak_web_package_version"
+      "target": "frontend_qasedak_web_package_version",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6152,9 +6070,9 @@
       "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_engines",
-      "target": "frontend_qasedak_web_package_engines_node"
+      "target": "frontend_qasedak_web_package_engines_node",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6163,9 +6081,9 @@
       "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_scripts",
-      "target": "frontend_qasedak_web_package_scripts_build"
+      "target": "frontend_qasedak_web_package_scripts_build",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6174,9 +6092,9 @@
       "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_scripts",
-      "target": "frontend_qasedak_web_package_scripts_dev"
+      "target": "frontend_qasedak_web_package_scripts_dev",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6185,9 +6103,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_scripts",
-      "target": "frontend_qasedak_web_package_scripts_lint"
+      "target": "frontend_qasedak_web_package_scripts_lint",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6196,9 +6114,9 @@
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_scripts",
-      "target": "frontend_qasedak_web_package_scripts_start"
+      "target": "frontend_qasedak_web_package_scripts_start",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6207,9 +6125,9 @@
       "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_scripts",
-      "target": "frontend_qasedak_web_package_scripts_test"
+      "target": "frontend_qasedak_web_package_scripts_test",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6218,9 +6136,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_scripts",
-      "target": "frontend_qasedak_web_package_scripts_typecheck"
+      "target": "frontend_qasedak_web_package_scripts_typecheck",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6229,9 +6147,9 @@
       "source_location": "L13",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_scripts",
-      "target": "frontend_qasedak_web_package_scripts_verify"
+      "target": "frontend_qasedak_web_package_scripts_verify",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6240,9 +6158,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_dependencies",
-      "target": "frontend_qasedak_web_package_dependencies_next"
+      "target": "frontend_qasedak_web_package_dependencies_next",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6251,9 +6169,9 @@
       "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_dependencies",
-      "target": "frontend_qasedak_web_package_dependencies_react"
+      "target": "frontend_qasedak_web_package_dependencies_react",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6262,9 +6180,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_dependencies",
-      "target": "frontend_qasedak_web_package_dependencies_react_dom"
+      "target": "frontend_qasedak_web_package_dependencies_react_dom",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6274,9 +6192,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_dependencies_next",
-      "target": "next"
+      "target": "next",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6286,9 +6204,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_dependencies_react",
-      "target": "react"
+      "target": "react",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6298,9 +6216,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_dependencies_react_dom",
-      "target": "react_dom"
+      "target": "react_dom",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6309,9 +6227,9 @@
       "source_location": "L24",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies",
-      "target": "frontend_qasedak_web_package_devdependencies_eslint"
+      "target": "frontend_qasedak_web_package_devdependencies_eslint",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6320,9 +6238,9 @@
       "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies",
-      "target": "frontend_qasedak_web_package_devdependencies_eslint_config_next"
+      "target": "frontend_qasedak_web_package_devdependencies_eslint_config_next",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6331,9 +6249,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies",
-      "target": "frontend_qasedak_web_package_devdependencies_types_node"
+      "target": "frontend_qasedak_web_package_devdependencies_types_node",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6342,9 +6260,9 @@
       "source_location": "L22",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies",
-      "target": "frontend_qasedak_web_package_devdependencies_types_react"
+      "target": "frontend_qasedak_web_package_devdependencies_types_react",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6353,9 +6271,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies",
-      "target": "frontend_qasedak_web_package_devdependencies_types_react_dom"
+      "target": "frontend_qasedak_web_package_devdependencies_types_react_dom",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6364,9 +6282,9 @@
       "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies",
-      "target": "frontend_qasedak_web_package_devdependencies_typescript"
+      "target": "frontend_qasedak_web_package_devdependencies_typescript",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6376,9 +6294,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies_types_node",
-      "target": "types_node"
+      "target": "types_node",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6388,9 +6306,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies_types_react",
-      "target": "types_react"
+      "target": "types_react",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6400,9 +6318,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies_types_react_dom",
-      "target": "types_react_dom"
+      "target": "types_react_dom",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6412,9 +6330,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies_eslint",
-      "target": "eslint"
+      "target": "eslint",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6424,9 +6342,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies_eslint_config_next",
-      "target": "eslint_config_next"
+      "target": "eslint_config_next",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6436,9 +6354,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_package_devdependencies_typescript",
-      "target": "typescript"
+      "target": "typescript",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6447,9 +6365,9 @@
       "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6458,9 +6376,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig",
-      "target": "frontend_qasedak_web_tsconfig_exclude"
+      "target": "frontend_qasedak_web_tsconfig_exclude",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6469,9 +6387,9 @@
       "source_location": "L31",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig",
-      "target": "frontend_qasedak_web_tsconfig_include"
+      "target": "frontend_qasedak_web_tsconfig_include",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6480,9 +6398,9 @@
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_allowjs"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_allowjs",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6491,9 +6409,9 @@
       "source_location": "L13",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_esmoduleinterop"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_esmoduleinterop",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6502,9 +6420,9 @@
       "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_incremental"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_incremental",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6513,9 +6431,9 @@
       "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_isolatedmodules"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_isolatedmodules",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6524,9 +6442,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_jsx"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_jsx",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6535,9 +6453,9 @@
       "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_lib"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_lib",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6546,9 +6464,9 @@
       "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_module"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_module",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6557,9 +6475,9 @@
       "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_moduleresolution"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_moduleresolution",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6568,9 +6486,9 @@
       "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_noemit"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_noemit",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6579,9 +6497,9 @@
       "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_paths"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_paths",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6590,9 +6508,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_plugins"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_plugins",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6601,9 +6519,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_resolvejsonmodule"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_resolvejsonmodule",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6612,9 +6530,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_skiplibcheck"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_skiplibcheck",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6623,9 +6541,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_strict"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_strict",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6634,9 +6552,9 @@
       "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions",
-      "target": "frontend_qasedak_web_tsconfig_compileroptions_target"
+      "target": "frontend_qasedak_web_tsconfig_compileroptions_target",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6646,9 +6564,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions_lib",
-      "target": "ref_dom"
+      "target": "ref_dom",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6658,9 +6576,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions_lib",
-      "target": "ref_dom_iterable"
+      "target": "ref_dom_iterable",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6670,9 +6588,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_compileroptions_lib",
-      "target": "ref_esnext"
+      "target": "ref_esnext",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6682,9 +6600,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_include",
-      "target": "ref_next_dev_types_ts"
+      "target": "ref_next_dev_types_ts",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6694,9 +6612,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_include",
-      "target": "ref_next_env_d_ts"
+      "target": "ref_next_env_d_ts",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6706,9 +6624,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_include",
-      "target": "ref_next_types_ts"
+      "target": "ref_next_types_ts",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6718,9 +6636,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_include",
-      "target": "ref_ts"
+      "target": "ref_ts",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6730,9 +6648,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_include",
-      "target": "ref_tsx"
+      "target": "ref_tsx",
+      "confidence_score": 1.0
     },
     {
       "relation": "extends",
@@ -6742,9 +6660,9 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "frontend_qasedak_web_tsconfig_exclude",
-      "target": "ref_node_modules"
+      "target": "ref_node_modules",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6753,9 +6671,9 @@
       "source_location": "L13",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "scripts_generate_manifest",
-      "target": "scripts_generate_manifest_entries"
+      "target": "scripts_generate_manifest_entries",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6764,9 +6682,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "scripts_generate_manifest",
-      "target": "scripts_generate_manifest_main"
+      "target": "scripts_generate_manifest_main",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -6776,9 +6694,9 @@
       "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "scripts_generate_manifest_main",
-      "target": "scripts_generate_manifest_entries"
+      "target": "scripts_generate_manifest_entries",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6787,9 +6705,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "scripts_verify",
-      "target": "scripts_verify_main"
+      "target": "scripts_verify_main",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -6798,9 +6716,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "scripts_verify",
-      "target": "scripts_verify_run"
+      "target": "scripts_verify_run",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -6810,9 +6728,9 @@
       "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "scripts_verify_main",
-      "target": "scripts_verify_run"
+      "target": "scripts_verify_run",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -6822,9 +6740,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
-      "confidence_score": 1.0,
       "source": "scripts_verify_run",
-      "target": "path"
+      "target": "path",
+      "confidence_score": 1.0
     }
   ],
   "hyperedges": [],

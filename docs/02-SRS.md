@@ -83,6 +83,12 @@ Qasedak provides workspace-scoped Instagram automation and conversation manageme
 
 All business APIs are versioned under a stable API namespace when introduced. Errors use a consistent machine-readable problem format. Pagination/filtering conventions must be consistent across modules. External Meta and payment payloads terminate in Infrastructure and are normalized before domain/application use.
 
+Meta-facing behavior is additionally bound by the contracts verified in M01 and must be kept consistent with them:
+
+- **Capability boundary:** messaging capabilities (inbound DM webhooks, comment-triggered Private Replies, window-bound replies) exist only through the Messenger Platform path with Facebook Login tokens; comment→DM is exactly one Private Reply per comment ID within Meta's documented windows; `comments`/`live_comments` webhooks require Advanced Access, a Live app, and public accounts (`docs/product/instagram-mvp-capability-matrix.md`, ADR-006).
+- **Connection/token lifecycle:** Business Login for Instagram authorization, `instagram_business_*` scopes, short-lived → long-lived (60 days) exchange, refresh preconditions, and permanent expiry semantics as specified in `docs/product/meta-oauth-token-lifecycle.md`; tokens are encrypted at rest, workspace-owned through the Instagram module, and never exposed to clients.
+- **Webhook authenticity:** event notifications validate HMAC-SHA256 over raw request bytes with constant-time comparison; subscription setup validates `hub.mode`/`hub.verify_token` and echoes `hub.challenge` verbatim (`docs/architecture/ADR-007-webhook-authenticity.md`, deterministic fixtures in `Qasedak.Modules.Instagram.UnitTests`).
+
 ## 5. Non-functional requirements
 
 - **NFR-REL-001:** Webhook and automation paths must tolerate duplicate delivery and retry.

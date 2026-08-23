@@ -45,36 +45,44 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `chore(ci): lock baseline dependencies and green all gates`
 
 ## M01-001 — Define Instagram MVP capability matrix
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Verify desired automations against current official Meta API capabilities, permissions, review requirements and policy constraints.
+
+**Completion evidence:** `docs/product/instagram-mvp-capability-matrix.md` created; every capability row grounded in official Meta docs fetched during this task (webhooks requirements table, private replies rules, 24-hour window/Human Agent tag policy, business login scopes/token lifetimes) with inline citations. Key verified constraints: comment→DM only as Private Reply (one message per comment, 7-day window, Live during broadcast only); messaging path requires Messenger Platform + Facebook Login tokens; `comments`/`live_comments` webhooks need Advanced Access, Live app and public account.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `docs(product): define instagram automation mvp capability matrix`
 
 ## M01-002 — Define Meta OAuth and token lifecycle
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Specify OAuth flow, permission model, token protection, refresh/expiry/revocation and workspace ownership.
+
+**Completion evidence:** `docs/product/meta-oauth-token-lifecycle.md` created from official Meta docs (fetched as canonical Markdown): authorize URL/params, code→short-lived→long-lived (60d) exchanges at `graph.instagram.com/access_token`, refresh via `refresh_access_token` with verified preconditions (≥24h old, valid, `instagram_business_basic`), permanent expiry after 60d without refresh, `instagram_business_*` scope family, module ownership split (Identity=workspaces, Instagram=connected accounts+encrypted tokens), health-state surface and operational refresh rules; open questions OQ-1..3 routed to M03-001/M03-004.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `docs(instagram): define meta oauth and token lifecycle contract`
 
 ## M01-003 — Spike webhook verification contract
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Implement/test a minimal deterministic webhook verification and fixture contract without introducing feature persistence.
+
+**Completion evidence:** Ports `IWebhookSignatureVerifier`/`IWebhookSubscriptionValidator` in `Qasedak.Modules.Instagram.Application.Webhooks`; HMAC-SHA256 verifier (constant-time compare, strict `sha256=<lowercase hex>` header grammar) and subscription-challenge validator in `Qasedak.Modules.Instagram.Infrastructure.Webhooks`, registered in `AddInstagramModule`. New test project `Qasedak.Modules.Instagram.UnitTests` (added to solution) passes **20/20** deterministic tests over committed JSON fixtures — including a raw-bytes escaped-unicode payload locking Meta's documented signing behavior — plus tamper/wrong-secret/malformed-header/negative-handshake cases. No persistence, no HTTP endpoints; Release build 0 warnings, format check clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `test(instagram): add webhook verification contract spike`
 
 ## M01-004 — Finalize Meta integration ADRs
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Record decisions/constraints learned from feasibility work and update SRS/architecture.
+
+**Completion evidence:** `docs/architecture/ADR-006-meta-integration-paths.md` (dual connection paths, Private-Reply-only comment→DM with comment-ID idempotency, Human Agent tag as operator action, Advanced Access/Business Verification as M11 external dependency) and `docs/architecture/ADR-007-webhook-authenticity.md` (raw-bytes HMAC-SHA256 + constant-time compare, challenge handshake, fixture contract proven by the M01-003 spike) accepted. SRS §4 extended to bind Meta-facing behavior to the verified contracts; capability matrix and OAuth lifecycle docs referenced as normative companions.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 

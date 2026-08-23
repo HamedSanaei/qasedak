@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject></PropertyGroup>
+  <ItemGroup>
+    <Content Include="Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <ProjectReference Include="..\..\Modules\Instagram\Qasedak.Modules.Instagram.Application\Qasedak.Modules.Instagram.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Instagram\Qasedak.Modules.Instagram.Infrastructure\Qasedak.Modules.Instagram.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

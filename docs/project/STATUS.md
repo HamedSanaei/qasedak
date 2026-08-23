@@ -1,9 +1,9 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M01 — Meta/Instagram Feasibility & Contracts  
-**Current task:** M01-001 — Define Instagram MVP capability matrix  
-**Last completed:** M00-004 — Lock dependencies and green all gates (milestone M00 complete)  
+**Current milestone:** M02 — Identity & Workspace Foundation  
+**Current task:** M02-001 — Model workspace membership domain  
+**Last completed:** M01-004 — Finalize Meta integration ADRs (milestone M01 complete)  
 **Product implementation:** Not started
 
 ## Baseline established
@@ -34,6 +34,13 @@
 - All local gates green: backend Release build 0 warnings/0 errors, format check pass, tests 3/3; frontend lint/typecheck/test/build pass (repository contract tests 2/2); Docker images `qasedak-api:verify` and `qasedak-web:verify` build successfully.
 - `generate_manifest.py` ignores gitignored runtime artifacts (`cache` dirs, `tsconfig.tsbuildinfo`) and `verify.py` resolves npm correctly on Windows, keeping every gate honest on fresh checkouts.
 
+## Meta feasibility & contracts verified (M01)
+
+- `docs/product/instagram-mvp-capability-matrix.md` — capability rows grounded in official Meta docs (webhook requirements table, private replies, 24-hour window/Human Agent tag, business login scopes); comment→DM is Private-Reply-only; messaging requires the Messenger Platform path.
+- `docs/product/meta-oauth-token-lifecycle.md` — full OAuth flow, `instagram_business_*` scopes, 60-day long-lived tokens with verified refresh preconditions, module ownership and health-state surface.
+- Webhook authenticity spike: Application ports + Infrastructure HMAC/challenge implementations; new `Qasedak.Modules.Instagram.UnitTests` passes 20/20 deterministic fixture tests (including escaped-unicode raw-bytes contract).
+- ADR-006 (integration paths) and ADR-007 (webhook authenticity) accepted; SRS §4 now binds Meta-facing requirements to these contracts.
+
 ## Next action
 
-Start **M01-001**: verify desired automations against current official Meta API capabilities, permissions and review requirements, producing the MVP capability matrix document.
+Start milestone **M02** with **M02-001**: model the workspace membership domain (users/workspaces/memberships/roles and invariants) in the Identity module Domain layer, with domain unit tests.
