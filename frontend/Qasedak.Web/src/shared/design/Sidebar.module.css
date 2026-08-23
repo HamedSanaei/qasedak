@@ -1,0 +1,105 @@
+/*
+ * Sidebar visual styles — values extracted from Penpot board "Navigation / Sidebar"
+ * (MCP inspection, see docs/design/sync/M05-005-navigation-sidebar.md).
+ *
+ * Geometry notes from the design: 256px board, white surface, 1px border on the inline
+ * edge; brand row at top (22px/800 name + 16px/800 accent mark); nav rows on a 55px
+ * vertical rhythm starting y=88; sub items on a 36px rhythm; footer card 224×96,
+ * radius 12, #F7F7F9, anchored to the bottom (y=930 in a 1050px frame).
+ */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--color-surface-page);
+  border-inline-end: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  padding-block: 18px 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+
+.brandName {
+  font-size: var(--font-size-brand);
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.brandMark {
+  font-size: var(--font-size-mark);
+  font-weight: 800;
+  color: var(--color-brand-accent);
+}
+
+.navList {
+  list-style: none;
+  margin: 52px 0 0;
+  padding: 0;
+}
+
+.navItem {
+  display: block;
+  padding-inline-start: 42px;
+  font-size: var(--font-size-nav);
+  font-weight: 500;
+  line-height: var(--nav-row-step);
+  color: var(--color-text-nav);
+  text-decoration: none;
+}
+
+.navItem:hover {
+  color: var(--color-text-primary);
+}
+
+.navItemActive,
+.navItemActive:hover {
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.subList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.subItem {
+  display: block;
+  padding-inline-start: 40px;
+  font-size: var(--font-size-sub);
+  font-weight: 400;
+  line-height: var(--sub-row-step);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.subItem:hover {
+  color: var(--color-text-nav);
+}
+
+.footerCard {
+  margin: auto 16px 0;
+  width: var(--sidebar-footer-card-width);
+  height: var(--sidebar-footer-card-height);
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-card);
+  padding: 16px 20px;
+}
+
+.footerPlan {
+  font-size: var(--font-size-sub);
+  font-weight: 600;
+  color: var(--color-text-nav);
+}
+
+.footerTime {
+  margin-top: 8px;
+  font-size: var(--font-size-footer-time);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}

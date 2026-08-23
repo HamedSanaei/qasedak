@@ -27,6 +27,8 @@ public sealed record InstagramCommentCreated(
     string EventId,
     string? ProviderUserId,
     string CommentId,
+    /// <summary>Commenter's provider id ("value.from.id") — the DM target; null when Meta omits it.</summary>
+    string? FromId,
     string? Text,
     DateTimeOffset CreatedAtUtc) : IIntegrationEvent;
 

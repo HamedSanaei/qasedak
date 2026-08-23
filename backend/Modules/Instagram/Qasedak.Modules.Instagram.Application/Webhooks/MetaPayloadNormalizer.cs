@@ -97,6 +97,7 @@ public sealed class MetaPayloadNormalizer
                         eventId,
                         providerUserId,
                         value.ValueKind == JsonValueKind.Object && value.TryGetProperty("id", out var commentId) ? commentId.GetString() ?? "unknown" : "unknown",
+                        value.ValueKind == JsonValueKind.Object && value.TryGetProperty("from", out var from) && from.TryGetProperty("id", out var fromId) ? fromId.GetString() : null,
                         value.ValueKind == JsonValueKind.Object && value.TryGetProperty("text", out var commentText) ? commentText.GetString() : null,
                         value.ValueKind == JsonValueKind.Object && ReadUnixSeconds(value, "created_time") is { } created ? created : DateTimeOffset.UtcNow));
                     break;

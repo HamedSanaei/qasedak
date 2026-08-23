@@ -45,12 +45,26 @@ public sealed class MetaPayloadNormalizerTests
         var outcome = MetaPayloadNormalizer.Normalize(
             "evt-3",
             "instagram",
-            """{"object":"instagram","entry":[{"id":"17841400000000000","changes":[{"field":"comments","value":{"id":"comment-9","text":"nice shot","created_time":1771900000}}]}]}""");
+            """{"object":"instagram","entry":[{"id":"17841400000000000","changes":[{"field":"comments","value":{"id":"comment-9","from":{"id":"commenter-42"},"text":"nice shot","created_time":1771900000}}]}]}""");
 
         var comment = Assert.IsType<InstagramCommentCreated>(Assert.Single(outcome.Events));
         Assert.Equal("comment-9", comment.CommentId);
+        Assert.Equal("commenter-42", comment.FromId);
         Assert.Equal("nice shot", comment.Text);
         Assert.Equal(2026, comment.CreatedAtUtc.Year);
+    }
+
+    [Fact]
+    public void CommentWithoutFromStillNormalizesWithNullSender()
+    {
+        var outcome = MetaPayloadNormalizer.Normalize(
+            "evt-3b",
+            "instagram",
+            """{"object":"instagram","entry":[{"id":"17841400000000000","changes":[{"field":"comments","value":{"id":"comment-10","text":"anon"}}]}]}""");
+
+        var comment = Assert.IsType<InstagramCommentCreated>(Assert.Single(outcome.Events));
+        Assert.Null(comment.FromId);
+        Assert.Equal("anon", comment.Text);
     }
 
     [Fact]

@@ -63,7 +63,31 @@ Qasedak is a Modular Monolith with Clean Architecture inside each business modul
 - PostgreSQL uses one physical database initially, with module-owned schemas.
 - Frontend is independent Next.js and never references backend source projects.
 
+### 3.1 Penpot ↔ Next.js design sync (mandatory for frontend screens)
+
+Penpot (via the official Penpot MCP server) is the canonical source of truth for approved
+visual design; Next.js owns application behavior and frontend architecture. The contract,
+manifest and evidence locations are defined in `docs/design/PENPOT-SYNC.md`; the mapping
+lives in `frontend/Qasedak.Web/design/penpot-sync.json`.
+
+Any task modifying a Penpot-owned frontend screen MUST, in order:
+
+1. run the Graphify preflight (§2);
+2. connect to and read the current design through the Penpot MCP server;
+3. identify the mapped Penpot page/board/component in `penpot-sync.json`;
+4. inspect the live design rather than relying on memory or screenshots;
+5. update Next.js through reusable components and tokens — never by regenerating whole files or pasting generated HTML/CSS; API integration, application state, validation, authorization behavior and tests must survive re-sync untouched;
+6. update the sync manifest and write a sync record under `docs/design/sync/`;
+7. run frontend tests/build (`npm run verify`) plus `python scripts/check_architecture.py`;
+8. report both Penpot MCP evidence (pages/boards/components actually read) and Graphify evidence.
+
+If an approved screen exists in Penpot, redesigning it from imagination is forbidden.
+If the Penpot MCP server is unavailable, report that as a blocker; never claim a page was
+synchronized without reading it through MCP. Do not invent design values or a Penpot
+revision identifier — record `null` when the API exposes none.
+
 Run `python scripts/check_architecture.py` whenever project references change.
+Run `python scripts/validate_penpot_sync.py` whenever the sync manifest changes.
 
 ## 4. Engineering and testing rules
 

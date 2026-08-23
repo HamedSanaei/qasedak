@@ -3,9 +3,9 @@
   "project": "Qasedak",
   "updatedAt": "2026-08-23T02:40:00+03:30",
   "architecture": "Modular Monolith + Clean Architecture per module",
-  "currentMilestone": "M03",
-  "currentTask": "M06-001",
-  "lastCompletedTask": "M05-004",
+  "currentMilestone": "M07",
+  "currentTask": "M07-001",
+  "lastCompletedTask": "M06-005",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -30,7 +30,13 @@
     "M05-001",
     "M05-002",
     "M05-003",
-    "M05-004"
+    "M05-004",
+    "M05-005",
+    "M06-001",
+    "M06-002",
+    "M06-003",
+    "M06-004",
+    "M06-005"
   ],
   "graphify": {
     "required": true,

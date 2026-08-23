@@ -1,0 +1,92 @@
+{
+  "$schema": "penpot-sync-v1",
+  "source": {
+    "tool": "penpot-mcp (official Penpot plugin server)",
+    "fileId": null,
+    "fileIdNote": "The connected plugin API does not expose a file identifier; null is recorded rather than a fabricated value. Page/board/component ids below are read live through the MCP.",
+    "fileName": "Directam design source (connected via Penpot MCP)",
+    "inspectedPages": [
+      { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
+      { "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b", "name": "Directam — Connect Instagram" },
+      { "id": "f5bf3c2c-b970-8002-8008-874ebb680e25", "name": "Directam — Comment Automation" },
+      { "id": "f5bf3c2c-b970-8002-8008-8752c5573aef", "name": "Directam — Global Navigation Components" }
+    ]
+  },
+  "tokens": {
+    "color": {
+      "surface.page": "#FFFFFF",
+      "surface.subtle": "#F7F7F9",
+      "border.default": "#E8E9EC",
+      "text.primary": "#2E2938",
+      "text.nav": "#514D5E",
+      "text.secondary": "#7D7887",
+      "text.muted": "#8A8592",
+      "text.disabled": "#737373",
+      "brand.accent": "#BE0183"
+    },
+    "typography": {
+      "font.family": "Vazirmatn, system-ui, sans-serif",
+      "font.size.brand": "22px",
+      "font.size.mark": "16px",
+      "font.size.nav": "14px",
+      "font.size.sub": "12px",
+      "font.size.footerTime": "11px",
+      "font.weight.regular": "400",
+      "font.weight.medium": "500",
+      "font.weight.semibold": "600",
+      "font.weight.extrabold": "800"
+    },
+    "radius": {
+      "card": "12px"
+    },
+    "spacing": {
+      "sidebar.width": "256px",
+      "sidebar.footerCard.width": "224px",
+      "sidebar.footerCard.height": "96px",
+      "nav.rowStep": "55px",
+      "sub.rowStep": "36px"
+    }
+  },
+  "mappings": [
+    {
+      "id": "global-navigation.sidebar",
+      "designName": "Navigation / Sidebar",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-8752c5573aef",
+      "penpotPageName": "Directam — Global Navigation Components",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-8752c6768b24",
+      "penpotComponentId": "f5bf3c2c-b970-8002-8008-8752c87448ee",
+      "approval": {
+        "status": "provisional",
+        "basis": "Connected Penpot file designated as the working design source for M05-005; pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard"],
+      "componentPath": "src/shared/design/Sidebar.tsx",
+      "compositionPaths": ["src/app/dashboard/layout.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-tbd"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.surface.subtle",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.nav",
+        "color.text.secondary",
+        "color.text.muted",
+        "color.brand.accent",
+        "typography.font.family",
+        "typography.font.size.brand",
+        "typography.font.size.mark",
+        "typography.font.size.nav",
+        "typography.font.size.sub",
+        "typography.font.size.footerTime",
+        "radius.card",
+        "spacing.sidebar.width",
+        "spacing.sidebar.footerCard.width",
+        "spacing.sidebar.footerCard.height"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-08-24T00:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced"
+    }
+  ]
+}

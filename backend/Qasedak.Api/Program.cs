@@ -38,14 +38,26 @@ builder.Services
     .AddBillingModule(builder.Configuration);
 
 // Composition-root bridges: normalized Instagram events feed the Conversations inbox
-// (explicit cross-module contracts; neither module references the other).
-builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IIntegrationEventDispatcher,
-    Qasedak.Api.CrossModule.InstagramConversationBridge>();
+// (explicit cross-module contracts; neither module references the other). The module
+// resolves one dispatcher, so the composition root fans out to all consumers.
+builder.Services.AddScoped<Qasedak.Api.CrossModule.InstagramConversationBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationCommentBridge>();
+builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IIntegrationEventDispatcher>(sp =>
+    new Qasedak.Api.CrossModule.FanOutIntegrationEventDispatcher(
+    [
+        sp.GetRequiredService<Qasedak.Api.CrossModule.InstagramConversationBridge>(),
+        sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationCommentBridge>(),
+    ]));
 builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IWebhookPostIngestProcessor,
     Qasedak.Api.CrossModule.ConversationsPostIngestAdapter>();
 // Outbound replies: Conversations' channel gateway is filled by Instagram's messaging client.
 builder.Services.AddScoped<Qasedak.Modules.Conversations.Application.Conversations.IConversationChannelGateway,
     Qasedak.Api.CrossModule.InstagramReplyGateway>();
+// Automations: comment events drive the idempotent execution engine; the channel-neutral
+// dispatcher port is filled by the same outbound gateway (24h window enforced there).
+builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IAutomationActionDispatcher,
+    Qasedak.Api.CrossModule.AutomationChannelDispatcher>();
+builder.Services.AddScoped<Qasedak.Modules.Automations.Application.ExecuteAutomationUseCase>();
 
 var app = builder.Build();
 

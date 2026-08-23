@@ -1,9 +1,9 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M05 — Conversations Core  
-**Current task:** M06-001 — Model automation aggregate  
-**Last completed:** M05-004 — Send compliant replies (M05 milestone complete)  
+**Current milestone:** M06 — Automations Engine v1 (complete; M07 next)  
+**Current task:** M07-001 — Model workspace contact identity  
+**Last completed:** M06-005 — Deliver comment-to-DM flow (M06 fully verified, `verify.py --full` green)  
 **Product implementation:** Not started
 
 ## Baseline established

@@ -1,13 +1,50 @@
+/*
+ * Design tokens — canonical values extracted from the approved Penpot source through MCP.
+ * Origin per value is annotated; the mapping lives in design/penpot-sync.json and
+ * docs/design/PENPOT-SYNC.md governs how these may change. Do not hardcode duplicates of
+ * mapped values elsewhere; do not introduce new visual constants without a Penpot origin.
+ */
+:root {
+  /* color — Penpot "Navigation / Sidebar" board + component library inspection */
+  --color-surface-page: #ffffff;        /* Penpot sidebar board fill */
+  --color-surface-subtle: #f7f7f9;      /* Penpot footer card / subtle surfaces */
+  --color-border-default: #e8e9ec;      /* Penpot sidebar border stroke */
+  --color-text-primary: #2e2938;        /* Penpot brand/logo text */
+  --color-text-nav: #514d5e;            /* Penpot nav item text */
+  --color-text-secondary: #7d7887;      /* Penpot sub-item text */
+  --color-text-muted: #8a8592;          /* Penpot footer time text */
+  --color-brand-accent: #be0183;        /* Penpot logo mark accent */
+
+  /* typography — Vazirmatn, weights observed in Penpot text styles.
+     The family itself is loaded by next/font (see src/app/layout.tsx) which defines
+     the --font-vazirmatn variable; sizes/weights below are Penpot-observed values. */
+  --font-size-brand: 22px;              /* Penpot sidebar logo (weight 800) */
+  --font-size-mark: 16px;               /* Penpot logo mark (weight 800) */
+  --font-size-nav: 14px;                /* Penpot nav items (weight 500) */
+  --font-size-sub: 12px;                /* Penpot sub items (400) / footer plan (600) */
+  --font-size-footer-time: 11px;        /* Penpot footer time (400) */
+
+  /* radius */
+  --radius-card: 12px;                  /* Penpot footer card */
+
+  /* layout metrics from Penpot geometry (sidebar board 256×1050) */
+  --sidebar-width: 256px;
+  --sidebar-footer-card-width: 224px;
+  --sidebar-footer-card-height: 96px;
+  --nav-row-step: 55px;                 /* Penpot nav row vertical rhythm */
+  --sub-row-step: 36px;                 /* Penpot sub row vertical rhythm */
+}
+
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f5f7f6;
-  color: #15221b;
+  font-family: var(--font-vazirmatn), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
 }
 .starter-shell { min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
-.starter-card { width: min(42rem, 100%); background: white; border: 1px solid #dbe4de; border-radius: 1.25rem; padding: 2rem; box-shadow: 0 16px 48px rgba(18, 46, 31, .08); }
-.eyebrow { font-weight: 700; color: #18794e; }
+.starter-card { width: min(42rem, 100%); background: white; border: 1px solid var(--color-border-default); border-radius: var(--radius-card); padding: 2rem; box-shadow: 0 16px 48px rgba(18, 46, 31, .08); }
+.eyebrow { font-weight: 700; color: var(--color-brand-accent); }
 h1 { margin-block: .5rem 1rem; }
 p { line-height: 1.9; }
 code { direction: ltr; unicode-bidi: embed; }

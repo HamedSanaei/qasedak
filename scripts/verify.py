@@ -15,7 +15,7 @@ def run(cmd:list[str],cwd:Path=REPO)->None:
 
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--full",action="store_true");args=ap.parse_args()
-    for script in ["check_architecture.py","check_docs.py","check_state.py"]:
+    for script in ["check_architecture.py","check_docs.py","check_state.py","validate_penpot_sync.py"]:
         run([sys.executable,str(REPO/"scripts"/script)])
     run(["node","--test","tests/repository-contract.test.mjs"],REPO/"frontend/Qasedak.Web")
     if not args.full:

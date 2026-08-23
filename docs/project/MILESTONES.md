@@ -46,7 +46,7 @@ Suggested milestone commit: `feat(instagram): deliver durable webhook ingestion`
 
 **Goal:** project messages into workspace conversations and support compliant replies.
 
-Exit: domain model, inbound projection, query API, outgoing reply adapter and end-to-end integration tests.
+Exit: domain model, inbound projection, query API, outgoing reply adapter, end-to-end integration tests and the Penpot ↔ Next.js design-sync foundation (M05-005) establishing Penpot as the approved visual source for all later UI milestones.
 
 Suggested milestone commit: `feat(conversations): deliver instagram inbox v1`
 
@@ -66,9 +66,9 @@ Suggested milestone commit: `feat(contacts): deliver contact management v1`
 
 ## M08 — Penpot-driven Next.js Product UI
 
-**Goal:** implement approved Penpot screens as production Next.js features.
+**Goal:** implement approved Penpot screens as production Next.js features through the M05-005 synchronization contract: every task fetches the latest mapped Penpot designs via MCP before implementing or updating, records sync evidence, and keeps behavior/API/state application-owned.
 
-Exit: design foundation, identity/workspace flows, Instagram settings, inbox and automation builder with responsive/accessibility tests.
+Exit: design foundation extended from the sync system, identity/workspace flows, Instagram settings, inbox and automation builder with responsive/accessibility tests — all mappings current in `penpot-sync.json`.
 
 Suggested milestone commit: `feat(web): deliver penpot-driven product ui v1`
 

@@ -2,6 +2,11 @@
 
 Every implemented screen must have a bounded handoff entry before coding.
 
+> **Superseded in part by [`PENPOT-SYNC.md`](PENPOT-SYNC.md)** — the operational
+> synchronization workflow (MCP inspection → manifest → reusable components →
+> verification → evidence) lives there. This document remains the required *content*
+> checklist for a handoff entry.
+
 ## Required fields
 
 - Penpot file/project reference

@@ -24,5 +24,8 @@ generated_code = true
 [backend/Modules/Conversations/Qasedak.Modules.Conversations.Infrastructure/Persistence/Migrations/*.cs]
 generated_code = true
 
+[backend/Modules/Automations/Qasedak.Modules.Automations.Infrastructure/Persistence/Migrations/*.cs]
+generated_code = true
+
 [*.{md,html}]
 trim_trailing_whitespace = false

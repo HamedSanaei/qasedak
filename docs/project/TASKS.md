@@ -264,48 +264,71 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 
 **Suggested commit:** `feat(conversations): send replies through instagram`
 
+## M05-005 — Establish Penpot ↔ Next.js design sync foundation
+**Status:** DONE
+
+**Outcome:** Create a repeatable MCP-based workflow translating approved Penpot pages, boards, components, tokens and assets into the existing Next.js project, with a machine-readable sync manifest (`frontend/Qasedak.Web/design/penpot-sync.json`), deterministic repository validation of that manifest (schema, duplicate routes/identifiers, missing paths), sync evidence under `docs/design/sync/`, and an agent-contract rule in `AGENTS.md` forbidding redesigning approved screens from imagination. Penpot stays the canonical visual source; Next.js keeps ownership of behavior/API/state. At least one representative mapped page/component must prove the mechanism end to end; M06 must not begin until this task's gates are green.
+
+**Completion evidence:** Penpot MCP connected live — inspected 13 pages of the connected file; surveyed boards on Admin Dashboard, Connect Instagram, Comment Automation and Global Navigation Components pages; deep-inspected board "Navigation / Sidebar" (`f5bf3c2c-…8752c6768b24`, component `…8752c87448ee`) extracting exact colors (9 hex values), typography (Vazirmatn 22/16/14/12/11 at weights 400–800) and geometry (256px rail, 55/36px rhythms, 224×96 r12 footer card). Contract `docs/design/PENPOT-SYNC.md`; manifest entry `global-navigation.sidebar` with real IDs, `penpotRevision: null` (API exposes none — not fabricated), approval `provisional`; deterministic validator `tests/penpot-sync.test.mjs` (6 checks: schema/enums/uniqueness/path existence/token resolution/approved-mapping completeness) wired into both `npm test` and `verify.py --full` via `scripts/validate_penpot_sync.py`; representative implementation: token block in `globals.css`, reusable RTL `Sidebar.tsx`+module CSS under `src/shared/design/`, Vazirmatn via next/font, `/dashboard` shell composition; sync record `docs/design/sync/M05-005-navigation-sidebar.md` incl. unresolved items (active-state treatment, icon SVG extraction deferred to M08-001); `SCREEN-INVENTORY.md` rewritten as manifest roll-up; `AGENTS.md` §3.1 added. Gates: npm lint/typecheck/test/build all green (/dashboard route prerenders), architecture check passed.
+
+**Completion contract:** Graphify evidence recorded; real Penpot MCP inspection evidence recorded (or explicit blocker); scoped tests/gates pass including frontend verification with manifest validation; project state/handoff/manifest updated.
+
+**Suggested commit:** `feat(web): establish penpot nextjs design sync`
+
 ## M06-001 — Model automation aggregate
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Define trigger/conditions/actions/status/version invariants.
+
+**Completion evidence:** Automations Domain: `Automation` aggregate with fixed identity/name/workspace; lifecycle Draft→Active→(Unpublish↔Active)→Disabled(terminal); versioned definitions — unfrozen drafts edit in place, activation freezes the current version permanently (`FrozenActiveVersion()`), editing after freeze continues at a fresh version number so executed history is never rewritten; `AutomationDefinition` (channel-neutral `TriggerKind.CommentCreated`, ordered conditions incl. text contains/equals on comment text or sender id, ordered actions `SendDirectMessage` with 1000-char limit and required text) validated at construction (≥1 action, ≤10 conditions, ≤5 actions) with stable rule codes via `AutomationsDomainException`; timestamps passed in — no clock, no transport types in Domain. New test project `Qasedak.Modules.Automations.UnitTests` registered in slnx: 15 tests covering creation guards, draft replace-in-place, freeze-on-activate, edit refusal while active (versionFrozen), unpublish+revise continuing as v2 with v1 intact, terminal disable keeping readable history, action order preservation. Suite total 215 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(automations): model automation aggregate`
 
 ## M06-002 — Persist versioned automations
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Persist definitions without losing execution reproducibility/history.
+
+**Completion evidence:** `AutomationsDbContext` under the "automations" schema: `automations` root table (status/activation/disable timestamps, explicit `CurrentVersionFrozen` marker exposed by the aggregate) + immutable `automation_versions` rows keyed `(AutomationId, Number)` holding module-owned JSON of each `AutomationDefinition` (System.Text.Json with string enums; transport models never enter persistence). `Automation.FromState` rehydration; `EfAutomationRepository` with upsert semantics — `SaveChangesAsync(automation)` inserts or rebuilds the aggregate's rows so every mutation flows through the aggregate (lesson: snapshot-on-add silently dropped later mutations; identity-map conflicts taught local-first upsert). Design-time factory (`QASEDAK_AUTOMATIONS_CONNECTION`), migration `InitialAutomationsCreation`, editorconfig generated-code exemption, DI registration, fixture provisioning 4th connection string + migration. New `Qasedak.Modules.Automations.IntegrationTests` over real PostgreSQL: full version-history round-trip incl. conditions/keyword filters surviving serialization byte-exact semantics; frozen v1 stability across reload while drafts advance to v2 and terminal disable persists with unfrozen draft marker; workspace-scoped newest-first listing. Suite total 218 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(automations): persist versioned automation definitions`
 
 ## M06-003 — Implement deterministic evaluator
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Evaluate trigger/conditions deterministically with exhaustive unit/property-style cases.
+
+**Completion evidence:** `AutomationEvaluator` (Automations Application) — a pure function of (definition, TriggerContext): trigger-kind equality gate; keyword filters ANY-of case-insensitive substrings against comment text with empty-list match-all and explicit null-text rejection; conditions AND-composed per field (`CommentText`/`SenderId`) and operator (`Contains` case-insensitive substring, `Equals` trim-then-ordinal); actions returned exactly in declaration order on match; structured non-match reasons (`trigger.kindMismatch`, `trigger.keywordFilter`, `condition.<field>.<operator>`) for observability. 13 new evaluator unit tests covering the full matrix incl. boundary trims, null sender/text, multi-condition AND semantics and a 25× repeat-call identity check for determinism. Automations unit suite now 28 passing; solution total 231; build 0 warnings; format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(automations): implement deterministic rule evaluation`
 
 ## M06-004 — Orchestrate idempotent actions
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Guarantee at-most-intended-effect under webhook redelivery/retry/concurrency.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
+**Completion evidence:** `AutomationRun` aggregate — the idempotency ledger: one run per (automationId, triggerEventId) pinned to the frozen version number, fixed action slots with Pending/Succeeded/Failed states; succeeded slots immutable, closed runs immutable, `FromState` rehydration. `ExecuteAutomationUseCase` orchestration: active-only gate → deterministic evaluation (non-matches never touch the ledger or dispatcher) → ledger probe short-circuits redeliveries (`AlreadyProcessed`) → run-insert races resolved by the unique index (SQLSTATE 23505 mapped to `AlreadyProcessed`) → slots dispatched strictly in order with persist-per-slot so crashes resume at the first non-succeeded slot across process boundaries → recorded-version ≠ frozen version refuses as stale; disabled/foreign/unknown automation refuses without dispatch. `EfAutomationRunRepository` upsert over real PostgreSQL (in-place slot merge — identity-map lesson generalized). Migration `AddAutomationRuns` (+`automation_runs`/`automation_run_actions`). 7 unit tests + 2 PostgreSQL integration tests (barrier-synchronized concurrent deliveries yield exactly one run; partial failure persists and resumes in fresh repositories to Completed). `ExecuteAutomationUseCase` DI registration deliberately deferred to M06-005 with its dispatcher port (host validation would fail on the unresolvable port today). Suite total 243 passing; build 0 warnings; format clean; architecture check passed.
+
 **Suggested commit:** `feat(automations): orchestrate idempotent action execution`
 
 ## M06-005 — Deliver comment-to-DM flow
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Implement first policy-compliant comment trigger → DM action based on current Meta capability matrix.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Completion evidence:** Composition-root wiring (`Qasedak.Api/CrossModule`): `AutomationCommentBridge` consumes normalized `InstagramCommentCreated` events (resolves workspace via connected account; iterates the workspace's ACTIVE automations through `ExecuteAutomationUseCase`; unbound accounts/non-comment events logged and skipped); `AutomationChannelDispatcher` binds the module's channel-neutral `IAutomationActionDispatcher` port to the outbound `IConversationChannelGateway`, so 24-hour messaging-window policy stays enforced inside the gateway (`instagram.windowExpired` recorded per failed slot); `FanOutIntegrationEventDispatcher` composes Conversations projection + Automations engine as the single dispatcher the Instagram module resolves — multi-consumer fan-out owned by the composition root. Normalizer now extracts `value.from.id` as the commenter identity (`InstagramCommentCreated.FromId`) with regression tests incl. missing-from tolerance. E2E over real PostgreSQL + real host (`CommentToDmAutomationFlowTests`, isolated account/workspace/automation + deterministic recording messaging stand-in replacing live Meta calls in CI): matching comment sends exactly one DM with correct token/recipient/text, ledger run Completed pinned to v1, redelivery never re-sends; non-matching comment leaves no send and no run; window-expired recipient records Failed slot with stable code `instagram.windowExpired`; disabled automation never dispatches. Fixture gained protection key config + recording client. Suite total 248 passing (incl. 74 Instagram unit after FromId additions); build 0 warnings; format clean; architecture check passed.
+
+**Suggested commit:** `feat(automations): add comment to dm automation flow`
 
 **Suggested commit:** `feat(automations): add comment to dm automation flow`
 
@@ -336,48 +359,48 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 
 **Suggested commit:** `feat(contacts): add lead tags notes and queries`
 
-## M08-001 — Implement Penpot design foundation
+## M08-001 — Consume/extend Penpot design system via sync
 **Status:** TODO
 
-**Outcome:** Translate approved tokens/components/layout primitives to reusable Next.js UI foundation.
+**Outcome:** Extend the established Penpot ↔ Next.js sync foundation (`docs/design/PENPOT-SYNC.md`, `penpot-sync.json`, `docs/design/sync/` evidence) with the full approved token/component set: fetch the current Penpot design through MCP, translate approved tokens/components/layout primitives into reusable Next.js UI primitives, update the manifest and sync evidence for every mapped item. No screen may be implemented from imagination while an approved Penpot source exists.
 
-**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+**Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
 **Suggested commit:** `feat(web): implement penpot design foundation`
 
-## M08-002 — Implement auth/workspace UI
+## M08-002 — Implement auth/workspace UI from synced designs
 **Status:** TODO
 
-**Outcome:** Build approved authentication/workspace screens and behavior.
+**Outcome:** Build approved authentication/workspace screens and behavior. Before implementing, agents MUST fetch the latest mapped Penpot boards/components through MCP (per `AGENTS.md` sync contract), verify against `penpot-sync.json`, and update manifest + sync evidence. API integration, authorization behavior and validation logic stay application-owned and must survive re-sync.
 
-**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+**Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
 **Suggested commit:** `feat(web): add authentication and workspace flows`
 
-## M08-003 — Implement Instagram account UI
+## M08-003 — Implement Instagram account UI from synced designs
 **Status:** TODO
 
-**Outcome:** Build connection/state/revocation management screens.
+**Outcome:** Build connection/state/revocation management screens. Fetch the latest mapped Penpot designs via MCP before implementing or updating; record sync evidence; keep OAuth/API integration and account state application-owned.
 
-**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+**Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
 **Suggested commit:** `feat(web): add instagram account management ui`
 
-## M08-004 — Implement inbox UI
+## M08-004 — Implement inbox UI from synced designs
 **Status:** TODO
 
-**Outcome:** Build responsive conversation inbox/detail/reply experience.
+**Outcome:** Build responsive conversation inbox/detail/reply experience. Fetch the latest mapped Penpot inbox boards/components via MCP before implementing or updating; record sync evidence; keep conversation queries/reply integration application-owned.
 
-**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+**Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
 **Suggested commit:** `feat(web): implement conversation inbox`
 
-## M08-005 — Implement automation builder v1
+## M08-005 — Implement automation builder v1 from synced designs
 **Status:** TODO
 
-**Outcome:** Build approved automation list/editor/validation/state UX.
+**Outcome:** Build approved automation list/editor/validation/state UX. Fetch the latest mapped Penpot automation-builder designs via MCP before implementing or updating; record sync evidence; keep automation definitions/evaluator integration application-owned.
 
-**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+**Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
 **Suggested commit:** `feat(web): implement automation builder v1`
 
