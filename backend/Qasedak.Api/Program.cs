@@ -4,6 +4,7 @@ using Qasedak.Modules.Automations.Infrastructure;
 using Qasedak.Modules.Billing.Infrastructure;
 using Qasedak.Modules.Contacts.Infrastructure;
 using Qasedak.Modules.Conversations.Infrastructure;
+using Qasedak.Modules.Conversations.Infrastructure.Endpoints;
 using Qasedak.Modules.Identity.Infrastructure;
 using Qasedak.Modules.Identity.Infrastructure.Endpoints;
 using Qasedak.Modules.Instagram.Infrastructure;
@@ -36,6 +37,16 @@ builder.Services
     .AddContactsModule(builder.Configuration)
     .AddBillingModule(builder.Configuration);
 
+// Composition-root bridges: normalized Instagram events feed the Conversations inbox
+// (explicit cross-module contracts; neither module references the other).
+builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IIntegrationEventDispatcher,
+    Qasedak.Api.CrossModule.InstagramConversationBridge>();
+builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IWebhookPostIngestProcessor,
+    Qasedak.Api.CrossModule.ConversationsPostIngestAdapter>();
+// Outbound replies: Conversations' channel gateway is filled by Instagram's messaging client.
+builder.Services.AddScoped<Qasedak.Modules.Conversations.Application.Conversations.IConversationChannelGateway,
+    Qasedak.Api.CrossModule.InstagramReplyGateway>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -60,6 +71,7 @@ app.MapGet("/api/v1/system", () => Results.Ok(new
 
 app.MapIdentityEndpoints();
 app.MapMetaWebhookEndpoints();
+app.MapConversationEndpoints();
 
 app.Run();
 

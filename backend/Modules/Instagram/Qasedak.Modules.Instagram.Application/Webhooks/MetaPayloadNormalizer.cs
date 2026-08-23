@@ -71,8 +71,10 @@ public sealed class MetaPayloadNormalizer
             var senderId = message.TryGetProperty("sender", out var sender) && sender.TryGetProperty("id", out var senderIdElement)
                 ? senderIdElement.GetString()
                 : null;
+            var providerMessageId = payload.TryGetProperty("mid", out var midElement) ? midElement.GetString() : null;
             var timestamp = ReadUnixSeconds(message, "timestamp") ?? DateTimeOffset.UtcNow;
-            events.Add(new InstagramMessageReceived(eventId, providerUserId, senderId ?? "unknown", text, timestamp));
+            events.Add(new InstagramMessageReceived(
+                eventId, providerUserId, senderId ?? "unknown", text, timestamp, providerMessageId));
         }
     }
 

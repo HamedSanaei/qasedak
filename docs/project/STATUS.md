@@ -2,8 +2,8 @@
 
 **Project:** Qasedak  
 **Current milestone:** M05 — Conversations Core  
-**Current task:** M05-001 — Model conversations/messages  
-**Last completed:** M04-004 — Instrument webhook processing  
+**Current task:** M06-001 — Model automation aggregate  
+**Last completed:** M05-004 — Send compliant replies (M05 milestone complete)  
 **Product implementation:** Not started
 
 ## Baseline established

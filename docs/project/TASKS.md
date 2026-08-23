@@ -221,36 +221,44 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(observability): instrument webhook processing`
 
 ## M05-001 — Model conversations/messages
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Define conversation and message state/identity ownership/invariants.
+
+**Completion evidence:** Conversations Domain now models the inbox core per established conventions (UUIDv7 ids, rule-code exceptions via `ConversationsDomainException`, no clock in Domain): `Conversation` aggregate owns `Message` children — workspace-owned identity with opaque `Channel`/`ParticipantId` (no Meta types), Open/Archived status, monotonic `LastMessageAtUtc`, unread accounting (`MarkRead` resets, second read rejected); `AppendMessage` enforces unique provider message identity per thread (idempotency at aggregate level), 1000-char body cap, and inbound traffic reopens archived threads; `Archive` rejects repeats; `FromState` rehydrates for EF. Application port `IConversationRepository`; Infrastructure `ConversationsDbContext` ("conversations" schema: conversations + messages tables, unique `(WorkspaceId, Channel, ParticipantId)`, partial unique `ProviderMessageId`, indexed inbox ordering), committed migration `InitialConversationsCreation`, design-time factory, EF packages + DI registration. New test project `Qasedak.Modules.Conversations.UnitTests` with 8 domain tests (guards, unread/last-activity accounting, duplicate provider id, body cap by rule code, read/archive transitions incl. reopen, rehydrate-and-append). Suite total 183 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(conversations): model conversation and message state`
 
 ## M05-002 — Project inbound Instagram messages
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Consume normalized events idempotently into conversation state.
+
+**Completion evidence:** Normalization now carries Meta's per-message `mid` (`InstagramMessageReceived.ProviderMessageId`) as the stable dedup key. New channel-neutral `ProjectInboundMessageUseCase` (Conversations Application): finds-or-creates the thread per (workspace, channel, participant), appends the message with aggregate-level idempotency — duplicate deliveries return `DuplicateDelivery` instead of failing; oversized inbound text is stored truncated rather than dropped. Workspace binding stays outside the module: composition-root `InstagramConversationBridge` (Api/CrossModule) resolves the owning workspace via new `IConnectedAccountRepository.FindWorkspaceIdByProviderIdentityAsync` and routes messaging events into the projection — the explicit cross-module contract; unbound accounts are logged and never fabricate conversations. Instagram's webhook POST now invokes a post-ingest seam (`IWebhookPostIngestProcessor`, no-op default) that Api fills with an adapter running pending normalization+dispatch inline; processing failures keep entries durably pending and answer 202. Domain fix: removed a wrong guard rejecting provider timestamps earlier than thread creation (webhook send-times legitimately predate processing time). Tests: end-to-end signed-webhook→conversation persistence + redelivery idempotency over real HTTP/PostgreSQL, unbound-account negative path, projection use-case unit coverage via updated fixtures. Suite total 185 passing, build 0 warnings, format clean.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(conversations): project inbound instagram messages`
 
 ## M05-003 — Expose inbox queries
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Add workspace-scoped pagination/filter/detail APIs.
+
+**Completion evidence:** New read-side port `IConversationQueries` (Conversations Application) with `EfConversationQueries` — server-side paging/filtering, no tracking, no aggregate loading: list ordered by recency with last-message preview via correlated subquery, status filter (`InboxFilter` clamps page size 1..100, defaults 25), detail returns thread row + messages ordered by occurrence. HTTP surface `ConversationEndpoints` in Conversations.Infrastructure mapped by the composition root at `/api/v1/workspaces/{workspaceId}/conversations` (+`/{conversationId}`), JWT-authorized like Identity routes; threads outside the queried workspace are 404, never leaked. API integration tests over real PostgreSQL + bearer auth cover pagination, status filter, workspace scoping (untouched workspace = empty; foreign thread = 404), anonymous rejection, message ordering in detail. Suite total 195 passing, build 0 warnings, format clean. Lesson encoded: minimal-API non-nullable query params are required and throw when absent — optional params use nullable signatures with explicit defaults.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(conversations): expose workspace inbox queries`
 
 ## M05-004 — Send compliant replies
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Implement reply use case and Instagram messaging adapter with policy/error tests.
+
+**Completion evidence:** Channel-neutral `IConversationChannelGateway` port (Conversations Application) with `SendReplyUseCase` enforcing compliance before any network call: open thread only, recipient inside the 24-hour customer-service window (measured from newest inbound message, boundary-tested), text validated; delivery happens first and only an accepted send is appended to the aggregate — local state never claims an unsent message. Instagram side: `IInstagramMessagingClient` port + `GraphInstagramMessagingClient` adapter (named HttpClient) posting the documented `{graph}/me/messages` contract with Bearer page token; structured failure taxonomy with Graph error 490 mapped to a distinct `MessagingWindowExpired` reason so callers can schedule instead of retrying blindly; token material never appears in failure details or logs. Composition-root `InstagramReplyGateway` binds the gateway: workspace account lookup via `ListByWorkspaceAsync`, token decrypt via `IProtectedTokenStore`, reason→stable-failure-code mapping (`instagram.windowExpired`, `.rejected`, `.unavailable`, `.malformed`). HTTP surface: POST `/api/v1/workspaces/{id}/conversations/{id}/replies` with failure-code→status mapping (404/400/409/502). Tests: 7 reply use-case unit tests (fakes for repo+gateway incl. window boundary and no-append-on-rejection), 6 deterministic adapter contract tests (scripted handler: payload/auth shape, malformed success, 490 mapping, bounded redacted error detail, non-JSON rejection, transport failure). Suite total 200 passing, build 0 warnings, format clean, architecture check passed.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 

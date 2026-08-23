@@ -63,6 +63,9 @@ public sealed class AccountHealthEvaluationTests
         }
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task<Guid?> FindWorkspaceIdByProviderIdentityAsync(string providerUserId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(_rows.Values.FirstOrDefault(a => a.ProviderUserId == providerUserId)?.WorkspaceId);
     }
 
     private static ConnectedAccount NewInstagramAccount(TimeSpan? expiryIn = null) =>

@@ -48,6 +48,7 @@ public static class MetaWebhookEndpoints
             HttpContext context,
             IWebhookSignatureVerifier verifier,
             IMetaWebhookIngester ingester,
+            IWebhookPostIngestProcessor processor,
             WebhookMetrics metrics,
             ILoggerFactory loggerFactory) =>
         {
@@ -130,6 +131,26 @@ public static class MetaWebhookEndpoints
 
             var ingestion = await ingester.IngestAsync(new MetaWebhookNotification(topic, bodyJson, correlationId), context.RequestAborted);
             Record(ingestion.Accepted ? "accepted" : "deferred");
+
+            // Process what is durably pending right away: normalization + dispatch are
+            // local work; a background dispatcher can take over later without contract
+            // changes. Failures inside processing leave entries pending (retry visibility).
+            try
+            {
+                await processor.ProcessPendingAsync(cancellationToken: context.RequestAborted);
+            }
+            catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                // The notification is durably stored; processing retries on the next delivery.
+                Record("processing-deferred");
+                context.Response.StatusCode = StatusCodes.Status202Accepted;
+                return;
+            }
+
             context.Response.StatusCode = ingestion.Accepted
                 ? StatusCodes.Status200OK
                 : StatusCodes.Status202Accepted;

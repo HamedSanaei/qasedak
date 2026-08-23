@@ -2,20 +2,20 @@
 
 ## Where we are
 
-Milestones M00 (foundation), M01 (Meta feasibility & contracts), M02 (identity & workspace core), M03 (Instagram account connection) and M04 (webhook ingestion & event normalization) are complete. The repository builds/tests green (175 backend tests), dependencies are locked, both images build, Graphify is healthy in code-only mode. All open questions OQ-1..3 are resolved with citations in `docs/product/meta-oauth-token-lifecycle.md`.
+Milestones M00 (foundation), M01 (Meta feasibility & contracts), M02 (identity & workspace core), M03 (Instagram account connection), M04 (webhook ingestion & event normalization) and M05 (conversations inbox) are complete. The repository builds/tests green (**200 backend tests**), `scripts/verify.py --full` passed for the M05 milestone, Graphify is healthy in code-only mode.
 
-## Completed — M04 summary
+## Completed — M05 summary
 
-- **M04-001:** Webhook verification endpoints at `/api/v1/webhooks/instagram` — GET handshake via `IWebhookSubscriptionValidator` (challenge verbatim), POST enforcing `X-Hub-Signature-256` over exact raw bytes; bad signature → empty 401, oversized → 413, signed non-JSON → 400. Application boundary `IMetaWebhookIngester` keeps transport out of Application.
-- **M04-002:** Durable idempotent inbox — `webhook_inbox` table keyed by SHA-256 of the raw body (Meta redeliveries are byte-identical); `InboxWebhookIngester` insert-and-accept / redelivery-no-op with attempt counter; concurrent same-identity races caught and still accepted; migration `AddWebhookInbox`.
-- **M04-003:** Normalization — `MetaPayloadNormalizer` turns canonical bodies into explicit events (`InstagramMessageReceived` echo-skipped, `InstagramCommentCreated`, `InstagramMentionCreated`); unknown fields → `UnrecognizedWebhookFragment`, malformed JSON never throws; `ProcessPendingWebhookEventsUseCase` normalizes→dispatches→closes entries through `IWebhookInboxStore` + `IIntegrationEventDispatcher` ports.
-- **M04-004:** Instrumentation — meter `Qasedak.Instagram.Webhooks` (notifications by outcome, events by kind, duplicates, ingestion duration histogram), correlation-id echo/mint (`X-Correlation-Id`), LoggerMessage structured rejection logs, redelivery-threshold warning, pending-backlog gauge.
+- **M05-001:** Conversations domain — `Conversation` aggregate (unique participant thread per workspace+channel, unread accounting, archive/reopen, read-once, per-thread unique provider message ids, 1000-char bodies, FromState rehydration) + `Message` entity; `IConversationRepository`; EF Core persistence under the `conversations` schema (`InitialConversationsCreation`); module unit tests.
+- **M05-002:** Inbound projection — normalization carries Meta's `mid`; `ProjectInboundMessageUseCase` finds-or-creates threads with aggregate-level idempotency (duplicates → `DuplicateDelivery`, oversized inbound stored truncated); composition-root `InstagramConversationBridge` resolves workspace via `FindWorkspaceIdByProviderIdentityAsync` and drops unbound identities; webhook POST now runs a post-ingest seam (`IWebhookPostIngestProcessor`, no-op default, Api fills with pending normalize+dispatch adapter; processing failure → durable retry + HTTP 202). End-to-end signed-webhook→conversation persistence + redelivery idempotency over real PostgreSQL. Domain lesson encoded: provider send-times may precede thread creation — never guard that.
+- **M05-003:** Inbox queries — `IConversationQueries`/`EfConversationQueries` (no-tracking paging/filtering/status filter, last-message preview, detail with ordered messages) behind `/api/v1/workspaces/{id}/conversations[/{id}]`, JWT-authorized; foreign threads are 404. Minimal-API lesson: non-nullable query params are *required* and throw when absent — use nullable signatures with defaults.
+- **M05-004:** Outbound replies — channel-neutral `IConversationChannelGateway` port; `SendReplyUseCase` enforces open-thread + 24-hour messaging-window compliance before any network call and appends only accepted sends; Instagram `GraphInstagramMessagingClient` adapter posts `{graph}/me/messages` with Bearer page token, structured taxonomy mapping Graph code 490 → `MessagingWindowExpired`; composition-root `InstagramReplyGateway` binds account lookup + protected token decrypt; POST `.../replies` endpoint maps stable failure codes to 404/400/409/502. Unit tests cover window boundary, no-append-on-rejection, redacted error details.
 
-## Next task — M05-001
+## Next task — M06-001
 
-1. `python scripts/agent_preflight.py --task M05-001`; refresh graph (`graphify . --update --no-viz --code-only`).
-2. Bounded graphify query on the Conversations module scaffolding; record evidence.
-3. Model conversation/message domain per TASKS.md invariants (identity ownership, state transitions); keep Domain transport-free — webhook-normalized events feed conversations later.
-4. Gates: build/format/test green; evidence; state files; finalize; continue M05.
+1. `python scripts/agent_preflight.py --task M06-001`; refresh graph (`graphify . --update --no-viz --code-only`).
+2. Bounded graphify query on automation scaffolding + how Instagram/Conversations modules expose seams; record evidence.
+3. Model the automation aggregate per TASKS.md invariants; keep Domain transport-free and clock-free (timestamps as parameters).
+4. Gates: build/format/test green; evidence; state files; finalize; continue M06.
 
-Suggested commits: per-task messages live in `docs/project/TASKS.md` (M04 used `feat(instagram): verify meta webhook requests`, `feat(instagram): add idempotent webhook inbox`, `feat(instagram): normalize webhook integration events`, `feat(observability): instrument webhook processing`).
+Suggested commits for M05: `feat(conversations): model conversation and message state`, `feat(conversations): project inbound instagram messages`, `feat(conversations): expose workspace inbox queries`, `feat(conversations): send replies through instagram`.

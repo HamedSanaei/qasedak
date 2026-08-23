@@ -19,7 +19,9 @@ public sealed record InstagramMessageReceived(
     string? ProviderUserId,
     string SenderId,
     string? Text,
-    DateTimeOffset SentAtUtc) : IIntegrationEvent;
+    DateTimeOffset SentAtUtc,
+    /// <summary>Meta's per-message id ("mid"); the stable key for downstream deduplication.</summary>
+    string? ProviderMessageId) : IIntegrationEvent;
 
 public sealed record InstagramCommentCreated(
     string EventId,

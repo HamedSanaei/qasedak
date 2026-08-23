@@ -3,8 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Webhooks;
+using Qasedak.Modules.Instagram.Infrastructure.Messaging;
 using Qasedak.Modules.Instagram.Infrastructure.OAuth;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Infrastructure.Protection;
@@ -36,6 +38,14 @@ public static class DependencyInjection
             sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramTokenInspector.HttpClientName)));
         services.AddSingleton<IMetaTokenInspector>(sp => sp.GetRequiredService<GraphInstagramTokenInspector>());
 
+        // Messaging send API (M05-004): typed client + structured failure taxonomy.
+        services.Configure<MetaMessagingOptions>(configuration.GetSection(MetaMessagingOptions.SectionName));
+        services.AddHttpClient(GraphInstagramMessagingClient.HttpClientName);
+        services.AddSingleton(sp => new GraphInstagramMessagingClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramMessagingClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaMessagingOptions>>()));
+        services.AddSingleton<IInstagramMessagingClient>(sp => sp.GetRequiredService<GraphInstagramMessagingClient>());
+
         // Module-owned persistence under the "instagram" schema.
         services.AddDbContext<InstagramDbContext>(options =>
             options.UseNpgsql(
@@ -46,6 +56,8 @@ public static class DependencyInjection
         services.AddScoped<IProtectedTokenStore, ProtectedTokenStore>();
         // Durable idempotent inbox: replaces the M04-001 placeholder boundary.
         services.AddScoped<IMetaWebhookIngester, InboxWebhookIngester>();
+        // Post-ingest seam: no-op by default; composition roots bridge downstream consumers.
+        services.AddSingleton<IWebhookPostIngestProcessor, NullWebhookPostIngestProcessor>();
         services.AddScoped<IWebhookInboxStore, EfWebhookInboxStore>();
         services.AddSingleton<IIntegrationEventDispatcher, LoggingIntegrationEventDispatcher>();
         services.AddScoped<ProcessPendingWebhookEventsUseCase>();

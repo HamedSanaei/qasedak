@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Testcontainers.PostgreSql;
@@ -28,6 +30,8 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
 
     private WebApplicationFactory<Program> _factory = null!;
 
+    public WebApplicationFactory<Program> Factory => _factory;
+
     public HttpClient Client { get; private set; } = null!;
 
     public async Task InitializeAsync()
@@ -38,6 +42,9 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
         {
             builder.UseSetting("ConnectionStrings:Identity", _container.GetConnectionString());
             builder.UseSetting("ConnectionStrings:Instagram", _container.GetConnectionString());
+            builder.UseSetting("ConnectionStrings:Conversations", _container.GetConnectionString());
+            // Detailed error surfaces keep integration failures diagnosable.
+            builder.UseSetting("ASPNETCORE_ENVIRONMENT", "Development");
             builder.UseSetting("Identity:Auth:TokenSigningKey", SigningKey);
             builder.UseSetting("Identity:Auth:TokenLifetimeHours", "12");
             builder.UseSetting("Instagram:Meta:AppSecret", MetaAppSecret);
@@ -48,6 +55,7 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
         using var scope = _factory.Services.CreateScope();
         await scope.ServiceProvider.GetRequiredService<IdentityDbContext>().Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<InstagramDbContext>().Database.MigrateAsync();
+        await scope.ServiceProvider.GetRequiredService<ConversationsDbContext>().Database.MigrateAsync();
 
         Client = _factory.CreateClient();
     }

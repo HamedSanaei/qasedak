@@ -11,6 +11,9 @@ public interface IConnectedAccountRepository
     Task<ConnectedAccount?> FindByProviderIdentityAsync(
         Guid workspaceId, string providerUserId, CancellationToken cancellationToken = default);
 
+    /// <summary>Resolves the workspace owning a provider identity; null when unbound.</summary>
+    Task<Guid?> FindWorkspaceIdByProviderIdentityAsync(string providerUserId, CancellationToken cancellationToken = default);
+
     /// <summary>Lists all accounts of a workspace (any health/disconnect state).</summary>
     Task<IReadOnlyList<ConnectedAccount>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default);
 

@@ -54,6 +54,9 @@ public sealed class AccountLifecycleTests
         }
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task<Guid?> FindWorkspaceIdByProviderIdentityAsync(string providerUserId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Rows.Values.FirstOrDefault(a => a.ProviderUserId == providerUserId)?.WorkspaceId);
     }
 
     private sealed class FakeTokenStore : IProtectedTokenStore

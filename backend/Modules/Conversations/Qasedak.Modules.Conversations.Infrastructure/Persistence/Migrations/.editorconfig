@@ -1,0 +1,4 @@
+[*.cs]
+# Generated EF migration artifacts are excluded from style enforcement.
+dotnet_diagnostic.CA1861.severity = none
+dotnet_analyzer_diagnostic.category-Naming.severity = none
