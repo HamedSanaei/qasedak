@@ -14,7 +14,7 @@ public sealed class PaymentGatewayResolverTests
     [Fact]
     public void ResolveReturnsZarinpalWhenEnabled()
     {
-        var resolver = CreateResolver(zarinpalEnabled: true, melliEnabled: false);
+        var resolver = CreateResolver(zarinpalEnabled: true, mellatEnabled: false);
 
         Assert.Equal("zarinpal", resolver.Resolve("zarinpal").ProviderId);
         Assert.Equal(["zarinpal"], resolver.EnabledProviderIds);
@@ -23,49 +23,56 @@ public sealed class PaymentGatewayResolverTests
     [Fact]
     public void ResolveDisabledProviderFailsClosedWithTypedSignal()
     {
-        var resolver = CreateResolver(zarinpalEnabled: false, melliEnabled: false);
+        var resolver = CreateResolver(zarinpalEnabled: false, mellatEnabled: false);
 
         Assert.Throws<PaymentProviderDisabledException>(() => resolver.Resolve("zarinpal"));
+        Assert.Throws<PaymentProviderDisabledException>(() => resolver.Resolve("mellat"));
         Assert.Empty(resolver.EnabledProviderIds);
     }
 
     [Fact]
     public void ResolveUnknownProviderIsRejected()
     {
-        var resolver = CreateResolver(zarinpalEnabled: true, melliEnabled: false);
+        var resolver = CreateResolver(zarinpalEnabled: true, mellatEnabled: false);
 
+        // The cancelled Bank Melli/SADAD provider must now be unknown, not disabled.
+        Assert.Throws<PaymentProviderUnknownException>(() => resolver.Resolve("melli"));
         Assert.Throws<PaymentProviderUnknownException>(() => resolver.Resolve("paypal"));
     }
 
     [Fact]
-    public async Task MelliBoundaryRefusesOperationEvenWhenFlagFlipped()
+    public async Task MellatBoundaryRefusesOperationEvenWhenFlagFlipped()
     {
-        // The official SADAD contract is absent; an operator enabling the flag must still
-        // get a loud refusal instead of a guessed wire format.
-        var gateway = new MelliPaymentGateway(Options.Create(new MelliOptions
+        // The CURRENT official Behpardakht contract is absent; an operator enabling the
+        // flag must still get a loud refusal instead of a guessed wire format.
+        var gateway = new BehpardakhtMellatPaymentGateway(Options.Create(new BehpardakhtOptions
         {
             Enabled = true,
-            MerchantId = "m",
             TerminalId = "t",
-            CredentialKey = "k",
+            Username = "u",
+            Password = "p",
         }));
 
         await Assert.ThrowsAsync<PaymentGatewayUnavailableException>(() =>
             gateway.CreatePaymentAsync(
                 new CreatePaymentRequest(Guid.CreateVersion7(), 1000, "d", "cb"),
                 CancellationToken.None));
+        await Assert.ThrowsAsync<PaymentGatewayUnavailableException>(() =>
+            gateway.VerifyAsync(
+                new VerifyPaymentRequest("a", 1000),
+                CancellationToken.None));
     }
 
-    private static PaymentGatewayResolver CreateResolver(bool zarinpalEnabled, bool melliEnabled)
+    private static PaymentGatewayResolver CreateResolver(bool zarinpalEnabled, bool mellatEnabled)
     {
         var zarinpalOptions = Options.Create(new ZarinpalOptions { Enabled = zarinpalEnabled, MerchantId = "m" });
-        var melliOptions = Options.Create(new MelliOptions { Enabled = melliEnabled });
+        var mellatOptions = Options.Create(new BehpardakhtOptions { Enabled = mellatEnabled });
         using var httpClient = new HttpClient();
         return new PaymentGatewayResolver(
             new ZarinpalPaymentGateway(httpClient, zarinpalOptions, Microsoft.Extensions.Logging.Abstractions.NullLogger<ZarinpalPaymentGateway>.Instance),
-            new MelliPaymentGateway(melliOptions),
+            new BehpardakhtMellatPaymentGateway(mellatOptions),
             zarinpalOptions,
-            melliOptions);
+            mellatOptions);
     }
 }
 

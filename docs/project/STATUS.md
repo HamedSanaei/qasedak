@@ -2,7 +2,7 @@
 
 **Project:** Qasedak  
 **Current milestone:** M09 — Payments & Billing  
-**Current task:** M09-002 — Payment gateway integration (executable scope complete; Bank Melli live transport externally blocked)  
+**Current task:** M09-002 — Payment gateway integration (Zarinpal operational; Behpardakht Mellat boundary shipped, live transport externally blocked)  
 **Last completed:** M08-005 → superseded by 2026-08-24 Codex design-completion + Qasedak final-design reconciliation run  
 **Product implementation:** In progress (M09)
 
@@ -15,14 +15,19 @@
   `ZarinpalPaymentGateway` implements the CURRENT official v4 REST contract
   (request.json/verify.json, code 100/101 semantics, StartPay redirect); typed options;
   secrets server-side only; merchant id/secrets/payloads/card PAN never logged.
-- `MelliPaymentGateway` is a fail-closed boundary: disabled by default; enabling without
-  an official SADAD/Bank-Melli technical contract surfaces
-  `payment.providerUnavailable` naming exactly which documents are required.
+- **Provider decision updated same day (ADR-009): Bank Melli/SADAD CANCELLED; Behpardakht
+  Mellat selected.** `BehpardakhtMellatPaymentGateway` (`providerId="mellat"`) is a
+  fail-closed boundary with typed `BehpardakhtOptions`; enabling without the verified
+  current official contract surfaces `payment.providerUnavailable` naming exactly which
+  documents are required. Historical bpPayRequest/bpVerify/bpSettle flow treated as
+  background only — nothing copied into transport.
 - Endpoints: plans catalog, workspace subscription, checkout (202 + server-owned
   redirect), payment status/history, public provider callback → 302 to frontend result
   page. Migration `AddPaymentsAndPlanPrices`; env contracts in `.env.example`,
-  docker-compose and deployment guide §6; ADR-008 accepted.
-- Tests: Billing unit 60/60; Billing integration (Testcontainers) incl. concurrent
+  docker-compose and deployment guide §6 (`MELLAT_*`); ADR-008 + ADR-009 accepted.
+- Penpot Checkout boards updated in-file via MCP: «پرداخت مستقیم بانک ملی» → «به‌پرداخت
+  ملت» on Desktop+Mobile; frontend reconciled; design system unchanged.
+- Tests: Billing unit 61/61; Billing integration (Testcontainers) incl. concurrent
   verify exactly-once 9/9; full Api.IntegrationTests 46/46.
 
 ## 2026-08-24 — Final Penpot designs reconciled into the app
@@ -43,9 +48,10 @@
 
 ## Next action
 
-1. Human decision: obtain official Bank Melli / SADAD merchant technical documents
-   (endpoint spec, signing/encryption algorithm, terminal credential contract, callback
-   field contract). Until then Melli stays boundary-only and M09-002 remains honestly
+1. Human action: obtain the CURRENT official Behpardakht Mellat merchant technical
+   documents (service endpoints/WSDL, payment/verify/settle operation contracts,
+   response-code table, callback field schema, reversal/inquiry semantics if the contract
+   defines them). Until then Mellat stays boundary-only and M09-002 remains honestly
    partial (Zarinpal production-capable).
 2. Optional hardening when credentials exist: staging-environment Zarinpal smoke test
    (never in CI).

@@ -37,8 +37,8 @@ public static class DependencyInjection
             client.Timeout = TimeSpan.FromSeconds(20);
         });
         services.Configure<ZarinpalOptions>(configuration.GetSection(ZarinpalOptions.SectionName));
-        services.Configure<MelliOptions>(configuration.GetSection(MelliOptions.SectionName));
-        services.AddScoped<MelliPaymentGateway>();
+        services.Configure<BehpardakhtOptions>(configuration.GetSection(BehpardakhtOptions.SectionName));
+        services.AddScoped<BehpardakhtMellatPaymentGateway>();
         services.AddScoped<IPaymentGatewayResolver, PaymentGatewayResolver>();
 
         services.AddScoped<CreateCheckoutUseCase>();

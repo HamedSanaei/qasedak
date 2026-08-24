@@ -48,6 +48,17 @@
   as pending backend search support.
 - Bank Melli provider radio renders but stays disabled with «غیرفعال — قرارداد رسمی
   تأیید نشده» until the official SADAD/Bank Melli merchant technical contract exists.
+
+## Addendum (2026-08-24, later the same day) — provider change per ADR-009
+
+The human cancelled Bank Melli/SADAD and selected Behpardakht Mellat as the second v1
+provider. Through Penpot MCP the Checkout board labels were updated IN THE CANONICAL FILE
+(design system unchanged): «پرداخت مستقیم بانک ملی» → «به‌پرداخت ملت» and mark «ملی» →
+«ملت» on both `Billing / Checkout / Desktop` (shapes c48311ed-e700-80f8-8008-8820b7248b33,
+…8820b73fb602, …8820b756b100) and `Billing / Checkout / Mobile` (shapes
+c48311ed-e700-80f8-8008-8820bf9203e5, …8820bfacaa1e). Next.js checkout was reconciled to
+the updated design; the manifest basis text above records this. The original bullet above
+is preserved as history of the earlier same-day state.
 - The reply-composer counter binds to the backend's actual cap; the design's illustrative
   numbers are not treated as limits.
 

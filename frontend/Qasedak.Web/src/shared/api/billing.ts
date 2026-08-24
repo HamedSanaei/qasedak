@@ -67,7 +67,7 @@ export interface BillingApi {
 
 export const PROVIDER_LABELS: Record<string, string> = {
   zarinpal: "زرین‌پال",
-  melli: "پرداخت مستقیم بانک ملی",
+  mellat: "به‌پرداخت ملت",
 };
 
 export function billingApi(): BillingApi {

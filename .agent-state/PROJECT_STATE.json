@@ -97,8 +97,8 @@
     "frontendVerify": "passed-lint-typecheck-test-build-incl-billing-pages"
   },
   "nextActions": [
-    "Human: provide official Bank Melli / SADAD merchant technical documents to unblock Melli live transport (M09-002 stays honestly partial until then)",
+    "Human: provide the CURRENT official Behpardakht Mellat merchant technical documents (service endpoints/WSDL, payment/verify/settle operation contracts, response-code table, callback field schema) to unblock Mellat live transport (M09-002 stays honestly partial until then)",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "Resume after Codex design-completion run: M09-002 payment architecture + Zarinpal adapter + billing UI shipped; final Qasedak Penpot designs (auth/inbox/billing) reconciled live via MCP; identity.auth draft→approved; inbox.conversations + billing.payment mappings added approved."
+  "lastInstruction": "Provider decision updated (ADR-009): Bank Melli/SADAD cancelled, Behpardakht Mellat selected. Melli gateway/options deleted; fail-closed BehpardakhtMellatPaymentGateway + typed options shipped; resolver treats melli as unknown; env/docker/appsettings/deployment docs switched to MELLAT_*; Penpot Checkout provider labels updated via MCP to به‌پرداخت ملت and frontend reconciled; ADR-009 recorded."
 }

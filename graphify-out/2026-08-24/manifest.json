@@ -1,8 +1,8 @@
 {
   ".agent-state/PROJECT_STATE.json": {
-    "mtime": 1787565947.755891,
-    "ast_hash": "f366f687216a445c63dfcb77311de70c",
-    "semantic_hash": "f366f687216a445c63dfcb77311de70c"
+    "mtime": 1787591516.1619897,
+    "ast_hash": "cc3d60adae94788d3822cebe0e25ee82",
+    "semantic_hash": "cc3d60adae94788d3822cebe0e25ee82"
   },
   "backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/IClock.cs": {
     "mtime": 1787434829.0,
@@ -95,9 +95,9 @@
     "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/DependencyInjection.cs": {
-    "mtime": 1787573852.6038876,
-    "ast_hash": "fa729dc4a0a0b8341883d35f6305da03",
-    "semantic_hash": "fa729dc4a0a0b8341883d35f6305da03"
+    "mtime": 1787591059.9859917,
+    "ast_hash": "1055ebea7ba02fa275513fc03bbf32f4",
+    "semantic_hash": "1055ebea7ba02fa275513fc03bbf32f4"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Qasedak.Modules.Billing.Infrastructure.csproj": {
     "mtime": 1787529376.1202958,
@@ -245,9 +245,9 @@
     "semantic_hash": "5cedca37af246d94765fa58d42ad151b"
   },
   "backend/Qasedak.Api/appsettings.json": {
-    "mtime": 1787572475.8033912,
-    "ast_hash": "46ae66078462534432e9b0f1d0600dee",
-    "semantic_hash": "46ae66078462534432e9b0f1d0600dee"
+    "mtime": 1787591070.1422446,
+    "ast_hash": "2bffc4d8319a9b327e484679c313b24c",
+    "semantic_hash": "2bffc4d8319a9b327e484679c313b24c"
   },
   "backend/Qasedak.slnx": {
     "mtime": 1787529525.36839,
@@ -510,9 +510,9 @@
     "semantic_hash": "33e17af7270412821c4b8c76a12db994"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/ApiPostgreSqlFixture.cs": {
-    "mtime": 1787585546.3890615,
-    "ast_hash": "aabb4dcd96295db494d8344e64761712",
-    "semantic_hash": "aabb4dcd96295db494d8344e64761712"
+    "mtime": 1787591146.522355,
+    "ast_hash": "5c9174d385f10819e95a47cb626a3af1",
+    "semantic_hash": "5c9174d385f10819e95a47cb626a3af1"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/IdentityAuthorizationTests.cs": {
     "mtime": 1787484417.2442822,
@@ -1145,9 +1145,9 @@
     "semantic_hash": "6428bbc12e89b8d15f36e3472ba2c735"
   },
   "frontend/Qasedak.Web/design/penpot-sync.json": {
-    "mtime": 1787586883.084026,
-    "ast_hash": "97a006c3d41ef71bf4f0f991712150d5",
-    "semantic_hash": "97a006c3d41ef71bf4f0f991712150d5"
+    "mtime": 1787591352.3530433,
+    "ast_hash": "efcdf86f4817bf26f06c695bc603fe14",
+    "semantic_hash": "efcdf86f4817bf26f06c695bc603fe14"
   },
   "frontend/Qasedak.Web/src/app/dashboard/layout.tsx": {
     "mtime": 1787562831.0283928,
@@ -1595,14 +1595,14 @@
     "semantic_hash": "c6ebfd334cbb63339bb5d6204058e162"
   },
   "frontend/Qasedak.Web/src/app/login/page.tsx": {
-    "mtime": 1787563478.7255487,
-    "ast_hash": "494a8f28a4891ef54f2778f5daee7483",
-    "semantic_hash": "494a8f28a4891ef54f2778f5daee7483"
+    "mtime": 1787589463.0240145,
+    "ast_hash": "e29d8b7231d23d9edc93864888879d3c",
+    "semantic_hash": "e29d8b7231d23d9edc93864888879d3c"
   },
   "frontend/Qasedak.Web/src/app/register/page.tsx": {
-    "mtime": 1787563478.7363646,
-    "ast_hash": "8378c548fd601e03eb87beb0254694df",
-    "semantic_hash": "8378c548fd601e03eb87beb0254694df"
+    "mtime": 1787589488.0658307,
+    "ast_hash": "fb16466eae34ef9b4f340c6f92d6c31c",
+    "semantic_hash": "fb16466eae34ef9b4f340c6f92d6c31c"
   },
   "frontend/Qasedak.Web/src/features/auth/validation.ts": {
     "mtime": 1787563759.7390046,
@@ -1665,14 +1665,14 @@
     "semantic_hash": "4e9bad3600f7ccd9e21e35340a094068"
   },
   "frontend/Qasedak.Web/src/app/dashboard/inbox/[conversationId]/page.tsx": {
-    "mtime": 1787566488.3197722,
-    "ast_hash": "f3adfd11733f844611cfb225d524c2e5",
-    "semantic_hash": "f3adfd11733f844611cfb225d524c2e5"
+    "mtime": 1787589781.8500876,
+    "ast_hash": "46860d961471c91313413848067b5b3e",
+    "semantic_hash": "46860d961471c91313413848067b5b3e"
   },
   "frontend/Qasedak.Web/src/app/dashboard/inbox/page.tsx": {
-    "mtime": 1787566605.2126257,
-    "ast_hash": "b2d3a3351caca14a345ae7b1c7cda2b2",
-    "semantic_hash": "b2d3a3351caca14a345ae7b1c7cda2b2"
+    "mtime": 1787589716.2622008,
+    "ast_hash": "ce4cc58196eec0697da59689d1cfaf39",
+    "semantic_hash": "ce4cc58196eec0697da59689d1cfaf39"
   },
   "frontend/Qasedak.Web/src/features/inbox/presentation.ts": {
     "mtime": 1787564757.426905,
@@ -1715,9 +1715,9 @@
     "semantic_hash": "104268c6096d00ed906973da42ebc65c"
   },
   "frontend/Qasedak.Web/src/features/automations/AutomationBuilderForm.tsx": {
-    "mtime": 1787565731.4186468,
-    "ast_hash": "e76e25ce9d6d05ce74ae98dd2d9f216c",
-    "semantic_hash": "e76e25ce9d6d05ce74ae98dd2d9f216c"
+    "mtime": 1787589851.9467144,
+    "ast_hash": "95651f51f5965f38f9652605f7720909",
+    "semantic_hash": "95651f51f5965f38f9652605f7720909"
   },
   "frontend/Qasedak.Web/src/features/automations/presentation.ts": {
     "mtime": 1787565473.8052075,
@@ -1740,9 +1740,9 @@
     "semantic_hash": "bacc9c81115ff839532f73f6739b7990"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Application/Payments/IPaymentGateway.cs": {
-    "mtime": 1787571989.2396667,
-    "ast_hash": "4eddac409519b27f086f4066c766b9c9",
-    "semantic_hash": "4eddac409519b27f086f4066c766b9c9"
+    "mtime": 1787591116.4882548,
+    "ast_hash": "69f9a91c1ff9ba46b04baa16a006ac18",
+    "semantic_hash": "69f9a91c1ff9ba46b04baa16a006ac18"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Application/Payments/PaymentUseCases.cs": {
     "mtime": 1787573278.3174818,
@@ -1750,9 +1750,9 @@
     "semantic_hash": "d82847c4d7d03b0555045c4b47679343"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Domain/Payments/PaymentAttempt.cs": {
-    "mtime": 1787572142.404762,
-    "ast_hash": "94954586985292365712d2f77f5d6aa5",
-    "semantic_hash": "94954586985292365712d2f77f5d6aa5"
+    "mtime": 1787591130.780257,
+    "ast_hash": "f20a06af71ec7bcf7e4be9e0f793c0b7",
+    "semantic_hash": "f20a06af71ec7bcf7e4be9e0f793c0b7"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Endpoints/BillingEndpoints.cs": {
     "mtime": 1787572542.507668,
@@ -1764,15 +1764,10 @@
     "ast_hash": "f0676d4ba5a49e1f8df56fe11e89da66",
     "semantic_hash": "f0676d4ba5a49e1f8df56fe11e89da66"
   },
-  "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Payments/MelliPaymentGateway.cs": {
-    "mtime": 1787571942.099313,
-    "ast_hash": "9b5f47900c8b24919ec9abbfa3a28a15",
-    "semantic_hash": "9b5f47900c8b24919ec9abbfa3a28a15"
-  },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Payments/PaymentGatewayResolver.cs": {
-    "mtime": 1787571982.5724733,
-    "ast_hash": "596be82c143761dbd9d0601d03eefe21",
-    "semantic_hash": "596be82c143761dbd9d0601d03eefe21"
+    "mtime": 1787591039.7960322,
+    "ast_hash": "46e23e4c01f2a37f5798eb91fb7723a9",
+    "semantic_hash": "46e23e4c01f2a37f5798eb91fb7723a9"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Payments/ZarinpalOptions.cs": {
     "mtime": 1787571771.6435833,
@@ -1790,14 +1785,14 @@
     "semantic_hash": "8fb9db82d43b80e44e11ffdbc1301152"
   },
   "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Persistence/Migrations/20260824115608_AddPaymentsAndPlanPrices.cs": {
-    "mtime": 1787573409.9021976,
-    "ast_hash": "484a1deb30421f3e800c7e9d372b8f85",
-    "semantic_hash": "484a1deb30421f3e800c7e9d372b8f85"
+    "mtime": 1787587752.407311,
+    "ast_hash": "bfc9e6d18c44f6a64e3bb799918500ff",
+    "semantic_hash": "bfc9e6d18c44f6a64e3bb799918500ff"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/BillingEndpointTests.cs": {
-    "mtime": 1787574499.4103048,
-    "ast_hash": "348835569a0470da9703be151c88eb5b",
-    "semantic_hash": "348835569a0470da9703be151c88eb5b"
+    "mtime": 1787587752.4093213,
+    "ast_hash": "8262df7e6cc7582af5ef25cefa24d83f",
+    "semantic_hash": "8262df7e6cc7582af5ef25cefa24d83f"
   },
   "backend/tests/Qasedak.Modules.Billing.IntegrationTests/PaymentPersistenceTests.cs": {
     "mtime": 1787573355.2558658,
@@ -1805,9 +1800,9 @@
     "semantic_hash": "ad1e94b9e6e45719ae5e6977c09b7761"
   },
   "backend/tests/Qasedak.Modules.Billing.UnitTests/FinalizePaymentUseCaseTests.cs": {
-    "mtime": 1787573184.345099,
-    "ast_hash": "9328bf72cf001eb78bc3843914548692",
-    "semantic_hash": "9328bf72cf001eb78bc3843914548692"
+    "mtime": 1787587752.4113758,
+    "ast_hash": "a40f1c168137b972beaaa0276a545b37",
+    "semantic_hash": "a40f1c168137b972beaaa0276a545b37"
   },
   "backend/tests/Qasedak.Modules.Billing.UnitTests/PaymentAttemptTests.cs": {
     "mtime": 1787573209.0511477,
@@ -1815,24 +1810,24 @@
     "semantic_hash": "ba8ae37396e5eb9804031c6ee578d63d"
   },
   "backend/tests/Qasedak.Modules.Billing.UnitTests/PaymentGatewayAndCheckoutTests.cs": {
-    "mtime": 1787573209.0521572,
-    "ast_hash": "966f45509cbcb9fdc8c0e27effa8b449",
-    "semantic_hash": "966f45509cbcb9fdc8c0e27effa8b449"
+    "mtime": 1787591101.8354886,
+    "ast_hash": "ae32ea96c1fc44f03967e4d12f1bc7dd",
+    "semantic_hash": "ae32ea96c1fc44f03967e4d12f1bc7dd"
   },
   "backend/tests/Qasedak.Modules.Billing.UnitTests/ZarinpalGatewayContractTests.cs": {
-    "mtime": 1787573222.191982,
-    "ast_hash": "9851e81fd9c24fb9d14c614a0aa5b8ca",
-    "semantic_hash": "9851e81fd9c24fb9d14c614a0aa5b8ca"
+    "mtime": 1787587752.4138894,
+    "ast_hash": "ac5111e0cf607573b7cfee8fedaf6e88",
+    "semantic_hash": "ac5111e0cf607573b7cfee8fedaf6e88"
   },
   "frontend/Qasedak.Web/src/shared/api/billing.ts": {
-    "mtime": 1787586219.2379942,
-    "ast_hash": "1bbadb2c6033e34f366d35ebc0b64511",
-    "semantic_hash": "1bbadb2c6033e34f366d35ebc0b64511"
+    "mtime": 1787591270.598105,
+    "ast_hash": "6bcd74bab72e0158d64b1c78d8182c10",
+    "semantic_hash": "6bcd74bab72e0158d64b1c78d8182c10"
   },
   "frontend/Qasedak.Web/src/app/dashboard/billing/checkout/page.tsx": {
-    "mtime": 1787586592.9663353,
-    "ast_hash": "4cf9c6aa26358c643bc5835c11fef767",
-    "semantic_hash": "4cf9c6aa26358c643bc5835c11fef767"
+    "mtime": 1787591309.7195094,
+    "ast_hash": "3abff6c721973d7e4ee5fe582f53241d",
+    "semantic_hash": "3abff6c721973d7e4ee5fe582f53241d"
   },
   "frontend/Qasedak.Web/src/app/dashboard/billing/page.tsx": {
     "mtime": 1787586592.9638171,
@@ -1840,9 +1835,9 @@
     "semantic_hash": "3371c8da16108e46b5d03b37ef72b9a1"
   },
   "frontend/Qasedak.Web/src/features/billing/presentation.ts": {
-    "mtime": 1787586247.4074743,
-    "ast_hash": "051bbd4486add3b2f2cff561a721aae5",
-    "semantic_hash": "051bbd4486add3b2f2cff561a721aae5"
+    "mtime": 1787591276.9078429,
+    "ast_hash": "fb6f308c842544871b6a450f242e4f65",
+    "semantic_hash": "fb6f308c842544871b6a450f242e4f65"
   },
   "frontend/Qasedak.Web/src/app/dashboard/billing/result/page.tsx": {
     "mtime": 1787586592.9877362,
@@ -1853,5 +1848,15 @@
     "mtime": 1787586429.4764194,
     "ast_hash": "003839c96819c4acba21ac1f2099e3c2",
     "semantic_hash": "003839c96819c4acba21ac1f2099e3c2"
+  },
+  "frontend/Qasedak.Web/src/features/auth/AuthLayout.tsx": {
+    "mtime": 1787589425.7824652,
+    "ast_hash": "de7c02e41bb3f40feef476965df878d0",
+    "semantic_hash": "de7c02e41bb3f40feef476965df878d0"
+  },
+  "backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure/Payments/BehpardakhtMellatPaymentGateway.cs": {
+    "mtime": 1787591011.7630274,
+    "ast_hash": "8d52ba31c5a4b965e786263f28802b8d",
+    "semantic_hash": "8d52ba31c5a4b965e786263f28802b8d"
   }
 }

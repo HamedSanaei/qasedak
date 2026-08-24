@@ -8,7 +8,7 @@ namespace Qasedak.Modules.Billing.Application.Payments;
 /// </summary>
 public interface IPaymentGateway
 {
-    /// <summary>Stable provider identifier ("zarinpal", "melli").</summary>
+    /// <summary>Stable provider identifier ("zarinpal", "mellat").</summary>
     string ProviderId { get; }
 
     /// <summary>

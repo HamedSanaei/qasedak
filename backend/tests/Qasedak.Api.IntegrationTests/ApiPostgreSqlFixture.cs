@@ -152,7 +152,7 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
             builder.UseSetting("Qasedak:RateLimits:Authenticated:Limit", "100000");
             builder.UseSetting("Qasedak:RateLimits:Public:Limit", "100000");
             // Payments: provider selection is enabled for the deterministic recording
-            // gateway only; CI never reaches a live Zarinpal/Melli endpoint.
+            // gateway only; CI never reaches a live Zarinpal/Behpardakht endpoint.
             builder.UseSetting("Billing:Payments:CallbackBaseUrl", "https://api.test.local");
             builder.UseSetting("Billing:Payments:FrontendBaseUrl", "https://app.test.local");
             builder.UseSetting("Billing:Payments:Zarinpal:Enabled", "true");

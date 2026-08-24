@@ -10,9 +10,9 @@ namespace Qasedak.Modules.Billing.Infrastructure.Payments;
 /// </summary>
 public sealed class PaymentGatewayResolver(
     ZarinpalPaymentGateway zarinpal,
-    MelliPaymentGateway melli,
+    BehpardakhtMellatPaymentGateway mellat,
     IOptions<ZarinpalOptions> zarinpalOptions,
-    IOptions<MelliOptions> melliOptions) : IPaymentGatewayResolver
+    IOptions<BehpardakhtOptions> mellatOptions) : IPaymentGatewayResolver
 {
     public IReadOnlyList<string> EnabledProviderIds
     {
@@ -24,9 +24,9 @@ public sealed class PaymentGatewayResolver(
                 enabled.Add(ZarinpalPaymentGateway.ProviderIdValue);
             }
 
-            if (melliOptions.Value.Enabled)
+            if (mellatOptions.Value.Enabled)
             {
-                enabled.Add(MelliPaymentGateway.ProviderIdValue);
+                enabled.Add(BehpardakhtMellatPaymentGateway.ProviderIdValue);
             }
 
             return enabled;
@@ -41,8 +41,8 @@ public sealed class PaymentGatewayResolver(
             ZarinpalPaymentGateway.ProviderIdValue => zarinpalOptions.Value.Enabled
                 ? zarinpal
                 : throw new PaymentProviderDisabledException(normalized),
-            MelliPaymentGateway.ProviderIdValue => melliOptions.Value.Enabled
-                ? melli
+            BehpardakhtMellatPaymentGateway.ProviderIdValue => mellatOptions.Value.Enabled
+                ? mellat
                 : throw new PaymentProviderDisabledException(normalized),
             _ => throw new PaymentProviderUnknownException(normalized),
         };

@@ -118,7 +118,7 @@ export function formatIrr(amountIrr: number): string {
 }
 
 export function providerLabel(providerId: string): string {
-  const known: Record<string, string> = { zarinpal: "زرین‌پال", melli: "پرداخت مستقیم بانک ملی" };
+  const known: Record<string, string> = { zarinpal: "زرین‌پال", mellat: "به‌پرداخت ملت" };
   return known[providerId] ?? providerId;
 }
 

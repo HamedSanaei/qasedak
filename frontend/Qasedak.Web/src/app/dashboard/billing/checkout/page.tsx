@@ -51,7 +51,8 @@ function CheckoutInner() {
       }
       setPlan(found);
       setProviders(catalog.providers);
-      // Default to the first enabled provider; Melli stays inert until its official contract lands.
+      // Default to the first enabled provider; Mellat stays inert until the verified
+      // official Behpardakht contract lands.
       setProviderId(catalog.providers[0] ?? "");
       setState("ready");
     } catch {
@@ -129,7 +130,7 @@ function CheckoutInner() {
             <Card>
               <h2 style={{ fontSize: 18, color: "#2e2938", margin: 0 }}>انتخاب درگاه پرداخت</h2>
               <div role="radiogroup" aria-label="درگاه پرداخت" style={{ display: "grid", gap: ".6rem", marginTop: ".75rem" }}>
-                {["zarinpal", "melli"].map((id) => {
+                {["zarinpal", "mellat"].map((id) => {
                   const enabled = providers.includes(id);
                   return (
                     <label
@@ -155,7 +156,7 @@ function CheckoutInner() {
                         onChange={() => setProviderId(id)}
                       />
                       <span style={{ width: 36, height: 36, borderRadius: 10, background: enabled ? "#fcebf6" : "#ecedef", color: "#be0183", fontSize: 13, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                        {id === "zarinpal" ? "زر" : "ملی"}
+                        {id === "zarinpal" ? "زر" : "ملت"}
                       </span>
                       <span>
                         <span style={{ display: "block", fontSize: 14, color: "#2e2938" }}>{providerLabel(id)}</span>
@@ -163,7 +164,7 @@ function CheckoutInner() {
                           {enabled
                             ? id === "zarinpal"
                               ? "انتقال به صفحه پرداخت زرین‌پال"
-                              : "نیازمند قرارداد رسمی بانک ملی"
+                              : "انتقال به صفحه پرداخت به‌پرداخت ملت"
                             : "غیرفعال — قرارداد رسمی تأیید نشده"}
                         </span>
                       </span>

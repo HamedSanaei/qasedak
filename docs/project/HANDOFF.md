@@ -5,7 +5,7 @@
 **M09-002 executable scope is complete (2026-08-24), and the final Qasedak Penpot
 designs are reconciled into the app.** All roadmap tasks are DONE; M09-002 is recorded
 DONE-PARTIAL (Zarinpal production-capable per the current official v4 REST docs; Bank
-Melli live transport is externally blocked pending official merchant technical
+Behpardakht Mellat live transport is externally blocked pending the verified current official merchant technical
 documents). Nothing is committed — working tree only, per contract.
 
 ## What this run delivered
@@ -18,8 +18,8 @@ documents). Nothing is committed — working tree only, per contract.
 - Provider-neutral `IPaymentGateway` (Application); Infrastructure owns protocols:
   `ZarinpalPaymentGateway` = CURRENT official v4 REST (request/verify JSON, 100/101,
   StartPay redirect) over typed HttpClient; typed options; server-side secrets only;
-  merchant id/secrets/raw payloads/card PAN never logged. `MelliPaymentGateway` =
-  fail-closed boundary naming exactly which official SADAD/Bank-Melli documents are
+  merchant id/secrets/raw payloads/card PAN never logged. Per the same-day provider decision (ADR-009) Bank Melli/SADAD was cancelled and replaced by **Behpardakht Mellat**: `BehpardakhtMellatPaymentGateway` (`providerId="mellat"`) =
+  fail-closed boundary naming exactly which CURRENT official Behpardakht documents are
   required before live transport can exist.
 - Endpoints: `GET /api/v1/billing/plans`, workspace `subscription` / `checkout` (202 +
   server-owned redirect URL) / `payments/{attemptId}` / `payments` history; public
@@ -45,8 +45,8 @@ documents). Nothing is committed — working tree only, per contract.
   capability ships.
 - NEW `billing.payment`: **approved** across the five `Qasedak · Billing & Payments`
   boards. New UI: `/dashboard/billing` (plans + subscription summary),
-  `/dashboard/billing/checkout?plan=…` (provider radios; Melli disabled until its
-  official contract lands), `/dashboard/billing/result?state=…&attempt=…` (bounded
+  `/dashboard/billing/checkout?plan=…` (provider radios زرین‌پال/به‌پرداخت ملت — Penpot labels updated in-file per ADR-009; Mellat disabled until its
+  verified contract lands), `/dashboard/billing/result?state=…&attempt=…` (bounded
   polling of the server status endpoint; callback hints never claim success alone).
   Amounts render exactly as received from the API (IRR grouping + ریال, no conversion).
 - Manifest updated + validator green (6/6): `penpot-sync.json`; screen roll-up:
@@ -65,9 +65,9 @@ documents). Nothing is committed — working tree only, per contract.
 
 ## Next actions for a human
 
-1. **Provide official Bank Melli / SADAD merchant technical documents** (endpoint spec,
+1. **Provide the CURRENT official Behpardakht Mellat merchant technical documents** (service endpoints/WSDL,
    signing/encryption algorithm spec, terminal/merchant credential contract, callback
-   field contract) → lifts the Melli boundary to a real adapter and makes M09-002 fully
+   response-code table, callback field schema) → lifts the Mellat boundary to a real adapter and makes M09-002 fully
    complete.
 2. Optional: run a staging Zarinpal smoke test with real merchant credentials (never in
    CI).

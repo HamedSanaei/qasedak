@@ -44,7 +44,7 @@ public sealed class PaymentAttempt
     /// <summary>Purchasable intent: which plan the workspace was checking out for.</summary>
     public Guid PlanId { get; private init; }
 
-    /// <summary>Provider identifier ("zarinpal", "melli"); resolved through the gateway registry.</summary>
+    /// <summary>Provider identifier ("zarinpal", "mellat"); resolved through the gateway registry.</summary>
     public string ProviderId { get; private init; } = string.Empty;
 
     /// <summary>Server-authoritative amount in IRR captured from the plan at creation.</summary>

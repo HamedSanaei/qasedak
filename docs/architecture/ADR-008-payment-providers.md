@@ -1,6 +1,8 @@
 # ADR-008: Payment provider abstraction with Zarinpal (live) and Bank Melli (boundary)
 
-- Status: Accepted
+- Status: Accepted — **provider selection superseded by ADR-009 (2026-08-24): Bank
+  Melli/SADAD cancelled, Behpardakht Mellat selected instead. The architecture,
+  exactly-once design and Zarinpal integration described here remain in force.**
 - Date: 2026-08-24
 - Deciders: Human selected the providers; agent implemented per official documentation availability
 - Task: M09-002
