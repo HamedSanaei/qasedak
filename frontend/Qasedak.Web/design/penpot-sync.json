@@ -2,9 +2,46 @@
   "$schema": "penpot-sync-v1",
   "source": {
     "tool": "penpot-mcp (official Penpot plugin server)",
-    "fileId": null,
-    "fileIdNote": "The connected plugin API does not expose a file identifier; null is recorded rather than a fabricated value. Page/board/component ids below are read live through the MCP.",
-    "fileName": "Directam design source (connected via Penpot MCP)",
+    "fileId": "c269caa0-e456-818c-8008-85a77340be64",
+    "fileIdNote": "Stable file id read live via penpot.currentFile.id during the M08 design-source verification pass. Never match this file by name alone: its default display name is 'New File 1', which other files can share.",
+    "fileName": "New File 1",
+    "verifiedAtUtc": "2026-08-24T12:10:00Z",
+    "verifiedPageCount": 24,
+    "verifiedPages": [
+      { "id": "c269caa0-e456-818c-8008-85a77340be65", "name": "Page 1" },
+      { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
+      { "id": "f5bf3c2c-b970-8002-8008-8749d0783515", "name": "Directam — Help Center" },
+      { "id": "f5bf3c2c-b970-8002-8008-874a0a4c21e6", "name": "Directam — Smart SMS" },
+      { "id": "f5bf3c2c-b970-8002-8008-874a8ad9b1a7", "name": "Directam — Profile States" },
+      { "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b", "name": "Directam — Connect Instagram" },
+      { "id": "f5bf3c2c-b970-8002-8008-874b593a11ee", "name": "Directam — Pricing & Components" },
+      { "id": "f5bf3c2c-b970-8002-8008-874de5c3b32c", "name": "Directam — Cards / Showcase" },
+      { "id": "f5bf3c2c-b970-8002-8008-874e49ee5813", "name": "Directam — Follow-up" },
+      { "id": "f5bf3c2c-b970-8002-8008-874ebb680e25", "name": "Directam — Comment Automation" },
+      { "id": "f5bf3c2c-b970-8002-8008-874f2719074c", "name": "Directam — Form Maker" },
+      { "id": "f5bf3c2c-b970-8002-8008-874f9cfc9e88", "name": "Directam — Ice Breakers" },
+      { "id": "f5bf3c2c-b970-8002-8008-8752c5573aef", "name": "Directam — Global Navigation Components" },
+      { "id": "324404a7-ad1e-8048-8008-87726817b6ab", "name": "GetCode · 00 Cover & Sitemap" },
+      { "id": "324404a7-ad1e-8048-8008-8772681cdddf", "name": "GetCode · 01 Foundations" },
+      { "id": "324404a7-ad1e-8048-8008-87726820902a", "name": "GetCode · 02 Components" },
+      { "id": "324404a7-ad1e-8048-8008-87726823fd52", "name": "GetCode · 03 Patterns" },
+      { "id": "324404a7-ad1e-8048-8008-87726826fe4f", "name": "GetCode · 04 Public Site" },
+      { "id": "324404a7-ad1e-8048-8008-8772682a1c67", "name": "GetCode · 05 Auth & Checkout" },
+      { "id": "324404a7-ad1e-8048-8008-8772682d66f4", "name": "GetCode · 06 Customer Dashboard" },
+      { "id": "324404a7-ad1e-8048-8008-877268307df0", "name": "GetCode · 07 Activation & OTP" },
+      { "id": "324404a7-ad1e-8048-8008-8772683469ba", "name": "GetCode · 08 Content & Support" },
+      { "id": "324404a7-ad1e-8048-8008-877268375b4d", "name": "GetCode · 09 Admin" },
+      { "id": "324404a7-ad1e-8048-8008-8772683b0884", "name": "GetCode · 10 Responsive & States" }
+    ],
+    "designSourceNotes": {
+      "directamLandingPage": {
+        "status": "missing-as-page",
+        "note": "No Penpot page named 'Directam Landing' exists. A board named 'Directam Landing — Desktop' lives on 'Page 1' instead; its internal structure differs from the earlier 13-section flex build, so it is treated as unverified until a human designates the canonical landing source.",
+        "candidateBoardId": "f6b8d46f-5deb-801d-8008-85ab43d94e44",
+        "candidateBoardName": "Directam Landing — Desktop",
+        "candidateHostPageId": "c269caa0-e456-818c-8008-85a77340be65"
+      }
+    },
     "inspectedPages": [
       { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
       { "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b", "name": "Directam — Connect Instagram" },
@@ -84,7 +121,7 @@
         "spacing.sidebar.footerCard.height"
       ],
       "assetDependencies": [],
-      "lastSyncedAtUtc": "2026-08-24T00:00:00Z",
+      "lastSyncedAtUtc": "2026-08-24T12:10:00Z",
       "penpotRevision": null,
       "syncStatus": "synced"
     }

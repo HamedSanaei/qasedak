@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-23T02:40:00+03:30",
+  "updatedAt": "2026-08-24T12:20:00+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M07",
-  "currentTask": "M07-001",
-  "lastCompletedTask": "M06-005",
+  "currentTask": "M11-003",
+  "lastCompletedTask": "M11-003",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -36,7 +36,20 @@
     "M06-002",
     "M06-003",
     "M06-004",
-    "M06-005"
+    "M06-005",
+    "M07-001",
+    "M07-002",
+    "M07-003",
+    "M09-001",
+    "M09-003",
+    "M10-001",
+    "M10-002",
+    "M10-003",
+    "M10-004",
+    "M10-005",
+    "M11-001",
+    "M11-002",
+    "M11-003"
   ],
   "graphify": {
     "required": true,
@@ -49,6 +62,21 @@
       "graphify-out/graph.json",
       "graphify-out/GRAPH_REPORT.md"
     ]
+  },
+  "penpot": {
+    "mcpReachable": true,
+    "verifiedAtUtc": "2026-08-24T12:10:00Z",
+    "fileId": "c269caa0-e456-818c-8008-85a77340be64",
+    "fileName": "New File 1",
+    "fileNameWarning": "Default display name; match files by stable fileId only.",
+    "pageCount": 24,
+    "landingPageStatus": "missing-as-page",
+    "landingCandidateBoardId": "f6b8d46f-5deb-801d-8008-85ab43d94e44",
+    "landingCandidateBoardName": "Directam Landing — Desktop",
+    "landingCandidateHostPageId": "c269caa0-e456-818c-8008-85a77340be65",
+    "manifest": "frontend/Qasedak.Web/design/penpot-sync.json",
+    "manifestValidation": "passed-6-of-6",
+    "verificationEvidence": "docs/design/sync/M08-001-design-source-verification.md"
   },
   "quality": {
     "architectureChecks": "passed",
@@ -64,7 +92,8 @@
     "dockerBuild": "passed-qasedak-api-verify-and-qasedak-web-verify"
   },
   "nextActions": [
-    "M01-001 Define Instagram MVP capability matrix"
+    "M08-001..005: resume after human confirms canonical design source (landing page missing as page; candidate board 'Directam Landing — Desktop' on Page 1 differs from the earlier 13-section build)",
+    "M09-002: implement payment provider adapter after provider-selection ADR"
   ],
-  "lastInstruction": "Complete milestone M00: M00-003 Graphify initialization/verification and M00-004 dependency lock + green gates."
+  "lastInstruction": "Verify Penpot design source over live MCP (file id c269caa0-e456-818c-8008-85a77340be64), persist stable file/page/board ids into penpot-sync.json, and gate M08 resumption on the landing-source mismatch; no Penpot content was modified or recreated."
 }

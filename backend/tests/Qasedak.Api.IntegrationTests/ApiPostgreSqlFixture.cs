@@ -3,7 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Qasedak.BuildingBlocks.Application.Auditing;
+using Qasedak.BuildingBlocks.Infrastructure.Auditing;
 using Qasedak.Modules.Automations.Infrastructure.Persistence;
+using Qasedak.Modules.Billing.Infrastructure.Persistence;
+using Qasedak.Modules.Contacts.Infrastructure.Persistence;
 using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Application.Messaging;
@@ -73,6 +77,9 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
             builder.UseSetting("ConnectionStrings:Instagram", _container.GetConnectionString());
             builder.UseSetting("ConnectionStrings:Conversations", _container.GetConnectionString());
             builder.UseSetting("ConnectionStrings:Automations", _container.GetConnectionString());
+            builder.UseSetting("ConnectionStrings:Contacts", _container.GetConnectionString());
+            builder.UseSetting("ConnectionStrings:Billing", _container.GetConnectionString());
+            builder.UseSetting("ConnectionStrings:Audit", _container.GetConnectionString());
             // Detailed error surfaces keep integration failures diagnosable.
             builder.UseSetting("ASPNETCORE_ENVIRONMENT", "Development");
             builder.UseSetting("Identity:Auth:TokenSigningKey", SigningKey);
@@ -99,8 +106,60 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
         await scope.ServiceProvider.GetRequiredService<InstagramDbContext>().Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<ConversationsDbContext>().Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<AutomationsDbContext>().Database.MigrateAsync();
+        await scope.ServiceProvider.GetRequiredService<ContactsDbContext>().Database.MigrateAsync();
+        await scope.ServiceProvider.GetRequiredService<BillingDbContext>().Database.MigrateAsync();
+        await scope.ServiceProvider.GetRequiredService<AuditDbContext>().Database.MigrateAsync();
 
         Client = _factory.CreateClient();
+    }
+
+    /// <summary>Reads the append-only audit log directly (real PostgreSQL).</summary>
+    public async Task<List<AuditEntryRow>> ReadAuditEntriesAsync()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
+        return await context.Entries.OrderBy(e => e.AtUtc).ToListAsync();
+    }
+
+    /// <summary>Appends an audit entry through the port (used by immutability tests).</summary>
+    public async Task RecordAuditAsync(AuditEntry entry)
+    {
+        using var scope = Factory.Services.CreateScope();
+        var trail = scope.ServiceProvider.GetRequiredService<IAuditTrail>();
+        await trail.RecordAsync(entry);
+    }
+
+    /// <summary>
+    /// Guarantees the workspace row exists and the user holds a membership — used by tests
+    /// that exercise seeded workspaces through authenticated HTTP calls.
+    /// </summary>
+    public async Task EnsureWorkspaceMemberAsync(Guid workspaceId, Guid userId)
+    {
+        using var scope = Factory.Services.CreateScope();
+        await using var context = scope.ServiceProvider
+            .GetRequiredService<Qasedak.Modules.Identity.Infrastructure.Persistence.IdentityDbContext>();
+
+        var memberships = await context.Memberships
+            .Where(m => m.WorkspaceId == workspaceId)
+            .ToListAsync();
+        if (memberships.Count == 0)
+        {
+            var workspace = Qasedak.Modules.Identity.Domain.Workspaces.Workspace.FromState(
+                workspaceId,
+                Qasedak.Modules.Identity.Domain.Workspaces.WorkspaceName.Create("Integration Seeded Workspace"),
+                [(Guid.CreateVersion7(), userId, Qasedak.Modules.Identity.Domain.Workspaces.MembershipRole.Owner)]);
+            await context.Workspaces.AddAsync(workspace);
+            await context.SaveChangesAsync();
+        }
+        else if (memberships.All(m => m.UserId != userId))
+        {
+            // Direct row insert: the membership aggregate internals stay module-private.
+            // Role 3 = Member.
+            await context.Database.ExecuteSqlRawAsync(
+                "INSERT INTO identity.memberships (\"Id\", \"WorkspaceId\", \"UserId\", \"Role\") " +
+                "VALUES ({0}, {1}, {2}, 3)",
+                [Guid.CreateVersion7(), workspaceId, userId]);
+        }
     }
 
     public async Task DisposeAsync()

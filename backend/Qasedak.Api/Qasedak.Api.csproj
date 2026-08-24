@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
     <ProjectReference Include="..\BuildingBlocks\Qasedak.BuildingBlocks.Infrastructure\Qasedak.BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Identity\Qasedak.Modules.Identity.Infrastructure\Qasedak.Modules.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Instagram\Qasedak.Modules.Instagram.Infrastructure\Qasedak.Modules.Instagram.Infrastructure.csproj" />

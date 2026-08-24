@@ -5,5 +5,6 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <ProjectReference Include="..\..\BuildingBlocks\Qasedak.BuildingBlocks.Domain\Qasedak.BuildingBlocks.Domain.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Qasedak.BuildingBlocks.Infrastructure\Qasedak.BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

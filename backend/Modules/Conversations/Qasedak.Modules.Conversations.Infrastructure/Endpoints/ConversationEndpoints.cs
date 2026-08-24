@@ -16,7 +16,7 @@ public static class ConversationEndpoints
     {
         var conversations = endpoints.MapGroup("/api/v1/workspaces/{workspaceId:guid}/conversations")
             .WithTags("Conversations")
-            .RequireAuthorization();
+            .RequireAuthorization("workspace-member");
 
         conversations.MapGet(string.Empty, async (
             Guid workspaceId,
@@ -93,7 +93,7 @@ public static class ConversationEndpoints
                     $"/api/v1/workspaces/{workspaceId}/conversations/{conversationId}",
                     new { messageId = result.MessageId })
                 : MapReplyFailure(result.FailureCode!);
-        }).RequireAuthorization();
+        }).RequireAuthorization("workspace-member");
 
         return endpoints;
     }

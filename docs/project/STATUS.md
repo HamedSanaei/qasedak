@@ -1,9 +1,9 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M06 — Automations Engine v1 (complete; M07 next)  
-**Current task:** M07-001 — Model workspace contact identity  
-**Last completed:** M06-005 — Deliver comment-to-DM flow (M06 fully verified, `verify.py --full` green)  
+**Current milestone:** M11 — Release Baseline (M08 blocked: design-source decision pending)  
+**Current task:** M11-003 — Prepare v1 release baseline  
+**Last completed:** M11-002 — Rehearse deployment and rollback  
 **Product implementation:** Not started
 
 ## Baseline established
@@ -43,4 +43,12 @@
 
 ## Next action
 
-Start milestone **M02** with **M02-001**: model the workspace membership domain (users/workspaces/memberships/roles and invariants) in the Identity module Domain layer, with domain unit tests.
+**M08 gate (2026-08-24):** Penpot MCP is reachable again. Live verification of the
+connected file recorded the stable file id `c269caa0-e456-818c-8008-85a77340be64`
+(display name `New File 1` — never match by name) and 24 pages into
+`frontend/Qasedak.Web/design/penpot-sync.json` (manifest validation 6/6 green).
+Mismatch vs. the resume brief: no page named `Directam Landing` exists; a board
+`Directam Landing — Desktop` (`f6b8d46f-5deb-801d-8008-85ab43d94e44`) sits on `Page 1`
+with a different internal structure than the earlier 13-section build. M08-001..005
+stay BLOCKED until a human confirms the canonical landing/design source; then resume
+M08-001 per AGENTS.md §3.1 (see `docs/design/sync/M08-001-design-source-verification.md`).

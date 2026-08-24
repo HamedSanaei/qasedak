@@ -2,21 +2,70 @@
 
 ## Where we are
 
-Milestones M00–M05 complete; **M06 — Automations Engine v1 complete** (all five tasks implemented, finalized and verified). 248 backend tests green (38 Automations unit incl. deterministic evaluator + idempotent orchestration, 5 Automations PostgreSQL integration, 23 API integration incl. the full comment→DM flow). Frontend unchanged this milestone; `verify.py --full` green. Penpot remains the canonical visual source per `docs/design/PENPOT-SYNC.md`.
+All roadmap milestones are closed as of this handoff: M00–M07 fully delivered; **M09 and
+M10 complete** (M09-002 BLOCKED); **M11 release baseline prepared** (M11-001..003 DONE);
+**M08-001..005 remain BLOCKED**, now as `design-source-verification-pending-human-decision`
+(Penpot MCP is reachable again — verified live 2026-08-24). The repository is a v1 production
+baseline: `docs/ops/RELEASE_CHECKLIST.md` + `docs/ops/RELEASE_BASELINE.json` +
+`docs/ops/sbom/bom.xml` record the freeze.
 
-## Completed — M06 summary
+## Design-source verification (2026-08-24, M08 gate)
 
-- **M06-001:** Automation aggregate — channel-neutral Domain (`AutomationDefinition` with `CommentCreated` trigger + keyword filters, AND-composed text/sender conditions, ordered `SendDirectMessage` actions; stable rule codes via `AutomationsDomainException`), `Automation` lifecycle Draft→Active→Disabled with immutable version history (frozen-on-activate, draft replace-in-place, terminal disable preserving readable history, `FromState` rehydration); 15 unit tests.
-- **M06-002:** Versioned persistence — `automations` schema (`automations` + immutable `automation_versions` rows keyed `(AutomationId, Number)`, module-owned JSON with string enums); `EfAutomationRepository` upsert semantics (every mutation flows through the aggregate; identity-map lesson: merge children in place, never Clear+re-add tracked keys); design-time factory, migration `InitialAutomationsCreation`, fixture provisions the 4th connection string; real-PostgreSQL round-trip tests (version-history fidelity, frozen-v1 stability across reloads, workspace listing).
-- **M06-003:** Deterministic evaluator — pure function of (definition, TriggerContext): kind equality gate, ANY-of case-insensitive keyword filters (empty = match-all, null-text rejection), AND conditions (`Contains` case-insensitive substring, `Equals` trim-then-ordinal over `CommentText`/`SenderId`), declaration-ordered actions on match, structured non-match reasons; 13 tests incl. 25× repeat-call determinism.
-- **M06-004:** Idempotent execution — `AutomationRun` ledger aggregate: one run per (automationId, triggerEventId) pinned to the frozen version number, fixed action slots Pending/Succeeded/Failed; succeeded slots never re-dispatched; closed runs immutable. `ExecuteAutomationUseCase`: active-only gate → evaluation (non-matches touch nothing) → ledger probe short-circuits redeliveries → unique-index races map to `AlreadyProcessed` (SQLSTATE 23505) → persist-per-slot crash resumption across process boundaries → stale-version refusal. Migration `AddAutomationRuns`; 7 unit + 2 PostgreSQL concurrency/resumption tests.
-- **M06-005:** Comment→DM flow — composition-root `AutomationCommentBridge` (workspace resolution, active automations, executor invocation), `AutomationChannelDispatcher` binding the neutral dispatcher port to the outbound gateway (24h window stays enforced there → stable `instagram.windowExpired` slot failures), `FanOutIntegrationEventDispatcher` composing Conversations projection + Automations as the single module-visible dispatcher; normalizer extracts commenter `value.from.id`; e2e tests prove exactly-one-DM under redelivery, no-trace non-matches, window-expired failure codes, disabled refusal. CI-safe recording stand-in replaces live Meta messaging calls in tests.
+- Connected file verified by stable id `c269caa0-e456-818c-8008-85a77340be64`
+  (display name `New File 1`; never match this file by name alone) via live
+  `penpot.currentFile.id`; 24 pages enumerated with stable ids and persisted in
+  `frontend/Qasedak.Web/design/penpot-sync.json` (validator 6/6 green).
+- Resume brief expected ~8 pages and a page `Directam Landing` holding the earlier
+  13-section landing. Reality: no such page exists; a board
+  `Directam Landing — Desktop` (`f6b8d46f-5deb-801d-8008-85ab43d94e44`) sits on
+  `Page 1` (`c269caa0-e456-818c-8008-85a77340be65`) with a different internal
+  structure (flat layout, different section naming). Nothing was modified or
+  recreated in Penpot.
+- Full inspection record: `docs/design/sync/M08-001-design-source-verification.md`.
 
-## Next task — M07-001
+## Completed since last handoff
 
-1. `python scripts/agent_preflight.py --task M07-001`; refresh graph (`graphify . --update --no-viz --code-only`).
-2. Bounded graphify query on contact/identity modeling seams (which modules already hold participant identities: Conversations participants, Instagram sender ids); record evidence.
-3. Model workspace contact identity per TASKS.md invariants; keep Domain transport-free, timestamps as parameters.
-4. Gates: build/format/test green; evidence; state files; finalize; continue M07.
+- **M09 Billing foundation:** provider-neutral `Plan`/`Subscription` domain (fail-closed
+  entitlements, period history), repositories, `billing` schema + migration, 6th+7th
+  fixture contexts. `EntitlementGate` enforces server-side limits; automation activation
+  flows through `IAutomationActivationPolicy` (permissive default overridden by
+  composition-root `BillingActivationPolicyAdapter`). M09-002 BLOCKED: needs a human ADR
+  selecting the payment provider.
+- **M10 reliability:** correlation middleware (`X-Correlation-Id` on every response/log),
+  risk-class rate limiting (public/auth/webhook/sensitive budgets, 429+Retry-After),
+  append-only audit trail (`audit.audit_entries`; login success/failure with email
+  fingerprints only, subscription starts, automation activations/denials) bound via
+  `ConnectionStrings:Audit`, PostgreSQL backup/restore/migration-replay rehearsal,
+  mutation gate (Stryker on billing rules, 75.73% after boundary hardening),
+  security/load gates. Security gate found and FIXED a real gap: workspace endpoints now
+  enforce membership uniformly (`workspace-member` policy → 403 for non-members).
+- **M11 baseline:** environment contract doc + sync checker script, deployment/rollback
+  rehearsal (RC image build → migrate → deploy → smoke → rollback drill, PASSED, honest
+  externals listed), CycloneDX SBOM, release checklist, release baseline JSON.
 
-Suggested commits: M06 per-task messages ended with `feat(automations): add comment to dm automation flow`; milestone roll-up commit is `feat(automations): deliver automation engine v1`.
+## Verification status at freeze
+
+`python scripts/verify.py --full` was green earlier in the run; backend suites all green
+at freeze (API e2e 37/37 incl. security/load/audit/correlation/rate-limit gates;
+Billing/Automations/Contacts/Identity/BuildingBlocks unit + integration suites pass).
+Re-run `verify.py --full` before any release action.
+
+## Next actions for a human
+
+1. **Decision required — payment provider (unblocks M09-002):** choose the provider and
+   record an ADR (legal fit, webhook reachability, pricing model).
+2. **Design-source decision (unblocks M08-001..005):** Penpot MCP is connected and the
+   file is verified by stable id (see `docs/design/sync/M08-001-design-source-verification.md`).
+   Confirm which source is canonical for M08: (a) the current live file as-is —
+   `Directam Landing — Desktop` board on `Page 1` becomes the landing mapping target, or
+   (b) restore/recreate the 13-section landing page first. Then agents resume M08-001.
+3. Review `docs/ops/RELEASE_CHECKLIST.md`; tag `v1.0.0` if satisfied (agents never
+   commit/push/tag).
+
+## Next task for an agent
+
+None unblocked in M07–M11. Once the human confirms the canonical design source (human
+decision 2): run preflight for M08-001, follow §3.1 of AGENTS.md exactly (live MCP reads
+first, manifest updates, sync evidence under `docs/design/sync/`, `npm run verify`,
+`validate_penpot_sync.py`), resuming M08-001 → M08-005 in order.
+If a provider ADR lands: implement M09-002 adapter behind the existing billing ports.

@@ -17,6 +17,10 @@ public static class DependencyInjection
                 npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", AutomationsDbContext.Schema)));
         services.AddScoped<IAutomationRepository, EfAutomationRepository>();
         services.AddScoped<IAutomationRunRepository, EfAutomationRunRepository>();
+        // Permissive default activation policy; the composition root overrides it with the
+        // billing-backed entitlement enforcement (server-owned plan limits).
+        services.AddScoped<IAutomationActivationPolicy, PermissiveActivationPolicy>();
+        services.AddScoped<ActivateAutomationUseCase>();
         // ExecuteAutomationUseCase is registered with its IAutomationActionDispatcher
         // binding when the comment→DM flow lands (M06-005); registering it earlier would
         // fail host validation with an unresolvable port.

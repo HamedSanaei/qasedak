@@ -330,37 +330,41 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 
 **Suggested commit:** `feat(automations): add comment to dm automation flow`
 
-**Suggested commit:** `feat(automations): add comment to dm automation flow`
-
 ## M07-001 — Model workspace contact identity
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Define contact/social identity ownership and merge invariants.
+
+**Completion evidence:** Contacts module activated: `Contact` aggregate (workspace-owned; display name ≤200; up to 10 social identities per contact, channels normalized lowercase, provider identities opaque strings ≤128; interaction recency `FirstSeen/LastSeen/InteractionCount` with monotonic last-seen; Active→Archived lifecycle guards; terminal `Merged` status with `MergedIntoId` provenance). Merge design decision: identities are NOT physically moved between contacts — the absorbed contact keeps its identity rows and lookups resolve `MergedIntoId`, keeping the workspace-wide unique index `(WorkspaceId, Channel, ProviderIdentity)` unbreakable regardless of persistence ordering or concurrency. Persistence: `contacts` schema (`contacts` + `contact_identities` tables, workspace-unique identity backstop), `EfContactRepository` aggregate upsert with identity lookup (`FindByIdentityAsync`), design-time factory, migration `InitialContactsCreation`, DI wiring, ApiPostgreSqlFixture provisions 5th connection string + migrates. New test projects: 13 unit tests (guards, normalization, idempotent linking, limits, recency monotonicity, merge absorption/provenance, terminal states, rehydration) + 4 PostgreSQL integration tests (round-trip fidelity incl. case-insensitive identity lookup, uniqueness enforcement across workspaces, merge provenance across reloads, recency-ordered listing). Build 0 warnings; format clean; architecture passed.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(contacts): model workspace contact identity`
 
 ## M07-002 — Project interactions into contacts
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Idempotently maintain contacts from supported social activity.
+
+**Completion evidence:** `ProjectContactInteractionUseCase` (find-or-create by social identity with concurrent-create arbitration via the unique identity index; ledger-gated mutation so webhook redelivery/replay never double-counts; every newly-ledgered event bumps interaction recency; placeholder display names upgrade once real attribution arrives). New `IContactInteractionLedger` port + `EfContactInteractionLedger` over the unique-indexed `contacts.contact_interactions` event ledger; migration `AddContactInteractions`. Composition-root `ContactsInteractionBridge` fans InstagramMessageReceived senders and InstagramCommentCreated authors into contacts through the existing fan-out dispatcher (no module-to-module reference). Tests: 5 new unit tests (create+count, replay idempotency, recency accumulation, placeholder upgrade, create-race adoption) + 2 PostgreSQL projection tests (per-event idempotency, merge-pointer resolution keeps post-merge activity on the merged row) + 2 API e2e tests through the signed webhook pipeline (message sender contact creation/redelivery dedup; comment author projection). Build 0 warnings; all suites green.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(contacts): project social interactions into contacts`
 
 ## M07-003 — Add tags, notes and queries
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Implement lightweight CRM behavior and workspace-scoped queries.
+
+**Completion evidence:** Domain: normalized (trimmed/lowercase) tags with per-contact cap (12) and length guard (32), idempotent add/remove; append-only `ContactNote` records (≤2000 chars, immutable, no edit/remove API). Persistence: `contact_tags` + `contact_notes` tables, migration `AddContactTagsAndNotes`, upsert convergence for tags (add missing, remove absent) and append-only notes. Read side: `IContactQueries`/`EfContactQueries` with paged list (name ILIKE search, status and tag filters, LastSeen-descending) and workspace-scoped detail incl. notes. HTTP: `/api/v1/workspaces/{id}/contacts` list + detail, tag add/remove, note append — all JWT-authorized; unknown/foreign contacts 404 (`contact.notFound`); domain rule violations map to 400/409 by code. Tests: 5 unit tests (tag normalization/dedupe/caps/removal, note guards/immutability, FromState round-trip) + 3 PostgreSQL tests (upsert tag/note convergence across scopes, search/status/tag/paging filters with strict workspace scoping, detail scoping) + 2 API e2e tests through the signed webhook pipeline (authenticated searchable list, tag/note flow, foreign-workspace 404s). Build 0 warnings; suites green.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(contacts): add lead tags notes and queries`
 
 ## M08-001 — Consume/extend Penpot design system via sync
-**Status:** TODO
+**Status:** BLOCKED (design-source-verification-pending-human-decision)
 
 **Outcome:** Extend the established Penpot ↔ Next.js sync foundation (`docs/design/PENPOT-SYNC.md`, `penpot-sync.json`, `docs/design/sync/` evidence) with the full approved token/component set: fetch the current Penpot design through MCP, translate approved tokens/components/layout primitives into reusable Next.js UI primitives, update the manifest and sync evidence for every mapped item. No screen may be implemented from imagination while an approved Penpot source exists.
 
@@ -369,7 +373,7 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(web): implement penpot design foundation`
 
 ## M08-002 — Implement auth/workspace UI from synced designs
-**Status:** TODO
+**Status:** BLOCKED (design-source-verification-pending-human-decision)
 
 **Outcome:** Build approved authentication/workspace screens and behavior. Before implementing, agents MUST fetch the latest mapped Penpot boards/components through MCP (per `AGENTS.md` sync contract), verify against `penpot-sync.json`, and update manifest + sync evidence. API integration, authorization behavior and validation logic stay application-owned and must survive re-sync.
 
@@ -378,7 +382,7 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(web): add authentication and workspace flows`
 
 ## M08-003 — Implement Instagram account UI from synced designs
-**Status:** TODO
+**Status:** BLOCKED (design-source-verification-pending-human-decision)
 
 **Outcome:** Build connection/state/revocation management screens. Fetch the latest mapped Penpot designs via MCP before implementing or updating; record sync evidence; keep OAuth/API integration and account state application-owned.
 
@@ -387,7 +391,7 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(web): add instagram account management ui`
 
 ## M08-004 — Implement inbox UI from synced designs
-**Status:** TODO
+**Status:** BLOCKED (design-source-verification-pending-human-decision)
 
 **Outcome:** Build responsive conversation inbox/detail/reply experience. Fetch the latest mapped Penpot inbox boards/components via MCP before implementing or updating; record sync evidence; keep conversation queries/reply integration application-owned.
 
@@ -396,7 +400,7 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(web): implement conversation inbox`
 
 ## M08-005 — Implement automation builder v1 from synced designs
-**Status:** TODO
+**Status:** BLOCKED (design-source-verification-pending-human-decision)
 
 **Outcome:** Build approved automation list/editor/validation/state UX. Fetch the latest mapped Penpot automation-builder designs via MCP before implementing or updating; record sync evidence; keep automation definitions/evaluator integration application-owned.
 
@@ -405,99 +409,161 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(web): implement automation builder v1`
 
 ## M09-001 — Model subscriptions/entitlements
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Define plans, subscription lifecycle and server-owned entitlements.
+
+**Completion evidence:** Billing module activated provider-neutrally (no payment-provider identifiers anywhere in Domain — repo/docs searched; no provider-selection ADR exists; SRS defers provider to a future external adapter): \Plan\ aggregate (unique lowercase code, entitlement grants with latest-wins replacement, fail-closed \EntitlementFor\), \Entitlement\ (-1 unlimited / 0 disabled / positive cap, normalized feature keys), \Subscription\ lifecycle Trial→Active→PastDue→Canceled/Expired with explicit timestamped transitions, immutable period history, monotonic grace semantics (\IsEntitledAt\), \FromState\ rehydration. Application ports \IPlanRepository\/\ISubscriptionRepository\, \StartSubscriptionUseCase\ (one live subscription per workspace), \ResolveWorkspaceEntitlementsUseCase\ (fails CLOSED on missing plan). Infrastructure: \illing\ schema (\plans\+unique code, \plan_entitlements\, \subscriptions\+workspace-unique index backstop, \subscription_periods\), Ef repositories, design-time factory, migration \InitialBillingCreation\. ApiPostgreSqlFixture provisions 6th connection string + migrates. Tests: 11 unit (lifecycle rules, plan catalog) + 4 PostgreSQL (plan round-trip/uniqueness, one-row-per-workspace enforcement, period append across reloads, entitlement resolution incl. orphan-plan fail-closed). Build 0 warnings; suites green.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(billing): model subscriptions and entitlements`
 
 ## M09-002 — Integrate payment provider
-**Status:** TODO
+**Status:** BLOCKED (provider-selection-decision-required)
 
 **Outcome:** Implement provider adapter/webhooks/idempotency after provider selection ADR.
+
+**Blocker:** No payment-provider selection exists anywhere in the repository (DECISIONS.md, docs/ and repo-wide search performed this milestone; SRS records "Payment provider: future external billing adapter" as deliberately undecided). REQUIRED DECISION: choose and approve the payment provider and record it in an ADR covering legal/deployment fit, webhook reachability and pricing model. Everything else in M09 shipped provider-neutrally, so only the adapter/webhook ingestion remains here.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(billing): integrate payment provider`
 
 ## M09-003 — Enforce entitlements server-side
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Apply limits/feature access in application/server boundaries with tests.
+
+**Completion evidence:** `EntitlementGate` (Billing.Application): server-owned decisions computed only from persisted subscription/plan state — fail-closed on missing subscription/expired period/missing plan (`billing.subscriptionRequired`), count limits with unlimited(-1)/disabled(0)/cap semantics (`billing.limitExceeded`); callers never pass claims in. Enforcement seam: `IAutomationActivationPolicy` port in Automations with permissive module default, overridden at the composition root by `BillingActivationPolicyAdapter` gating activation on the plan's `automations.active` count; new `ActivateAutomationUseCase` consults the policy before mutating (foreign workspace treated as not found), registered in Automations DI and Program.cs. Tests: 7 new unit tests — gate semantics (no-subscription denial, cap/unlimited/disabled, expired-period fail-closed) and activation enforcement (allowed path persists, denial surfaces stable code leaving Draft untouched, pending automation excluded from active count, foreign-workspace 404-equivalence). Build 0 warnings; architecture check passed (35 projects). No HTTP activation endpoint existed before this task; the UI-facing surface lands with M08.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `feat(billing): enforce server-side entitlements`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(billing): enforce server-side entitlements`
 
 ## M10-001 — Add structured telemetry/correlation
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Standardize logging, tracing, metrics, correlation and privacy redaction.
+
+**Completion evidence:** `BuildingBlocks.Infrastructure.Diagnostics`: `CorrelationMiddleware` (first in the API pipeline) honors well-formed inbound `X-Correlation-Id` (8–128 chars of [A-Za-z0-9_-]), otherwise mints a URL-safe GUIDv7 id; pushes `CorrelationId`+`RequestPath` into the ILogger scope so every structured line carries them; echoes the header on every response. Scoped `ICorrelationContextAccessor` exposes the identity to application code. `Sensitive` redaction helpers: full redaction preserving length class (`[redacted:len=N]`), tail-masking for identifiers (short values never leak), deterministic salted SHA-256 fingerprints for correlating repeated secrets without storing them. Registered via `AddQasedakBuildingBlocks`/`UseQasedakCorrelation`. Tests: 12 BuildingBlocks unit tests (id validation incl. XSS/oversize rejection, generation safety, redaction/mask/fingerprint properties) + 2 API e2e tests through the real host (fresh-id echo, inbound honored verbatim, malformed replaced). Build 0 warnings; format + architecture green.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `feat(observability): add structured tracing and correlation`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(observability): add structured tracing and correlation`
 
 ## M10-002 — Add rate limits/abuse controls
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Protect public/authenticated/webhook paths based on risk and external quotas.
+
+**Completion evidence:** `RateLimitPolicies` over ASP.NET Core's partitioned fixed-window limiter: risk classes Public (240/min/IP), Authenticated (600/min per user `sub`, IP fallback), Webhook (2000/min/IP — highest budget for provider bursts), Sensitive (30/min/IP on login/register). Limits configurable via `Qasedak:RateLimits:{Class}:{Limit,WindowSeconds}` for deployment tuning without code changes. Rejections answer 429 with `Retry-After` and stable code `ratelimit.exceeded`; per-partition keys ensure one abusive tenant cannot starve others. Global limiter registered in Program.cs after correlation middleware. Tests: API e2e with a purpose-built factory configured to a 3-request budget hammering a public endpoint until 429+Retry-After appears (regression test fails without the limiter). Build 0 warnings.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `feat(security): enforce rate limits and abuse controls`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(security): enforce rate limits and abuse controls`
 
 ## M10-003 — Add sensitive-action audit trail
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Record security/billing/account/automation sensitive actions with immutable intent.
+
+**Completion evidence:** Append-only audit trail: `IAuditTrail` port + `AuditEntry` in BuildingBlocks.Application (module-reachable without boundary violations); `AuditDbContext` (`audit` schema, `audit_entries`, write-once rows, indexes on (WorkspaceId, AtUtc) and (Action, AtUtc)), `EfAuditTrail` adapter, design-time factory, migration `InitialAuditCreation` (LF-normalized), bound via `AddQasedakAuditTrail` when the composition root configures `ConnectionStrings:Audit`. Emissions wired: identity login success/failure (failures store only a salted email fingerprint + reason code — never credentials or verbatim emails), automation activation granted/denied (denials include the entitlement reason code), subscription start. Privacy helpers centralized (`Sensitive` redaction/mask/fingerprint + application-level `AuditRedaction.Fingerprint`). Tests: 3 PostgreSQL e2e tests through the real host — failed-login audit with leakage assertions (raw email/password absent, fingerprint present), successful-login actor attribution, and append-only semantics (write-once ids, no duplication/mutation path). Module unit suites unaffected and green (79 Identity / 38 Automations / 18 Billing). Build 0 warnings; format + architecture green.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `feat(audit): record sensitive actions append-only`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(security): add sensitive action audit trail`
 
 ## M10-004 — Validate PostgreSQL backup/restore/migrations
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Document and rehearse backup, restore, migration and rollback-safe procedures.
+
+**Completion evidence:** `scripts/rehearse_backup_restore.py` executed successfully (REHEARSAL PASSED): boots two throwaway `postgres:18-alpine` containers, replays all seven module migrations through the API composition root (Identity, Instagram, Conversations, Automations, Contacts, Billing, Audit) against the source, seeds a data row, `pg_dump`s the database, restores into the second container with `ON_ERROR_STOP`, then verifies per-schema table parity for all seven module schemas (`identity` 4 tables, `instagram` 3, `conversations` 3, `automations` 5, `contacts` 6, `billing` 5, `audit` 2), seeded-row survival and identical EF migration history across the restore. Containers are removed on exit. Rollback-safety note: migrations are additive and the rehearsal validates forward replay; point-in-time recovery remains a deployment-time concern documented in M11.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `ops(postgres): validate backup restore and migrations`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `ops(postgres): validate backup restore and migrations`
 
 ## M10-005 — Add mutation/security/load gates
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Use mutation testing on critical rules, targeted security tests and representative load tests.
+
+**Completion evidence:**
+- **Mutation gate:** Stryker.NET 4.16.0 installed as a local dotnet tool (`.config`-style manifest `dotnet-tools.json`); config `backend/tests/Qasedak.Modules.Billing.UnitTests/stryker-config.json` targets the billing critical rules (`Plan`/`Subscription`, migrations excluded). Initial run exposed weak boundaries → added `BillingBoundaryTests` (code/name length edges, 32-feature cap edge, re-grant replacement across case/whitespace, invalid-limit edges, period entitlement boundaries). Final score **75.73%** (79 killed / 40 survived; pure exception-message string mutants excluded by recorded policy — rule CODES are asserted by tests; remaining survivors are documented NoCoverage branches). Reports under `StrykerOutput/…/reports/`. Honest note: score is above the configured low threshold (70) but below high (85); raising it further means covering the remaining NoCoverage branches.
+- **Security gates (regression found + fixed):** new `SecurityGateTests` discovered a real cross-workspace authorization gap — workspace-scoped endpoints trusted the route parameter for any authenticated user. Fixed with a composition-root `workspace-member` authorization policy (`WorkspaceMemberRequirement` + handler over Identity's `IWorkspaceAccessChecker` port) applied to all contacts/conversations groups; existing endpoint tests updated to the new uniform-403 semantics and given proper seeded memberships. Gates now assert: anonymous → 401, forged webhook HMAC → 401, foreign-workspace contact read/mutate → 403, own-workspace absence → 404.
+- **Load gates:** `LoadGateTests.WebhookIngestSustainsABurstWithinBudget` — 40 signed webhook events through the real host inside a time budget plus an authenticated inbox list answered under 2s; budgets intentionally loose to catch order-of-magnitude regressions only.
+- Full API e2e suite green (37/37) with the policy in place; build 0 warnings; format + architecture green.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `test(hardening): add mutation security and load gates`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `test(hardening): add mutation security and load gates`
 
 ## M11-001 — Finalize production environment contract
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Freeze production configuration/secrets/network/storage/probe requirements.
+
+**Completion evidence:** `docs/ops/PRODUCTION_ENVIRONMENT.md` — the normative v1 contract: runtime topology (API + Web images, one PostgreSQL, seven module schemas); all seven required connection strings with failure semantics; application settings table (token signing key, Meta app secret/verify token, token-protection key, CORS, rate-limit overrides) with fail-closed behavior notes; secrets policy (orchestrator-injected, rotation expectations incl. reconnect cost for Meta token re-encryption); probe semantics (`/health/live` process-only vs `/health/ready` dependency-backed) with orchestrator wiring guidance; networking/storage (TLS at reverse proxy, PostgreSQL as the only persistent state, no object storage/queues/caches in v1); deployment-time migration + rollback procedure. Enforced by new `scripts/check_environment_contract.py`, which extracts every `GetConnectionString(...)` and `Qasedak:*` key read from code and fails when the document does not list it — run now: **ENVIRONMENT CONTRACT IN SYNC (8 keys)**.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `ops(prod): document production environment contract`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `ops(prod): document production environment contract`
 
 ## M11-002 — Rehearse deployment and rollback
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Perform release candidate migration/deploy/smoke/rollback exercise.
+
+**Completion evidence:** `scripts/rehearse_deployment.py` executed successfully (DEPLOYMENT REHEARSAL PASSED): builds the API release-candidate image from source (`backend/Dockerfile`), boots an isolated `postgres:18-alpine`, applies all seven module migrations, deploys the RC container wired exactly per the production contract (all seven connection strings, signing key, Meta secret/verify token, token-protection key, Production environment), gates on `/health/live` + `/health/ready`, then smokes over real HTTP: `/api/v1/system`, user registration (201) and login issuing a token. Rollback drill: stops the RC, redeploys the previous tag and repeats health + smoke. **Honest scope note (also printed by the script):** v1 has no predecessor image, so the drill redeploys the identical image to prove the stop/redeploy/health procedure — not binary drift; and DNS/TLS termination, public Meta webhook reachability, managed-Postgres behavior and real secret-store injection remain externally unverified.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `ops(release): rehearse deployment and rollback`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `ops(release): rehearse deployment and rollback`
 
 ## M11-003 — Prepare v1 release baseline
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Close release checklist, docs/state, image provenance and operational handoff.
+
+**Completion evidence:** `docs/ops/RELEASE_CHECKLIST.md` — every gate with its evidence status (all repository-executable gates green at freeze: architecture, format, backend suites, 37/37 API e2e incl. security/load/audit gates, full toolchain verify, mutation gate running at 75.73%, backup/restore + deployment rehearsals PASSED, environment contract in sync) and an explicit "externally NOT claimed" section (DNS/TLS, Meta reachability, managed Postgres, secret store, payment processing, Penpot screens). `docs/ops/sbom/bom.xml` — CycloneDX SBOM for `Qasedak.Api`. `docs/ops/RELEASE_BASELINE.json` — source commit at freeze, rehearsal image id, artifact pointers. `HANDOFF.md` rewritten for the v1 baseline: human decisions required (provider ADR, Penpot MCP), verification status, agent continuation paths. No tag/push performed (agent contract).
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `chore(release): prepare qasedak v1 production baseline`
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 

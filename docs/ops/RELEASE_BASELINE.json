@@ -1,0 +1,10 @@
+{
+  "release": "v1.0.0-rc1",
+  "sourceCommit": "b9b8667838a113f7be7482c23b1a79768f4fced5",
+  "apiImageIdAtRehearsal": "sha256:07cbd4c8b4cd7e948c37ca83ce81c0f1afff117f617ef6be5fda6926a168e48a",
+  "sbom": "docs/ops/sbom/bom.xml",
+  "checklist": "docs/ops/RELEASE_CHECKLIST.md",
+  "environmentContract": "docs/ops/PRODUCTION_ENVIRONMENT.md",
+  "generatedAtUtc": "2026-08-24T01:20:59.267152+00:00",
+  "notes": "Image id recorded from the deployment-rehearsal build on this machine; registry digests exist only after push, which agents do not perform."
+}

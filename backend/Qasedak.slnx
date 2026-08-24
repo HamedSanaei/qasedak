@@ -26,6 +26,10 @@
   <Folder Name="/tests/">
     <Project Path="tests/Qasedak.Api.IntegrationTests/Qasedak.Api.IntegrationTests.csproj" />
     <Project Path="tests/Qasedak.BuildingBlocks.UnitTests/Qasedak.BuildingBlocks.UnitTests.csproj" />
+    <Project Path="tests/Qasedak.Modules.Billing.IntegrationTests/Qasedak.Modules.Billing.IntegrationTests.csproj" />
+    <Project Path="tests/Qasedak.Modules.Billing.UnitTests/Qasedak.Modules.Billing.UnitTests.csproj" />
+    <Project Path="tests/Qasedak.Modules.Contacts.IntegrationTests/Qasedak.Modules.Contacts.IntegrationTests.csproj" />
+    <Project Path="tests/Qasedak.Modules.Contacts.UnitTests/Qasedak.Modules.Contacts.UnitTests.csproj" />
     <Project Path="tests/Qasedak.Modules.Automations.IntegrationTests/Qasedak.Modules.Automations.IntegrationTests.csproj" />
     <Project Path="tests/Qasedak.Modules.Automations.UnitTests/Qasedak.Modules.Automations.UnitTests.csproj" />
     <Project Path="tests/Qasedak.Modules.Conversations.UnitTests/Qasedak.Modules.Conversations.UnitTests.csproj" />

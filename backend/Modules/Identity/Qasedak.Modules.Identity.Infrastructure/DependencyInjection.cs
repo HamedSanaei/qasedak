@@ -8,6 +8,7 @@ using Qasedak.Modules.Identity.Application.Workspaces;
 using Qasedak.Modules.Identity.Infrastructure.Authentication;
 using Qasedak.Modules.Identity.Infrastructure.Endpoints;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
+using Qasedak.Modules.Identity.Infrastructure.Security;
 
 namespace Qasedak.Modules.Identity.Infrastructure;
 
@@ -25,6 +26,7 @@ public static class DependencyInjection
                 npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", IdentityDbContext.Schema)));
         services.AddScoped<IUserRepository, EfUserRepository>();
         services.AddScoped<IWorkspaceRepository, EfWorkspaceRepository>();
+        services.AddScoped<IWorkspaceAccessChecker, EfWorkspaceAccessChecker>();
 
         services.AddScoped<RegisterUserUseCase>();
         services.AddScoped<AuthenticateUserUseCase>();

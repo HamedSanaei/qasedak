@@ -1,0 +1,4 @@
+# EF Core migrations are tool-generated; quality-analyzer noise here is not actionable.
+[*.cs]
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA1707.severity = none

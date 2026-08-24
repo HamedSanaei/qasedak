@@ -1,0 +1,11 @@
+{
+  "stryker-config": {
+    "project": "Qasedak.Modules.Billing.Domain.csproj",
+    "test-projects": ["Qasedak.Modules.Billing.UnitTests.csproj"],
+    "reporters": ["progress", "html", "json"],
+    "thresholds": { "high": 85, "low": 70, "break": 0 },
+    "concurrency": 2,
+    "mutate": ["**/Subscriptions/*.cs", "!**/Migrations/**"],
+    "ignore-mutations": ["string"]
+  }
+}

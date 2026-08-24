@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,12 +23,22 @@ public sealed class ConversationInboxEndpointTests(ApiPostgreSqlFixture fixture)
 
     private sealed record LoginResponse([property: JsonPropertyName("accessToken")] string AccessToken);
 
-    private async Task<string> TokenAsync(string email)
+    private async Task<string> TokenAsync(string email, Guid workspaceId)
     {
         await fixture.Client.PostAsJsonAsync("/api/v1/identity/register", new { email, password = "Passw0rd!23", displayName = "Inbox Tester" });
         var login = await fixture.Client.PostAsJsonAsync("/api/v1/identity/login", new { email, password = "Passw0rd!23" });
         var payload = await login.Content.ReadFromJsonAsync<LoginResponse>();
-        return payload!.AccessToken;
+        var token = payload!.AccessToken;
+
+        // The tester must be a member of the workspace the inbox belongs to.
+        using var me = new HttpRequestMessage(HttpMethod.Get, "/api/v1/identity/me");
+        me.Headers.Authorization = new("Bearer", token);
+        using var meResponse = await fixture.Client.SendAsync(me);
+        meResponse.EnsureSuccessStatusCode();
+        var userId = Guid.Parse((await meResponse.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("userId").GetString()!);
+        await fixture.EnsureWorkspaceMemberAsync(workspaceId, userId);
+
+        return token;
     }
 
     private HttpClient AuthedClient(string token)
@@ -69,7 +80,7 @@ public sealed class ConversationInboxEndpointTests(ApiPostgreSqlFixture fixture)
         await SeedConversationAsync(workspace, "p-open-2", ConversationStatus.Open, ("m-a2", "second open"));
         await SeedConversationAsync(workspace, "p-arch", ConversationStatus.Archived, ("m-a3", "archived one"));
 
-        using var client = AuthedClient(await TokenAsync("inbox-list@example.com"));
+        using var client = AuthedClient(await TokenAsync("inbox-list@example.com", workspace));
         var page = await client.GetFromJsonAsync<InboxPageResponse>(
             $"/api/v1/workspaces/{workspace}/conversations?status=open&page=1&pageSize=10");
 
@@ -85,12 +96,10 @@ public sealed class ConversationInboxEndpointTests(ApiPostgreSqlFixture fixture)
         var tinyPage = await tinyResponse.Content.ReadFromJsonAsync<InboxPageResponse>();
         Assert.Single(tinyPage!.Items);
 
-        // An untouched workspace sees nothing of these threads.
+        // A workspace the caller does not belong to is denied outright (membership policy).
         var untouched = FreshWorkspace();
         var otherResponse = await client.GetAsync($"/api/v1/workspaces/{untouched}/conversations");
-        Assert.True(otherResponse.IsSuccessStatusCode, await otherResponse.Content.ReadAsStringAsync());
-        var other = await otherResponse.Content.ReadFromJsonAsync<InboxPageResponse>();
-        Assert.Equal(0, other!.TotalCount);
+        Assert.Equal(HttpStatusCode.Forbidden, otherResponse.StatusCode);
 
         // Anonymous access is rejected.
         Assert.Equal(HttpStatusCode.Unauthorized, (await fixture.Client.GetAsync(
@@ -104,7 +113,7 @@ public sealed class ConversationInboxEndpointTests(ApiPostgreSqlFixture fixture)
         await SeedConversationAsync(workspace, "p-detail", ConversationStatus.Open,
             ("m-b1", "hello there"), ("m-b2", "second message"));
 
-        using var client = AuthedClient(await TokenAsync("inbox-detail@example.com"));
+        using var client = AuthedClient(await TokenAsync("inbox-detail@example.com", workspace));
         var scope = fixture.Factory.Services.CreateScope();
         await using var context = scope.ServiceProvider.GetRequiredService<ConversationsDbContext>();
         var conversationId = await context.Conversations
@@ -122,8 +131,8 @@ public sealed class ConversationInboxEndpointTests(ApiPostgreSqlFixture fixture)
         Assert.Equal("hello there", detail.Messages[0].Body);
         Assert.Contains(detail.Messages, m => m.Body.StartsWith("reply:", StringComparison.Ordinal));
 
-        // A different workspace cannot read this thread.
-        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(
+        // A workspace the caller does not belong to cannot read this thread (policy denial).
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync(
             $"/api/v1/workspaces/{FreshWorkspace()}/conversations/{conversationId}")).StatusCode);
         // Unknown ids are 404, not errors.
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(
