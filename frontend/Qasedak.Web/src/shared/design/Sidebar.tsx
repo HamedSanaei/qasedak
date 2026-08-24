@@ -10,12 +10,18 @@
  */
 import Link from "next/link";
 import styles from "./Sidebar.module.css";
+import { SidebarIcon, type IconName } from "./SidebarIcon";
 
 export interface SidebarNavItem {
   /** Visible label, verbatim from the Penpot design. */
   label: string;
   /** Application-owned route target. */
   href: string;
+  /**
+   * Icon extracted verbatim from the Penpot sidebar board (M08-001).
+   * Application-owned mapping between route and icon.
+   */
+  icon?: IconName;
 }
 
 export interface SidebarSubItem {
@@ -49,6 +55,11 @@ export default function Sidebar({ navItems, subItems = [], activeHref, planLabel
               className={`${styles.navItem} ${activeHref === item.href ? styles.navItemActive : ""}`}
               aria-current={activeHref === item.href ? "page" : undefined}
             >
+              {item.icon ? (
+                <span className={styles.navIcon}>
+                  <SidebarIcon name={item.icon} />
+                </span>
+              ) : null}
               {item.label}
             </Link>
             {subItems.length > 0 && activeHref === item.href ? (

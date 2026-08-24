@@ -8,14 +8,14 @@ import Sidebar from "../../shared/design/Sidebar";
  * the M08 tasks after their designs are synced.
  */
 const navItems = [
-  { label: "داشبورد", href: "/dashboard" },
-  { label: "امکانات", href: "/dashboard/features" },
-  { label: "پیامک هوشمند", href: "/dashboard/smart-sms" },
-  { label: "اتصال پیج اینستاگرام", href: "/dashboard/settings/instagram" },
-  { label: "خرید اشتراک", href: "/dashboard/billing" },
-  { label: "حساب‌های من", href: "/dashboard/accounts" },
-  { label: "راهنمایی و پشتیبانی", href: "/dashboard/help" },
-];
+  { label: "داشبورد", href: "/dashboard", icon: "Dashboard" },
+  { label: "امکانات", href: "/dashboard/features", icon: "Features" },
+  { label: "پیامک هوشمند", href: "/dashboard/smart-sms", icon: "SmartSMS" },
+  { label: "اتصال پیج اینستاگرام", href: "/dashboard/settings/instagram", icon: "Instagram" },
+  { label: "خرید اشتراک", href: "/dashboard/billing", icon: "Pricing" },
+  { label: "حساب‌های من", href: "/dashboard/accounts", icon: "Accounts" },
+  { label: "راهنمایی و پشتیبانی", href: "/dashboard/help", icon: "Help" },
+] as const;
 
 const subItems = [
   { label: "پاسخ هوشمند", href: "/dashboard/features/smart-answer" },

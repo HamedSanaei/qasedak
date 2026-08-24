@@ -2,70 +2,63 @@
 
 ## Where we are
 
-All roadmap milestones are closed as of this handoff: M00–M07 fully delivered; **M09 and
-M10 complete** (M09-002 BLOCKED); **M11 release baseline prepared** (M11-001..003 DONE);
-**M08-001..005 remain BLOCKED**, now as `design-source-verification-pending-human-decision`
-(Penpot MCP is reachable again — verified live 2026-08-24). The repository is a v1 production
-baseline: `docs/ops/RELEASE_CHECKLIST.md` + `docs/ops/RELEASE_BASELINE.json` +
-`docs/ops/sbom/bom.xml` record the freeze.
+**M08 is complete (2026-08-24).** M08-001..005 were executed end-to-end from the local
+working tree against the verified canonical Penpot file
+`c269caa0-e456-818c-8008-85a77340be64`, per the human resume directive. All roadmap
+milestones are now closed: M00–M08 fully delivered; **M09 and M10 complete**
+(M09-002 remains BLOCKED on a provider-selection ADR); **M11 release baseline prepared**
+(M11-001..003 DONE).
 
-## Design-source verification (2026-08-24, M08 gate)
+## What M08 delivered (this run)
 
-- Connected file verified by stable id `c269caa0-e456-818c-8008-85a77340be64`
-  (display name `New File 1`; never match this file by name alone) via live
-  `penpot.currentFile.id`; 24 pages enumerated with stable ids and persisted in
-  `frontend/Qasedak.Web/design/penpot-sync.json` (validator 6/6 green).
-- Resume brief expected ~8 pages and a page `Directam Landing` holding the earlier
-  13-section landing. Reality: no such page exists; a board
-  `Directam Landing — Desktop` (`f6b8d46f-5deb-801d-8008-85ab43d94e44`) sits on
-  `Page 1` (`c269caa0-e456-818c-8008-85a77340be65`) with a different internal
-  structure (flat layout, different section naming). Nothing was modified or
-  recreated in Penpot.
-- Full inspection record: `docs/design/sync/M08-001-design-source-verification.md`.
+- **M08-001 — design foundation:** 14 sidebar icons extracted verbatim (path-data),
+  extended token set (`radius.control/chip`, `elevation.menu`, `colorExtended.*`) all
+  annotated with live Penpot origins, presentation-only primitives `src/shared/design/ui`,
+  active-state OPEN QUESTION pinned by test. Evidence: `docs/design/sync/M08-001-design-foundation.md`.
+- **M08-002 — auth/workspace:** application-owned `http.ts`/`identity.ts` clients,
+  backend-mirroring validators, `/login` + `/register` (+ workspace creation). Mapping
+  `identity.auth` is **draft**: the only auth boards are GetCode OTP references
+  (`324404a7-…8776b27352cb`) that diverge from the email+password backend.
+- **M08-003 — Instagram accounts:** approved mapping; new thin `ConnectionEndpoints`
+  HTTP surface over tested use cases (tokens never leave the server); UI covers all six
+  `AccountHealth` states with reconnect/disconnect flows.
+- **M08-004 — inbox:** functional list/thread/reply UI on foundation tokens. The visual
+  sync portion is **BLOCKED — no inbox/conversation design exists anywhere in the
+  canonical file** (all 24 pages swept); no manifest mapping was fabricated.
+- **M08-005 — automation builder v1:** new `AutomationEndpoints`
+  (CRUD + activate/deactivate; billing denials surface verbatim), builder form + list
+  synced from three boards with documented divergences (1000-char counter wins over the
+  design's ۰/۲۰۰۰; post-scoping disabled in v1).
 
-## Completed since last handoff
+Per-task evidence: `docs/design/sync/M08-00{1..5}-*.md`; manifest:
+`frontend/Qasedak.Web/design/penpot-sync.json` (validator green); screen roll-up:
+`docs/design/SCREEN-INVENTORY.md`.
 
-- **M09 Billing foundation:** provider-neutral `Plan`/`Subscription` domain (fail-closed
-  entitlements, period history), repositories, `billing` schema + migration, 6th+7th
-  fixture contexts. `EntitlementGate` enforces server-side limits; automation activation
-  flows through `IAutomationActivationPolicy` (permissive default overridden by
-  composition-root `BillingActivationPolicyAdapter`). M09-002 BLOCKED: needs a human ADR
-  selecting the payment provider.
-- **M10 reliability:** correlation middleware (`X-Correlation-Id` on every response/log),
-  risk-class rate limiting (public/auth/webhook/sensitive budgets, 429+Retry-After),
-  append-only audit trail (`audit.audit_entries`; login success/failure with email
-  fingerprints only, subscription starts, automation activations/denials) bound via
-  `ConnectionStrings:Audit`, PostgreSQL backup/restore/migration-replay rehearsal,
-  mutation gate (Stryker on billing rules, 75.73% after boundary hardening),
-  security/load gates. Security gate found and FIXED a real gap: workspace endpoints now
-  enforce membership uniformly (`workspace-member` policy → 403 for non-members).
-- **M11 baseline:** environment contract doc + sync checker script, deployment/rollback
-  rehearsal (RC image build → migrate → deploy → smoke → rollback drill, PASSED, honest
-  externals listed), CycloneDX SBOM, release checklist, release baseline JSON.
+## Verification status
 
-## Verification status at freeze
-
-`python scripts/verify.py --full` was green earlier in the run; backend suites all green
-at freeze (API e2e 37/37 incl. security/load/audit/correlation/rate-limit gates;
-Billing/Automations/Contacts/Identity/BuildingBlocks unit + integration suites pass).
-Re-run `verify.py --full` before any release action.
+- Frontend: `npm run verify` green (lint 0 problems, tsc clean, node --test 30/30,
+  production build prerenders all routes).
+- Backend: solution builds Release clean; Automations unit suite 44/44 (incl. endpoint
+  contract tests), Instagram unit suite 80/80.
+- Gates: `validate_penpot_sync.py` PASSED, `check_architecture.py` PASSED
+  (35 projects / 6 modules), `agent_finalize.py` passed for every M08 task.
+- `verify.py --full` re-run at handoff time (see GRAPHIFY_EVIDENCE.md / CI log for the
+  recorded result of this final pass).
 
 ## Next actions for a human
 
 1. **Decision required — payment provider (unblocks M09-002):** choose the provider and
    record an ADR (legal fit, webhook reachability, pricing model).
-2. **Design-source decision (unblocks M08-001..005):** Penpot MCP is connected and the
-   file is verified by stable id (see `docs/design/sync/M08-001-design-source-verification.md`).
-   Confirm which source is canonical for M08: (a) the current live file as-is —
-   `Directam Landing — Desktop` board on `Page 1` becomes the landing mapping target, or
-   (b) restore/recreate the 13-section landing page first. Then agents resume M08-001.
-3. Review `docs/ops/RELEASE_CHECKLIST.md`; tag `v1.0.0` if satisfied (agents never
-   commit/push/tag).
+2. **Design decisions to lift remaining drafts/blockers:**
+   - Approve (or supply) a Qasedak-branded auth design → lifts `identity.auth` from draft.
+   - Supply an inbox/conversation design in the canonical file → unblocks the BLOCKED
+     visual sync of `/dashboard/inbox`.
+   - Confirm the landing mapping target (`Directam Landing — Desktop` board on Page 1)
+     if a public landing implementation task is ever added.
 
 ## Next task for an agent
 
-None unblocked in M07–M11. Once the human confirms the canonical design source (human
-decision 2): run preflight for M08-001, follow §3.1 of AGENTS.md exactly (live MCP reads
-first, manifest updates, sync evidence under `docs/design/sync/`, `npm run verify`,
-`validate_penpot_sync.py`), resuming M08-001 → M08-005 in order.
-If a provider ADR lands: implement M09-002 adapter behind the existing billing ports.
+None actionable in TASKS.md — every task is DONE except **M09-002**, which stays BLOCKED
+until the payment-provider ADR lands (then implement the adapter behind the existing
+billing ports). Do not commit/push/tag unless explicitly asked; suggested commits are
+recorded per task in TASKS.md.

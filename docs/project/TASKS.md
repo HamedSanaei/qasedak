@@ -364,47 +364,57 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(contacts): add lead tags notes and queries`
 
 ## M08-001 — Consume/extend Penpot design system via sync
-**Status:** BLOCKED (design-source-verification-pending-human-decision)
+**Status:** DONE (2026-08-24)
 
 **Outcome:** Extend the established Penpot ↔ Next.js sync foundation (`docs/design/PENPOT-SYNC.md`, `penpot-sync.json`, `docs/design/sync/` evidence) with the full approved token/component set: fetch the current Penpot design through MCP, translate approved tokens/components/layout primitives into reusable Next.js UI primitives, update the manifest and sync evidence for every mapped item. No screen may be implemented from imagination while an approved Penpot source exists.
 
 **Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
+**Completion evidence:** Canonical file verified by UUID `c269caa0-e456-818c-8008-85a77340be64` via `getPageById` (no human navigation). Extracted verbatim path-data for all 14 sidebar icons into `src/shared/design/SidebarIcon.tsx`; extended `:root` tokens in `globals.css` with live-sampled values (`radius.control/chip`, `elevation.menu`, `colorExtended.*` inkStrong/headingPlum/accentSoft/accentSofter/borderInput/textPlaceholder/status*/accentViolet) each annotated with `/Penpot/` origin; built presentation-only primitives `src/shared/design/ui` (Button variants×sizes, Card, TextField, TextAreaField with counter shell, SelectField, StatusPill, PageHeader); sidebar active state remains an OPEN QUESTION pinned by test (Penpot defines no explicit active row); tests `tests/design-system.test.mjs` 4/4; sync record `docs/design/sync/M08-001-design-foundation.md`; agent_finalize passed.
+
 **Suggested commit:** `feat(web): implement penpot design foundation`
 
 ## M08-002 — Implement auth/workspace UI from synced designs
-**Status:** BLOCKED (design-source-verification-pending-human-decision)
+**Status:** DONE (2026-08-24)
 
 **Outcome:** Build approved authentication/workspace screens and behavior. Before implementing, agents MUST fetch the latest mapped Penpot boards/components through MCP (per `AGENTS.md` sync contract), verify against `penpot-sync.json`, and update manifest + sync evidence. API integration, authorization behavior and validation logic stay application-owned and must survive re-sync.
 
 **Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
+**Completion evidence:** Live-inspected GetCode OTP boards `Auth / Login / Desktop 324404a7-…8776b27352cb` + `Auth / OTP / Mobile …8776b3100eb1` — documented divergence (phone-OTP vs backend email+password; no Qasedak auth board exists) → mapping `identity.auth` status **draft** citing both UUIDs. Implemented application-owned API layer `src/shared/api/http.ts` (injectable transport, ApiError with stable codes) + `identity.ts` (register/login/me/createWorkspace/listMembers, localStorage session with expiry check); pure validators `src/features/auth/validation.ts` mirroring PasswordPolicy (10..128 + non-alphanumeric) and workspace name rules with Persian copy for every failure code; pages `/login`, `/register` on foundation primitives. Tests: `tests/auth.test.mjs` + `tests/identity-api.test.mjs` (contract w/ injected transport). Frontend suite 18/18 at completion.
+
 **Suggested commit:** `feat(web): add authentication and workspace flows`
 
 ## M08-003 — Implement Instagram account UI from synced designs
-**Status:** BLOCKED (design-source-verification-pending-human-decision)
+**Status:** DONE (2026-08-24)
 
 **Outcome:** Build connection/state/revocation management screens. Fetch the latest mapped Penpot designs via MCP before implementing or updating; record sync evidence; keep OAuth/API integration and account state application-owned.
 
 **Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
+**Completion evidence:** Live-inspected `Connect to Instagram — Desktop f5bf3c2c-…874ac4b51953` + `Profile — Connected Accounts …874a8c53c34c` (approved mapping `instagram.connections`). Added minimal backend surface over tested use cases: `ConnectionEndpoints` (list / authorize-url / connect / disconnect under workspace-member policy; token material never leaves server) + public `ConnectionsFailureMapper` pinned by 6 unit tests (Instagram suite 80/80). Frontend `/dashboard/settings/instagram`: connect card ↔ connected list, health pills for all six `AccountHealth` values via pure mapper (unknown values fail closed), reconnect for Expired/ExpiringSoon/Revoked, disconnect busy-state, Persian copy for every stable code. Sync record `docs/design/sync/M08-003-instagram-accounts.md`.
+
 **Suggested commit:** `feat(web): add instagram account management ui`
 
 ## M08-004 — Implement inbox UI from synced designs
-**Status:** BLOCKED (design-source-verification-pending-human-decision)
+**Status:** DONE WITH DOCUMENTED BLOCKED PORTION (visual sync BLOCKED — missing design) (2026-08-24)
 
 **Outcome:** Build responsive conversation inbox/detail/reply experience. Fetch the latest mapped Penpot inbox boards/components via MCP before implementing or updating; record sync evidence; keep conversation queries/reply integration application-owned.
 
 **Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
 
+**Completion evidence:** Full sweep of all 24 canonical-file pages found **no inbox/conversation/DM design anywhere** → per milestone directive only this portion is BLOCKED with exact gap recorded in `docs/design/sync/M08-004-conversation-inbox.md` + `SCREEN-INVENTORY.md`; NO manifest mapping created (no design source exists) and no design values invented. Everything else delivered: functional inbox on approved foundation tokens only — `/dashboard/inbox` (filters, status/unread pills, fa relative time, empty/error states) and `/dashboard/inbox/[conversationId]` (thread bubbles, reply composer mirroring backend empty/tooLong rules, Persian copy for every stable reply/channel code incl. instagram.* and messaging-window) over existing `ConversationEndpoints`. Tests `tests/inbox.test.mjs` (+4).
+
 **Suggested commit:** `feat(web): implement conversation inbox`
 
 ## M08-005 — Implement automation builder v1 from synced designs
-**Status:** BLOCKED (design-source-verification-pending-human-decision)
+**Status:** DONE (2026-08-24)
 
 **Outcome:** Build approved automation list/editor/validation/state UX. Fetch the latest mapped Penpot automation-builder designs via MCP before implementing or updating; record sync evidence; keep automation definitions/evaluator integration application-owned.
 
 **Completion contract:** Graphify evidence recorded; Penpot MCP inspection evidence recorded; manifest validation green; scoped tests/gates pass; project state/handoff/manifest updated.
+
+**Completion evidence:** Live-inspected three boards (`Comment Automation — List …874ebb85c7c2`, `…— New …874ec2cb62fb`, `Smart Answering — Component States …8747843b4ad6`) → approved mapping `automations.comment` with documented divergences (design ۰/۲۰۰۰ counter vs domain 1000 cap — backend wins; per-post scoping has no v1 domain field → disabled «همه پست‌ها»; quick-replies/audio out of v1 scope). Backend: added `AutomationEndpoints` (list/create/get/PUT revision/activate/deactivate/DELETE) as thin glue over tested use cases incl. policy-checked activation surfacing `billing.subscriptionRequired|limitExceeded` verbatim; wire→domain `DefinitionMapper` fail-closed on enums, pinned by `AutomationEndpointContractTests` (+4 → 44/44). Frontend: list with search/status pills/lifecycle actions, shared `AutomationBuilderForm` used by new+edit routes with preview bubble and match-mode hints. Sync record `docs/design/sync/M08-005-automation-builder.md`.
 
 **Suggested commit:** `feat(web): implement automation builder v1`
 

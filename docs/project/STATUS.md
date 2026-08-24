@@ -1,10 +1,10 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M11 — Release Baseline (M08 blocked: design-source decision pending)  
-**Current task:** M11-003 — Prepare v1 release baseline  
-**Last completed:** M11-002 — Rehearse deployment and rollback  
-**Product implementation:** Not started
+**Current milestone:** M08 — Penpot-Driven Product UI (complete)  
+**Current task:** M08-005 — Implement automation builder v1 (last actionable task; only M09-002 remains BLOCKED pending human decision)  
+**Last completed:** M08-005 — Implement automation builder v1  
+**Product implementation:** In progress (M08)
 
 ## Baseline established
 

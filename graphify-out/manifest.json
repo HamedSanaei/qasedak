@@ -1,8 +1,8 @@
 {
   ".agent-state/PROJECT_STATE.json": {
-    "mtime": 1787534536.2165327,
-    "ast_hash": "daab3d7c67a92c21b39dc508e0c0e71b",
-    "semantic_hash": "daab3d7c67a92c21b39dc508e0c0e71b"
+    "mtime": 1787565019.3774123,
+    "ast_hash": "44165ed81eef6593cde26d1f986dede0",
+    "semantic_hash": "44165ed81eef6593cde26d1f986dede0"
   },
   "backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/IClock.cs": {
     "mtime": 1787434829.0,
@@ -225,9 +225,9 @@
     "semantic_hash": "f52bf3dce2ff62198b141240d68bf7d5"
   },
   "backend/Qasedak.Api/Program.cs": {
-    "mtime": 1787532845.9477856,
-    "ast_hash": "b8fee7502db0c605c7a78fe17d5090e5",
-    "semantic_hash": "b8fee7502db0c605c7a78fe17d5090e5"
+    "mtime": 1787564166.9233727,
+    "ast_hash": "bf701e780d53bec0ee0fef322cc3626a",
+    "semantic_hash": "bf701e780d53bec0ee0fef322cc3626a"
   },
   "backend/Qasedak.Api/Properties/launchSettings.json": {
     "mtime": 1787434849.0,
@@ -1145,14 +1145,14 @@
     "semantic_hash": "eade28cbbd8173e6126343db2399dda3"
   },
   "frontend/Qasedak.Web/design/penpot-sync.json": {
-    "mtime": 1787521886.1122897,
-    "ast_hash": "eb074358161ac6ac10664d7ee22dd939",
-    "semantic_hash": "eb074358161ac6ac10664d7ee22dd939"
+    "mtime": 1787564599.2007575,
+    "ast_hash": "bc5db9432118657a34edf0e1d708e836",
+    "semantic_hash": "bc5db9432118657a34edf0e1d708e836"
   },
   "frontend/Qasedak.Web/src/app/dashboard/layout.tsx": {
-    "mtime": 1787522026.7064223,
-    "ast_hash": "b409a78d5962c9154a82d35875bad9c8",
-    "semantic_hash": "b409a78d5962c9154a82d35875bad9c8"
+    "mtime": 1787562831.0283928,
+    "ast_hash": "680ec8bab9c373f48517cf083b6e7c32",
+    "semantic_hash": "680ec8bab9c373f48517cf083b6e7c32"
   },
   "frontend/Qasedak.Web/src/app/dashboard/page.tsx": {
     "mtime": 1787522034.6482606,
@@ -1160,9 +1160,9 @@
     "semantic_hash": "a56ababda7b9816b7003dfdb58d70816"
   },
   "frontend/Qasedak.Web/src/shared/design/Sidebar.tsx": {
-    "mtime": 1787521966.7374375,
-    "ast_hash": "d5de821a5421436ff7d8066af68ab52f",
-    "semantic_hash": "d5de821a5421436ff7d8066af68ab52f"
+    "mtime": 1787562789.7220702,
+    "ast_hash": "9cf0ac9aa1fa154e2e3c716cda8ad796",
+    "semantic_hash": "9cf0ac9aa1fa154e2e3c716cda8ad796"
   },
   "frontend/Qasedak.Web/tests/penpot-sync.test.mjs": {
     "mtime": 1787521913.3141673,
@@ -1578,5 +1578,115 @@
     "mtime": 1787534216.975459,
     "ast_hash": "421a0bf81415d28b483bc00125770313",
     "semantic_hash": "421a0bf81415d28b483bc00125770313"
+  },
+  "frontend/Qasedak.Web/src/shared/design/SidebarIcon.tsx": {
+    "mtime": 1787562682.2309294,
+    "ast_hash": "69277474001865331eee6960a7e95414",
+    "semantic_hash": "69277474001865331eee6960a7e95414"
+  },
+  "frontend/Qasedak.Web/src/shared/design/ui/index.tsx": {
+    "mtime": 1787562765.494414,
+    "ast_hash": "03b9b3a822f014241fba36c93128a10f",
+    "semantic_hash": "03b9b3a822f014241fba36c93128a10f"
+  },
+  "frontend/Qasedak.Web/tests/design-system.test.mjs": {
+    "mtime": 1787562852.311603,
+    "ast_hash": "c6ebfd334cbb63339bb5d6204058e162",
+    "semantic_hash": "c6ebfd334cbb63339bb5d6204058e162"
+  },
+  "frontend/Qasedak.Web/src/app/login/page.tsx": {
+    "mtime": 1787563478.7255487,
+    "ast_hash": "494a8f28a4891ef54f2778f5daee7483",
+    "semantic_hash": "494a8f28a4891ef54f2778f5daee7483"
+  },
+  "frontend/Qasedak.Web/src/app/register/page.tsx": {
+    "mtime": 1787563478.7363646,
+    "ast_hash": "8378c548fd601e03eb87beb0254694df",
+    "semantic_hash": "8378c548fd601e03eb87beb0254694df"
+  },
+  "frontend/Qasedak.Web/src/features/auth/validation.ts": {
+    "mtime": 1787563759.7390046,
+    "ast_hash": "52f98cb7449b9a63d7461f80dbb92511",
+    "semantic_hash": "52f98cb7449b9a63d7461f80dbb92511"
+  },
+  "frontend/Qasedak.Web/src/shared/api/http.ts": {
+    "mtime": 1787564250.7754736,
+    "ast_hash": "5f8bd0bbaf66c1495844633dcaf13415",
+    "semantic_hash": "5f8bd0bbaf66c1495844633dcaf13415"
+  },
+  "frontend/Qasedak.Web/src/shared/api/identity.ts": {
+    "mtime": 1787563759.7246852,
+    "ast_hash": "a6d9ddb0f5eb326116a5f0c5d3f9ed1a",
+    "semantic_hash": "a6d9ddb0f5eb326116a5f0c5d3f9ed1a"
+  },
+  "frontend/Qasedak.Web/tests/auth.test.mjs": {
+    "mtime": 1787563493.5596929,
+    "ast_hash": "7418369f5c305713569da538710fcbad",
+    "semantic_hash": "7418369f5c305713569da538710fcbad"
+  },
+  "frontend/Qasedak.Web/tests/identity-api.test.mjs": {
+    "mtime": 1787563597.7369318,
+    "ast_hash": "39302d1fb7daf142327c92a68e29eea5",
+    "semantic_hash": "39302d1fb7daf142327c92a68e29eea5"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Endpoints/ConnectionEndpoints.cs": {
+    "mtime": 1787563992.0302498,
+    "ast_hash": "00fac5ec85db7ad65216a5551556535f",
+    "semantic_hash": "00fac5ec85db7ad65216a5551556535f"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Endpoints/ConnectionsFailureMapper.cs": {
+    "mtime": 1787564127.137445,
+    "ast_hash": "0feb9ba27ccfb82afc120e40f8e2129b",
+    "semantic_hash": "0feb9ba27ccfb82afc120e40f8e2129b"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.UnitTests/ConnectionsFailureMapperTests.cs": {
+    "mtime": 1787564161.641664,
+    "ast_hash": "e1d492b6db3b91c7bc9b135a6bdf3ad4",
+    "semantic_hash": "e1d492b6db3b91c7bc9b135a6bdf3ad4"
+  },
+  "frontend/Qasedak.Web/src/app/dashboard/settings/instagram/page.tsx": {
+    "mtime": 1787564298.5437376,
+    "ast_hash": "22c5779c0d03bd29fe94fbcdaa8c27be",
+    "semantic_hash": "22c5779c0d03bd29fe94fbcdaa8c27be"
+  },
+  "frontend/Qasedak.Web/src/features/instagram/health.ts": {
+    "mtime": 1787564222.0901127,
+    "ast_hash": "ae7e6785ce9916065b2edf7779883663",
+    "semantic_hash": "ae7e6785ce9916065b2edf7779883663"
+  },
+  "frontend/Qasedak.Web/src/shared/api/connections.ts": {
+    "mtime": 1787564235.6848269,
+    "ast_hash": "7092d42b250fb4eee0715ad9325bcdc4",
+    "semantic_hash": "7092d42b250fb4eee0715ad9325bcdc4"
+  },
+  "frontend/Qasedak.Web/tests/instagram-connections.test.mjs": {
+    "mtime": 1787564454.3695714,
+    "ast_hash": "4e9bad3600f7ccd9e21e35340a094068",
+    "semantic_hash": "4e9bad3600f7ccd9e21e35340a094068"
+  },
+  "frontend/Qasedak.Web/src/app/dashboard/inbox/[conversationId]/page.tsx": {
+    "mtime": 1787564951.2023866,
+    "ast_hash": "9d6365498179a5615ecc3d383c9d6611",
+    "semantic_hash": "9d6365498179a5615ecc3d383c9d6611"
+  },
+  "frontend/Qasedak.Web/src/app/dashboard/inbox/page.tsx": {
+    "mtime": 1787564902.5060694,
+    "ast_hash": "f0a79dffc25f675cda1b08b7779b8109",
+    "semantic_hash": "f0a79dffc25f675cda1b08b7779b8109"
+  },
+  "frontend/Qasedak.Web/src/features/inbox/presentation.ts": {
+    "mtime": 1787564757.426905,
+    "ast_hash": "d0fafa2820ed536d2321788b0024719c",
+    "semantic_hash": "d0fafa2820ed536d2321788b0024719c"
+  },
+  "frontend/Qasedak.Web/src/shared/api/conversations.ts": {
+    "mtime": 1787564737.5948958,
+    "ast_hash": "f6b4d953e54eb1d42562e42dd9d6cbc9",
+    "semantic_hash": "f6b4d953e54eb1d42562e42dd9d6cbc9"
+  },
+  "frontend/Qasedak.Web/tests/inbox.test.mjs": {
+    "mtime": 1787564877.0278087,
+    "ast_hash": "60425144738fbd627a9854d27bef2007",
+    "semantic_hash": "60425144738fbd627a9854d27bef2007"
   }
 }

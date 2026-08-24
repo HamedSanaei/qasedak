@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-24T12:20:00+00:00",
+  "updatedAt": "2026-08-24T17:40:00+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M07",
-  "currentTask": "M11-003",
-  "lastCompletedTask": "M11-003",
+  "currentTask": "M08-005",
+  "lastCompletedTask": "M08-005",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -49,7 +49,12 @@
     "M10-005",
     "M11-001",
     "M11-002",
-    "M11-003"
+    "M11-003",
+    "M08-001",
+    "M08-002",
+    "M08-003",
+    "M08-004",
+    "M08-005"
   ],
   "graphify": {
     "required": true,
@@ -95,5 +100,5 @@
     "M08-001..005: resume after human confirms canonical design source (landing page missing as page; candidate board 'Directam Landing — Desktop' on Page 1 differs from the earlier 13-section build)",
     "M09-002: implement payment provider adapter after provider-selection ADR"
   ],
-  "lastInstruction": "Verify Penpot design source over live MCP (file id c269caa0-e456-818c-8008-85a77340be64), persist stable file/page/board ids into penpot-sync.json, and gate M08 resumption on the landing-source mismatch; no Penpot content was modified or recreated."
+  "lastInstruction": "M08 run: design foundation synced from canonical Penpot file (live MCP), primitives+icons landed."
 }

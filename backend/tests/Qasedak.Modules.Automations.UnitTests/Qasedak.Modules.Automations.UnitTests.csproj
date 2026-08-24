@@ -6,5 +6,6 @@
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <ProjectReference Include="..\..\Modules\Automations\Qasedak.Modules.Automations.Application\Qasedak.Modules.Automations.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Automations\Qasedak.Modules.Automations.Domain\Qasedak.Modules.Automations.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Automations\Qasedak.Modules.Automations.Infrastructure\Qasedak.Modules.Automations.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

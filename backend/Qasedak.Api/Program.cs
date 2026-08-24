@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Qasedak.BuildingBlocks.Infrastructure;
 using Qasedak.Modules.Automations.Infrastructure;
+using Qasedak.Modules.Automations.Infrastructure.Endpoints;
 using Qasedak.Modules.Billing.Infrastructure;
 using Qasedak.Modules.Contacts.Infrastructure;
 using Qasedak.Modules.Contacts.Infrastructure.Endpoints;
@@ -9,6 +10,7 @@ using Qasedak.Modules.Conversations.Infrastructure.Endpoints;
 using Qasedak.Modules.Identity.Infrastructure;
 using Qasedak.Modules.Identity.Infrastructure.Endpoints;
 using Qasedak.Modules.Instagram.Infrastructure;
+using Qasedak.Modules.Instagram.Infrastructure.Endpoints;
 using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -118,6 +120,8 @@ app.MapIdentityEndpoints();
 app.MapMetaWebhookEndpoints();
 app.MapConversationEndpoints();
 app.MapContactEndpoints();
+app.MapConnectionEndpoints();
+app.MapAutomationEndpoints();
 
 app.Run();
 

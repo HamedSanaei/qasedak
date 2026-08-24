@@ -43,11 +43,14 @@
 }
 
 .navItem {
-  display: block;
-  padding-inline-start: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-inline-start: 24px;
+  padding-inline-end: 16px;
   font-size: var(--font-size-nav);
   font-weight: 500;
-  line-height: var(--nav-row-step);
+  min-height: var(--nav-row-step);
   color: var(--color-text-nav);
   text-decoration: none;
 }
@@ -56,10 +59,22 @@
   color: var(--color-text-primary);
 }
 
+/*
+ * Active treatment — OPEN QUESTION recorded in docs/design/sync/M08-001-design-foundation.md:
+ * the Penpot board defines no explicit active/hover state for nav rows. The minimal,
+ * non-inventive mapping uses existing Penpot values only: brand accent (#BE0183) on the
+ * label/icon and weight 800 (the logo weight). Pending human sign-off like the rest of
+ * the provisional design system.
+ */
 .navItemActive,
 .navItemActive:hover {
   font-weight: 800;
-  color: var(--color-text-primary);
+  color: var(--color-brand-accent);
+}
+
+.navIcon {
+  display: inline-flex;
+  color: inherit;
 }
 
 .subList {
