@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Qasedak.Modules.Billing.Application;
 using Qasedak.Modules.Billing.Application.Payments;
 using Qasedak.Modules.Billing.Domain;
 using Qasedak.Modules.Billing.Domain.Payments;
+using Qasedak.Modules.Billing.Infrastructure.Payments;
 
 namespace Qasedak.Modules.Billing.Infrastructure.Endpoints;
 
@@ -142,7 +144,7 @@ public static class BillingEndpoints
             });
         });
 
-        // PUBLIC provider return endpoint. No user identity is trusted here: the attempt
+        // PUBLIC provider return endpoints. No user identity is trusted here: the attempt
         // is resolved server-side by authority and the provider is verified S2S before
         // any state change; the browser then lands on a frontend result page.
         var callbacks = endpoints.MapGroup("/api/v1/payments/callback")
@@ -171,21 +173,112 @@ public static class BillingEndpoints
                 }
             }
 
-            var resolved = await queries.GetStatusAsync(attempt ?? Guid.Empty, cancellationToken);
-            var state = resolved?.Status switch
-            {
-                nameof(PaymentAttemptStatus.Verified) => "success",
-                nameof(PaymentAttemptStatus.Failed) => "failed",
-                _ => "pending",
-            };
-            var frontendBase = configuration["Billing:Payments:FrontendBaseUrl"]?.TrimEnd('/') ?? string.Empty;
-            return Results.Redirect(
-                $"{frontendBase}/dashboard/billing/result?state={Uri.EscapeDataString(state)}&attempt={(resolved is null ? string.Empty : resolved.AttemptId.ToString())}",
-                permanent: false,
-                preserveMethod: false);
+            return await RedirectToResultPageAsync(attempt, queries, configuration, cancellationToken);
         });
 
+        // Behpardakht posts its documented callback fields as an HTTP form (§9.1). Only
+        // the fields needed for validation are read; the raw form is never logged and the
+        // callback amount is ignored entirely — verification is server-to-server.
+        callbacks.MapPost("/{provider}", async (
+            string provider,
+            Guid? attempt,
+            HttpRequest httpRequest,
+            FinalizePaymentUseCase useCase,
+            PaymentQueries queries,
+            IConfiguration configuration,
+            CancellationToken cancellationToken) =>
+        {
+            var form = await httpRequest.ReadFormAsync(cancellationToken);
+            string? FormValue(string key) => form[key].FirstOrDefault();
+
+            var refId = FormValue("RefId")?.Trim();
+            var resCode = FormValue("ResCode")?.Trim();
+            if (!string.IsNullOrWhiteSpace(refId) && !string.IsNullOrWhiteSpace(resCode))
+            {
+                // Vendor §9.2: ResCode 0 = sale completed at the gateway; 17 = user cancel;
+                // anything else is a failed sale. None of these are proof of payment.
+                var statusHint = resCode switch
+                {
+                    "0" => "OK",
+                    "17" => "CANCEL",
+                    _ => "FAILED",
+                };
+                try
+                {
+                    _ = await useCase.ExecuteCallbackAsync(new PaymentCallbackContext(
+                        refId,
+                        statusHint,
+                        long.TryParse(FormValue("SaleOrderId"), out var saleOrderId) ? saleOrderId : null,
+                        FormValue("SaleReferenceId")?.Trim(),
+                        // Masked PAN only (vendor masks it); full PAN is never sent or stored.
+                        FormValue("CardHolderPan")?.Trim() is { Length: > 0 } pan && pan.Contains('*') ? pan : null),
+                        cancellationToken);
+                }
+                catch (BillingDomainException)
+                {
+                    // Same safe-landing policy as the GET path above.
+                }
+            }
+
+            return await RedirectToResultPageAsync(attempt, queries, configuration, cancellationToken);
+        });
+
+        // Behpardakht redirect contract (§8.2): after bpPayRequest the customer must be
+        // POSTed to startpay.mellat carrying only the RefId. This jump endpoint serves a
+        // minimal auto-submitting form so credentials never reach the browser; hosting it
+        // on the registered merchant domain satisfies the Referer requirement.
+        var startpay = endpoints.MapGroup("/api/v1/payments/mellat")
+            .WithTags("Billing Callbacks");
+
+        startpay.MapGet("/startpay", async (
+            string? authority,
+            IOptions<BehpardakhtOptions> optionsAccessor) =>
+        {
+            if (string.IsNullOrWhiteSpace(authority))
+            {
+                return Results.Json(new { code = "payment.notFound" }, statusCode: StatusCodes.Status404NotFound);
+            }
+
+            var options = optionsAccessor.Value;
+            var pageUrl = string.IsNullOrWhiteSpace(options.PaymentPageUrl)
+                ? "https://bpm.shaparak.ir/pgwchannel/startpay.mellat"
+                : options.PaymentPageUrl;
+
+            var html =
+                "<!doctype html><html lang=\"fa\" dir=\"rtl\"><head><meta charset=\"utf-8\">" +
+                "<title>انتقال به درگاه پرداخت</title></head>" +
+                "<body><p>در حال انتقال به درگاه پرداخت…</p>" +
+                $"<form method=\"POST\" action=\"{System.Security.SecurityElement.Escape(pageUrl)}\">" +
+                $"<input type=\"hidden\" name=\"RefId\" value=\"{System.Security.SecurityElement.Escape(authority)}\" />" +
+                "<noscript><button type=\"submit\">ادامه</button></noscript>" +
+                "</form>" +
+                "<script>document.forms[0].submit();</script>" +
+                "</body></html>";
+
+            return Results.Content(html, "text/html", System.Text.Encoding.UTF8);
+        }).DisableAntiforgery();
+
         return endpoints;
+    }
+
+    private static async Task<IResult> RedirectToResultPageAsync(
+        Guid? attempt,
+        PaymentQueries queries,
+        IConfiguration configuration,
+        CancellationToken cancellationToken)
+    {
+        var resolved = await queries.GetStatusAsync(attempt ?? Guid.Empty, cancellationToken);
+        var state = resolved?.Status switch
+        {
+            nameof(PaymentAttemptStatus.Verified) => "success",
+            nameof(PaymentAttemptStatus.Failed) => "failed",
+            _ => "pending",
+        };
+        var frontendBase = configuration["Billing:Payments:FrontendBaseUrl"]?.TrimEnd('/') ?? string.Empty;
+        return Results.Redirect(
+            $"{frontendBase}/dashboard/billing/result?state={Uri.EscapeDataString(state)}&attempt={(resolved is null ? string.Empty : resolved.AttemptId.ToString())}",
+            permanent: false,
+            preserveMethod: false);
     }
 }
 

@@ -7,8 +7,9 @@ namespace Qasedak.Modules.Billing.Infrastructure.Payments;
 /// Resolves checkout provider ids to enabled gateways. Unknown providers fail closed;
 /// disabled-but-known providers surface the typed disabled signal so the API can return
 /// its stable code. Only gateways whose options are Enabled are listed as selectable.
+/// Internal to Infrastructure: Application sees only IPaymentGatewayResolver.
 /// </summary>
-public sealed class PaymentGatewayResolver(
+internal sealed class PaymentGatewayResolver(
     ZarinpalPaymentGateway zarinpal,
     BehpardakhtMellatPaymentGateway mellat,
     IOptions<ZarinpalOptions> zarinpalOptions,

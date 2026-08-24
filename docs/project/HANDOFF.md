@@ -2,78 +2,80 @@
 
 ## Where we are
 
-**M09-002 executable scope is complete (2026-08-24), and the final Qasedak Penpot
-designs are reconciled into the app.** All roadmap tasks are DONE; M09-002 is recorded
-DONE-PARTIAL (Zarinpal production-capable per the current official v4 REST docs; Bank
-Behpardakht Mellat live transport is externally blocked pending the verified current official merchant technical
-documents). Nothing is committed — working tree only, per contract.
+**M09-002 is DONE (2026-08-24): executable scope + final Penpot design reconciliation +
+Behpardakht Mellat live transport.** The vendor technical reference
+`docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md` (IPG User Guide v1.29 EN,
+"Unofficial - External" — provenance preserved) was supplied by the human and used as the
+sole protocol source for a complete Mellat SOAP transport behind the existing
+provider-neutral port. Nothing is committed — working tree only, per contract.
 
-## What this run delivered
+## What this run delivered (Mellat transport completion)
 
-### Payments (backend, M09-002)
-- `PaymentAttempt` aggregate (Pending→Verified|Failed) with xmin optimistic concurrency
-  and a unique filtered Authority index (anti-replay). Verified payments extend the
-  entitlement exactly once under concurrent/duplicate callbacks; callback query values
-  alone can never activate anything.
-- Provider-neutral `IPaymentGateway` (Application); Infrastructure owns protocols:
-  `ZarinpalPaymentGateway` = CURRENT official v4 REST (request/verify JSON, 100/101,
-  StartPay redirect) over typed HttpClient; typed options; server-side secrets only;
-  merchant id/secrets/raw payloads/card PAN never logged. Per the same-day provider decision (ADR-009) Bank Melli/SADAD was cancelled and replaced by **Behpardakht Mellat**: `BehpardakhtMellatPaymentGateway` (`providerId="mellat"`) =
-  fail-closed boundary naming exactly which CURRENT official Behpardakht documents are
-  required before live transport can exist.
-- Endpoints: `GET /api/v1/billing/plans`, workspace `subscription` / `checkout` (202 +
-  server-owned redirect URL) / `payments/{attemptId}` / `payments` history; public
-  provider callback redirects to `/dashboard/billing/result?state=…&attempt=…`.
-- Migration `AddPaymentsAndPlanPrices` (+`Plan.AmountIrr`, canonical IRR per ADR-008);
-  env contracts in `.env.example`, docker-compose passthroughs, deployment guide §6;
-  **ADR-008 accepted**.
-- Tests: Billing unit 60/60; Billing integration (Testcontainers) 9/9 incl. concurrent
-  verify exactly-once; full Api.IntegrationTests 46/46 incl. 9 billing e2e.
+### Transport (backend)
+- `BehpardakhtSoapClient`: explicit SOAP 1.1 envelopes over typed HttpClient for
+  bpPayRequest/bpVerifyRequest/bpSettleRequest/bpInquiryRequest/bpReversalRequest;
+  XML-escaped parameters; namespace-agnostic `*Response`→`return` parsing by local name
+  (namespace itself is config-overridable `ServiceNamespace`, not invented); SOAP fault /
+  non-success HTTP / timeout → `PaymentGatewayUnavailableException`. No SOAP-generated
+  types outside Infrastructure (`InternalsVisibleTo` test assemblies only).
+- `BehpardakhtMellatPaymentGateway`: pay per §8 (ten string params, amount IRR unchanged,
+  payerId "0", deterministic numeric orderId derived from the attempt id), defensive
+  `"ResCode,RefId"` parse with ResCode=0 requiring a non-empty exact-case RefId persisted
+  on the attempt; verify→settle chain with idempotent 43/45, bounded §19 classifier
+  (success/idempotent/user-cancel/configuration/definitive/unknown), Inquiry reconciliation
+  of unknown verify outcomes instead of blind retry, reversal ≤ ~3h post-verify exposed as
+  `ReverseAsync` on the concrete gateway only (never after settle, never on the port).
+- Callback: POST form variant on the public callback route parses RefId/ResCode/
+  SaleOrderId/SaleReferenceId/CardHolderPan(masked) → OK/CANCEL/FAILED hints; mandatory
+  identity check BEFORE verification: callback SaleOrderId must exactly equal the stored
+  ProviderOrderId and callback RefId must resolve the stored attempt — mismatch marks
+  `payment.callbackRejected`, makes ZERO bank calls, activates nothing, audited.
+- Jump endpoint `GET /api/v1/payments/mellat/startpay` renders an auto-submitting form
+  posting only the RefId to the configured payment page; credentials never reach the
+  browser; hosted on the registered merchant domain so Referer rule §62 holds.
+- Persistence: new nullable `ProviderOrderId` column on `billing.payment_attempts`
+  (migration `AddPaymentProviderOrderId` + Designer + snapshot); `{provider}` placeholder
+  in checkout callback templates now resolves to the selected gateway's provider id.
+- Config/docs: typed options extended (ServiceUrl/PaymentPageUrl/ServiceNamespace);
+  `.env.example` + docker-compose passthroughs + appsettings.json aligned; docs/08 §6
+  rewritten as implemented-with-prerequisites; ADR-009 updated to cite the vendor doc.
 
-### Design reconciliation (frontend, this run)
-- Codex finalized four new `Qasedak ·` pages in the canonical file; every relevant
-  board was live-inspected via MCP (no screenshots, no invented values). Extracted
-  contract: `docs/design/sync/2026-08-24-qasedak-final-designs.md`; sync record:
-  `docs/design/sync/2026-08-24-qasedak-final-sync-record.md`.
-- `identity.auth`: **draft → approved** on `Qasedak · Identity & Workspace`
-  (Login/Register Desktop+Mobile + states board). Auth screens visually reconciled with
-  email+password behavior/validation/tests untouched. Old GetCode OTP boards are now
-  non-authoritative reference only.
-- NEW `inbox.conversations`: **approved** on `Qasedak · Inbox & Conversations` — removes
-  the historical M08-004 "no design exists" blocker (historical evidence preserved).
-  Inbox visually reconciled; search renders DISABLED BY DESIGN until a backend query
-  capability ships.
-- NEW `billing.payment`: **approved** across the five `Qasedak · Billing & Payments`
-  boards. New UI: `/dashboard/billing` (plans + subscription summary),
-  `/dashboard/billing/checkout?plan=…` (provider radios زرین‌پال/به‌پرداخت ملت — Penpot labels updated in-file per ADR-009; Mellat disabled until its
-  verified contract lands), `/dashboard/billing/result?state=…&attempt=…` (bounded
-  polling of the server status endpoint; callback hints never claim success alone).
-  Amounts render exactly as received from the API (IRR grouping + ریال, no conversion).
-- Manifest updated + validator green (6/6): `penpot-sync.json`; screen roll-up:
-  `docs/design/SCREEN-INVENTORY.md`. New tests: `tests/billing.test.mjs`.
+### Tests
+- Billing unit 119/119 incl. new BehpardakhtMellatTransportTests (envelope contents +
+  escaping; malformed pay/code parsing incl. empty-RefId fail-closed; §19 classification
+  table; orchestration scripts pay/verify/settle/inquiry/reverse across success, idempotent,
+  definitive, timeout paths; use-case callback validation asserting ZERO verify calls on
+  forged SaleOrderId and exactly-once activation across duplicate callbacks).
+- API e2e (real host + real PostgreSQL + scripted SOAP fake; CI never touches
+  bpm.shaparak.ir): Mellat checkout persists ProviderOrderId + jump redirect with exact-case
+  REF; jump page HTML carries exact RefId and zero credential material; form callback
+  activates exactly once (verify+settle once, duplicate replay harmless, single period);
+  forged SaleOrderId → `payment.callbackRejected` with no entitlement.
+- Full backend solution suite green: 458 tests across all unit + Testcontainers projects.
+
+## Earlier this day (context)
+
+- Payment architecture shipped: `PaymentAttempt` exactly-once persistence, neutral port,
+  Zarinpal official v4 REST gateway, endpoints, migration, ADR-008/ADR-009.
+- Codex final designs reconciled into Next.js (auth/inbox/billing); Penpot sync manifest
+  validated; frontend suites green.
 
 ## Verification status
 
-- Frontend: `npm run verify` green (lint max-warnings 0, tsc clean, node --test incl.
-  new billing suite, production build prerenders `/dashboard/billing*` routes).
-- Backend: solution builds Release clean; billing unit/integration suites green as
-  listed above; `dotnet format` to be confirmed by the final `verify.py --full` pass.
-- Gates: `validate_penpot_sync.py` PASSED, `check_architecture.py` PASSED
-  (35 projects / 6 modules). Graphify evidence recorded for M09-002 (healthy; refresh
-  ran `--code-only` because no LLM API key exists on this machine for doc semantic
-  extraction).
+- Backend: Release build clean; full solution suite green as listed above.
+- Gates still to run at finalize time this session: `dotnet format --verify-no-changes`,
+  `validate_penpot_sync.py`, `check_architecture.py`, `agent_finalize.py --task M09-002`,
+  `verify.py --full`.
 
 ## Next actions for a human
 
-1. **Provide the CURRENT official Behpardakht Mellat merchant technical documents** (service endpoints/WSDL,
-   signing/encryption algorithm spec, terminal/merchant credential contract, callback
-   response-code table, callback field schema) → lifts the Mellat boundary to a real adapter and makes M09-002 fully
-   complete.
-2. Optional: run a staging Zarinpal smoke test with real merchant credentials (never in
-   CI).
+1. Operational go-live prerequisites (not CI): real Mellat terminal credentials; Shaparak
+   registration of the deployment's public host (IP allowlist; callback path + jump page
+   inside the registered domain); staging smoke incl. deliberate cancel (ResCode 17) and a
+   duplicate-callback replay. Same pattern applies to a Zarinpal staging smoke when ready.
+2. Continue with the next task in TASKS.md.
 
 ## Next task for an agent
 
-None actionable in TASKS.md — every task is DONE or DONE-PARTIAL with the residual
-explicitly owned by the human decision above. Do not commit/push/tag unless explicitly
-asked; suggested commits are recorded per task in TASKS.md.
+M09-002 is fully DONE; pick the next actionable task from TASKS.md. Do not commit/push/tag
+unless explicitly asked; suggested commits are recorded per task in TASKS.md.

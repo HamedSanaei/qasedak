@@ -58,8 +58,19 @@ Injected into the API container as standard ASP.NET configuration keys (double u
 | `Billing__Payments__Zarinpal__MerchantId` | **yes** | 36-character Zarinpal merchant code. Never logged (structured logs exclude it). |
 | `Billing__Payments__Zarinpal__BaseUrl` | no | Official payment API base (`https://payment.zarinpal.com`). |
 | `Billing__Payments__Zarinpal__Currency` | no | Canonical Qasedak currency `IRR`; do not switch to IRT without a new ADR. |
-| `Billing__Payments__Mellat__Enabled` | no | Keep false: live transport is blocked until the CURRENT official Behpardakht Mellat merchant technical contract exists in the project (service endpoints/WSDL, payment/verify/settle operation contracts, response-code table, callback field contract). |
-| `Billing__Payments__Mellat__TerminalId` / `Username` / `Password` / `BaseUrl` / `CallbackBaseUrl` | **yes** | Reserved for the verified contract (field names follow historically documented concepts and must be re-confirmed against the official document); the adapter refuses operation while the protocol is unverified even if Enabled is flipped. |
+| `Billing__Payments__Mellat__Enabled` | no | Checkout may offer `mellat` only when true. Implemented against the vendor reference `docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md` (IPG User Guide v1.29, Tir 1402, "Unofficial - External" translation — provenance preserved; a newer conflicting merchant onboarding document requires a vendor-reference ADR before any change). |
+| `Billing__Payments__Mellat__TerminalId` / `Username` / `Password` | **yes** | Merchant Internet-terminal number and portal credentials (vendor §4/§21.1). Issued by Behpardakht onboarding; never committed, never logged. |
+| `Billing__Payments__Mellat__ServiceUrl` | no | SOAP service endpoint (default `https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl`, vendor §6.1). |
+| `Billing__Payments__Mellat__PaymentPageUrl` | no | Persian payment page the browser is POSTed to with the RefId (default `https://bpm.shaparak.ir/pgwchannel/startpay.mellat`, vendor §8.2). |
+| `Billing__Payments__Mellat__ServiceNamespace` | no | SOAP target namespace for request envelopes (config-overridable; default follows the classic binding convention) — override if Shaparak publishes a different WSDL binding. |
+| `Billing__Payments__Mellat__CallbackBaseUrl` | no | Absolute public callback base. MUST be inside the domain registered with Behpardakht (vendor §5/§9/§62): Shaparak rejects callbacks from unregistered domains and requires the payment-page Referer to match. |
+
+Operational prerequisites before enabling Mellat in production (no real-credential smoke test runs in CI by design):
+
+1. Real terminal credentials issued to Qasedak's merchant account.
+2. The deployment's public API host registered with Behpardakht (IP allowlist + callback path inside the registered domain); the jump endpoint `/api/v1/payments/mellat/startpay` is hosted on this same domain so the payment-page Referer requirement holds.
+3. Staging smoke test with small real amounts: pay → redirect → callback → verify → settle → subscription Active, plus one deliberate cancel (ResCode 17) and one duplicate callback replay.
+4. Reconciliation runbook awareness: unresolved verify outcomes are reconciled via Inquiry; reversal (`bpReversalRequest`) applies only within ~3 hours after verification and never after settlement.
 
 A verified payment activates/extends the workspace subscription exactly once via database uniqueness + row-version concurrency on `billing.payment_attempts`; callback query parameters alone never activate anything.
 

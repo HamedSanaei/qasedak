@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-24T20:10:00+00:00",
+  "updatedAt": "2026-08-24T21:30:00+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M09",
   "currentTask": "M09-002",
@@ -87,18 +87,19 @@
     "verificationEvidence": "docs/design/sync/2026-08-24-qasedak-final-sync-record.md"
   },
   "quality": {
-    "architectureChecks": "passed (35 projects, 6 business modules)",
+    "architectureChecks": "passed (35 projects, 6 business modules) — re-verify at finalize",
     "penpotSyncValidation": "passed-6-of-6",
     "backendBuild": "passed-release-0-warnings-0-errors",
     "backendFormat": "pass-pending-final-full-gate",
-    "billingUnitTests": "passed-60-of-60",
-    "billingIntegrationTests": "passed-9-of-9-testcontainers",
-    "apiIntegrationTests": "passed-46-of-46",
+    "billingUnitTests": "passed-119-of-119 (incl. BehpardakhtMellatTransportTests: envelope/parsing/§19 classifier/orchestration/callback-validation)",
+    "billingIntegrationTests": "passed-9-of-9-testcontainers (ProviderOrderId persistence covered)",
+    "apiIntegrationTests": "passed-50-of-50 incl. 13 billing e2e (4 new Mellat transport e2e over real host + scripted SOAP fake; CI never calls bpm.shaparak.ir)",
     "frontendVerify": "passed-lint-typecheck-test-build-incl-billing-pages"
   },
   "nextActions": [
-    "Human: provide the CURRENT official Behpardakht Mellat merchant technical documents (service endpoints/WSDL, payment/verify/settle operation contracts, response-code table, callback field schema) to unblock Mellat live transport (M09-002 stays honestly partial until then)",
-    "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
+    "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
+    "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)",
+    "Continue with the next actionable task in TASKS.md"
   ],
-  "lastInstruction": "Provider decision updated (ADR-009): Bank Melli/SADAD cancelled, Behpardakht Mellat selected. Melli gateway/options deleted; fail-closed BehpardakhtMellatPaymentGateway + typed options shipped; resolver treats melli as unknown; env/docker/appsettings/deployment docs switched to MELLAT_*; Penpot Checkout provider labels updated via MCP to به‌پرداخت ملت and frontend reconciled; ADR-009 recorded."
+  "lastInstruction": "M09-002 completed to DONE: vendor reference docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md (v1.29, Unofficial-External provenance preserved) used as sole protocol source for the full Mellat SOAP transport — BehpardakhtSoapClient (pay/verify/settle/inquiry/reversal), gateway orchestration with idempotent 43/45 + Inquiry reconciliation of unknown outcomes + bounded §19 classifier, jump-page redirect carrying only RefId, POST-form callback with mandatory SaleOrderId identity check BEFORE verification (mismatch → payment.callbackRejected, zero bank calls), ProviderOrderId column + migration, config/docs/ADR-009 updated. 458 backend tests green."
 }

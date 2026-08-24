@@ -31,9 +31,20 @@ public sealed record CreatePaymentRequest(
     string Description,
     string CallbackUrl);
 
-public sealed record PaymentInitialization(string ProviderId, string Authority, string RedirectUrl);
+public sealed record PaymentInitialization(
+    string ProviderId,
+    string Authority,
+    string RedirectUrl,
+    /// <summary>Server-generated numeric order identity for providers that require one (e.g. Behpardakht orderId); persisted on the attempt.</summary>
+    long? ProviderOrderId = null);
 
-public sealed record VerifyPaymentRequest(string Authority, long AmountIrr);
+public sealed record VerifyPaymentRequest(
+    string Authority,
+    long AmountIrr,
+    /// <summary>The stored server-generated order identity (provider-neutral name).</summary>
+    long? ProviderOrderId = null,
+    /// <summary>The provider transaction reference captured from a validated callback (e.g. Behpardakht saleReferenceId).</summary>
+    string? ProviderVerificationRef = null);
 
 /// <summary>Outcome semantics: Verified = first successful verify; AlreadyVerified = provider reports the transaction was verified before (idempotent replay); Failed = rejected/canceled.</summary>
 public enum PaymentVerificationOutcome

@@ -1,66 +1,93 @@
 # ADR-009: v1 payment providers are Zarinpal + Behpardakht Mellat (Bank Melli/SADAD cancelled)
 
-- Status: Accepted
-- Date: 2026-08-24
+- Status: Accepted (transport completed M09-002)
+- Date: 2026-08-24 (transport completion update same day)
 - Supersedes: the provider-selection half of ADR-008 (ADR-008's architecture — provider-neutral
   `IPaymentGateway`, canonical IRR, `PaymentAttempt` exactly-once persistence — remains fully in force).
+- Vendor technical reference (implemented contract): **`docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md`**
+  — English translation of the Behpardakht IPG User Guide **v1.29** (Tir 1402 / 2023), supplied by the
+  human and labeled **"Unofficial - External"**. This provenance is preserved verbatim: it is not a
+  first-party official English document. If newer merchant onboarding material conflicts with it, the
+  conflict is resolved through a future vendor-reference ADR — never through silent code changes.
 
 ## Context
 
 The human made the final provider decision for Qasedak v1:
 
 1. **Zarinpal** — already implemented and operational (see ADR-008).
-2. **Behpardakht Mellat** — newly selected; must be integrated.
+2. **Behpardakht Mellat** — newly selected; integrated against the vendor reference above.
 3. **Bank Melli / SADAD** — CANCELLED and removed from active v1 scope.
+
+An earlier revision of this ADR recorded the live Mellat transport as externally blocked pending an
+authoritative protocol document. The vendor reference has since been supplied, reviewed in full, and
+used as the sole source for every wire-level detail of the implemented transport.
 
 ## Decision
 
 - The provider-neutral architecture is unchanged: Billing Domain/Application know only
-  `IPaymentGateway` and typed application contracts. No Mellat-specific DTO, SOAP type or
-  WSDL artifact may leak outside Infrastructure.
+  `IPaymentGateway` and typed application contracts. No Mellat-specific DTO, SOAP type or WSDL artifact
+  leaks outside Infrastructure (`IBehpardakhtSoapClient` and its wire records are Infrastructure-
+  internal; visible to test assemblies only via `InternalsVisibleTo`).
 - `MelliPaymentGateway`/`MelliOptions` are deleted from the active scope and replaced by
   `BehpardakhtMellatPaymentGateway` (`providerId = "mellat"`) with typed server-side
-  `BehpardakhtOptions` (terminal id / username / password / base url / callback base url).
-- **Live Mellat transport is externally blocked**: the project does not currently have the
-  CURRENT official Behpardakht merchant technical contract. Available sources are mirrored
-  historical PGW manuals (v1.0/1.1) and community packages describing the legacy flow
-  `bpPayRequest → redirect → callback → bpVerifyRequest → bpSettleRequest` (plus inquiry/
-  reversal). These are treated strictly as architectural background: no endpoint, WSDL/SOAP
-  detail, response code or field semantic is copied into production transport until the
-  verified document arrives. Until then every gateway operation fails CLOSED:
-  - disabled (`Enabled=false`, default everywhere) → `PaymentProviderDisabledException`;
-  - enabled without a verified contract implementation → `PaymentGatewayUnavailableException`
-    naming exactly which documents are required.
-- Configuration contract ships now (`.env.example`, docker-compose, appsettings,
-  deployment guide §6) using historically documented field concepts explicitly marked as
-  requiring re-verification against the official document before enabling.
-- Frontend provider selection shows زرین‌پال and به‌پرداخت ملت per the approved Qasedak
-  billing design; the Penpot Checkout board labels were updated through MCP accordingly.
-- Currency stays canonical IRR end-to-end. Behpardakht historically operates IRR; any
-  provider-specific monetary transformation may exist ONLY inside its adapter and only if
-  the verified contract requires it. No تومان↔ریال conversion exists anywhere.
+  `BehpardakhtOptions` (`Enabled`, `TerminalId`, `Username`, `Password`,
+  `ServiceUrl` default `https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl`,
+  `PaymentPageUrl` default `https://bpm.shaparak.ir/pgwchannel/startpay.mellat`,
+  config-overridable `ServiceNamespace`, `CallbackBaseUrl`). Secrets arrive via environment only.
+- Implemented transport, per vendor reference section:
+  - `bpPayRequest` (§8) with the ten documented string parameters; response parsed defensively as
+    `"ResCode,RefId"`; `ResCode=0` requires a non-empty RefId which is persisted exact-case;
+    any non-zero code is a typed rejection, never success. Numeric `orderId` is derived
+    deterministically from the attempt id and persisted on `billing.payment_attempts.ProviderOrderId`
+    (migration `AddPaymentProviderOrderId`).
+  - Redirect via our own jump endpoint `/api/v1/payments/mellat/startpay` rendering an auto-submitting
+    form POSTing only the RefId to the configured payment page (§8.2); credentials never reach the
+    browser; the endpoint lives on the registered merchant domain so the Referer requirement (§62)
+    holds — deployment prerequisite documented in docs/08 §6.
+  - Callback (§9): HTTP POST form (`RefId`, `ResCode`, `SaleOrderId`, `SaleReferenceId`,
+    `CardHolderPan`) normalized to OK/CANCEL/FAILED hints. Mandatory identity rule enforced BEFORE any
+    verification: callback `SaleOrderId` must exactly match the stored `ProviderOrderId` and the
+    callback RefId resolves the stored attempt; mismatch → attempt marked `payment.callbackRejected`,
+    no verify call, no activation, audited. Callback amount/status never prove payment.
+  - Verify → settle chain (§10–§11): `bpVerifyRequest` then `bpSettleRequest`; codes `0` success,
+    `43` already verified / `45` already settled treated idempotently; definitive failures (incl. `48`
+    reversed, `17` user cancel, merchant configuration errors `21/23/24/62/421`) map to failed states
+    without entitlement; unknown outcomes (timeout/fault/undocumented code) trigger
+    `bpInquiryRequest` reconciliation instead of blind retries; still-unknown leaves the attempt
+    Pending for operational reversal (`bpReversalRequest`, ≤ ~3h after verify, never after settle),
+    exposed as `ReverseAsync` on the concrete gateway only (Zarinpal is unaffected).
+  - Response-code classification is bounded and explicit per the §19 table — not every non-zero code
+    is retryable.
+- Exactly-once guarantees remain owned by Qasedak persistence (below). CI never contacts
+  bpm.shaparak.ir: deterministic scripted SOAP fakes cover unit and API integration suites, and a
+  real-credential staging smoke remains an operational deployment prerequisite (docs/08 §6).
+- Currency stays canonical IRR end-to-end. Behpardakht operates IRR; no تومان↔ریال conversion exists
+  anywhere.
+- Frontend provider selection shows زرین‌پال and به‌پرداخت ملت per the approved Qasedak billing design.
 
 ## Exactly-once guarantees (unchanged, provider-independent)
 
-Server creates the PaymentAttempt and owns the amount; unique Authority/order identity;
-callbacks never prove payment; verification is server-to-server; settle happens only
-according to the verified provider contract; duplicate callbacks are idempotent (terminal
-attempt reload); duplicate/concurrent verification extends entitlement exactly once via DB
-uniqueness + xmin row-version concurrency; failed verification never activates anything;
-reversal/inquiry will be modeled when the verified contract defines them.
+Server creates the PaymentAttempt and owns the amount; unique Authority + persisted numeric order
+identity + stored case-sensitive RefId + stored SaleReferenceId; callbacks never prove payment;
+verification is server-to-server; settle happens only after explicit verification success/idempotent
+success; duplicate callbacks are idempotent (terminal attempt reload); concurrent finalization extends
+entitlement exactly once via DB uniqueness + xmin row-version concurrency; failed verification or
+settlement never activates anything; unresolved/reversed transactions never activate anything.
 
 ## Alternatives considered
 
 - Keeping Bank Melli/SADAD — cancelled by human decision.
-- Implementing Mellat transport from mirrored historical manuals/community packages —
-  rejected: fabrication hazard; the directive forbids copying unverified protocol details.
+- Implementing from mirrored historical manuals/community packages — rejected then, superseded now:
+  the supplied v1.29 reference is the implemented contract; community sources were not used.
+- Deriving the SOAP namespace from third-party clients — rejected: the namespace is
+  configuration-overridable and responses are parsed by element local name, so no invented binding is
+  hard-coded.
 
 ## Consequences
 
-- Zarinpal remains fully operational; nothing about it changes except shared-abstraction
-  naming.
-- M09-002 remains DONE-PARTIAL with one precise external blocker: obtain the CURRENT
-  official Behpardakht merchant technical documentation (service endpoints/WSDL, operation
-  contracts for payment/verify/settle incl. response-code table, callback parameter schema,
-  reversal/inquiry semantics if applicable). Once supplied, the adapter implements real
-  transport behind the existing port and M09-002 can become fully DONE.
+- Both providers are fully operational behind one port; M09-002's transport gap is closed.
+- Enabling Mellat in production requires real credentials plus Shaparak-side registration of the
+  deployment's public host (IP allowlist + registered domain covering the callback path and jump
+  page) — recorded in docs/08 §6 and the release checklist as an operational prerequisite, not a CI
+  gate.
+- A future conflicting merchant onboarding document ⇒ new vendor-reference ADR; no silent change.

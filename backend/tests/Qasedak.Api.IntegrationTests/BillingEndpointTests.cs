@@ -191,6 +191,161 @@ public sealed class BillingEndpointTests(ApiPostgreSqlFixture fixture)
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
+    // ---- Behpardakht Mellat transport (real gateway + scripted SOAP boundary) ----
+
+    [Fact]
+    public async Task MellatCheckoutPersistsProviderOrderIdAndReturnsJumpRedirect()
+    {
+        fixture.MellatSoap.PayRequests.Clear();
+        var workspace = Guid.CreateVersion7();
+        var token = await MemberTokenAsync("mellat-checkout@example.com", workspace);
+        var client = AuthedClient(token);
+        SeedPlan("mellat-plan-a", 1_250_000);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/v1/workspaces/{workspace}/billing/checkout",
+            new { planCode = "mellat-plan-a", providerId = "mellat" });
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var attemptId = Guid.Parse(payload.GetProperty("attemptId").GetString()!);
+        var redirectUrl = payload.GetProperty("redirectUrl").GetString()!;
+        Assert.Contains("/api/v1/payments/mellat/startpay?authority=", redirectUrl);
+        Assert.Contains($"attempt={attemptId}", redirectUrl);
+
+        // Durable server-side identity: numeric orderId persisted before any browser hop.
+        var attempt = await GetAttemptRowAsync(attemptId);
+        Assert.NotNull(attempt!.Authority);
+        Assert.NotNull(attempt.ProviderOrderId);
+        Assert.True(attempt.ProviderOrderId > 0);
+        Assert.Equal($"REF-{attempt.ProviderOrderId}", attempt.Authority); // exact-case RefId
+
+        // Canonical IRR crossed the SOAP boundary unchanged.
+        var payRequest = Assert.Single(fixture.MellatSoap.PayRequests);
+        Assert.Equal(1_250_000, payRequest.AmountIrr);
+        Assert.Equal("0", payRequest.PayerId);
+    }
+
+    [Fact]
+    public async Task MellatJumpPageRendersAutoSubmittingFormWithExactRefId()
+    {
+        const string refId = "AF82041a2Bf6989c7fF9";
+        var response = await fixture.Client.GetAsync(
+            $"/api/v1/payments/mellat/startpay?authority={Uri.EscapeDataString(refId)}&attempt={Guid.CreateVersion7()}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("text/html", response.Content.Headers.ContentType?.MediaType);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("startpay.mellat", html); // configured payment page
+        Assert.Contains(refId, html); // exact-case RefId embedded for the auto-submit
+        Assert.DoesNotContain("Password", html); // credentials never reach the browser
+    }
+
+    [Fact]
+    public async Task MellatCallbackActivatesSubscriptionExactlyOnce()
+    {
+        fixture.MellatSoap.Operations.Clear();
+        fixture.MellatSoap.Transactions.Clear();
+        var workspace = Guid.CreateVersion7();
+        var token = await MemberTokenAsync("mellat-callback@example.com", workspace);
+        var client = AuthedClient(token);
+        SeedPlan("mellat-plan-b", 990_000);
+
+        var attemptId = await CheckoutAsync(client, workspace, "mellat-plan-b", provider: "mellat");
+        var attempt = await GetAttemptRowAsync(attemptId);
+        var refId = attempt!.Authority!;
+        var saleOrderId = attempt.ProviderOrderId!.Value;
+
+        // The pay call already happened during checkout; observe only the finalize chain.
+        fixture.MellatSoap.Operations.Clear();
+        fixture.MellatSoap.Transactions.Clear();
+
+        // Vendor §9.1 form POST: matching SaleOrderId + ResCode 0 → verify → settle → activate.
+        var callback1 = await NoRedirectClient().PostAsync(
+            $"/api/v1/payments/callback/mellat?attempt={attemptId}",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["RefId"] = refId,
+                ["ResCode"] = "0",
+                ["SaleOrderId"] = saleOrderId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ["SaleReferenceId"] = "900001",
+                ["CardHolderPan"] = "6104********4321",
+            }));
+        Assert.True(callback1.StatusCode is HttpStatusCode.Redirect or HttpStatusCode.OK,
+            $"Unexpected callback status {(int)callback1.StatusCode}");
+        if (callback1.StatusCode == HttpStatusCode.Redirect)
+        {
+            Assert.Contains("state=success", callback1.Headers.Location!.ToString());
+        }
+
+        // Real orchestration ran exactly once: verify then settle on the SOAP boundary.
+        Assert.Equal(["verify", "settle"], fixture.MellatSoap.Operations);
+        Assert.Equal(saleOrderId, fixture.MellatSoap.Transactions[0].SaleOrderId);
+        Assert.Equal(900001, fixture.MellatSoap.Transactions[0].SaleReferenceId);
+
+        var subscription = await GetSubscriptionAsync(client, workspace);
+        Assert.Equal("Active", subscription.GetProperty("status").GetString());
+        Assert.True(subscription.GetProperty("entitled").GetBoolean());
+
+        // Duplicate POST replay: idempotent terminal state, no second verify/settle chain.
+        fixture.MellatSoap.Operations.Clear();
+        await NoRedirectClient().PostAsync(
+            $"/api/v1/payments/callback/mellat?attempt={attemptId}",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["RefId"] = refId,
+                ["ResCode"] = "0",
+                ["SaleOrderId"] = saleOrderId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ["SaleReferenceId"] = "900001",
+            }));
+        Assert.Empty(fixture.MellatSoap.Operations);
+
+        // Exactly one period for exactly one verified payment.
+        Assert.Equal(1, await CountPeriodsAsync(workspace));
+
+        // Masked PAN (from the validated callback) was audited onto the attempt.
+        var status = await client.GetAsync($"/api/v1/workspaces/{workspace}/billing/payments/{attemptId}");
+        var statusPayload = await status.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Verified", statusPayload.GetProperty("status").GetString());
+    }
+
+    [Fact]
+    public async Task MellatCallbackWrongSaleOrderIdRejectedWithoutEntitlement()
+    {
+        fixture.MellatSoap.Operations.Clear();
+        var workspace = Guid.CreateVersion7();
+        var token = await MemberTokenAsync("mellat-forgery@example.com", workspace);
+        var client = AuthedClient(token);
+        SeedPlan("mellat-plan-c", 700_000);
+
+        var attemptId = await CheckoutAsync(client, workspace, "mellat-plan-c", provider: "mellat");
+        var attempt = await GetAttemptRowAsync(attemptId);
+        var forgedSaleOrderId = attempt!.ProviderOrderId!.Value + 777;
+
+        fixture.MellatSoap.Operations.Clear();
+        var callback = await NoRedirectClient().PostAsync(
+            $"/api/v1/payments/callback/mellat?attempt={attemptId}",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["RefId"] = attempt.Authority!,
+                ["ResCode"] = "0",
+                ["SaleOrderId"] = forgedSaleOrderId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ["SaleReferenceId"] = "888888",
+            }));
+
+        // Rejected: lands on the failure page and NEVER verifies with the bank.
+        Assert.Contains("state=failed", callback.Headers.Location!.ToString());
+        Assert.Empty(fixture.MellatSoap.Operations);
+
+        var status = await client.GetAsync($"/api/v1/workspaces/{workspace}/billing/payments/{attemptId}");
+        var payload = await status.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Failed", payload.GetProperty("status").GetString());
+        Assert.Equal("payment.callbackRejected", payload.GetProperty("failureCode").GetString());
+
+        var overview = await GetSubscriptionOrNullAsync(client, workspace);
+        Assert.True(overview is null || !overview.Value.GetProperty("entitled").GetBoolean());
+    }
+
     private void SeedPlan(string code, long amountIrr)
     {
         using var scope = fixture.Factory.Services.CreateScope();
@@ -212,13 +367,20 @@ public sealed class BillingEndpointTests(ApiPostgreSqlFixture fixture)
         }
     }
 
-    private static async Task<Guid> CheckoutAsync(HttpClient client, Guid workspace, string planCode)
+    private static async Task<Guid> CheckoutAsync(HttpClient client, Guid workspace, string planCode, string provider = "zarinpal")
     {
         var response = await client.PostAsJsonAsync(
             $"/api/v1/workspaces/{workspace}/billing/checkout",
-            new { planCode, providerId = "zarinpal" });
+            new { planCode, providerId = provider });
         response.EnsureSuccessStatusCode();
         return Guid.Parse((await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("attemptId").GetString()!);
+    }
+
+    private async Task<PaymentAttemptRow?> GetAttemptRowAsync(Guid attemptId)
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
+        return await context.PaymentAttempts.AsNoTracking().SingleOrDefaultAsync(a => a.Id == attemptId);
     }
 
     private static async Task<JsonElement> GetSubscriptionAsync(HttpClient client, Guid workspace)

@@ -165,6 +165,8 @@ public sealed class PaymentAttemptRow
 
     public string? Authority { get; set; }
 
+    public long? ProviderOrderId { get; set; }
+
     public string? ProviderReferenceId { get; set; }
 
     public string? FailureCode { get; set; }
@@ -431,6 +433,7 @@ public sealed class EfPaymentAttemptRepository(BillingDbContext context) : IPaym
     {
         row.Status = attempt.Status;
         row.Authority = attempt.Authority;
+        row.ProviderOrderId = attempt.ProviderOrderId;
         row.ProviderReferenceId = attempt.ProviderReferenceId;
         row.FailureCode = attempt.FailureCode;
         row.MaskedCardPan = attempt.MaskedCardPan;
@@ -446,6 +449,7 @@ public sealed class EfPaymentAttemptRepository(BillingDbContext context) : IPaym
         row.AmountIrr,
         row.Status,
         row.Authority,
+        row.ProviderOrderId,
         row.ProviderReferenceId,
         row.FailureCode,
         row.MaskedCardPan,
@@ -462,6 +466,7 @@ public sealed class EfPaymentAttemptRepository(BillingDbContext context) : IPaym
         AmountIrr = attempt.AmountIrr,
         Status = attempt.Status,
         Authority = attempt.Authority,
+        ProviderOrderId = attempt.ProviderOrderId,
         ProviderReferenceId = attempt.ProviderReferenceId,
         FailureCode = attempt.FailureCode,
         MaskedCardPan = attempt.MaskedCardPan,

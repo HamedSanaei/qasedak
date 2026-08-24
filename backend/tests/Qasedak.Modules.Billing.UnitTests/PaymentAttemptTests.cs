@@ -108,6 +108,7 @@ public sealed class PaymentAttemptTests
             original.AmountIrr,
             original.Status,
             original.Authority,
+            null,
             original.ProviderReferenceId,
             original.FailureCode,
             original.MaskedCardPan,

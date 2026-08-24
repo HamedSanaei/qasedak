@@ -2,9 +2,34 @@
 
 **Project:** Qasedak  
 **Current milestone:** M09 — Payments & Billing  
-**Current task:** M09-002 — Payment gateway integration (Zarinpal operational; Behpardakht Mellat boundary shipped, live transport externally blocked)  
-**Last completed:** M08-005 → superseded by 2026-08-24 Codex design-completion + Qasedak final-design reconciliation run  
+**Current task:** M09-002 — Payment gateway integration (Zarinpal operational; Behpardakht Mellat live SOAP transport implemented per the supplied v1.29 vendor reference)  
+**Last completed:** M09-002 (transport completion, 2026-08-24)  
 **Product implementation:** In progress (M09)
+
+## 2026-08-24 — Behpardakht Mellat live transport COMPLETE (M09-002 → DONE)
+
+- Vendor contract arrived in-repo: `docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md`
+  (User Guide v1.29 EN translation, "Unofficial - External" provenance preserved; newer
+  conflicting onboarding docs ⇒ future ADR). Used as the SOLE protocol source.
+- `BehpardakhtSoapClient`: explicit SOAP 1.1 envelopes for bpPayRequest/bpVerifyRequest/
+  bpSettleRequest/bpInquiryRequest/bpReversalRequest; XML-escaped params; namespace-agnostic
+  response parsing; fault/HTTP/timeout → typed Unavailable. No SOAP types escape Infrastructure.
+- Gateway orchestration: pay per §8 (IRR unchanged, payerId 0, deterministic orderId persisted
+  as new `ProviderOrderId` column + migration), exact-case RefId persisted; jump endpoint
+  `/api/v1/payments/mellat/startpay` auto-posts only RefId to startpay.mellat; POST form
+  callback normalized to OK/CANCEL/FAILED with mandatory identity check BEFORE verification
+  (SaleOrderId must equal stored ProviderOrderId; mismatch → `payment.callbackRejected`,
+  zero bank calls, audited); verify→settle chain with idempotent 43/45, bounded §19 code
+  classifier, Inquiry reconciliation of unknown outcomes, reversal ≤ ~3h post-verify on the
+  concrete gateway only. Callback values never prove payment; entitlement exactly once intact.
+- Typed options extended (`ServiceUrl`/`PaymentPageUrl`/`ServiceNamespace`, overridable);
+  `.env.example`/docker-compose/appsettings aligned; docs/08 §6 rewritten as implemented +
+  operational go-live prerequisites; ADR-009 updated to reference the vendor doc path.
+- Tests: billing unit 119/119 (new envelope/parsing/classifier/orchestration/callback-validation
+  suites); API e2e over real host + PostgreSQL + scripted SOAP fake: jump redirect + persisted
+  ProviderOrderId, jump page HTML carries exact RefId and no credentials, form callback
+  activates exactly once (verify+settle once, duplicate harmless), forged SaleOrderId rejected
+  without any bank call or entitlement. Full backend suite green (458 tests).
 
 ## 2026-08-24 — Payment architecture (M09-002 executable scope) COMPLETE
 
@@ -48,13 +73,11 @@
 
 ## Next action
 
-1. Human action: obtain the CURRENT official Behpardakht Mellat merchant technical
-   documents (service endpoints/WSDL, payment/verify/settle operation contracts,
-   response-code table, callback field schema, reversal/inquiry semantics if the contract
-   defines them). Until then Mellat stays boundary-only and M09-002 remains honestly
-   partial (Zarinpal production-capable).
-2. Optional hardening when credentials exist: staging-environment Zarinpal smoke test
-   (never in CI).
+1. Operational (human, not CI): Mellat go-live per docs/08 §6 — real terminal credentials,
+   Shaparak registration of the deployment's public host (IP allowlist; callback path +
+   jump page inside the registered domain), staging smoke incl. deliberate cancel and
+   duplicate replay; same for a Zarinpal staging smoke when its merchant account is ready.
+2. Continue M09 with the next task in TASKS.md.
 
 ## Baseline established
 

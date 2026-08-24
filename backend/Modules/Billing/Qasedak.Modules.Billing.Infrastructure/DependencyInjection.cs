@@ -38,6 +38,12 @@ public static class DependencyInjection
         });
         services.Configure<ZarinpalOptions>(configuration.GetSection(ZarinpalOptions.SectionName));
         services.Configure<BehpardakhtOptions>(configuration.GetSection(BehpardakhtOptions.SectionName));
+        // Mellat SOAP transport: explicit small client over HttpClient (no generated types).
+        services.AddHttpClient<IBehpardakhtSoapClient, BehpardakhtSoapClient>((sp, client) =>
+        {
+            var options = sp.GetRequiredService<IOptions<BehpardakhtOptions>>().Value;
+            client.Timeout = TimeSpan.FromSeconds(Math.Clamp(options.TimeoutSeconds, 5, 60));
+        });
         services.AddScoped<BehpardakhtMellatPaymentGateway>();
         services.AddScoped<IPaymentGatewayResolver, PaymentGatewayResolver>();
 

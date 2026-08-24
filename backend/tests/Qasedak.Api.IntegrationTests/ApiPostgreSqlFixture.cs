@@ -93,6 +93,85 @@ public sealed class RecordingPaymentGatewayResolver(RecordingPaymentGateway gate
 }
 
 /// <summary>
+/// Routes zarinpal to the recording fake and mellat to the REAL transport gateway backed
+/// by a scripted SOAP fake — the full Behpardakht orchestration (verify→settle→inquiry)
+/// runs in CI without any network access to bpm.shaparak.ir.
+/// </summary>
+public sealed class CompositePaymentGatewayResolver(
+    RecordingPaymentGateway zarinpal,
+    IPaymentGateway mellat) : IPaymentGatewayResolver
+{
+    public IReadOnlyList<string> EnabledProviderIds => ["zarinpal", "mellat"];
+
+    public IPaymentGateway Resolve(string providerId) => providerId switch
+    {
+        "zarinpal" => zarinpal,
+        "mellat" => mellat,
+        _ => throw new PaymentProviderUnknownException(providerId),
+    };
+}
+
+/// <summary>
+/// Scriptable Behpardakht SOAP boundary for API-level Mellat tests: records operations,
+/// plays queued outcomes, and defaults to the documented happy path (pay 0+RefId,
+/// verify 0, settle 0). Internal: the transport types stay behind InternalsVisibleTo.
+/// </summary>
+internal sealed class FakeBehpardakhtSoapClient : Qasedak.Modules.Billing.Infrastructure.Payments.IBehpardakhtSoapClient
+{
+    public List<string> Operations { get; } = [];
+
+    public List<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtPayRequest> PayRequests { get; } = [];
+
+    public List<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtTransactionRequest> Transactions { get; } = [];
+
+    public Queue<object> ScriptedPay { get; } = new();
+
+    public Queue<object> ScriptedVerify { get; } = new();
+
+    public Queue<object> ScriptedSettle { get; } = new();
+
+    public Queue<object> ScriptedInquiry { get; } = new();
+
+    private static T Next<T>(Queue<object> queue, T fallback) =>
+        queue.Count > 0 ? (T)queue.Dequeue() : fallback;
+
+    public Task<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtPayResult> PayAsync(
+        Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtPayRequest request, CancellationToken cancellationToken = default)
+    {
+        Operations.Add("pay");
+        PayRequests.Add(request);
+        return Task.FromResult(Next(ScriptedPay, new Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtPayResult(0, $"REF-{request.OrderId}")));
+    }
+
+    private Task<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtCodeResult> Run(
+        string operation,
+        Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtTransactionRequest request,
+        Queue<object> scripted,
+        CancellationToken cancellationToken)
+    {
+        Operations.Add(operation);
+        Transactions.Add(request);
+        return Task.FromResult(Next(scripted, new Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtCodeResult(0)));
+    }
+
+    public Task<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtCodeResult> VerifyAsync(
+        Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtTransactionRequest request, CancellationToken cancellationToken = default) =>
+        Run("verify", request, ScriptedVerify, cancellationToken);
+
+    public Task<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtCodeResult> SettleAsync(
+        Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtTransactionRequest request, CancellationToken cancellationToken = default) =>
+        Run("settle", request, ScriptedSettle, cancellationToken);
+
+    public Task<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtCodeResult> InquiryAsync(
+        Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtTransactionRequest request, CancellationToken cancellationToken = default) =>
+        Run("inquiry", request, ScriptedInquiry, cancellationToken);
+
+    public Task<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtCodeResult> ReverseAsync(
+        Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtTransactionRequest request, CancellationToken cancellationToken = default) =>
+        Run("reverse", request, new Queue<object>(), cancellationToken);
+}
+
+/// <summary>
 /// Boots the real API host against a real PostgreSQL 18 container: migrations are applied
 /// once, then every test exercises HTTP endpoints end to end. No database mocking.
 /// </summary>
@@ -119,6 +198,9 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
     public RecordingInstagramMessagingClient Messaging { get; } = new();
 
     public RecordingPaymentGateway Payments { get; } = new();
+
+    /// <summary>Scripted Mellat SOAP boundary shared with assertions.</summary>
+    internal FakeBehpardakhtSoapClient MellatSoap { get; } = new();
 
     public async Task InitializeAsync()
     {
@@ -157,6 +239,13 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
             builder.UseSetting("Billing:Payments:FrontendBaseUrl", "https://app.test.local");
             builder.UseSetting("Billing:Payments:Zarinpal:Enabled", "true");
             builder.UseSetting("Billing:Payments:Zarinpal:MerchantId", "0123456789abcdef0123456789abcdefabcd");
+            // Mellat runs the REAL gateway transport against the scripted SOAP fake.
+            builder.UseSetting("Billing:Payments:Mellat:Enabled", "true");
+            builder.UseSetting("Billing:Payments:Mellat:TerminalId", "123456");
+            builder.UseSetting("Billing:Payments:Mellat:Username", "test-user");
+            builder.UseSetting("Billing:Payments:Mellat:Password", "test-pass");
+            builder.UseSetting("Billing:Payments:Mellat:ServiceUrl", "https://bpm.test.local/pgwchannel/services/pgw");
+            builder.UseSetting("Billing:Payments:Mellat:PaymentPageUrl", "https://bpm.test.local/pgwchannel/startpay.mellat");
             // Deterministic token-protection key (exactly 32 bytes, base64) so seeded
             // tokens decrypt inside the test host.
             builder.ConfigureServices(services =>
@@ -166,8 +255,16 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.AddSingleton<IInstagramMessagingClient>(sp => sp.GetRequiredService<RecordingInstagramMessagingClient>());
                 services.RemoveAll<IPaymentGatewayResolver>();
                 services.AddSingleton(Payments);
-                services.AddSingleton<RecordingPaymentGatewayResolver>();
-                services.AddSingleton<IPaymentGatewayResolver>(sp => sp.GetRequiredService<RecordingPaymentGatewayResolver>());
+                services.AddSingleton(MellatSoap);
+                services.AddSingleton<Qasedak.Modules.Billing.Infrastructure.Payments.IBehpardakhtSoapClient>(sp => sp.GetRequiredService<FakeBehpardakhtSoapClient>());
+                // Singleton so tests can resolve the exact gateway instance the resolver uses.
+                services.AddSingleton(sp => new Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtMellatPaymentGateway(
+                    Microsoft.Extensions.Options.Options.Create(
+                        sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtOptions>>().Value),
+                    sp.GetRequiredService<Qasedak.Modules.Billing.Infrastructure.Payments.IBehpardakhtSoapClient>()));
+                services.AddSingleton<IPaymentGatewayResolver>(sp => new CompositePaymentGatewayResolver(
+                    Payments,
+                    sp.GetRequiredService<Qasedak.Modules.Billing.Infrastructure.Payments.BehpardakhtMellatPaymentGateway>()));
             });
         });
 

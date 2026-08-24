@@ -37,7 +37,9 @@ services:
       Billing__Payments__Mellat__TerminalId: ${MELLAT_TERMINAL_ID:-}
       Billing__Payments__Mellat__Username: ${MELLAT_USERNAME:-}
       Billing__Payments__Mellat__Password: ${MELLAT_PASSWORD:-}
-      Billing__Payments__Mellat__BaseUrl: ${MELLAT_BASE_URL:-}
+      Billing__Payments__Mellat__ServiceUrl: ${MELLAT_SERVICE_URL:-https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl}
+      Billing__Payments__Mellat__PaymentPageUrl: ${MELLAT_PAYMENT_PAGE_URL:-https://bpm.shaparak.ir/pgwchannel/startpay.mellat}
+      Billing__Payments__Mellat__ServiceNamespace: ${MELLAT_SERVICE_NAMESPACE:-http://interfaces.core.bpm.bpt.com/}
     ports:
       - "${API_PORT:-8080}:8080"
     depends_on:

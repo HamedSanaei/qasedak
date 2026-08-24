@@ -41,23 +41,25 @@ public sealed class PaymentGatewayResolverTests
     }
 
     [Fact]
-    public async Task MellatBoundaryRefusesOperationEvenWhenFlagFlipped()
+    public async Task MellatEnabledWithIncompleteCredentialsFailsClosedLoudly()
     {
-        // The CURRENT official Behpardakht contract is absent; an operator enabling the
-        // flag must still get a loud refusal instead of a guessed wire format.
-        var gateway = new BehpardakhtMellatPaymentGateway(Options.Create(new BehpardakhtOptions
-        {
-            Enabled = true,
-            TerminalId = "t",
-            Username = "u",
-            Password = "p",
-        }));
+        // An operator enabling the flag without full merchant configuration gets a typed
+        // refusal instead of a half-configured wire call.
+        var gateway = new BehpardakhtMellatPaymentGateway(
+            Options.Create(new BehpardakhtOptions
+            {
+                Enabled = true,
+                TerminalId = string.Empty, // missing terminal
+                Username = "u",
+                Password = "p",
+            }),
+            new FakeBehpardakhtSoapClient());
 
-        await Assert.ThrowsAsync<PaymentGatewayUnavailableException>(() =>
+        await Assert.ThrowsAsync<PaymentProviderDisabledException>(() =>
             gateway.CreatePaymentAsync(
                 new CreatePaymentRequest(Guid.CreateVersion7(), 1000, "d", "cb"),
                 CancellationToken.None));
-        await Assert.ThrowsAsync<PaymentGatewayUnavailableException>(() =>
+        await Assert.ThrowsAsync<PaymentProviderDisabledException>(() =>
             gateway.VerifyAsync(
                 new VerifyPaymentRequest("a", 1000),
                 CancellationToken.None));
@@ -70,7 +72,7 @@ public sealed class PaymentGatewayResolverTests
         using var httpClient = new HttpClient();
         return new PaymentGatewayResolver(
             new ZarinpalPaymentGateway(httpClient, zarinpalOptions, Microsoft.Extensions.Logging.Abstractions.NullLogger<ZarinpalPaymentGateway>.Instance),
-            new BehpardakhtMellatPaymentGateway(mellatOptions),
+            new BehpardakhtMellatPaymentGateway(mellatOptions, new FakeBehpardakhtSoapClient()),
             zarinpalOptions,
             mellatOptions);
     }

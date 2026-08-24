@@ -55,6 +55,13 @@ public sealed class PaymentAttempt
     /// <summary>Provider token returned by the payment request; null until initialization succeeds.</summary>
     public string? Authority { get; private set; }
 
+    /// <summary>
+    /// Numeric order identity some providers require (e.g. Behpardakht <c>orderId</c>);
+    /// generated server-side at payment-request time and compared strictly against the
+    /// callback's SaleOrderId before any server-to-server verification.
+    /// </summary>
+    public long? ProviderOrderId { get; private set; }
+
     /// <summary>Provider transaction reference (e.g. Zarinpal ref_id); null until verified.</summary>
     public string? ProviderReferenceId { get; private set; }
 
@@ -128,6 +135,22 @@ public sealed class PaymentAttempt
     }
 
     /// <summary>
+    /// Attaches the server-generated numeric order identity after a successful payment
+    /// request (provider-neutral name; Behpardakht calls it orderId). Pending-only and
+    /// set once so callback identity checks always compare against the original value.
+    /// </summary>
+    public void AttachProviderOrderId(long providerOrderId)
+    {
+        EnsureStatus(PaymentAttemptStatus.Pending, "attach a provider order id to");
+        if (providerOrderId <= 0)
+        {
+            throw new BillingDomainException("billing.paymentOrderIdInvalid", "A provider order id must be positive.");
+        }
+
+        ProviderOrderId = providerOrderId;
+    }
+
+    /// <summary>
     /// Marks the attempt verified after server-to-server provider verification. Throws on
     /// any non-Pending state so duplicate callbacks surface as concurrency/idempotency
     /// signals instead of silently re-applying entitlements.
@@ -173,6 +196,7 @@ public sealed class PaymentAttempt
         long amountIrr,
         PaymentAttemptStatus status,
         string? authority,
+        long? providerOrderId,
         string? providerReferenceId,
         string? failureCode,
         string? maskedCardPan,
@@ -187,6 +211,7 @@ public sealed class PaymentAttempt
             AmountIrr = amountIrr,
             Status = status,
             Authority = authority,
+            ProviderOrderId = providerOrderId,
             ProviderReferenceId = providerReferenceId,
             FailureCode = failureCode,
             MaskedCardPan = maskedCardPan,
@@ -239,6 +264,9 @@ public static class PaymentFailures
     public const string VerifyRejected = "payment.verifyRejected";
 
     public const string CanceledByUser = "payment.canceledByUser";
+
+    /// <summary>Callback identity (RefId/SaleOrderId) did not match the stored attempt; verify was never called.</summary>
+    public const string CallbackRejected = "payment.callbackRejected";
 
     public const string AlreadyVerifiedElsewhere = "payment.authorityTaken";
 }

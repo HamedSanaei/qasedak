@@ -156,6 +156,7 @@ public sealed class FinalizePaymentUseCaseTests
             null,
             null,
             null,
+            null,
             attempt.CreatedAtUtc,
             null,
             null);

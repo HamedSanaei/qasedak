@@ -50,6 +50,17 @@ public sealed record FinalizePaymentOutcome(
     bool AlreadyApplied);
 
 /// <summary>
+/// Provider-neutral callback data after Infrastructure has parsed the provider's wire
+/// format. Carries only what validation needs; raw vendor payloads never cross here.
+/// </summary>
+public sealed record PaymentCallbackContext(
+    string Authority,
+    string StatusHint,
+    long? ProviderOrderId = null,
+    string? ProviderReference = null,
+    string? MaskedCardPan = null);
+
+/// <summary>
 /// Creates a server-owned checkout: resolves the plan (price is server-authoritative),
 /// opens a Pending attempt, asks the selected gateway for an authority and returns the
 /// browser redirect URL. The client never supplies amounts.
@@ -85,8 +96,12 @@ public sealed class CreateCheckoutUseCase(
             attempt = PaymentAttempt.Create(
                 Guid.CreateVersion7(), workspaceId, plan.Id, gateway.ProviderId, plan.AmountIrr, DateTimeOffset.UtcNow);
 
-            // The callback carries only the public attempt id; no secrets in URLs.
-            var callbackUrl = callbackUrlTemplate.Replace("{attemptId}", attempt.Id.ToString(), StringComparison.Ordinal);
+            // The callback carries only the public attempt id; no secrets in URLs. The
+            // provider placeholder resolves here so providers that transmit their callback
+            // URL at pay time (e.g. Behpardakht bpPayRequest) receive a concrete address.
+            var callbackUrl = callbackUrlTemplate
+                .Replace("{provider}", gateway.ProviderId, StringComparison.Ordinal)
+                .Replace("{attemptId}", attempt.Id.ToString(), StringComparison.Ordinal);
             initialization = await gateway.CreatePaymentAsync(
                 new CreatePaymentRequest(attempt.Id, attempt.AmountIrr, $"Qasedak subscription: {plan.Code}", callbackUrl),
                 cancellationToken);
@@ -109,6 +124,11 @@ public sealed class CreateCheckoutUseCase(
         }
 
         attempt.AttachAuthority(initialization.Authority);
+        if (initialization.ProviderOrderId is { } providerOrderId)
+        {
+            attempt.AttachProviderOrderId(providerOrderId);
+        }
+
         await attempts.SaveChangesAsync(attempt, cancellationToken);
 
         if (audit is not null)
@@ -153,10 +173,24 @@ public sealed class FinalizePaymentUseCase(
         string callbackStatus,
         CancellationToken cancellationToken = default)
     {
-        var attempt = await attempts.FindByAuthorityAsync(authority, cancellationToken)
+        return await ExecuteCallbackAsync(
+            new PaymentCallbackContext(authority, callbackStatus), cancellationToken);
+    }
+
+    /// <summary>
+    /// Full-context entrypoint (e.g. Behpardakht POST callbacks). Enforces the vendor's
+    /// mandatory identity rule BEFORE any server-to-server verification: the callback's
+    /// provider order id must exactly match the stored one; a mismatched or malformed
+    /// callback is recorded as rejected and never verified, never activated.
+    /// </summary>
+    public async Task<FinalizePaymentOutcome> ExecuteCallbackAsync(
+        PaymentCallbackContext context,
+        CancellationToken cancellationToken = default)
+    {
+        var attempt = await attempts.FindByAuthorityAsync(context.Authority, cancellationToken)
             ?? throw new BillingDomainException(PaymentFailures.NotFound, "The payment attempt does not exist.");
 
-        return await FinalizeAsync(attempt, callbackStatus, cancellationToken);
+        return await FinalizeAsync(attempt, context, cancellationToken);
     }
 
     public async Task<FinalizePaymentOutcome> ExecuteByIdAsync(
@@ -167,11 +201,12 @@ public sealed class FinalizePaymentUseCase(
         var attempt = await attempts.FindByIdAsync(attemptId, cancellationToken)
             ?? throw new BillingDomainException(PaymentFailures.NotFound, "The payment attempt does not exist.");
 
-        return await FinalizeAsync(attempt, callbackStatus, cancellationToken);
+        return await FinalizeAsync(
+            attempt, new PaymentCallbackContext(attempt.Authority ?? string.Empty, callbackStatus), cancellationToken);
     }
 
     private async Task<FinalizePaymentOutcome> FinalizeAsync(
-        PaymentAttempt attempt, string callbackStatus, CancellationToken cancellationToken)
+        PaymentAttempt attempt, PaymentCallbackContext context, CancellationToken cancellationToken)
     {
         if (attempt.IsTerminal)
         {
@@ -180,9 +215,28 @@ public sealed class FinalizePaymentUseCase(
             return new FinalizePaymentOutcome(attempt, AlreadyApplied: true);
         }
 
-        if (!string.Equals(callbackStatus, "OK", StringComparison.OrdinalIgnoreCase))
+        // Mandatory vendor identity check (Behpardakht v1.29 §9.2, enforced
+        // provider-neutrally whenever a callback order id is present): the callback must
+        // carry the exact stored server-side order identity. On mismatch: reject the
+        // callback WITHOUT calling verification and without touching entitlements.
+        if (context.ProviderOrderId is { } callbackOrderId &&
+            (!attempt.ProviderOrderId.HasValue || attempt.ProviderOrderId.Value != callbackOrderId))
         {
-            attempt.MarkFailed(PaymentFailures.CanceledByUser, DateTimeOffset.UtcNow);
+            attempt.MarkFailed(PaymentFailures.CallbackRejected, DateTimeOffset.UtcNow);
+            await attempts.SaveChangesAsync(attempt, cancellationToken);
+            await RecordAuditAsync("billing.payment.callbackRejected", attempt, cancellationToken);
+            return new FinalizePaymentOutcome(attempt, AlreadyApplied: false);
+        }
+
+        if (!string.Equals(context.StatusHint, "OK", StringComparison.OrdinalIgnoreCase))
+        {
+            // CANCEL/NOK = cardholder abandoned the gateway page; any other non-OK hint is
+            // a rejected sale. Neither ever reaches verification or activation.
+            var failureCode = context.StatusHint.Equals("CANCEL", StringComparison.OrdinalIgnoreCase) ||
+                context.StatusHint.Equals("NOK", StringComparison.OrdinalIgnoreCase)
+                    ? PaymentFailures.CanceledByUser
+                    : PaymentFailures.VerifyRejected;
+            attempt.MarkFailed(failureCode, DateTimeOffset.UtcNow);
             await attempts.SaveChangesAsync(attempt, cancellationToken);
             await RecordAuditAsync("billing.payment.canceled", attempt, cancellationToken);
             return new FinalizePaymentOutcome(attempt, AlreadyApplied: false);
@@ -193,11 +247,17 @@ public sealed class FinalizePaymentUseCase(
         try
         {
             verification = await gateway.VerifyAsync(
-                new VerifyPaymentRequest(attempt.Authority!, attempt.AmountIrr), cancellationToken);
+                new VerifyPaymentRequest(
+                    attempt.Authority!,
+                    attempt.AmountIrr,
+                    attempt.ProviderOrderId,
+                    context.ProviderReference),
+                cancellationToken);
         }
         catch (PaymentGatewayUnavailableException)
         {
-            // Transient outage: the attempt stays Pending so a later retry can verify.
+            // Transient outage / unresolved provider state: the attempt stays Pending so
+            // a later retry (or inquiry/reversal reconciliation) can settle the outcome.
             throw new BillingDomainException(PaymentFailures.ProviderUnavailable, "The payment provider is temporarily unavailable.");
         }
         catch (PaymentRequestRejectedException exception)
@@ -211,13 +271,14 @@ public sealed class FinalizePaymentUseCase(
         switch (verification.Outcome)
         {
             case PaymentVerificationOutcome.Verified:
-                await ApplyEntitlementOnceAsync(attempt, verification, cancellationToken);
+                await ApplyEntitlementOnceAsync(attempt, verification, context.MaskedCardPan, cancellationToken);
                 break;
 
             case PaymentVerificationOutcome.AlreadyVerified:
                 // The provider verified this transaction earlier while our side stayed
                 // Pending (e.g. our response to the first callback was lost). Apply once.
-                await ApplyEntitlementOnceAsync(attempt, verification with { Outcome = PaymentVerificationOutcome.Verified }, cancellationToken);
+                await ApplyEntitlementOnceAsync(
+                    attempt, verification with { Outcome = PaymentVerificationOutcome.Verified }, context.MaskedCardPan, cancellationToken);
                 break;
 
             case PaymentVerificationOutcome.Failed:
@@ -237,11 +298,14 @@ public sealed class FinalizePaymentUseCase(
     /// the loser reloads, sees Verified, and reports idempotent success.
     /// </summary>
     private async Task ApplyEntitlementOnceAsync(
-        PaymentAttempt attempt, PaymentVerificationResult verification, CancellationToken cancellationToken)
+        PaymentAttempt attempt, PaymentVerificationResult verification, string? callbackMaskedPan, CancellationToken cancellationToken)
     {
         try
         {
-            attempt.MarkVerified(verification.ProviderReferenceId ?? verification.CardHash ?? "verified", verification.MaskedCardPan, DateTimeOffset.UtcNow);
+            attempt.MarkVerified(
+                verification.ProviderReferenceId ?? verification.CardHash ?? "verified",
+                verification.MaskedCardPan ?? callbackMaskedPan,
+                DateTimeOffset.UtcNow);
             await ApplyToSubscriptionAsync(attempt, cancellationToken);
             await attempts.SaveChangesAsync(attempt, cancellationToken);
             await RecordAuditAsync("billing.payment.verified", attempt, cancellationToken);
