@@ -40,10 +40,76 @@ namespace Qasedak.Modules.Billing.Infrastructure.Persistence.Migrations
                     b.ToTable("plan_entitlements", "billing");
                 });
 
+            modelBuilder.Entity("Qasedak.Modules.Billing.Infrastructure.Persistence.PaymentAttemptRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("AmountIrr")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Authority")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("FailedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FailureCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("MaskedCardPan")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ProviderId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("ProviderReferenceId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("VerifiedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Authority")
+                        .IsUnique()
+                        .HasFilter("\"Authority\" IS NOT NULL");
+
+                    b.HasIndex("WorkspaceId", "CreatedAtUtc");
+
+                    b.ToTable("payment_attempts", "billing");
+                });
+
             modelBuilder.Entity("Qasedak.Modules.Billing.Infrastructure.Persistence.PlanRow", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
+
+                    b.Property<long>("AmountIrr")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Code")
                         .IsRequired()

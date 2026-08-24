@@ -430,15 +430,17 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(billing): model subscriptions and entitlements`
 
 ## M09-002 — Integrate payment provider
-**Status:** BLOCKED (provider-selection-decision-required)
+**Status:** DONE-PARTIAL (Zarinpal production-capable; Bank Melli live transport externally blocked)
 
-**Outcome:** Implement provider adapter/webhooks/idempotency after provider selection ADR.
+**Outcome:** Provider adapters, idempotent attempt persistence, checkout/callback/status/history endpoints, and Penpot-synchronized billing UI.
 
-**Blocker:** No payment-provider selection exists anywhere in the repository (DECISIONS.md, docs/ and repo-wide search performed this milestone; SRS records "Payment provider: future external billing adapter" as deliberately undecided). REQUIRED DECISION: choose and approve the payment provider and record it in an ADR covering legal/deployment fit, webhook reachability and pricing model. Everything else in M09 shipped provider-neutrally, so only the adapter/webhook ingestion remains here.
+**Completion evidence:** Human directive 2026-08-24 fixed providers = Zarinpal + Bank Melli/SADAD per official merchant docs. Shipped: `PaymentAttempt` aggregate with Pending→Verified|Failed transitions, xmin optimistic concurrency (`IsRowVersion`) and unique filtered Authority index (anti-replay); `IPaymentGateway` port (Application) with `ZarinpalPaymentGateway` implementing the CURRENT official v4 REST contract (request.json → data.code 100 + authority, StartPay redirect, verify.json code 100=verified-first/101=previously-verified, masked card_pan) over direct typed HttpClient — no community packages, no secrets/logging of merchant id/payloads/PAN; `MelliPaymentGateway` fail-closed boundary naming the required official documents (endpoint spec, signing/encryption algorithm, terminal credential contract, callback field contract); `PaymentGatewayResolver`; checkout/finalize use cases where callback queries alone can never activate a subscription and verified payments extend entitlement exactly once under concurrent replay (loser reloads → idempotent answer); endpoints GET /billing/plans, workspace subscription/checkout(202)/payments/{id}/payments history, public provider callback → 302 to `/dashboard/billing/result`; migration `AddPaymentsAndPlanPrices` (+Plan.AmountIrr, canonical IRR per ADR-008); env contracts in .env.example/docker-compose/deployment guide §6; ADR-008 accepted. Billing UI synced from `Qasedak · Billing & Payments` boards: plans/subscription/checkout/result pages render server-authoritative amounts only, Melli radio disabled until contract lands. Tests: Billing unit 60/60 (attempt invariants, Zarinpal fixture contracts incl. timeout/malformed/rejection-masking, finalize exactly-once/duplicate-replay/NOK/verify-failed/outage-retry/concurrency-winner), Billing integration Testcontainers 9/9 (roundtrip, unique refs, concurrent verify exactly-once), Api.IntegrationTests 46/46 incl. 9 billing e2e (auth isolation 401/403, server-owned price, duplicate callbacks, NOK cancellation, workspace isolation). No live payment calls in CI.
 
-**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+**Residual (honest partial):** Live Zarinpal transport unproven against production credentials (staging smoke test requires real merchant account; deliberately not done from CI/dev machine). Bank Melli adapter cannot be implemented without the official SADAD/Bank Melli technical documents listed above — boundary + tests only.
 
-**Suggested commit:** `feat(billing): integrate payment provider`
+**Completion contract:** Graphify evidence recorded (healthy, code-only refresh limitation noted); scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported above.
+
+**Suggested commit:** `feat(billing): integrate zarinpal payment gateway`
 
 ## M09-003 — Enforce entitlements server-side
 **Status:** DONE

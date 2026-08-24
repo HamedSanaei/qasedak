@@ -1,13 +1,15 @@
 "use client";
 
 /*
- * Registration + workspace creation — the approved workspace experience available
- * from the current backend surface (register → login → createWorkspace).
- * See the design-source note in ../login/page.tsx regarding auth boards.
+ * Registration + workspace creation — synchronized from the canonical Penpot board
+ * "Identity / Register / Desktop" (c48311ed-e700-80f8-8008-881f075bc2f7, page
+ * c48311ed-e700-80f8-8008-881f0352eb6a). Visual layer only; the register → login →
+ * createWorkspace flow, validation and error mapping are unchanged.
  */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, TextField } from "../../shared/design/ui";
+import Link from "next/link";
+import { Button, TextField } from "../../shared/design/ui";
 import { api, ApiError } from "../../shared/api/http";
 import { saveSession, saveWorkspaceId } from "../../shared/api/identity";
 import {
@@ -17,6 +19,7 @@ import {
   validatePassword,
   validateWorkspaceName,
 } from "../../features/auth/validation";
+import { AuthBrandRow, AuthLayout } from "../../features/auth/AuthLayout";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -65,68 +68,104 @@ export default function RegisterPage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "2rem" }}>
-      <Card className="auth-card">
-        <h1 style={{ fontSize: 30, fontWeight: 800, color: "var(--color-heading-plum)", margin: "0 0 .25rem" }}>
-          ساخت حساب کاربری
-        </h1>
-        <p style={{ fontSize: 14, color: "var(--color-text-secondary)", marginTop: 0 }}>
-          حساب شما و اولین ورک‌اسپیس در یک مرحله ساخته می‌شود.
-        </p>
-        <form onSubmit={handleSubmit} noValidate style={{ display: "grid", gap: "1rem", marginTop: "1.25rem" }}>
-          <TextField
-            id="displayName"
-            label="نام نمایشی"
-            autoComplete="name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            error={errors.displayName}
-          />
-          <TextField
-            id="email"
-            label="ایمیل"
-            type="email"
-            dir="ltr"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={errors.email}
-          />
-          <TextField
-            id="password"
-            label="رمز عبور"
-            type="password"
-            dir="ltr"
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={errors.password}
-          />
-          <TextField
-            id="workspaceName"
-            label="نام ورک‌اسپیس"
-            placeholder="مثلاً فروشگاه من"
-            value={workspaceName}
-            onChange={(e) => setWorkspaceName(e.target.value)}
-            error={errors.workspaceName}
-          />
-          {formError ? (
-            <div role="alert" style={{ fontSize: 13, color: "var(--color-status-danger)" }}>
-              {formError}
-            </div>
-          ) : null}
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "در حال ثبت‌نام…" : "ثبت‌نام و ورود"}
-          </Button>
-        </form>
-        <p style={{ fontSize: 13, color: "var(--color-text-secondary)", marginTop: "1rem" }}>
-          قبلاً ثبت‌نام کرده‌اید؟{" "}
-          <a href="/login" style={{ color: "var(--color-brand-accent)", fontWeight: 700 }}>
-            وارد شوید
-          </a>
-        </p>
-      </Card>
-    </main>
+    <AuthLayout>
+      <AuthBrandRow />
+      <p style={{ fontSize: 14, fontWeight: 700, color: "var(--color-brand-accent)", margin: "1.5rem 0 .1rem" }}>
+        ساخت حساب
+      </p>
+      <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--color-text-primary)", margin: "0 0 .25rem" }}>
+        شروع با قاصدک
+      </h1>
+      <p style={{ fontSize: 14, color: "var(--color-text-secondary)", margin: 0 }}>
+        یک حساب بسازید؛ سپس فضای کاری خود را ایجاد می‌کنید.
+      </p>
+      <form onSubmit={handleSubmit} noValidate style={{ display: "grid", gap: "1rem", marginTop: "1.25rem" }}>
+        <TextField
+          id="displayName"
+          label="نام نمایشی"
+          autoComplete="name"
+          placeholder="مثلاً حامد محمودی"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          error={errors.displayName}
+        />
+        <TextField
+          id="email"
+          label="ایمیل"
+          type="email"
+          dir="ltr"
+          autoComplete="email"
+          placeholder="name@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+        />
+        <TextField
+          id="password"
+          label="گذرواژه"
+          type="password"
+          dir="ltr"
+          autoComplete="new-password"
+          placeholder="حداقل ۱۰ کاراکتر"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          error={errors.password}
+        />
+        <div
+          style={{
+            background: "var(--qs-canvas)",
+            border: "1px solid var(--qs-card-border)",
+            borderRadius: 12,
+            padding: ".7rem .9rem",
+            marginTop: "-.25rem",
+          }}
+        >
+          <p style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+            گذرواژه باید:
+          </p>
+          <div style={{ display: "grid", gap: ".25rem", marginTop: ".35rem" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: ".45rem", fontSize: 12, color: "var(--color-text-secondary)" }}>
+              <span aria-hidden style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-brand-accent)", flexShrink: 0 }} />
+              بین ۱۰ تا ۱۲۸ کاراکتر باشد
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: ".45rem", fontSize: 12, color: "var(--color-text-secondary)" }}>
+              <span aria-hidden style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-brand-accent)", flexShrink: 0 }} />
+              فقط از حروف و اعداد تشکیل نشده باشد
+            </span>
+          </div>
+        </div>
+        <TextField
+          id="workspaceName"
+          label="نام ورک‌اسپیس"
+          placeholder="مثلاً فروشگاه من"
+          value={workspaceName}
+          onChange={(e) => setWorkspaceName(e.target.value)}
+          error={errors.workspaceName}
+        />
+        {formError ? (
+          <div
+            role="alert"
+            style={{
+              fontSize: 13,
+              color: "var(--qs-status-danger)",
+              background: "var(--qs-status-danger-bg)",
+              borderRadius: 10,
+              padding: ".55rem .8rem",
+            }}
+          >
+            {formError}
+          </div>
+        ) : null}
+        <Button type="submit" disabled={submitting} style={{ height: 52 }}>
+          {submitting ? "در حال ثبت‌نام…" : "ساخت حساب"}
+        </Button>
+      </form>
+      <p style={{ fontSize: 14, color: "var(--color-text-secondary)", marginTop: "1.25rem", marginBottom: 0 }}>
+        قبلاً ثبت‌نام کرده‌اید؟{" "}
+        <Link href="/login" style={{ color: "var(--color-brand-accent)", fontWeight: 700 }}>
+          ورود
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }

@@ -2,13 +2,15 @@
 
 /*
  * Conversation thread detail + reply composer.
- * DESIGN STATUS: no thread design exists in the canonical Penpot file — see
- * docs/design/sync/M08-004-conversation-inbox.md (visual sync BLOCKED).
+ * Synchronized from the canonical Penpot board "Conversations / Inbox / Desktop"
+ * thread panel (c48311ed-e700-80f8-8008-88200ed6b9fc) via
+ * docs/design/sync/2026-08-24-qasedak-final-designs.md. Visual layer only; reply
+ * validation, sending and reload behavior are unchanged.
  */
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card } from "../../../../shared/design/ui";
+import { Button } from "../../../../shared/design/ui";
 import {
   conversationsApi,
   type ConversationDetail,
@@ -85,36 +87,65 @@ export default function ConversationThreadPage() {
 
   return (
     <main style={{ padding: "1.5rem 2rem", maxWidth: 760 }}>
-      <Link href="/dashboard/inbox" style={{ fontSize: 13, color: "#88828E", textDecoration: "none" }}>
-        ← بازگشت به اینباکس
+      <Link href="/dashboard/inbox" style={{ fontSize: 13, color: "var(--qs-muted-final)", textDecoration: "none" }}>
+        ← بازگشت به گفتگوها
       </Link>
-      <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--color-text-primary)", margin: ".5rem 0 1rem" }}>
-        گفتگو
-      </h1>
 
       {state === "loading" ? (
-        <p style={{ color: "var(--color-text-secondary)", fontSize: 14 }}>در حال دریافت پیام‌ها…</p>
+        <p style={{ color: "var(--color-text-secondary)", fontSize: 13 }}>در حال دریافت پیام‌ها…</p>
       ) : null}
 
       {state === "error" ? (
-        <Card>
-          <div role="alert" style={{ color: "var(--color-status-danger)", fontSize: 14 }}>
-            دریافت گفتگو ناموفق بود.
-          </div>
-          <div style={{ marginTop: ".75rem" }}>
+        <div
+          role="alert"
+          style={{
+            background: "#ffffff",
+            border: "1px solid var(--qs-card-border)",
+            borderRadius: "var(--qs-radius-panel)",
+            padding: "1rem 1.25rem",
+            marginTop: ".75rem",
+            display: "grid",
+            gap: ".5rem",
+          }}
+        >
+          <span style={{ color: "var(--qs-status-danger)", fontSize: 13 }}>دریافت گفتگو ناموفق بود.</span>
+          <span>
             <Button variant="outline" size="small" onClick={() => void load()}>تلاش مجدد</Button>
-          </div>
-        </Card>
+          </span>
+        </div>
       ) : null}
 
       {state === "ready" && detail ? (
         <>
-          <p style={{ display: "flex", gap: ".5rem", alignItems: "center", fontSize: 13, color: "#737373" }}>
-            <strong style={{ color: "#141414" }}>{detail.participantId}</strong>
-            <span>· {statusLabel(detail.status)}</span>
-          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: ".6rem", margin: ".5rem 0 1rem" }}>
+            <span
+              aria-hidden
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background: "var(--qs-accent-soft-final)",
+                color: "var(--color-brand-accent)",
+                fontSize: 14,
+                fontWeight: 800,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {detail.participantId.slice(0, 1)}
+            </span>
+            <span>
+              <strong style={{ display: "block", fontSize: 15, color: "var(--color-text-primary)" }}>
+                {detail.participantId}
+              </strong>
+              <span style={{ fontSize: 11, color: statusLabel(detail.status) === "بایگانی" ? "var(--qs-muted-final)" : "var(--qs-status-success)" }}>
+                گفتگوی {statusLabel(detail.status)}
+              </span>
+            </span>
+          </div>
 
-          <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "grid", gap: ".625rem" }}>
+          <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1rem", display: "grid", gap: ".55rem" }}>
             {detail.messages.map((message: ConversationMessage) => {
               const outgoing = message.direction === "Outgoing";
               return (
@@ -122,15 +153,22 @@ export default function ConversationThreadPage() {
                   <div
                     style={{
                       maxWidth: "70%",
-                      background: outgoing ? "var(--color-accent-softer)" : "var(--color-surface-subtle)",
-                      borderRadius: "var(--radius-card)",
-                      padding: ".75rem 1rem",
+                      background: outgoing ? "var(--qs-accent-soft-final)" : "#ffffff",
+                      border: outgoing ? "1px solid transparent" : "1px solid var(--qs-card-border)",
+                      borderRadius: "var(--qs-radius-panel)",
+                      padding: ".65rem .9rem",
                     }}
                   >
-                    <div style={{ fontSize: 14, color: "var(--color-text-primary)", whiteSpace: "pre-wrap" }}>
+                    <div style={{ fontSize: 13, color: "var(--color-text-primary)", whiteSpace: "pre-wrap" }}>
                       {message.body}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: ".25rem" }}>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: outgoing ? "var(--color-brand-accent)" : "var(--qs-muted-final)",
+                        marginTop: ".25rem",
+                      }}
+                    >
                       {nowMs !== null ? formatRelativeFa(message.occurredAtUtc, nowMs) : ""}
                     </div>
                   </div>
@@ -139,8 +177,15 @@ export default function ConversationThreadPage() {
             })}
           </ul>
 
-          <Card>
-            <label htmlFor="reply" style={{ fontSize: 13, fontWeight: 700, color: "#141414" }}>
+          {/* Composer area per design: soft canvas wrapping a white composer. */}
+          <div
+            style={{
+              background: "var(--qs-canvas)",
+              borderRadius: "var(--qs-radius-panel)",
+              padding: ".9rem",
+            }}
+          >
+            <label htmlFor="reply" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
               پاسخ
             </label>
             <textarea
@@ -151,29 +196,33 @@ export default function ConversationThreadPage() {
               rows={3}
               style={{
                 width: "100%",
-                marginTop: ".5rem",
-                border: "1px solid var(--color-border-input)",
-                borderRadius: "var(--radius-control)",
+                background: "#ffffff",
+                border: "1px solid var(--qs-card-border)",
+                borderRadius: 12,
                 padding: ".625rem .875rem",
                 font: "inherit",
+                fontSize: 13,
                 resize: "vertical",
               }}
-              placeholder="پاسخ خود را بنویسید…"
+              placeholder="پیام خود را بنویسید…"
             />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: ".5rem" }}>
-              <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
-                {`${draft.length} / ${REPLY_MAX_LENGTH} مجاز`}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: ".55rem", gap: ".5rem", flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, color: "var(--qs-muted-final)" }}>
+                {`${draft.length} / ${REPLY_MAX_LENGTH}`}
               </span>
               <Button size="small" disabled={sending} onClick={() => void sendReply()}>
-                {sending ? "در حال ارسال…" : "ارسال پاسخ"}
+                {sending ? "در حال ارسال…" : "ارسال"}
               </Button>
             </div>
+            <p style={{ margin: ".45rem 0 0", fontSize: 11, color: "var(--color-text-secondary)" }}>
+              ارسال فقط در بازه مجاز ۲۴ ساعته امکان‌پذیر است؛ پیام‌های پذیرفته‌شده توسط کانال ثبت می‌شوند.
+            </p>
             {sendError ? (
-              <div role="alert" style={{ marginTop: ".5rem", fontSize: 13, color: "var(--color-status-danger)" }}>
+              <div role="alert" style={{ marginTop: ".5rem", fontSize: 13, color: "var(--qs-status-danger)" }}>
                 {sendError}
               </div>
             ) : null}
-          </Card>
+          </div>
         </>
       ) : null}
     </main>

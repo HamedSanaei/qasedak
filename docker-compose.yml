@@ -26,6 +26,18 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__Qasedak: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
       Cors__AllowedOrigins__0: http://localhost:${WEB_PORT:-3000}
+      # Payments (ADR-008): secrets arrive via environment only; callbacks carry no secrets.
+      Billing__Payments__CallbackBaseUrl: ${BILLING_CALLBACK_BASE_URL:-http://localhost:${API_PORT:-8080}}
+      Billing__Payments__FrontendBaseUrl: ${BILLING_FRONTEND_BASE_URL:-http://localhost:${WEB_PORT:-3000}}
+      Billing__Payments__Zarinpal__Enabled: ${ZARINPAL_ENABLED:-false}
+      Billing__Payments__Zarinpal__MerchantId: ${ZARINPAL_MERCHANT_ID:-}
+      Billing__Payments__Zarinpal__BaseUrl: ${ZARINPAL_BASE_URL:-https://payment.zarinpal.com}
+      Billing__Payments__Zarinpal__Currency: ${ZARINPAL_CURRENCY:-IRR}
+      Billing__Payments__Melli__Enabled: ${MELLI_ENABLED:-false}
+      Billing__Payments__Melli__MerchantId: ${MELLI_MERCHANT_ID:-}
+      Billing__Payments__Melli__TerminalId: ${MELLI_TERMINAL_ID:-}
+      Billing__Payments__Melli__CredentialKey: ${MELLI_CREDENTIAL_KEY:-}
+      Billing__Payments__Melli__BaseUrl: ${MELLI_BASE_URL:-}
     ports:
       - "${API_PORT:-8080}:8080"
     depends_on:

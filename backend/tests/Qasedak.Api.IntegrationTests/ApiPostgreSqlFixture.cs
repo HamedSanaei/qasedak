@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Qasedak.BuildingBlocks.Application.Auditing;
 using Qasedak.BuildingBlocks.Infrastructure.Auditing;
 using Qasedak.Modules.Automations.Infrastructure.Persistence;
+using Qasedak.Modules.Billing.Application.Payments;
 using Qasedak.Modules.Billing.Infrastructure.Persistence;
 using Qasedak.Modules.Contacts.Infrastructure.Persistence;
 using Qasedak.Modules.Conversations.Infrastructure.Persistence;
@@ -42,6 +43,56 @@ public sealed class RecordingInstagramMessagingClient : IInstagramMessagingClien
 }
 
 /// <summary>
+/// Deterministic stand-in for real payment providers: records gateway requests and plays
+/// scripted verification outcomes so CI never touches a live payment API. The resolver is
+/// billing-scoped; replacing it cannot affect other modules' tests.
+/// </summary>
+public sealed class RecordingPaymentGateway : IPaymentGateway
+{
+    public List<CreatePaymentRequest> Requests { get; } = [];
+
+    public List<VerifyPaymentRequest> Verifies { get; } = [];
+
+    /// <summary>Scripted verify results consumed in order; defaults to first-time success.</summary>
+    public Queue<PaymentVerificationResult> ScriptedVerifications { get; } = new();
+
+    public bool FailRequests { get; set; }
+
+    public string ProviderId => "zarinpal";
+
+    public Task<PaymentInitialization> CreatePaymentAsync(CreatePaymentRequest request, CancellationToken cancellationToken = default)
+    {
+        if (FailRequests)
+        {
+            throw new PaymentGatewayUnavailableException("simulated provider outage");
+        }
+
+        Requests.Add(request);
+        var authority = $"auth-{request.AttemptId:N}";
+        return Task.FromResult(new PaymentInitialization(ProviderId, authority, $"https://pay.test.local/pg/StartPay/{authority}"));
+    }
+
+    public Task<PaymentVerificationResult> VerifyAsync(VerifyPaymentRequest request, CancellationToken cancellationToken = default)
+    {
+        Verifies.Add(request);
+        var result = ScriptedVerifications.Count > 0
+            ? ScriptedVerifications.Dequeue()
+            : PaymentVerificationResult.Verified(100, $"ref-{Guid.NewGuid():N}", "6037********1234", "card-hash-test");
+        return Task.FromResult(result);
+    }
+}
+
+public sealed class RecordingPaymentGatewayResolver(RecordingPaymentGateway gateway) : IPaymentGatewayResolver
+{
+    public IReadOnlyList<string> EnabledProviderIds => ["zarinpal"];
+
+    public IPaymentGateway Resolve(string providerId) =>
+        string.Equals(providerId, "zarinpal", StringComparison.OrdinalIgnoreCase)
+            ? gateway
+            : throw new PaymentProviderUnknownException(providerId);
+}
+
+/// <summary>
 /// Boots the real API host against a real PostgreSQL 18 container: migrations are applied
 /// once, then every test exercises HTTP endpoints end to end. No database mocking.
 /// </summary>
@@ -67,6 +118,8 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
 
     public RecordingInstagramMessagingClient Messaging { get; } = new();
 
+    public RecordingPaymentGateway Payments { get; } = new();
+
     public async Task InitializeAsync()
     {
         await _container.StartAsync();
@@ -90,13 +143,31 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
             // tokens decrypt inside the test host.
             builder.UseSetting("Instagram:Protection:KeyBase64",
                 Convert.ToBase64String("api-integration-token-prot-key!!"u8.ToArray()));
-            // CI must never call live Meta APIs: the messaging port gets a deterministic
-            // recording stand-in (the real Graph client stays registered underneath).
+            // The shared test client presents one source IP; the whole assembly's
+            // register/login traffic would exhaust the production Sensitive fixed window.
+            // Generous windows keep the suite deterministic (rate limiting itself has its
+            // own dedicated tests).
+            builder.UseSetting("Qasedak:RateLimits:Sensitive:Limit", "10000");
+            builder.UseSetting("Qasedak:RateLimits:Sensitive:WindowSeconds", "60");
+            builder.UseSetting("Qasedak:RateLimits:Authenticated:Limit", "100000");
+            builder.UseSetting("Qasedak:RateLimits:Public:Limit", "100000");
+            // Payments: provider selection is enabled for the deterministic recording
+            // gateway only; CI never reaches a live Zarinpal/Melli endpoint.
+            builder.UseSetting("Billing:Payments:CallbackBaseUrl", "https://api.test.local");
+            builder.UseSetting("Billing:Payments:FrontendBaseUrl", "https://app.test.local");
+            builder.UseSetting("Billing:Payments:Zarinpal:Enabled", "true");
+            builder.UseSetting("Billing:Payments:Zarinpal:MerchantId", "0123456789abcdef0123456789abcdefabcd");
+            // Deterministic token-protection key (exactly 32 bytes, base64) so seeded
+            // tokens decrypt inside the test host.
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<IInstagramMessagingClient>();
                 services.AddSingleton(Messaging);
                 services.AddSingleton<IInstagramMessagingClient>(sp => sp.GetRequiredService<RecordingInstagramMessagingClient>());
+                services.RemoveAll<IPaymentGatewayResolver>();
+                services.AddSingleton(Payments);
+                services.AddSingleton<RecordingPaymentGatewayResolver>();
+                services.AddSingleton<IPaymentGatewayResolver>(sp => sp.GetRequiredService<RecordingPaymentGatewayResolver>());
             });
         });
 

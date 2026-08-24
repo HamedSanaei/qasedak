@@ -138,6 +138,32 @@ public sealed class Subscription
         ApplyStatus(SubscriptionStatus.PastDue);
     }
 
+    /// <summary>
+    /// Reopens a terminated (Canceled/Expired) subscription after a NEW verified payment:
+    /// switches the plan and opens a fresh billing period from now.
+    /// </summary>
+    public void Reactivate(Guid planId, DateTimeOffset reactivatedAtUtc, DateTimeOffset periodEndsAtUtc)
+    {
+        if (Status is not (SubscriptionStatus.Canceled or SubscriptionStatus.Expired))
+        {
+            throw new BillingDomainException("billing.wrongState", "Only terminated subscriptions can be reactivated.");
+        }
+
+        if (planId == Guid.Empty)
+        {
+            throw new BillingDomainException("billing.invalidPlanId", "A subscription requires a valid plan.");
+        }
+
+        if (periodEndsAtUtc <= reactivatedAtUtc)
+        {
+            throw new BillingDomainException("billing.invalidPeriod", "A billing period must end after it starts.");
+        }
+
+        PlanId = planId;
+        _periods.Add(new SubscriptionPeriod(reactivatedAtUtc, periodEndsAtUtc));
+        Status = SubscriptionStatus.Active;
+    }
+
     /// <summary>Cancels: terminal for this subscription row; entitlements run to period end.</summary>
     public void Cancel(DateTimeOffset canceledAtUtc)
     {

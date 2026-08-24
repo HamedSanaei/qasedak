@@ -8,5 +8,6 @@
     <ProjectReference Include="..\..\Modules\Automations\Qasedak.Modules.Automations.Domain\Qasedak.Modules.Automations.Domain.csproj" />
     <ProjectReference Include="..\..\Modules\Billing\Qasedak.Modules.Billing.Application\Qasedak.Modules.Billing.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Billing\Qasedak.Modules.Billing.Domain\Qasedak.Modules.Billing.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Billing\Qasedak.Modules.Billing.Infrastructure\Qasedak.Modules.Billing.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

@@ -54,6 +54,31 @@
   --sidebar-footer-card-height: 96px;
   --nav-row-step: 55px;                 /* Penpot nav row vertical rhythm */
   --sub-row-step: 36px;                 /* Penpot sub row vertical rhythm */
+
+  /* Qasedak final-design set extracted live 2026-08-24 from the canonical file's
+     "Qasedak ·" boards: Identity / Login / Desktop, Inbox / Desktop,
+     Billing / Plans + Checkout + Payment Results (see
+     docs/design/sync/2026-08-24-qasedak-final-designs.md). */
+  --qs-canvas: #f6f7f9;                 /* auth/inbox/billing canvas */
+  --qs-brand-deep: #670048;             /* auth brand panel fill */
+  --qs-brand-decor-1: #8e0062;          /* brand panel decor ellipse */
+  --qs-brand-decor-2: #a90075;          /* brand panel decor ellipse */
+  --qs-on-brand-body: #f7d8ec;          /* body text on the brand panel */
+  --qs-card-border: #e3e5e8;            /* auth card / inbox thread bubble stroke */
+  --qs-radius-screen-card: 28px;        /* auth cards & brand panel */
+  --qs-radius-panel: 14px;              /* inbox/billing panels */
+  --qs-control-radius: 10px;            /* inputs & primary buttons on final boards */
+  --qs-status-success: #168b5b;
+  --qs-status-success-bg: #e9f7f1;
+  --qs-status-danger: #c93c54;
+  --qs-status-danger-bg: #fff0f3;
+  --qs-status-warning: #a8640a;
+  --qs-status-warning-bg: #fff6e6;
+  --qs-info: #2f6fed;
+  --qs-info-bg: #edf3ff;
+  --qs-accent-soft-final: #fcebf6;      /* selected rows/chips/outgoing bubbles */
+  --qs-muted-final: #a09ba8;            /* timestamps / placeholders on final boards */
+  --qs-disabled-fill: #d8d5db;          /* disabled primary button fill */
 }
 
 * { box-sizing: border-box; }

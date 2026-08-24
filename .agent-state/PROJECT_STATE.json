@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-24T17:40:00+00:00",
+  "updatedAt": "2026-08-24T20:10:00+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
-  "currentMilestone": "M07",
-  "currentTask": "M08-005",
-  "lastCompletedTask": "M08-005",
+  "currentMilestone": "M09",
+  "currentTask": "M09-002",
+  "lastCompletedTask": "M09-002",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -54,7 +54,8 @@
     "M08-002",
     "M08-003",
     "M08-004",
-    "M08-005"
+    "M08-005",
+    "M09-002"
   ],
   "graphify": {
     "required": true,
@@ -70,35 +71,34 @@
   },
   "penpot": {
     "mcpReachable": true,
-    "verifiedAtUtc": "2026-08-24T12:10:00Z",
+    "verifiedAtUtc": "2026-08-24T19:30:00Z",
     "fileId": "c269caa0-e456-818c-8008-85a77340be64",
     "fileName": "New File 1",
     "fileNameWarning": "Default display name; match files by stable fileId only.",
-    "pageCount": 24,
-    "landingPageStatus": "missing-as-page",
-    "landingCandidateBoardId": "f6b8d46f-5deb-801d-8008-85ab43d94e44",
-    "landingCandidateBoardName": "Directam Landing — Desktop",
-    "landingCandidateHostPageId": "c269caa0-e456-818c-8008-85a77340be65",
+    "pageCount": 39,
+    "qasedakPages": {
+      "productUiComponents": "c48311ed-e700-80f8-8008-881e9771c583",
+      "identityWorkspace": "c48311ed-e700-80f8-8008-881f0352eb6a",
+      "inboxConversations": "c48311ed-e700-80f8-8008-88200ec40bf3",
+      "billingPayments": "c48311ed-e700-80f8-8008-8820a6cf5187"
+    },
     "manifest": "frontend/Qasedak.Web/design/penpot-sync.json",
     "manifestValidation": "passed-6-of-6",
-    "verificationEvidence": "docs/design/sync/M08-001-design-source-verification.md"
+    "verificationEvidence": "docs/design/sync/2026-08-24-qasedak-final-sync-record.md"
   },
   "quality": {
-    "architectureChecks": "passed",
-    "docsChecks": "passed",
-    "stateChecks": "passed",
-    "frontendRepositoryContractTests": "passed-2-of-2",
-    "pythonGuardScripts": "syntax-passed",
+    "architectureChecks": "passed (35 projects, 6 business modules)",
+    "penpotSyncValidation": "passed-6-of-6",
     "backendBuild": "passed-release-0-warnings-0-errors",
-    "backendFormat": "passed-verify-no-changes",
-    "backendTests": "passed-3-of-3",
-    "frontendDependencyInstall": "passed-npm-ci-lockfile-committed",
-    "frontendVerify": "passed-lint-typecheck-test-build",
-    "dockerBuild": "passed-qasedak-api-verify-and-qasedak-web-verify"
+    "backendFormat": "pass-pending-final-full-gate",
+    "billingUnitTests": "passed-60-of-60",
+    "billingIntegrationTests": "passed-9-of-9-testcontainers",
+    "apiIntegrationTests": "passed-46-of-46",
+    "frontendVerify": "passed-lint-typecheck-test-build-incl-billing-pages"
   },
   "nextActions": [
-    "M08-001..005: resume after human confirms canonical design source (landing page missing as page; candidate board 'Directam Landing — Desktop' on Page 1 differs from the earlier 13-section build)",
-    "M09-002: implement payment provider adapter after provider-selection ADR"
+    "Human: provide official Bank Melli / SADAD merchant technical documents to unblock Melli live transport (M09-002 stays honestly partial until then)",
+    "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M08 run: design foundation synced from canonical Penpot file (live MCP), primitives+icons landed."
+  "lastInstruction": "Resume after Codex design-completion run: M09-002 payment architecture + Zarinpal adapter + billing UI shipped; final Qasedak Penpot designs (auth/inbox/billing) reconciled live via MCP; identity.auth draft→approved; inbox.conversations + billing.payment mappings added approved."
 }

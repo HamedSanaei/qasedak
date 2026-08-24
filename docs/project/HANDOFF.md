@@ -2,63 +2,78 @@
 
 ## Where we are
 
-**M08 is complete (2026-08-24).** M08-001..005 were executed end-to-end from the local
-working tree against the verified canonical Penpot file
-`c269caa0-e456-818c-8008-85a77340be64`, per the human resume directive. All roadmap
-milestones are now closed: M00–M08 fully delivered; **M09 and M10 complete**
-(M09-002 remains BLOCKED on a provider-selection ADR); **M11 release baseline prepared**
-(M11-001..003 DONE).
+**M09-002 executable scope is complete (2026-08-24), and the final Qasedak Penpot
+designs are reconciled into the app.** All roadmap tasks are DONE; M09-002 is recorded
+DONE-PARTIAL (Zarinpal production-capable per the current official v4 REST docs; Bank
+Melli live transport is externally blocked pending official merchant technical
+documents). Nothing is committed — working tree only, per contract.
 
-## What M08 delivered (this run)
+## What this run delivered
 
-- **M08-001 — design foundation:** 14 sidebar icons extracted verbatim (path-data),
-  extended token set (`radius.control/chip`, `elevation.menu`, `colorExtended.*`) all
-  annotated with live Penpot origins, presentation-only primitives `src/shared/design/ui`,
-  active-state OPEN QUESTION pinned by test. Evidence: `docs/design/sync/M08-001-design-foundation.md`.
-- **M08-002 — auth/workspace:** application-owned `http.ts`/`identity.ts` clients,
-  backend-mirroring validators, `/login` + `/register` (+ workspace creation). Mapping
-  `identity.auth` is **draft**: the only auth boards are GetCode OTP references
-  (`324404a7-…8776b27352cb`) that diverge from the email+password backend.
-- **M08-003 — Instagram accounts:** approved mapping; new thin `ConnectionEndpoints`
-  HTTP surface over tested use cases (tokens never leave the server); UI covers all six
-  `AccountHealth` states with reconnect/disconnect flows.
-- **M08-004 — inbox:** functional list/thread/reply UI on foundation tokens. The visual
-  sync portion is **BLOCKED — no inbox/conversation design exists anywhere in the
-  canonical file** (all 24 pages swept); no manifest mapping was fabricated.
-- **M08-005 — automation builder v1:** new `AutomationEndpoints`
-  (CRUD + activate/deactivate; billing denials surface verbatim), builder form + list
-  synced from three boards with documented divergences (1000-char counter wins over the
-  design's ۰/۲۰۰۰; post-scoping disabled in v1).
+### Payments (backend, M09-002)
+- `PaymentAttempt` aggregate (Pending→Verified|Failed) with xmin optimistic concurrency
+  and a unique filtered Authority index (anti-replay). Verified payments extend the
+  entitlement exactly once under concurrent/duplicate callbacks; callback query values
+  alone can never activate anything.
+- Provider-neutral `IPaymentGateway` (Application); Infrastructure owns protocols:
+  `ZarinpalPaymentGateway` = CURRENT official v4 REST (request/verify JSON, 100/101,
+  StartPay redirect) over typed HttpClient; typed options; server-side secrets only;
+  merchant id/secrets/raw payloads/card PAN never logged. `MelliPaymentGateway` =
+  fail-closed boundary naming exactly which official SADAD/Bank-Melli documents are
+  required before live transport can exist.
+- Endpoints: `GET /api/v1/billing/plans`, workspace `subscription` / `checkout` (202 +
+  server-owned redirect URL) / `payments/{attemptId}` / `payments` history; public
+  provider callback redirects to `/dashboard/billing/result?state=…&attempt=…`.
+- Migration `AddPaymentsAndPlanPrices` (+`Plan.AmountIrr`, canonical IRR per ADR-008);
+  env contracts in `.env.example`, docker-compose passthroughs, deployment guide §6;
+  **ADR-008 accepted**.
+- Tests: Billing unit 60/60; Billing integration (Testcontainers) 9/9 incl. concurrent
+  verify exactly-once; full Api.IntegrationTests 46/46 incl. 9 billing e2e.
 
-Per-task evidence: `docs/design/sync/M08-00{1..5}-*.md`; manifest:
-`frontend/Qasedak.Web/design/penpot-sync.json` (validator green); screen roll-up:
-`docs/design/SCREEN-INVENTORY.md`.
+### Design reconciliation (frontend, this run)
+- Codex finalized four new `Qasedak ·` pages in the canonical file; every relevant
+  board was live-inspected via MCP (no screenshots, no invented values). Extracted
+  contract: `docs/design/sync/2026-08-24-qasedak-final-designs.md`; sync record:
+  `docs/design/sync/2026-08-24-qasedak-final-sync-record.md`.
+- `identity.auth`: **draft → approved** on `Qasedak · Identity & Workspace`
+  (Login/Register Desktop+Mobile + states board). Auth screens visually reconciled with
+  email+password behavior/validation/tests untouched. Old GetCode OTP boards are now
+  non-authoritative reference only.
+- NEW `inbox.conversations`: **approved** on `Qasedak · Inbox & Conversations` — removes
+  the historical M08-004 "no design exists" blocker (historical evidence preserved).
+  Inbox visually reconciled; search renders DISABLED BY DESIGN until a backend query
+  capability ships.
+- NEW `billing.payment`: **approved** across the five `Qasedak · Billing & Payments`
+  boards. New UI: `/dashboard/billing` (plans + subscription summary),
+  `/dashboard/billing/checkout?plan=…` (provider radios; Melli disabled until its
+  official contract lands), `/dashboard/billing/result?state=…&attempt=…` (bounded
+  polling of the server status endpoint; callback hints never claim success alone).
+  Amounts render exactly as received from the API (IRR grouping + ریال, no conversion).
+- Manifest updated + validator green (6/6): `penpot-sync.json`; screen roll-up:
+  `docs/design/SCREEN-INVENTORY.md`. New tests: `tests/billing.test.mjs`.
 
 ## Verification status
 
-- Frontend: `npm run verify` green (lint 0 problems, tsc clean, node --test 30/30,
-  production build prerenders all routes).
-- Backend: solution builds Release clean; Automations unit suite 44/44 (incl. endpoint
-  contract tests), Instagram unit suite 80/80.
+- Frontend: `npm run verify` green (lint max-warnings 0, tsc clean, node --test incl.
+  new billing suite, production build prerenders `/dashboard/billing*` routes).
+- Backend: solution builds Release clean; billing unit/integration suites green as
+  listed above; `dotnet format` to be confirmed by the final `verify.py --full` pass.
 - Gates: `validate_penpot_sync.py` PASSED, `check_architecture.py` PASSED
-  (35 projects / 6 modules), `agent_finalize.py` passed for every M08 task.
-- `verify.py --full` re-run at handoff time (see GRAPHIFY_EVIDENCE.md / CI log for the
-  recorded result of this final pass).
+  (35 projects / 6 modules). Graphify evidence recorded for M09-002 (healthy; refresh
+  ran `--code-only` because no LLM API key exists on this machine for doc semantic
+  extraction).
 
 ## Next actions for a human
 
-1. **Decision required — payment provider (unblocks M09-002):** choose the provider and
-   record an ADR (legal fit, webhook reachability, pricing model).
-2. **Design decisions to lift remaining drafts/blockers:**
-   - Approve (or supply) a Qasedak-branded auth design → lifts `identity.auth` from draft.
-   - Supply an inbox/conversation design in the canonical file → unblocks the BLOCKED
-     visual sync of `/dashboard/inbox`.
-   - Confirm the landing mapping target (`Directam Landing — Desktop` board on Page 1)
-     if a public landing implementation task is ever added.
+1. **Provide official Bank Melli / SADAD merchant technical documents** (endpoint spec,
+   signing/encryption algorithm spec, terminal/merchant credential contract, callback
+   field contract) → lifts the Melli boundary to a real adapter and makes M09-002 fully
+   complete.
+2. Optional: run a staging Zarinpal smoke test with real merchant credentials (never in
+   CI).
 
 ## Next task for an agent
 
-None actionable in TASKS.md — every task is DONE except **M09-002**, which stays BLOCKED
-until the payment-provider ADR lands (then implement the adapter behind the existing
-billing ports). Do not commit/push/tag unless explicitly asked; suggested commits are
-recorded per task in TASKS.md.
+None actionable in TASKS.md — every task is DONE or DONE-PARTIAL with the residual
+explicitly owned by the human decision above. Do not commit/push/tag unless explicitly
+asked; suggested commits are recorded per task in TASKS.md.

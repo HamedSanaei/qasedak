@@ -1,10 +1,54 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M08 — Penpot-Driven Product UI (complete)  
-**Current task:** M08-005 — Implement automation builder v1 (last actionable task; only M09-002 remains BLOCKED pending human decision)  
-**Last completed:** M08-005 — Implement automation builder v1  
-**Product implementation:** In progress (M08)
+**Current milestone:** M09 — Payments & Billing  
+**Current task:** M09-002 — Payment gateway integration (executable scope complete; Bank Melli live transport externally blocked)  
+**Last completed:** M08-005 → superseded by 2026-08-24 Codex design-completion + Qasedak final-design reconciliation run  
+**Product implementation:** In progress (M09)
+
+## 2026-08-24 — Payment architecture (M09-002 executable scope) COMPLETE
+
+- `PaymentAttempt` aggregate (Pending→Verified|Failed), xmin optimistic concurrency,
+  unique filtered Authority index = anti-replay; verified payment extends entitlement
+  exactly once; callback queries alone never activate anything.
+- Provider-neutral `IPaymentGateway` in Application; Infrastructure owns protocols:
+  `ZarinpalPaymentGateway` implements the CURRENT official v4 REST contract
+  (request.json/verify.json, code 100/101 semantics, StartPay redirect); typed options;
+  secrets server-side only; merchant id/secrets/payloads/card PAN never logged.
+- `MelliPaymentGateway` is a fail-closed boundary: disabled by default; enabling without
+  an official SADAD/Bank-Melli technical contract surfaces
+  `payment.providerUnavailable` naming exactly which documents are required.
+- Endpoints: plans catalog, workspace subscription, checkout (202 + server-owned
+  redirect), payment status/history, public provider callback → 302 to frontend result
+  page. Migration `AddPaymentsAndPlanPrices`; env contracts in `.env.example`,
+  docker-compose and deployment guide §6; ADR-008 accepted.
+- Tests: Billing unit 60/60; Billing integration (Testcontainers) incl. concurrent
+  verify exactly-once 9/9; full Api.IntegrationTests 46/46.
+
+## 2026-08-24 — Final Penpot designs reconciled into the app
+
+- Codex completed four new `Qasedak ·` pages in the canonical file
+  (`c269caa0-e456-818c-8008-85a77340be64`); all boards live-inspected via MCP.
+- Extracted contract: `docs/design/sync/2026-08-24-qasedak-final-designs.md`;
+  sync record: `docs/design/sync/2026-08-24-qasedak-final-sync-record.md`.
+- Manifest updates (validated 6/6): `identity.auth` draft→**approved** on
+  `Qasedak · Identity & Workspace`; NEW `inbox.conversations` **approved** (removes the
+  historical M08-004 no-design blocker; evidence preserved); NEW `billing.payment`
+  **approved** across Plans/Subscription/Checkout/Results boards.
+- Frontend: auth screens visually reconciled (email+password behavior untouched);
+  inbox reconciled (search disabled BY DESIGN until backend query ships); new billing
+  UI `/dashboard/billing`, `/dashboard/billing/checkout`, `/dashboard/billing/result`
+  with server-authoritative IRR amounts and bounded status polling; new
+  `tests/billing.test.mjs`. `npm run verify` green.
+
+## Next action
+
+1. Human decision: obtain official Bank Melli / SADAD merchant technical documents
+   (endpoint spec, signing/encryption algorithm, terminal credential contract, callback
+   field contract). Until then Melli stays boundary-only and M09-002 remains honestly
+   partial (Zarinpal production-capable).
+2. Optional hardening when credentials exist: staging-environment Zarinpal smoke test
+   (never in CI).
 
 ## Baseline established
 
@@ -22,33 +66,20 @@
 
 ### Graphify (M00-003)
 
-- Graphify CLI 0.9.26 healthy; first real graph: 277 nodes / 297 edges / 43 communities (`graphify . --no-viz --code-only` + `graphify cluster-only .`).
-- `graphify-out/graph.json`, `graphify-out/GRAPH_REPORT.md` refreshed; five bounded queries recorded as healthy evidence in `.agent-state/GRAPHIFY_EVIDENCE.md`.
-- Mode is code-only (local AST): no LLM API key on this machine; doc semantic extraction stays unavailable until a key is provided, then re-run without `--code-only`.
+- Graphify CLI 0.9.26 healthy; mode is code-only (local AST): no LLM API key on this
+  machine; doc semantic extraction stays unavailable until a key is provided, then
+  re-run without `--code-only`.
+- Evidence recorded per task in `.agent-state/GRAPHIFY_EVIDENCE.md`.
 
 ### Toolchain and gates (M00-004)
 
 - Toolchain resolved: .NET SDK 10.0.302, Node 24/npm 11, Docker engine 29.7.2. TypeScript pinned to 6.0.3 because the installed typescript-eslint hard-fails on TS ≥ 7.
-- Starter defects fixed: missing `using Xunit;` in both test projects; CA1707 underscore test names renamed (warnings are errors repo-wide).
-- Dependencies locked: `package-lock.json` committed; frontend Dockerfile and CI now use `npm ci`; minimal `.dockerignore` files added for both image contexts.
-- All local gates green: backend Release build 0 warnings/0 errors, format check pass, tests 3/3; frontend lint/typecheck/test/build pass (repository contract tests 2/2); Docker images `qasedak-api:verify` and `qasedak-web:verify` build successfully.
-- `generate_manifest.py` ignores gitignored runtime artifacts (`cache` dirs, `tsconfig.tsbuildinfo`) and `verify.py` resolves npm correctly on Windows, keeping every gate honest on fresh checkouts.
+- Dependencies locked: `package-lock.json` committed; frontend Dockerfile and CI use `npm ci`.
+- All local gates green: backend Release build 0 warnings/0 errors, format check pass; frontend lint/typecheck/test/build pass; Docker images build successfully.
+- `generate_manifest.py` ignores gitignored runtime artifacts and `verify.py` resolves npm correctly on Windows.
 
 ## Meta feasibility & contracts verified (M01)
 
-- `docs/product/instagram-mvp-capability-matrix.md` — capability rows grounded in official Meta docs (webhook requirements table, private replies, 24-hour window/Human Agent tag, business login scopes); comment→DM is Private-Reply-only; messaging requires the Messenger Platform path.
-- `docs/product/meta-oauth-token-lifecycle.md` — full OAuth flow, `instagram_business_*` scopes, 60-day long-lived tokens with verified refresh preconditions, module ownership and health-state surface.
-- Webhook authenticity spike: Application ports + Infrastructure HMAC/challenge implementations; new `Qasedak.Modules.Instagram.UnitTests` passes 20/20 deterministic fixture tests (including escaped-unicode raw-bytes contract).
-- ADR-006 (integration paths) and ADR-007 (webhook authenticity) accepted; SRS §4 now binds Meta-facing requirements to these contracts.
-
-## Next action
-
-**M08 gate (2026-08-24):** Penpot MCP is reachable again. Live verification of the
-connected file recorded the stable file id `c269caa0-e456-818c-8008-85a77340be64`
-(display name `New File 1` — never match by name) and 24 pages into
-`frontend/Qasedak.Web/design/penpot-sync.json` (manifest validation 6/6 green).
-Mismatch vs. the resume brief: no page named `Directam Landing` exists; a board
-`Directam Landing — Desktop` (`f6b8d46f-5deb-801d-8008-85ab43d94e44`) sits on `Page 1`
-with a different internal structure than the earlier 13-section build. M08-001..005
-stay BLOCKED until a human confirms the canonical landing/design source; then resume
-M08-001 per AGENTS.md §3.1 (see `docs/design/sync/M08-001-design-source-verification.md`).
+- `docs/product/instagram-mvp-capability-matrix.md` — capability rows grounded in official Meta docs; comment→DM is Private-Reply-only; messaging requires the Messenger Platform path.
+- `docs/product/meta-oauth-token-lifecycle.md` — full OAuth flow, scopes, token lifecycle, module ownership.
+- Webhook authenticity: Application ports + Infrastructure HMAC/challenge implementations; ADR-006 (integration paths) and ADR-007 (webhook authenticity) accepted.

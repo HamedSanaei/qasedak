@@ -5,8 +5,8 @@
     "fileId": "c269caa0-e456-818c-8008-85a77340be64",
     "fileIdNote": "Stable file id read live via penpot.currentFile.id during the M08 design-source verification pass. Never match this file by name alone: its default display name is 'New File 1', which other files can share.",
     "fileName": "New File 1",
-    "verifiedAtUtc": "2026-08-24T12:10:00Z",
-    "verifiedPageCount": 24,
+    "verifiedAtUtc": "2026-08-24T19:30:00Z",
+    "verifiedPageCount": 39,
     "verifiedPages": [
       { "id": "c269caa0-e456-818c-8008-85a77340be65", "name": "Page 1" },
       { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
@@ -25,13 +25,28 @@
       { "id": "324404a7-ad1e-8048-8008-8772681cdddf", "name": "GetCode · 01 Foundations" },
       { "id": "324404a7-ad1e-8048-8008-87726820902a", "name": "GetCode · 02 Components" },
       { "id": "324404a7-ad1e-8048-8008-87726823fd52", "name": "GetCode · 03 Patterns" },
-      { "id": "324404a7-ad1e-8048-8008-87726826fe4f", "name": "GetCode · 04 Public Site" },
+      { "id": "324404a7-ad1e-8048-8008-87726826fe4f", "name": "GetCode · 04 HOME + Public Site — Numberland-derived" },
       { "id": "324404a7-ad1e-8048-8008-8772682a1c67", "name": "GetCode · 05 Auth & Checkout" },
       { "id": "324404a7-ad1e-8048-8008-8772682d66f4", "name": "GetCode · 06 Customer Dashboard" },
       { "id": "324404a7-ad1e-8048-8008-877268307df0", "name": "GetCode · 07 Activation & OTP" },
       { "id": "324404a7-ad1e-8048-8008-8772683469ba", "name": "GetCode · 08 Content & Support" },
       { "id": "324404a7-ad1e-8048-8008-877268375b4d", "name": "GetCode · 09 Admin" },
-      { "id": "324404a7-ad1e-8048-8008-8772683b0884", "name": "GetCode · 10 Responsive & States" }
+      { "id": "324404a7-ad1e-8048-8008-8772683b0884", "name": "GetCode · 10 Responsive & States" },
+      { "id": "c48311ed-e700-80f8-8008-881e9771c583", "name": "Qasedak · Product UI Components" },
+      { "id": "c48311ed-e700-80f8-8008-881f0352eb6a", "name": "Qasedak · Identity & Workspace" },
+      { "id": "c48311ed-e700-80f8-8008-88200ec40bf3", "name": "Qasedak · Inbox & Conversations" },
+      { "id": "c48311ed-e700-80f8-8008-8820a6cf5187", "name": "Qasedak · Billing & Payments" },
+      { "id": "9362b142-eccc-80db-8008-88550204562a", "name": "Vendora · 00 Overview" },
+      { "id": "9362b142-eccc-80db-8008-885502137853", "name": "Vendora · 01 Foundations" },
+      { "id": "9362b142-eccc-80db-8008-8855021e207c", "name": "Vendora · 02 Components" },
+      { "id": "9362b142-eccc-80db-8008-8855022a12f8", "name": "Vendora · 03 Home Responsive" },
+      { "id": "9362b142-eccc-80db-8008-885a189b26ec", "name": "Vendora · 04 Account Components" },
+      { "id": "9362b142-eccc-80db-8008-885a189ecce6", "name": "Vendora · 05 Account Dashboard" },
+      { "id": "9362b142-eccc-80db-8008-885a18a1685b", "name": "Vendora · 06 Profile & Security" },
+      { "id": "9362b142-eccc-80db-8008-885a18a3f391", "name": "Vendora · 07 Addresses" },
+      { "id": "9362b142-eccc-80db-8008-885a18a603af", "name": "Vendora · 08 Orders & Returns" },
+      { "id": "9362b142-eccc-80db-8008-885a18a86f53", "name": "Vendora · 09 Wishlist & Transactions" },
+      { "id": "9362b142-eccc-80db-8008-885a18ab10a5", "name": "Vendora · 10 Quick Pay & Responsive States" }
     ],
     "designSourceNotes": {
       "directamLandingPage": {
@@ -46,7 +61,11 @@
       { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
       { "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b", "name": "Directam — Connect Instagram" },
       { "id": "f5bf3c2c-b970-8002-8008-874ebb680e25", "name": "Directam — Comment Automation" },
-      { "id": "f5bf3c2c-b970-8002-8008-8752c5573aef", "name": "Directam — Global Navigation Components" }
+      { "id": "f5bf3c2c-b970-8002-8008-8752c5573aef", "name": "Directam — Global Navigation Components" },
+      { "id": "c48311ed-e700-80f8-8008-881e9771c583", "name": "Qasedak · Product UI Components" },
+      { "id": "c48311ed-e700-80f8-8008-881f0352eb6a", "name": "Qasedak · Identity & Workspace" },
+      { "id": "c48311ed-e700-80f8-8008-88200ec40bf3", "name": "Qasedak · Inbox & Conversations" },
+      { "id": "c48311ed-e700-80f8-8008-8820a6cf5187", "name": "Qasedak · Billing & Payments" }
     ]
   },
   "tokens": {
@@ -146,19 +165,19 @@
     },
     {
       "id": "identity.auth",
-      "designName": "Auth / Login / Desktop (GetCode reference; no dedicated register/OTP-Qasedak boards)",
-      "penpotPageId": "324404a7-ad1e-8048-8008-8772682a1c67",
-      "penpotPageName": "GetCode · 05 Auth & Checkout",
-      "penpotBoardId": "324404a7-ad1e-8048-8008-8776b27352cb",
+      "designName": "Identity / Login + Register (Desktop/Mobile) + Validation, Session & Workspace States",
+      "penpotPageId": "c48311ed-e700-80f8-8008-881f0352eb6a",
+      "penpotPageName": "Qasedak · Identity & Workspace",
+      "penpotBoardId": "c48311ed-e700-80f8-8008-881f0372388a",
       "penpotComponentId": null,
       "approval": {
-        "status": "draft",
-        "basis": "The canonical file contains NO Qasedak-branded auth design. The only auth boards are GetCode OTP/phone screens (cyan #13A9D4 identity, phone credentials) which do not match this backend's email+password contracts. Sign-in/register/workspace-creation use the approved Qasedak token set from the Directam/Qasedak boards; the GetCode board is recorded as structural reference only. Human-approved Qasedak auth design required before 'approved'."
+        "status": "approved",
+        "basis": "Codex finalized the Qasedak-native auth design on page 'Qasedak · Identity & Workspace' (Login/Register Desktop+Mobile plus a states board). Live-inspected 2026-08-24 via MCP: split hero — brand panel #670048 r28 with decor ellipses #8e0062/#a90075, white ق mark r12, wordmark fs24, promise fs32 white, benefits with #168b5b ✓ circles; auth card white r28 stroke #e3e5e8 (eyebrow fs14 brand, title fs28 ink, inputs h54 r10 border #e3e5e8 placeholder #a09ba8, primary button #be0183 h52 r10, security note #edf3ff on login, password policy box #f6f7f9 on register). Email+password contracts preserved; the old GetCode OTP boards remain non-authoritative reference only."
       },
       "nextRoutes": ["/login", "/register"],
       "componentPath": "src/app/login/page.tsx",
-      "compositionPaths": ["src/app/register/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-tbd"],
+      "compositionPaths": ["src/app/register/page.tsx", "src/features/auth/validation.ts", "src/shared/api/identity.ts"],
+      "responsiveTargets": ["desktop-1440", "mobile-390"],
       "tokenDependencies": [
         "color.surface.page",
         "color.surface.subtle",
@@ -169,9 +188,10 @@
         "colorExtended.statusDanger"
       ],
       "assetDependencies": [],
-      "lastSyncedAtUtc": "2026-08-24T13:50:00Z",
+      "lastSyncedAtUtc": "2026-08-24T19:30:00Z",
       "penpotRevision": null,
-      "syncStatus": "synced"
+      "syncStatus": "synced",
+      "notes": "Superseded the previous draft mapping that pointed at GetCode · 05 Auth & OTP boards. Behavior (email+password identity flow, validation, error/loading/disabled states) unchanged during visual reconciliation; states board covers form errors, processing, server error retry, session expiry, workspace creation/403/no-workspace."
     },
     {
       "id": "instagram.connections",
@@ -239,6 +259,86 @@
       "lastSyncedAtUtc": "2026-08-24T17:20:00Z",
       "penpotRevision": null,
       "syncStatus": "synced"
+    },
+    {
+      "id": "inbox.conversations",
+      "designName": "Conversations / Inbox (Desktop/Tablet/Mobile + Thread + Product States)",
+      "penpotPageId": "c48311ed-e700-80f8-8008-88200ec40bf3",
+      "penpotPageName": "Qasedak · Inbox & Conversations",
+      "penpotBoardId": "c48311ed-e700-80f8-8008-88200ed6b9fc",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "approved",
+        "basis": "Codex finalized the Qasedak inbox design; live-inspected 2026-08-24 via MCP. Three-panel desktop: list card r14 («گفتگوها» fs20, search DISABLED by design with warning badge «فعلاً غیرفعال», filter chips باز/خوانده‌نشده/بایگانی active #fcebf6/#be0183, rows r12 selected #fcebf6 with avatar initial, unread badge brand circle, pagination «۱–۴ از ۲۴ گفتگو»); thread card (bubbles white vs outgoing #fcebf6, composer area #f6f7f9 wrapping white composer r12, counter, send button brand «ارسال», 24h-window note); context panel «اطلاعات گفتگو» with future-CRM placeholders honestly disabled. Product States board covers loading/empty/error/disconnected/mobile back-navigation."
+      },
+      "nextRoutes": ["/dashboard/inbox"],
+      "componentPath": "src/features/inbox/presentation.ts",
+      "compositionPaths": [
+        "src/app/dashboard/inbox/page.tsx",
+        "src/app/dashboard/inbox/[conversationId]/page.tsx",
+        "src/shared/api/conversations.ts"
+      ],
+      "responsiveTargets": ["desktop-1440", "tablet-834", "mobile-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.surface.subtle",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.nav",
+        "color.text.secondary",
+        "color.text.muted",
+        "color.brand.accent",
+        "radius.card",
+        "colorExtended.statusSuccess",
+        "colorExtended.statusWarning",
+        "colorExtended.accentSoft",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-08-24T19:30:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Removes the historical M08-004 'no design source' blocker: the Penpot inbox now exists and is authoritative. Search stays visually disabled per the design itself until the backend ships a search query — capability honesty preserved."
+    },
+    {
+      "id": "billing.payment",
+      "designName": "Billing / Plans + Current Subscription + Checkout + Payment Results (+ Checkout Mobile)",
+      "penpotPageId": "c48311ed-e700-80f8-8008-8820a6cf5187",
+      "penpotPageName": "Qasedak · Billing & Payments",
+      "penpotBoardId": "c48311ed-e700-80f8-8008-8820a7020aa1",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "approved",
+        "basis": "Codex finalized the billing designs; live-inspected 2026-08-24 via MCP across five boards. Plans: intro banner #fcebf6 r16 (server-owned prices), period selector pill display-only, plan cards white r16 with ✓ feature rows and «انتخاب پلن/انتخاب‌شده» states, one-off payment notice #fff6e6 (no auto-charge v1). Current Subscription: فعال badge #e9f7f1 + brand stripe, period meta from server, entitlement summary, «تمدید اشتراک» CTA + renewal card + payment history panel. Checkout: order summary (all amounts «مقدار سرور», total box brand, note that browser/callback amounts are ignored, secure note #edf3ff) + provider radios زرین‌پال/بانک ملی (Melli marked as requiring the official merchant contract) + redirect state note. Payment Results: pending/success/failed/cancelled/already-verified/verification-error cards with idempotency copy."
+      },
+      "nextRoutes": ["/dashboard/billing", "/dashboard/billing/checkout", "/dashboard/billing/result"],
+      "componentPath": "src/app/dashboard/billing/page.tsx",
+      "compositionPaths": [
+        "src/app/dashboard/billing/checkout/page.tsx",
+        "src/app/dashboard/billing/result/page.tsx",
+        "src/features/billing/presentation.ts",
+        "src/shared/api/billing.ts"
+      ],
+      "responsiveTargets": ["desktop-1440", "mobile-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.surface.subtle",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "colorExtended.statusSuccess",
+        "colorExtended.statusWarning",
+        "colorExtended.statusDanger",
+        "colorExtended.accentSoft",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-08-24T19:30:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Amounts render exactly as received from GET /billing/plans (IRR grouping + ریال only); checkout submits only planCode+providerId; result page polls the workspace-scoped status endpoint because callback query hints alone are never trusted."
     }
   ]
 }

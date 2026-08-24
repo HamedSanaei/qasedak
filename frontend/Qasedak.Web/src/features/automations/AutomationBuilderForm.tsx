@@ -11,6 +11,7 @@
  * text at 1000 chars — the backend limit wins (documented in M08-005 evidence).
  */
 import { useState } from "react";
+import Link from "next/link";
 import { Button, Card, SelectField, TextField } from "../../shared/design/ui";
 import type { AutomationDefinitionDto } from "../../shared/api/automations";
 import {
@@ -216,9 +217,9 @@ export function AutomationBuilderForm({
         <div role="alert" style={{ fontSize: 13, color: "var(--color-status-danger)" }}>
           {submitError}
           {entitlementBlocked ? (
-            <a href="/dashboard/billing" style={{ marginRight: ".5rem", color: "var(--color-brand-accent)", fontWeight: 700 }}>
+            <Link href="/dashboard/billing" style={{ marginRight: ".5rem", color: "var(--color-brand-accent)", fontWeight: 700 }}>
               مشاهده اشتراک
-            </a>
+            </Link>
           ) : null}
         </div>
       ) : null}

@@ -3,6 +3,7 @@ using Qasedak.BuildingBlocks.Infrastructure;
 using Qasedak.Modules.Automations.Infrastructure;
 using Qasedak.Modules.Automations.Infrastructure.Endpoints;
 using Qasedak.Modules.Billing.Infrastructure;
+using Qasedak.Modules.Billing.Infrastructure.Endpoints;
 using Qasedak.Modules.Contacts.Infrastructure;
 using Qasedak.Modules.Contacts.Infrastructure.Endpoints;
 using Qasedak.Modules.Conversations.Infrastructure;
@@ -122,6 +123,7 @@ app.MapConversationEndpoints();
 app.MapContactEndpoints();
 app.MapConnectionEndpoints();
 app.MapAutomationEndpoints();
+app.MapBillingEndpoints();
 
 app.Run();
 

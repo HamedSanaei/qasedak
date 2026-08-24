@@ -54,7 +54,10 @@ public sealed class Plan
 
     public IReadOnlyList<Entitlement> Entitlements => _entitlements.AsReadOnly();
 
-    public static Plan Create(Guid id, string code, string name, IEnumerable<Entitlement>? entitlements = null)
+    /// <summary>Server-authoritative price in IRR (canonical Qasedak currency — ADR-008). 0 = non-purchasable.</summary>
+    public long AmountIrr { get; private set; }
+
+    public static Plan Create(Guid id, string code, string name, IEnumerable<Entitlement>? entitlements = null, long amountIrr = 0)
     {
         if (id == Guid.Empty)
         {
@@ -79,8 +82,23 @@ public sealed class Plan
             plan.AddEntitlement(entitlement);
         }
 
-        return plan;
+        return plan.WithPrice(amountIrr);
     }
+
+    /// <summary>Sets the server-authoritative price; negative amounts are invalid.</summary>
+    public Plan WithPrice(long amountIrr)
+    {
+        if (amountIrr < 0)
+        {
+            throw new BillingDomainException("billing.planPriceInvalid", "A plan price cannot be negative.");
+        }
+
+        AmountIrr = amountIrr;
+        return this;
+    }
+
+    /// <summary>Whether the plan can be purchased through a payment gateway.</summary>
+    public bool IsPurchasable => AmountIrr > 0;
 
     public void AddEntitlement(Entitlement entitlement)
     {

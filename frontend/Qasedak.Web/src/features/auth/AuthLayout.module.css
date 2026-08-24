@@ -1,0 +1,151 @@
+/* Auth split-hero — values from the extracted final Penpot identity boards. */
+.canvas {
+  min-height: 100vh;
+  background: var(--qs-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2rem;
+}
+
+.brandPanel {
+  position: relative;
+  overflow: hidden;
+  width: min(560px, 44vw);
+  border-radius: var(--qs-radius-screen-card);
+  background: var(--qs-brand-deep);
+  color: #ffffff;
+  padding: 2.5rem 2.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 640px;
+  justify-content: center;
+}
+
+.decorOne,
+.decorTwo {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.decorOne {
+  width: 320px;
+  height: 320px;
+  background: var(--qs-brand-decor-1);
+  top: -120px;
+  inset-inline-start: -100px;
+}
+
+.decorTwo {
+  width: 420px;
+  height: 420px;
+  background: var(--qs-brand-decor-2);
+  bottom: -180px;
+  inset-inline-end: -140px;
+  opacity: 0.85;
+}
+
+.brandRow,
+.cardBrandRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  position: relative;
+}
+
+.mark,
+.cardMark {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--color-brand-accent);
+  font-size: 20px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wordmark {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.promise {
+  position: relative;
+  margin: 0.5rem 0 0;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.brandBody {
+  position: relative;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--qs-on-brand-body);
+}
+
+.benefits {
+  position: relative;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+  font-size: 14px;
+}
+
+.benefitCheck {
+  width: 28px;
+  height: 28px;
+  margin-inline-end: 0.55rem;
+  border-radius: 50%;
+  background: var(--qs-status-success);
+  color: #ffffff;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.card {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border: 1px solid var(--qs-card-border);
+  border-radius: var(--qs-radius-screen-card);
+  padding: 2.25rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardMark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-brand-accent);
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.cardWordmark {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 1023px) {
+  .brandPanel {
+    display: none;
+  }
+
+  .canvas {
+    padding: 1.25rem;
+  }
+}

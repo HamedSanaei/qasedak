@@ -46,6 +46,23 @@ M00-004 replaces baseline npm install behavior with the committed lockfile/deter
 
 Production must provide, at minimum, database/database-user credentials, protected connection string, public web/API origins, authentication secrets, Meta application credentials and later provider-specific secrets. Store these in deployment secret facilities, never source control or image layers.
 
+### Payment provider environment contract (ADR-008)
+
+Injected into the API container as standard ASP.NET configuration keys (double underscore). `.env.example` and `docker-compose.yml` carry the same names.
+
+| Key | Secret | Meaning |
+| --- | --- | --- |
+| `Billing__Payments__CallbackBaseUrl` | no | Absolute public base of the API; builds provider return URLs (no secrets inside them). |
+| `Billing__Payments__FrontendBaseUrl` | no | Absolute base of the web app for post-payment result redirects. |
+| `Billing__Payments__Zarinpal__Enabled` | no | Checkout may offer `zarinpal` only when true. |
+| `Billing__Payments__Zarinpal__MerchantId` | **yes** | 36-character Zarinpal merchant code. Never logged (structured logs exclude it). |
+| `Billing__Payments__Zarinpal__BaseUrl` | no | Official payment API base (`https://payment.zarinpal.com`). |
+| `Billing__Payments__Zarinpal__Currency` | no | Canonical Qasedak currency `IRR`; do not switch to IRT without a new ADR. |
+| `Billing__Payments__Melli__Enabled` | no | Keep false: live transport is blocked until the official SADAD/Bank Melli merchant technical contract exists in the project (endpoint spec, signature/encryption algorithm, credential format, callback field contract). |
+| `Billing__Payments__Melli__MerchantId` / `TerminalId` / `CredentialKey` / `BaseUrl` | **yes** | Reserved for the official contract; the adapter refuses operation while the protocol is unverified even if Enabled is flipped. |
+
+A verified payment activates/extends the workspace subscription exactly once via database uniqueness + row-version concurrency on `billing.payment_attempts`; callback query parameters alone never activate anything.
+
 A reverse proxy/ingress provides TLS, public routing and security headers as finalized in M11. Only required services/ports are public; PostgreSQL should normally remain private.
 
 ## 7. PostgreSQL persistence
