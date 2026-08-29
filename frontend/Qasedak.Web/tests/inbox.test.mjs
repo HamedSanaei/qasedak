@@ -82,10 +82,21 @@ test("conversations client targets list/detail/reply surface with bearer auth", 
   assert.ok(String(calls[0].input).endsWith("/conversations?status=open&page=2"));
   assert.equal(calls[0].init.headers.authorization, "Bearer tok");
 
+  // M12-001: server-side search terms are forwarded to the query surface.
+  const searched = await api.list("tok", "22222222-2222-2222-2222-222222222222", { search: "قیمت پلن" });
+  assert.equal(searched.items[0].id, "c-1");
+  const encodedSearch = new URLSearchParams({ search: "قیمت پلن" }).toString();
+  assert.ok(String(calls[1].input).endsWith(`/conversations?${encodedSearch}`));
+  assert.equal(calls[1].init.headers.authorization, "Bearer tok");
+
+  // Blank search terms are omitted from the URL.
+  await api.list("tok", "22222222-2222-2222-2222-222222222222", { search: "" });
+  assert.ok(String(calls[2].input).endsWith("/conversations"));
+
   await api.get("tok", "22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333");
-  assert.ok(String(calls[1].input).endsWith("/conversations/33333333-3333-3333-3333-333333333333"));
+  assert.ok(String(calls[3].input).endsWith("/conversations/33333333-3333-3333-3333-333333333333"));
 
   const reply = await api.reply("tok", "22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333", "سلام");
   assert.equal(reply.messageId, "m-9");
-  assert.deepEqual(JSON.parse(calls[2].init.body), { text: "سلام" });
+  assert.deepEqual(JSON.parse(calls[4].init.body), { text: "سلام" });
 });

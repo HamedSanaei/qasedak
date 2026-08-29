@@ -5,8 +5,9 @@
  * Synchronized from the canonical Penpot board "Conversations / Inbox / Desktop"
  * (c48311ed-e700-80f8-8008-88200ed6b9fc, page c48311ed-e700-80f8-8008-88200ec40bf3)
  * via docs/design/sync/2026-08-24-qasedak-final-designs.md. Visual layer only;
- * list/filter/navigation behavior is unchanged. Search renders disabled BY DESIGN
- * until the backend ships a search query capability.
+ * list/filter/navigation behavior is unchanged. Search was disabled BY DESIGN until the
+ * backend shipped a search query capability (M12-001) — it is now a live, debounced
+ * server-side search over participant + message bodies.
  */
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -27,7 +28,16 @@ export default function InboxPage() {
   const [items, setItems] = useState<ConversationListItem[] | null>(null);
   const [state, setState] = useState<"loading" | "error" | "ready">("loading");
   const [filter, setFilter] = useState("");
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const nowMs = useNowMs();
+
+  // Debounce typed terms so each keystroke does not fire a request; blank terms are
+  // normalized to no search (the backend treats them identically).
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSearch(searchInput.trim()), 250);
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
 
   const load = useCallback(async () => {
     setState("loading");
@@ -40,13 +50,14 @@ export default function InboxPage() {
       }
       const result = await conversationsApi().list(session.accessToken, workspaceId, {
         status: filter || null,
+        search: search || null,
       });
       setItems(result.items);
       setState("ready");
     } catch {
       setState("error");
     }
-  }, [filter, router]);
+  }, [filter, search, router]);
 
   useEffect(() => {
     // Defer so the first setState happens outside the effect body (react-hooks lint).
@@ -68,27 +79,17 @@ export default function InboxPage() {
           <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--color-text-primary)", margin: 0 }}>
             گفتگوها
           </h1>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "var(--qs-status-warning)",
-              background: "var(--qs-status-warning-bg)",
-              borderRadius: 12,
-              padding: ".2rem .6rem",
-            }}
-          >
-            فعلاً غیرفعال
-          </span>
         </div>
 
-        {/* Search stays visually present but disabled — the design itself marks it as
-            pending the backend search query; no fake filtering is offered. */}
+        {/* Server-side search over participant + message bodies (M12-001). The design
+            only defined the disabled state; the enabled placeholder is recorded in
+            docs/design/sync/M12-001-inbox-search.md. */}
         <input
           type="search"
-          disabled
-          aria-disabled="true"
-          placeholder="جستجو — پس از تکمیل query backend"
+          value={searchInput}
+          onChange={(event) => setSearchInput(event.target.value)}
+          placeholder="جستجو در گفتگوها…"
+          aria-label="جستجو در گفتگوها"
           style={{
             width: "100%",
             marginTop: ".9rem",
@@ -150,7 +151,9 @@ export default function InboxPage() {
 
         {state === "ready" && items && items.length === 0 ? (
           <p style={{ margin: 0, color: "var(--qs-muted-final)", fontSize: 13 }}>
-            هنوز گفتگویی وجود ندارد. پس از اتصال پیج اینستاگرام، دایرکت‌ها اینجا نمایش داده می‌شوند.
+            {search
+              ? "گفتگویی با این عبارت پیدا نشد."
+              : "هنوز گفتگویی وجود ندارد. پس از اتصال پیج اینستاگرام، دایرکت‌ها اینجا نمایش داده می‌شوند."}
           </p>
         ) : null}
 

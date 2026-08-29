@@ -12,21 +12,32 @@ services:
     volumes:
       - qasedak-postgres:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qasedak} -d ${POSTGRES_DB:-qasedak}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-qasedak} -d $${POSTGRES_DB:-qasedak}"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 12
     restart: unless-stopped
 
-  api:
+  migrate:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    environment:
+    image: qasedak-api:local
+    command: ["dotnet", "Qasedak.Api.dll", "--migrate"]
+    environment: &api-environment
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Qasedak: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Identity: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Instagram: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Conversations: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Automations: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Contacts: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Billing: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Audit: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      Identity__Auth__TokenSigningKey: ${IDENTITY_TOKEN_SIGNING_KEY:-local-dev-signing-key-0123456789abcdef}
+      Instagram__Meta__AppSecret: ${INSTAGRAM_META_APP_SECRET:-local-dev-meta-app-secret}
+      Instagram__Meta__VerifyToken: ${INSTAGRAM_META_VERIFY_TOKEN:-local-dev-verify-token}
+      Instagram__Protection__KeyBase64: ${INSTAGRAM_PROTECTION_KEY_BASE64:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
       Cors__AllowedOrigins__0: http://localhost:${WEB_PORT:-3000}
-      # Payments (ADR-008/ADR-009): secrets arrive via environment only; callbacks carry no secrets.
       Billing__Payments__CallbackBaseUrl: ${BILLING_CALLBACK_BASE_URL:-http://localhost:${API_PORT:-8080}}
       Billing__Payments__FrontendBaseUrl: ${BILLING_FRONTEND_BASE_URL:-http://localhost:${WEB_PORT:-3000}}
       Billing__Payments__Zarinpal__Enabled: ${ZARINPAL_ENABLED:-false}
@@ -40,11 +51,30 @@ services:
       Billing__Payments__Mellat__ServiceUrl: ${MELLAT_SERVICE_URL:-https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl}
       Billing__Payments__Mellat__PaymentPageUrl: ${MELLAT_PAYMENT_PAGE_URL:-https://bpm.shaparak.ir/pgwchannel/startpay.mellat}
       Billing__Payments__Mellat__ServiceNamespace: ${MELLAT_SERVICE_NAMESPACE:-http://interfaces.core.bpm.bpt.com/}
-    ports:
-      - "${API_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: qasedak-api:local
+    environment: *api-environment
+    ports:
+      - "${API_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:8080/health/live >/dev/null && curl --fail --silent http://127.0.0.1:8080/health/ready >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   web:
@@ -55,9 +85,15 @@ services:
       QASEDAK_API_INTERNAL_URL: http://api:8080
     ports:
       - "${WEB_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/ >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

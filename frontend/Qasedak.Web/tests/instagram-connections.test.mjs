@@ -65,6 +65,7 @@ test("connection failure copy covers every stable account failure code", () => {
 test("connections api client targets the workspace-scoped surface with bearer auth", async () => {
   const calls = [];
   const http = loadTsModule("src/shared/api/http.ts");
+  assert.equal(http.apiBaseUrl, "");
   http.setTransport(async (input, init) => {
     calls.push({ input, init });
     return {

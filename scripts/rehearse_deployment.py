@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
-"""Deployment/rollback rehearsal against local container infrastructure.
+"""Local production deployment rehearsal using Docker-only runtime behavior.
 
-Exercises the v1 release-candidate procedure end to end:
-  1. build the API RC image from source;
-  2. boot an isolated PostgreSQL 18 and apply all module migrations via the RC image;
-  3. start the RC container wired to the contract's required settings;
-  4. smoke: /health/live, /health/ready, /api/v1/system, register + login over HTTP;
-  5. rollback drill: stop the RC, redeploy the previous image tag (v1 baseline has no
-     predecessor, so the drill re-deploys the same image to prove the stop/start/health
-     procedure), re-run smokes.
-
-Prints DEPLOYMENT REHEARSAL PASSED only when every step holds. Externally unverified
-aspects (real DNS/TLS, Meta reachability, managed Postgres) are NOT claimed.
+This rehearsal intentionally avoids dotnet-ef on the host. It builds the same API/Web
+runtime images used by deployment, runs the API image's one-shot --migrate command twice,
+then verifies the application and a binary rollback against a fresh isolated PostgreSQL.
+It does not claim DNS/TLS, Meta reachability, managed-Postgres, or real secret-store
+behavior.
 """
 
 from __future__ import annotations
@@ -22,180 +16,280 @@ import os
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 POSTGRES_IMAGE = "postgres:18-alpine"
-DB = "qasedak-rc"
-RC_API = "qasedak-api:rc"
-PREV_API = "qasedak-api:rc-prev"
-NET = "qasedak-rc-net"
-DB_CONTAINER = "qasedak-rc-db"
-API_CONTAINER = "qasedak-rc-api"
+API_IMAGE = "qasedak-api:rehearsal"
+PREVIOUS_API_IMAGE = "qasedak-api:rehearsal-previous"
+WEB_IMAGE = "qasedak-web:rehearsal"
+NET = "qasedak-rehearsal-net"
+DB_CONTAINER = "qasedak-rehearsal-db"
+API_CONTAINER = "qasedak-rehearsal-api"
+WEB_CONTAINER = "qasedak-rehearsal-web"
+ROLLBACK_API_CONTAINER = "qasedak-rehearsal-rollback-api"
+DB = "qasedak"
+USER = "qasedak"
+PASSWORD = "rehearsal-db-password"
+SIGNING_KEY = "deployment-rehearsal-signing-key-0123456789abcdef"
+PROTECTION_KEY = base64.b64encode(b"0123456789abcdef0123456789abcdef").decode()
+CONNECTION = f"Host={DB_CONTAINER};Port=5432;Database={DB};Username={USER};Password={PASSWORD}"
+SCHEMAS = ["identity", "instagram", "conversations", "automations", "contacts", "billing", "audit"]
+ROOT = Path(__file__).resolve().parent.parent
 
-CONNECTION = "Host=qasedak-rc-db;Database=qasedak;Username=qasedak;Password=rc-secret"
 
-
-def run(cmd: list[str], capture: bool = True, **kwargs) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(cmd, text=True,
-                            stdout=subprocess.PIPE if capture else None,
-                            stderr=subprocess.STDOUT if capture else None, **kwargs)
-    if result.returncode != 0:
-        print(result.stdout or "", file=sys.stderr)
-        raise SystemExit(f"command failed: {' '.join(cmd)}")
+def command(args: list[str], *, cwd: Path = ROOT, check: bool = True, quiet: bool = False) -> subprocess.CompletedProcess[str]:
+    result = subprocess.run(
+        args,
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE if quiet else None,
+        stderr=subprocess.STDOUT if quiet else None,
+    )
+    if check and result.returncode != 0:
+        if result.stdout:
+            print(result.stdout, file=sys.stderr)
+        raise SystemExit(f"command failed ({result.returncode}): {' '.join(args)}")
     return result
 
 
-def docker(*args: str, tolerant: bool = False) -> str:
-    result = run(["docker", *args]) if not tolerant else subprocess.run(
-        ["docker", *args], capture_output=True, text=True)
-    return result.stdout.strip() if not tolerant else (result.stdout or "").strip()
+def docker(*args: str, check: bool = True, quiet: bool = False) -> subprocess.CompletedProcess[str]:
+    return command(["docker", *args], check=check, quiet=quiet)
 
 
-def http_get(url: str) -> tuple[int, str]:
-    try:
-        with urllib.request.urlopen(url, timeout=10) as response:
-            return response.status, response.read().decode()
-    except urllib.error.HTTPError as error:
-        return error.code, error.read().decode()
+def remove_container(name: str) -> None:
+    docker("rm", "-f", name, check=False, quiet=True)
 
 
-def wait_ready(port: int, timeout_seconds: int = 120) -> None:
+def remove_network() -> None:
+    docker("network", "rm", NET, check=False, quiet=True)
+
+
+def wait_db(timeout_seconds: int = 120) -> None:
     deadline = time.time() + timeout_seconds
     while time.time() < deadline:
-        status, _ = http_get(f"http://localhost:{port}/health/live")
-        if status == 200:
-            return
-        time.sleep(2)
-    raise SystemExit(f"API on port {port} never became live")
-
-
-def wait_db() -> None:
-    deadline = time.time() + 90
-    while time.time() < deadline:
-        probe = subprocess.run(["docker", "exec", DB_CONTAINER, "pg_isready",
-                                "-U", "qasedak", "-d", "qasedak"],
-                               capture_output=True, text=True)
+        probe = docker("exec", DB_CONTAINER, "pg_isready", "-U", USER, "-d", DB, check=False, quiet=True)
         if probe.returncode == 0:
             return
         time.sleep(2)
     raise SystemExit("database never became healthy")
 
 
-def start_api(tag: str, port: int) -> None:
-    docker("run", "-d", "--name", API_CONTAINER, "--network", NET,
-           "-p", f"127.0.0.1:{port}:8080",
-           "-e", f"ConnectionStrings:Identity={CONNECTION}",
-           "-e", f"ConnectionStrings:Instagram={CONNECTION}",
-           "-e", f"ConnectionStrings:Conversations={CONNECTION}",
-           "-e", f"ConnectionStrings:Automations={CONNECTION}",
-           "-e", f"ConnectionStrings:Contacts={CONNECTION}",
-           "-e", f"ConnectionStrings:Billing={CONNECTION}",
-           "-e", f"ConnectionStrings:Audit={CONNECTION}",
-           "-e", "ASPNETCORE_ENVIRONMENT=Production",
-           "-e", "Identity:Auth:TokenSigningKey=deployment-rehearsal-signing-key-0123456789abcdef",
-           "-e", "Identity:Auth:TokenLifetimeHours=8",
-           "-e", "Instagram:Meta:AppSecret=rehearsal-meta-app-secret",
-           "-e", "Instagram:Meta:VerifyToken=rehearsal-verify-token",
-           "-e", "Instagram:Protection:KeyBase64=" +
-               base64.b64encode(b"rehearsal-token-prot-key!!32b"[:32]).decode(),
-           tag)
+def wait_http(url: str, timeout_seconds: int = 120) -> None:
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(url, timeout=5) as response:
+                if 200 <= response.status < 300:
+                    return
+        except (urllib.error.URLError, urllib.error.HTTPError, OSError):
+            pass
+        time.sleep(2)
+    raise SystemExit(f"timed out waiting for {url}")
 
 
-def migrate_via_image() -> None:
-    """Apply all module migrations through the host toolchain (design-time factories)."""
-    projects = {
-        "IdentityDbContext": ("backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure", "QASEDAK_IDENTITY_CONNECTION"),
-        "InstagramDbContext": ("backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure", "QASEDAK_INSTAGRAM_CONNECTION"),
-        "ConversationsDbContext": ("backend/Modules/Conversations/Qasedak.Modules.Conversations.Infrastructure", "QASEDAK_CONVERSATIONS_CONNECTION"),
-        "AutomationsDbContext": ("backend/Modules/Automations/Qasedak.Modules.Automations.Infrastructure", "QASEDAK_AUTOMATIONS_CONNECTION"),
-        "ContactsDbContext": ("backend/Modules/Contacts/Qasedak.Modules.Contacts.Infrastructure", "QASEDAK_CONTACTS_CONNECTION"),
-        "BillingDbContext": ("backend/Modules/Billing/Qasedak.Modules.Billing.Infrastructure", "QASEDAK_BILLING_CONNECTION"),
-        "AuditDbContext": ("backend/BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure", "QASEDAK_AUDIT_CONNECTION"),
+def api_env() -> list[str]:
+    values = {
+        "ConnectionStrings:Identity": CONNECTION,
+        "ConnectionStrings:Instagram": CONNECTION,
+        "ConnectionStrings:Conversations": CONNECTION,
+        "ConnectionStrings:Automations": CONNECTION,
+        "ConnectionStrings:Contacts": CONNECTION,
+        "ConnectionStrings:Billing": CONNECTION,
+        "ConnectionStrings:Audit": CONNECTION,
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "Identity:Auth:TokenSigningKey": SIGNING_KEY,
+        "Identity:Auth:TokenLifetimeHours": "8",
+        "Instagram:Meta:AppSecret": "rehearsal-meta-app-secret",
+        "Instagram:Meta:VerifyToken": "rehearsal-verify-token",
+        "Instagram:Protection:KeyBase64": PROTECTION_KEY,
+        "Cors:AllowedOrigins:0": "http://127.0.0.1:18082",
     }
-    host_port = docker("port", DB_CONTAINER, "5432/tcp").splitlines()[0].split(":")[-1]
-    connection = f"Host=localhost;Port={host_port};Database=qasedak;Username=qasedak;Password=rc-secret"
-    for context, (project, env_var) in projects.items():
-        run(["dotnet", "ef", "database", "update", "--project", project,
-             "--startup-project", "backend/Qasedak.Api", "--context", context],
-            env={**os.environ, env_var: connection})
-        print(f"   migrated {context}")
+    result: list[str] = []
+    for key, value in values.items():
+        result.extend(["-e", f"{key}={value}"])
+    return result
 
 
-def smoke(port: int) -> None:
-    status, body = http_get(f"http://localhost:{port}/api/v1/system")
-    assert status == 200, f"/api/v1/system returned {status}"
-    payload = json.loads(body)
-    assert payload.get("architecture") == "Modular Monolith", payload
+def run_migrations() -> None:
+    print("-- first image migration")
+    result = docker("run", "--rm", "--network", NET, *api_env(), API_IMAGE, "--migrate", check=False, quiet=True)
+    if result.stdout:
+        for line in result.stdout.splitlines():
+            if "Qasedak.Migrations" in line or "schema" in line.lower() or "migration" in line.lower():
+                print(line)
+    if result.returncode != 0:
+        print(result.stdout or "", file=sys.stderr)
+        raise SystemExit(f"first image migration failed with exit {result.returncode}")
+    print("first migration exit: 0")
 
-    import urllib.error
-    email = f"rc-{int(time.time())}@example.com"
+    print("-- second image migration (idempotency)")
+    result = docker("run", "--rm", "--network", NET, *api_env(), API_IMAGE, "--migrate", check=False, quiet=True)
+    if result.stdout:
+        for line in result.stdout.splitlines():
+            if "already up to date" in line.lower() or "migration run complete" in line.lower():
+                print(line)
+    if result.returncode != 0:
+        print(result.stdout or "", file=sys.stderr)
+        raise SystemExit(f"second image migration failed with exit {result.returncode}")
+    print("second migration exit: 0")
+
+
+def verify_schemas() -> None:
+    query = "SELECT schema_name FROM information_schema.schemata WHERE schema_name IN (" + ",".join(f"'{s}'" for s in SCHEMAS) + ") ORDER BY schema_name;"
+    result = docker("exec", DB_CONTAINER, "psql", "-U", USER, "-d", DB, "-Atc", query, check=True, quiet=True)
+    actual = [line.strip() for line in (result.stdout or "").splitlines() if line.strip()]
+    if actual != sorted(SCHEMAS):
+        raise SystemExit(f"schema verification failed: {actual}")
+    print("seven schemas: " + ", ".join(actual))
+
+
+def start_api(name: str, image: str, port: int) -> None:
+    docker("run", "-d", "--name", name, "--network", NET, "--network-alias", "api",
+           "-p", f"127.0.0.1:{port}:8080", *api_env(), image)
+    wait_http(f"http://127.0.0.1:{port}/health/live")
+    wait_http(f"http://127.0.0.1:{port}/health/ready")
+    with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/v1/system", timeout=10) as response:
+        payload = json.loads(response.read())
+    if payload.get("architecture") != "Modular Monolith":
+        raise SystemExit(f"unexpected system response: {payload}")
+
+
+def start_web(port: int) -> None:
+    docker("run", "-d", "--name", WEB_CONTAINER, "--network", NET,
+           "-p", f"127.0.0.1:{port}:3000", WEB_IMAGE)
+    wait_http(f"http://127.0.0.1:{port}/")
+
+
+def wait_proxy(port: int, path: str, expected_status: int = 200, timeout_seconds: int = 120) -> str:
+    deadline = time.time() + timeout_seconds
+    last_status = None
+    last_body = ""
+    while time.time() < deadline:
+        last_status, last_body = public_api_request(port, "GET", path)
+        if last_status == expected_status:
+            return last_body
+        time.sleep(2)
+    logs = docker("logs", WEB_CONTAINER, check=False, quiet=True)
+    if logs.stdout:
+        print(logs.stdout, file=sys.stderr)
+    raise SystemExit(f"same-origin proxy {path} returned {last_status}: {last_body[:200]}")
+
+
+def public_api_request(port: int, method: str, path: str, body: dict[str, str] | None = None) -> tuple[int, str]:
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{port}{path}",
+        method=method,
+        data=json.dumps(body).encode() if body is not None else None,
+        headers={"Content-Type": "application/json"} if body is not None else {},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            return response.status, response.read().decode()
+    except urllib.error.HTTPError as error:
+        return error.code, error.read().decode()
+
+
+def smoke_auth(port: int, suffix: str) -> tuple[str, str]:
+    email = f"rehearsal-{suffix}-{int(time.time())}@example.com"
+    password = "StrongRehearsal123!"
     register = subprocess.run([
-        "curl", "-s", "-o", "/dev/null", "-w", "%{http_code}",
-        "-X", "POST", f"http://localhost:{port}/api/v1/identity/register",
+        "curl", "-s", "-o", os.devnull, "-w", "%{http_code}", "-X", "POST",
+        f"http://127.0.0.1:{port}/api/v1/identity/register",
         "-H", "Content-Type: application/json",
-        "-d", json.dumps({"email": email, "displayName": "RC Smoke", "password": "rc-password-123"}),
-    ], capture_output=True, text=True)
-    assert register.stdout == "201", f"register returned {register.stdout}"
-
+        "-d", json.dumps({"email": email, "displayName": "Rehearsal", "password": password}),
+    ], text=True, capture_output=True, check=False)
+    if register.stdout != "201":
+        raise SystemExit(f"register returned {register.stdout}")
     login = subprocess.run([
-        "curl", "-s", "-X", "POST", f"http://localhost:{port}/api/v1/identity/login",
+        "curl", "-s", "-X", "POST", f"http://127.0.0.1:{port}/api/v1/identity/login",
         "-H", "Content-Type: application/json",
-        "-d", json.dumps({"email": email, "password": "rc-password-123"}),
-    ], capture_output=True, text=True)
-    token = json.loads(login.stdout)["accessToken"]
-    assert len(token) > 20, "no access token issued"
-    print("   smoke ok (system endpoint, register, login)")
+        "-d", json.dumps({"email": email, "password": password}),
+    ], text=True, capture_output=True, check=False)
+    if login.returncode != 0 or "accessToken" not in login.stdout:
+        raise SystemExit("login did not return an access token")
+    print("register: 201; login: access token issued")
+    return email, password
+
+
+def login_existing(port: int, email: str, password: str) -> None:
+    login = subprocess.run([
+        "curl", "-s", "-X", "POST", f"http://127.0.0.1:{port}/api/v1/identity/login",
+        "-H", "Content-Type: application/json",
+        "-d", json.dumps({"email": email, "password": password}),
+    ], text=True, capture_output=True, check=False)
+    if login.returncode != 0 or "accessToken" not in login.stdout:
+        raise SystemExit("persisted user could not log in after API recreation")
+    print("persisted user login after API recreation: PASS")
 
 
 def main() -> None:
-    print("== Qasedak deployment/rollback rehearsal ==")
-    for name in (DB_CONTAINER, API_CONTAINER):
-        docker("rm", "-f", name, tolerant=True)
-    docker("network", "rm", NET, tolerant=True)
+    print("== Qasedak Docker deployment rehearsal ==")
+    for name in (DB_CONTAINER, API_CONTAINER, WEB_CONTAINER, ROLLBACK_API_CONTAINER):
+        remove_container(name)
+    remove_network()
     try:
-        print("-- building RC image")
-        run(["docker", "build", "-t", RC_API, "."], cwd=ROOT / "backend")
-        # The rollback drill needs a 'previous' deployment; v1 has no predecessor, so we
-        # retag the identical image — the exercise validates procedure, not binary drift.
-        docker("tag", RC_API, PREV_API)
-
+        print("-- build release runtime images")
+        command(["docker", "build", "-t", API_IMAGE, "."], cwd=ROOT / "backend")
+        command(["docker", "build", "-t", WEB_IMAGE, "."], cwd=ROOT / "frontend" / "Qasedak.Web")
+        docker("tag", API_IMAGE, PREVIOUS_API_IMAGE)
         docker("network", "create", NET)
 
-        print("-- booting isolated database")
+        print("-- fresh PostgreSQL")
         docker("run", "-d", "--name", DB_CONTAINER, "--network", NET,
-               "-p", "127.0.0.1::5432",
-               "-e", "POSTGRES_DB=qasedak", "-e", "POSTGRES_USER=qasedak",
-               "-e", "POSTGRES_PASSWORD=rc-secret", POSTGRES_IMAGE)
+               "-e", f"POSTGRES_DB={DB}", "-e", f"POSTGRES_USER={USER}",
+               "-e", f"POSTGRES_PASSWORD={PASSWORD}", POSTGRES_IMAGE)
         wait_db()
+        run_migrations()
+        verify_schemas()
 
-        print("-- applying module migrations")
-        migrate_via_image()
+        print("-- release candidate API/Web")
+        start_api(API_CONTAINER, API_IMAGE, 18080)
+        # The standalone image resolves rewrites from next.config.ts at build time.
+        # Build the image with the isolated Docker service hostname, matching production.
+        start_web(18082)
+        web_status, _ = public_api_request(18082, "GET", "/")
+        if web_status < 200 or web_status >= 400:
+            raise SystemExit(f"web-facing root returned {web_status}")
+        system_body = wait_proxy(18082, "/api/v1/system")
+        if json.loads(system_body).get("architecture") != "Modular Monolith":
+            raise SystemExit("same-origin system proxy returned an unexpected payload")
+        initial_email, initial_password = smoke_auth(18080, "initial")
+        public_email = f"rehearsal-public-{int(time.time())}@example.com"
+        public_password = "StrongRehearsal123!"
+        register_status, _ = public_api_request(18082, "POST", "/api/v1/identity/register", {
+            "email": public_email, "displayName": "Public rehearsal", "password": public_password,
+        })
+        if register_status != 201:
+            raise SystemExit(f"same-origin register returned {register_status}")
+        login_status, login_body = public_api_request(18082, "POST", "/api/v1/identity/login", {
+            "email": public_email, "password": public_password,
+        })
+        if login_status != 200 or "accessToken" not in login_body:
+            raise SystemExit(f"same-origin login returned {login_status}")
+        print("health/live: 200; health/ready: 200; same-origin system: 200; same-origin register: 201; same-origin login: 200; web: 200")
 
-        print("-- deploying release candidate")
-        start_api(RC_API, 18080)
-        wait_ready(18080)
-        status, _ = http_get("http://localhost:18080/health/ready")
-        assert status == 200, f"/health/ready returned {status}"
-        smoke(18080)
+        print("-- application container recreation / data persistence")
+        remove_container(API_CONTAINER)
+        start_api(API_CONTAINER, API_IMAGE, 18080)
+        login_existing(18080, initial_email, initial_password)
+        print("PostgreSQL data survived API recreation")
 
-        print("-- rollback drill: stop RC, redeploy previous, re-smoke")
-        docker("rm", "-f", API_CONTAINER)
-        start_api(PREV_API, 18081)
-        wait_ready(18081)
-        status, _ = http_get("http://localhost:18081/health/ready")
-        assert status == 200, f"previous /health/ready returned {status}"
-        smoke(18081)
-
+        print("-- binary rollback rehearsal")
+        remove_container(API_CONTAINER)
+        start_api(ROLLBACK_API_CONTAINER, PREVIOUS_API_IMAGE, 18081)
+        with urllib.request.urlopen("http://127.0.0.1:18081/api/v1/system", timeout=10) as response:
+            if response.status != 200:
+                raise SystemExit("rollback system smoke failed")
+        print("rollback health/smoke: PASS")
         print("DEPLOYMENT REHEARSAL PASSED")
-        print("NOT VERIFIED EXTERNALLY: DNS/TLS termination, public webhook reachability "
-              "for Meta, managed-Postgres behavior, real secret-store injection.")
+        print("NOT VERIFIED: public DNS/TLS, Meta reachability, managed PostgreSQL, real secret store")
     finally:
-        for name in (DB_CONTAINER, API_CONTAINER):
-            subprocess.run(["docker", "rm", "-f", name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run(["docker", "network", "rm", NET], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for name in (DB_CONTAINER, API_CONTAINER, WEB_CONTAINER, ROLLBACK_API_CONTAINER):
+            remove_container(name)
+        remove_network()
 
 
 if __name__ == "__main__":
-    ROOT = Path(__file__).resolve().parent.parent
     main()

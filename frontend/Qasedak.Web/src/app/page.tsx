@@ -1,14 +1,25 @@
-export default function Home() {
-  return (
-    <main className="starter-shell">
-      <section className="starter-card" aria-labelledby="starter-title">
-        <p className="eyebrow">Qasedak / قاصدک</p>
-        <h1 id="starter-title">اسکلت مهندسی آماده است.</h1>
-        <p>
-          این صفحه فقط placeholder است. رابط نهایی پس از تأیید در Penpot، طبق
-          قرارداد <code>docs/design/PENPOT-HANDOFF.md</code> در Next.js پیاده می‌شود.
-        </p>
-      </section>
-    </main>
-  );
+"use client";
+
+/*
+ * Application entry route (`/`).
+ *
+ * Qasedak has no approved Penpot public landing page yet, so `/` acts purely as an
+ * entry point: with a valid session the user is forwarded to /dashboard, otherwise to
+ * /login. Session state lives in localStorage (shared/api/identity.ts), so the redirect
+ * is resolved on the client via readSession(), which clears expired sessions. Nothing is
+ * rendered while redirecting — the old starter placeholder is deliberately gone.
+ */
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { readSession } from "@/shared/api/identity";
+import { resolveRootTarget } from "@/features/auth/rootRedirect";
+
+export default function RootEntry() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace(resolveRootTarget(readSession()));
+  }, [router]);
+
+  return null;
 }

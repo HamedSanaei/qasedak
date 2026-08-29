@@ -107,6 +107,60 @@ public sealed class ConversationInboxEndpointTests(ApiPostgreSqlFixture fixture)
     }
 
     [Fact]
+    public async Task InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies()
+    {
+        var workspace = FreshWorkspace();
+        await SeedConversationAsync(workspace, "ali-rezaei", ConversationStatus.Open, ("m-s1", "Hello World"));
+        await SeedConversationAsync(workspace, "sara-mohammadi", ConversationStatus.Open, ("m-s2", "قیمت پلن چقدر است"));
+        await SeedConversationAsync(workspace, "unknown-person", ConversationStatus.Archived, ("m-s3", "nothing relevant"));
+
+        using var client = AuthedClient(await TokenAsync("inbox-search@example.com", workspace));
+
+        // Participant match (case-insensitive), independent of message content.
+        var byParticipant = await client.GetFromJsonAsync<InboxPageResponse>(
+            $"/api/v1/workspaces/{workspace}/conversations?search=ALI");
+        Assert.NotNull(byParticipant);
+        Assert.Equal(1, byParticipant!.TotalCount);
+        Assert.Equal("ali-rezaei", byParticipant.Items[0].ParticipantId);
+
+        // Body match is case-insensitive too ("Hello World" ↔ "world").
+        var byBody = await client.GetFromJsonAsync<InboxPageResponse>(
+            $"/api/v1/workspaces/{workspace}/conversations?search=world");
+        Assert.NotNull(byBody);
+        Assert.Equal(1, byBody!.TotalCount);
+        Assert.Equal("ali-rezaei", byBody.Items[0].ParticipantId);
+
+        // Persian terms match verbatim.
+        var byPersian = await client.GetFromJsonAsync<InboxPageResponse>(
+            $"/api/v1/workspaces/{workspace}/conversations?search=قیمت");
+        Assert.NotNull(byPersian);
+        Assert.Equal(1, byPersian!.TotalCount);
+        Assert.Equal("sara-mohammadi", byPersian.Items[0].ParticipantId);
+
+        // A bare % is escaped and therefore matches nothing (no wildcard injection).
+        var byWildcard = await client.GetFromJsonAsync<InboxPageResponse>(
+            $"/api/v1/workspaces/{workspace}/conversations?search=%");
+        Assert.NotNull(byWildcard);
+        Assert.Equal(0, byWildcard!.TotalCount);
+
+        // Search composes with the status filter.
+        var combined = await client.GetFromJsonAsync<InboxPageResponse>(
+            $"/api/v1/workspaces/{workspace}/conversations?search=ali&status=archived");
+        Assert.NotNull(combined);
+        Assert.Equal(0, combined!.TotalCount);
+        var combinedOpen = await client.GetFromJsonAsync<InboxPageResponse>(
+            $"/api/v1/workspaces/{workspace}/conversations?search=rezaei&status=open");
+        Assert.NotNull(combinedOpen);
+        Assert.Equal(1, combinedOpen!.TotalCount);
+
+        // Blank search behaves exactly like no search.
+        var blank = await client.GetFromJsonAsync<InboxPageResponse>(
+            $"/api/v1/workspaces/{workspace}/conversations?search=%20%20");
+        Assert.NotNull(blank);
+        Assert.Equal(3, blank!.TotalCount);
+    }
+
+    [Fact]
     public async Task InboxDetailReturnsThreadWithOrderedMessages()
     {
         var workspace = FreshWorkspace();

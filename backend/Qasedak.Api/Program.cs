@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.DependencyInjection;
 using Qasedak.BuildingBlocks.Infrastructure;
 using Qasedak.Modules.Automations.Infrastructure;
 using Qasedak.Modules.Automations.Infrastructure.Endpoints;
@@ -125,6 +126,23 @@ app.MapConnectionEndpoints();
 app.MapAutomationEndpoints();
 app.MapBillingEndpoints();
 
+// One-shot production migration mode: `dotnet Qasedak.Api.dll --migrate` runs the same
+// release image against the configured module schemas and exits (0 on success). Normal
+// API startup never depends on a pre-migrated database; deployments run this explicitly
+// before switching traffic (see deploy/compose.production.yml `migrate` service and
+// deploy/remote-deploy.sh).
+if (args.Contains("--migrate", StringComparer.Ordinal))
+{
+    using var migScope = app.Services.CreateScope();
+    var factory = migScope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+    var logger = factory.CreateLogger("Qasedak.Migrations");
+    Qasedak.Api.Migrations.MigrationRunLogs.Starting(logger);
+    var exitCode = await Qasedak.Api.Migrations.DatabaseMigrator.MigrateAsync(migScope.ServiceProvider, logger);
+    Qasedak.Api.Migrations.MigrationRunLogs.Completed(logger);
+    return exitCode;
+}
+
 app.Run();
+return 0;
 
 public partial class Program;

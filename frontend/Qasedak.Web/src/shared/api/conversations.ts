@@ -37,7 +37,7 @@ export interface ConversationsApi {
   list(
     token: string,
     workspaceId: string,
-    options?: { status?: string | null; page?: number },
+    options?: { status?: string | null; search?: string | null; page?: number },
   ): Promise<{ page: number; pageSize: number; totalCount: number; items: ConversationListItem[] }>;
   get(token: string, workspaceId: string, conversationId: string): Promise<ConversationDetail>;
   reply(token: string, workspaceId: string, conversationId: string, text: string): Promise<{ messageId: string }>;
@@ -49,6 +49,7 @@ export function conversationsApi(): ConversationsApi {
     list: (token, workspaceId, options = {}) => {
       const params = new URLSearchParams();
       if (options.status) params.set("status", options.status);
+      if (options.search) params.set("search", options.search);
       if (options.page) params.set("page", String(options.page));
       const qs = params.toString();
       return request(`${base(workspaceId)}${qs ? `?${qs}` : ""}`, { bearerToken: token });

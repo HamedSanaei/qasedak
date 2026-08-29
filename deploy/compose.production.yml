@@ -12,35 +12,87 @@ services:
     volumes:
       - qasedak-postgres:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 12
+      start_period: 10s
     restart: unless-stopped
 
-  api:
+  migrate:
     image: ghcr.io/${IMAGE_NAMESPACE}/qasedak-api:${IMAGE_TAG}
-    environment:
+    command: ["dotnet", "Qasedak.Api.dll", "--migrate"]
+    environment: &api-environment
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__Qasedak: ${QASEDAK_CONNECTION_STRING}
+      ConnectionStrings__Identity: ${QASEDAK_DB_CONNECTION_STRING}
+      ConnectionStrings__Instagram: ${QASEDAK_DB_CONNECTION_STRING}
+      ConnectionStrings__Conversations: ${QASEDAK_DB_CONNECTION_STRING}
+      ConnectionStrings__Automations: ${QASEDAK_DB_CONNECTION_STRING}
+      ConnectionStrings__Contacts: ${QASEDAK_DB_CONNECTION_STRING}
+      ConnectionStrings__Billing: ${QASEDAK_DB_CONNECTION_STRING}
+      ConnectionStrings__Audit: ${QASEDAK_DB_CONNECTION_STRING}
+      Identity__Auth__TokenSigningKey: ${IDENTITY_AUTH_TOKEN_SIGNING_KEY}
+      Identity__Auth__TokenLifetimeHours: ${IDENTITY_AUTH_TOKEN_LIFETIME_HOURS:-12}
+      Instagram__Meta__AppSecret: ${INSTAGRAM_META_APP_SECRET}
+      Instagram__Meta__VerifyToken: ${INSTAGRAM_META_VERIFY_TOKEN}
+      Instagram__Protection__KeyBase64: ${INSTAGRAM_PROTECTION_KEY_BASE64}
       Cors__AllowedOrigins__0: ${PUBLIC_WEB_ORIGIN}
+      Billing__Payments__CallbackBaseUrl: ${BILLING_CALLBACK_BASE_URL}
+      Billing__Payments__FrontendBaseUrl: ${BILLING_FRONTEND_BASE_URL}
+      Billing__Payments__Zarinpal__Enabled: ${ZARINPAL_ENABLED:-false}
+      Billing__Payments__Zarinpal__MerchantId: ${ZARINPAL_MERCHANT_ID:-}
+      Billing__Payments__Zarinpal__BaseUrl: ${ZARINPAL_BASE_URL:-https://payment.zarinpal.com}
+      Billing__Payments__Zarinpal__Currency: ${ZARINPAL_CURRENCY:-IRR}
+      Billing__Payments__Mellat__Enabled: ${MELLAT_ENABLED:-false}
+      Billing__Payments__Mellat__TerminalId: ${MELLAT_TERMINAL_ID:-}
+      Billing__Payments__Mellat__Username: ${MELLAT_USERNAME:-}
+      Billing__Payments__Mellat__Password: ${MELLAT_PASSWORD:-}
+      Billing__Payments__Mellat__ServiceUrl: ${MELLAT_SERVICE_URL:-https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl}
+      Billing__Payments__Mellat__PaymentPageUrl: ${MELLAT_PAYMENT_PAGE_URL:-https://bpm.shaparak.ir/pgwchannel/startpay.mellat}
+      Billing__Payments__Mellat__ServiceNamespace: ${MELLAT_SERVICE_NAMESPACE:-http://interfaces.core.bpm.bpt.com/}
     depends_on:
       postgres:
         condition: service_healthy
+    restart: "no"
+
+  api:
+    image: ghcr.io/${IMAGE_NAMESPACE}/qasedak-api:${IMAGE_TAG}
+    environment: *api-environment
+    ports:
+      - "${API_BIND_ADDRESS:-127.0.0.1}:${API_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:8080/health/live >/dev/null && curl --fail --silent http://127.0.0.1:8080/health/ready >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   web:
     image: ghcr.io/${IMAGE_NAMESPACE}/qasedak-web:${IMAGE_TAG}
     environment:
       QASEDAK_API_INTERNAL_URL: http://api:8080
+    ports:
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/ >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
 
 secrets:
   postgres_password:
-    file: ./secrets/postgres_password.txt
+    file: ${POSTGRES_PASSWORD_FILE:-./secrets/postgres_password.txt}
 
 volumes:
   qasedak-postgres:

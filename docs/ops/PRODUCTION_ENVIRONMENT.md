@@ -19,8 +19,9 @@ databases later is an ADR-level change.
 
 ## 2. Connection strings (required)
 
-All seven are **mandatory**. Missing/unreachable databases fail startup health probes
-(`/health/ready`), never silently degrade.
+All seven are **mandatory for the production deployment contract**. Missing/unreachable
+ databases fail migration and startup health probes (`/health/ready`), never silently degrade.
+All seven may safely point to the same physical PostgreSQL database; schemas remain module-owned.
 
 | Key | Used by | Schema | Notes |
 |---|---|---|---|
@@ -30,7 +31,7 @@ All seven are **mandatory**. Missing/unreachable databases fail startup health p
 | `ConnectionStrings:Automations` | AutomationsDbContext | `automations` | definitions, runs |
 | `ConnectionStrings:Contacts` | ContactsDbContext | `contacts` | contacts, identities, tags, notes, ledger |
 | `ConnectionStrings:Billing` | BillingDbContext | `billing` | plans, entitlements, subscriptions, periods |
-| `ConnectionStrings:Audit` | AuditDbContext | `audit` | append-only audit trail (omit ⇒ audit disabled; NOT recommended for production) |
+| `ConnectionStrings:Audit` | AuditDbContext | `audit` | append-only audit trail (required by the production deployment contract) |
 
 ## 3. Application settings (required unless marked optional)
 
@@ -71,7 +72,29 @@ All seven are **mandatory**. Missing/unreachable databases fail startup health p
   the backup/restore rehearsal (`scripts/rehearse_backup_restore.py`).
 - No object storage, queues or caches are part of the v1 contract.
 
-## 7. Deployment-time migration procedure
+## 7. Environment-file mapping and deployment-time migration
+
+The repository's production Compose contract uses these shell-safe names:
+
+- `QASEDAK_DB_CONNECTION_STRING` is expanded into all seven `ConnectionStrings__*` values.
+- `IDENTITY_AUTH_TOKEN_SIGNING_KEY` maps to `Identity:Auth:TokenSigningKey`.
+- `INSTAGRAM_META_APP_SECRET`, `INSTAGRAM_META_VERIFY_TOKEN`, and
+  `INSTAGRAM_PROTECTION_KEY_BASE64` map to the corresponding `Instagram:*` settings.
+
+The exact template is `deploy/.env.production.example`; the real file stays on the server
+with mode `600`.
+
+The API release image exposes a deterministic one-shot migration command:
+
+```bash
+docker compose --env-file /opt/qasedak/.env.production \
+  -f /opt/qasedak/compose.production.yml run --rm migrate
+```
+
+It runs `dotnet Qasedak.Api.dll --migrate`, migrates all seven contexts, does not start
+HTTP, and returns non-zero without logging secrets if a migration fails.
+
+## 8. Deployment-time migration procedure
 
 1. Back up the database (validated procedure in the rehearsal script).
 2. Apply migrations with the API image before switching traffic:
@@ -80,7 +103,7 @@ All seven are **mandatory**. Missing/unreachable databases fail startup health p
 4. Rollback = redeploy previous image tag; migrations are additive by policy, so the
    previous version remains compatible within one release train.
 
-## 8. Contract enforcement
+## 9. Contract enforcement
 
 `python scripts/check_environment_contract.py` fails when code reads a connection string
 or required setting that this document does not list. Run it in CI alongside the other

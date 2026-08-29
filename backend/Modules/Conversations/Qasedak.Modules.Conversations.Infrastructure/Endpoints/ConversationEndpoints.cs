@@ -21,6 +21,7 @@ public static class ConversationEndpoints
         conversations.MapGet(string.Empty, async (
             Guid workspaceId,
             string? status,
+            string? search,
             int? page,
             int? pageSize,
             IConversationQueries queries,
@@ -28,7 +29,7 @@ public static class ConversationEndpoints
         {
             var result = await queries.ListAsync(
                 workspaceId,
-                InboxFilter.From(status, page ?? 1, pageSize ?? InboxFilter.DefaultPageSize),
+                InboxFilter.From(status, search, page ?? 1, pageSize ?? InboxFilter.DefaultPageSize),
                 cancellationToken);
             return Results.Ok(new
             {

@@ -6,8 +6,13 @@
  */
 import type { IdentityApi } from "./identity";
 
+// Browser requests stay same-origin so the immutable Web image is independent of
+// the public domain. A server-side caller may use the internal URL supplied by the
+// deployment, but that hostname must never be emitted into the browser bundle.
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+  typeof window === "undefined"
+    ? process.env.QASEDAK_API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? ""
+    : "";
 
 /** Injectable transport so unit tests can stub network behavior deterministically. */
 export type FetchLike = typeof fetch;

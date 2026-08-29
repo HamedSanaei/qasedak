@@ -1,0 +1,108 @@
+name: Deploy Production
+
+on:
+  workflow_run:
+    workflows: [Publish Images]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qasedak-production
+  cancel-in-progress: false
+
+env:
+  SOURCE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'master')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          sparse-checkout: |
+            deploy/compose.production.yml
+            deploy/remote-deploy.sh
+          sparse-checkout-cone-mode: false
+
+      - name: Validate deployment inputs
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -Eeuo pipefail
+          for name in DEPLOY_HOST DEPLOY_PORT DEPLOY_USER DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS; do
+            [[ -n "${!name}" ]] || { echo "Missing required GitHub secret: $name" >&2; exit 2; }
+          done
+          [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]] || { echo "DEPLOY_PORT must be numeric" >&2; exit 2; }
+
+      - name: Configure strict SSH validation
+        shell: bash
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -Eeuo pipefail
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+          printf '%s\n' "$DEPLOY_SSH_KEY" | tr -d '\r' > "$RUNNER_TEMP/qasedak_deploy_key"
+          chmod 600 "$RUNNER_TEMP/qasedak_deploy_key"
+          ssh -i "$RUNNER_TEMP/qasedak_deploy_key" \
+            -p "${{ secrets.DEPLOY_PORT }}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o BatchMode=yes \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" true
+
+      - name: Transfer deployment artifacts
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          scp -i "$RUNNER_TEMP/qasedak_deploy_key" \
+            -P "${{ secrets.DEPLOY_PORT }}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            deploy/compose.production.yml deploy/remote-deploy.sh \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/qasedak/"
+
+      - name: Authenticate server to GHCR when packages are private
+        if: ${{ secrets.GHCR_READ_TOKEN != '' }}
+        shell: bash
+        env:
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          GHCR_USER: ${{ github.repository_owner }}
+        run: |
+          set -Eeuo pipefail
+          printf '%s' "$GHCR_READ_TOKEN" | ssh -i "$RUNNER_TEMP/qasedak_deploy_key" \
+            -p "${{ secrets.DEPLOY_PORT }}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "docker login ghcr.io --username '$GHCR_USER' --password-stdin"
+
+      - name: Deploy immutable release
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          ssh -i "$RUNNER_TEMP/qasedak_deploy_key" \
+            -p "${{ secrets.DEPLOY_PORT }}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "chmod 0750 /opt/qasedak/remote-deploy.sh && IMAGE_TAG=sha-${SOURCE_SHA:0:12} /opt/qasedak/remote-deploy.sh"

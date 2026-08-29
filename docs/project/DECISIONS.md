@@ -11,6 +11,8 @@
 | ADR-007 | M08 screen tasks require a live Penpot MCP connection; with the plugin disconnected they are BLOCKED, never implemented from imagination | Accepted |
 | ADR-008 | Payments: provider-neutral `IPaymentGateway`; Zarinpal implemented over the CURRENT official REST contract; Bank Melli/SADAD boundary-only (fail-closed) until the official merchant technical contract exists; canonical currency IRR; exactly-once entitlement via DB uniqueness + xmin concurrency | Accepted — provider selection superseded by ADR-009 |
 | ADR-009 | v1 payment providers = Zarinpal (live) + Behpardakht Mellat (live transport implemented against the human-supplied vendor reference `docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md`, IPG User Guide v1.29 EN translation, "Unofficial - External" provenance preserved; newer conflicting onboarding docs ⇒ future ADR); Bank Melli/SADAD CANCELLED and removed from active scope; architecture/currency/exactly-once guarantees unchanged | Accepted — transport completed 2026-08-24 |
+| ADR-010 | Production database migrations run explicitly by `dotnet Qasedak.Api.dll --migrate` from the exact API release image; normal API startup never silently migrates; all seven contexts target one physical PostgreSQL with module-owned schemas | Accepted — M12-001 |
+| ADR-011 | Production delivery is CI-gated: CI success triggers immutable SHA images, then the deployment workflow transfers only deployment artifacts over pinned SSH and runs a flock-protected remote deploy; binary rollback never destroys or automatically rolls back PostgreSQL data | Accepted — M12-001 |
 
 ## Open decisions requiring human input
 

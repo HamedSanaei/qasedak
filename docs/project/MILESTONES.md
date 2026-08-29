@@ -89,3 +89,15 @@ Suggested milestone commit: `chore(hardening): complete production reliability g
 **Goal:** production contract, migration/deployment/rollback rehearsal and release baseline.
 
 Suggested milestone commit: `chore(release): prepare qasedak v1 production baseline`
+
+## M12 — v2 Product Features
+
+**Goal:** retire the v1 deferrals that no longer have blockers. M12-001 ships the
+server-side inbox search the approved Penpot design explicitly marked as pending the
+backend query; M12-002 enables the inbox thread context panel (contacts/tags/notes) now
+that M07 shipped the CRM surface; M12-003 delivers the workspace dashboard content once a
+Qasedak-native design is approved. UI tasks keep following the Penpot sync contract:
+approved mappings in `penpot-sync.json` are the visual source; divergences are recorded
+in sync evidence, never invented.
+
+Suggested milestone commit: `feat(v2): deliver inbox search and product v2 features`

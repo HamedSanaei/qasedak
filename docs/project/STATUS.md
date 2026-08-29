@@ -1,10 +1,32 @@
 # Project status
 
 **Project:** Qasedak  
-**Current milestone:** M09 — Payments & Billing  
-**Current task:** M09-002 — Payment gateway integration (Zarinpal operational; Behpardakht Mellat live SOAP transport implemented per the supplied v1.29 vendor reference)  
-**Last completed:** M09-002 (transport completion, 2026-08-24)  
-**Product implementation:** In progress (M09)
+**Current milestone:** M12 — v2 Product Features  
+**Current task:** M12-001 — Server-side inbox search  
+**Last completed:** M12-001 (2026-08-28)  
+**Product implementation:** In progress (M12)
+
+## 2026-08-28 — Server-side inbox search COMPLETE (M12-001 → DONE)
+
+- Backend: `SearchPattern` (Conversations Application) trims search terms and escapes
+  LIKE wildcards (`%`/`_`/`\`) so user input matches literally; blank terms remove the
+  filter. `EfConversationQueries.ListAsync` applies the term with `EF.Functions.ILike`
+  over the counterpart identity or any message body (EXISTS translation).
+- HTTP surface: optional `search` query param on
+  `GET /api/v1/workspaces/{id}/conversations`, composing with `status` and paging.
+- Frontend: `/dashboard/inbox` search is live (250 ms debounce), the «فعلاً غیرفعال»
+  badge is removed, empty state distinguishes no-results from empty inbox; client
+  contract tests updated.
+- Tests: 8 new `InboxSearchTests` unit cases (Conversations suite 23/23); a new API e2e
+  scenario (`InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies`) is ADDED
+  but NOT executed — Docker daemon was down this session (honest residual).
+- Gates: backend Release build 0 warnings, `dotnet format --verify-no-changes` clean,
+  all unit suites green (380); frontend `npm run verify` green (37 tests incl. search
+  contract, lint/typecheck/build).
+- Sync evidence: `docs/design/sync/M12-001-inbox-search.md` (enabled-state divergence:
+  placeholder «جستجو در گفتگوها…» — the design only defined the disabled state);
+  SCREEN-INVENTORY inbox row updated; MILESTONES.md gained M12 (v2 Product Features);
+  TASKS.md gained M12-001 DONE + M12-002/M12-003 TODO.
 
 ## 2026-08-24 — Behpardakht Mellat live transport COMPLETE (M09-002 → DONE)
 

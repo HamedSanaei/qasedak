@@ -18,6 +18,17 @@ public sealed class EfConversationQueries(ConversationsDbContext context) : ICon
             baseQuery = baseQuery.Where(c => c.Status == status);
         }
 
+        // Case-insensitive contains-search over the counterpart identity and every message
+        // body. The term is escaped (SearchPattern) so % / _ / \ in user input never act as
+        // LIKE wildcards. Matches translate to an EXISTS over messages in PostgreSQL.
+        var search = SearchPattern.Build(filter.Search);
+        if (search is not null)
+        {
+            baseQuery = baseQuery.Where(c =>
+                EF.Functions.ILike(c.ParticipantId, search)
+                || c.Messages.Any(m => EF.Functions.ILike(m.Body, search)));
+        }
+
         var total = await baseQuery.CountAsync(cancellationToken);
 
         var items = await baseQuery

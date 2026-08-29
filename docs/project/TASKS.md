@@ -583,6 +583,31 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 
 **Suggested commit:** `chore(release): prepare qasedak v1 production baseline`
 
+## M12-001 — Server-side inbox search
+**Status:** DONE (2026-08-28)
+
+**Outcome:** Enable the Penpot-marked-disabled inbox search with a real server-owned query: case-insensitive contains-search over the counterpart identity and every message body, with LIKE-wildcard escaping so user input matches literally.
+
+**Completion evidence:** `SearchPattern` (Conversations Application) normalizes terms (trim; escape `%`/`_`/`\`; blank → no filter) pinned by 8 new unit tests (`InboxSearchTests`, Conversations suite 23/23). `EfConversationQueries.ListAsync` applies the term as `EF.Functions.ILike` over `ParticipantId` or any message body (EXISTS translation; wildcard injection impossible). HTTP surface: optional `search` query param on `GET /api/v1/workspaces/{id}/conversations` — backward compatible, blank = unfiltered, composes with `status` and paging. API e2e coverage added in `ConversationInboxEndpointTests` (participant match, case-insensitive body match, Persian terms, bare `%` → zero results, search+status composition, blank term = unfiltered) — added but NOT executed this session: Testcontainers needs the Docker daemon, which was down (honest residual; the suite previously ran green at 458). Frontend: `conversationsApi().list` forwards `search`; `/dashboard/inbox` search input is live with 250 ms debounce, the «فعلاً غیرفعال» badge is removed, and the empty state distinguishes no-results from empty inbox; client contract tests updated (search serialized with URLSearchParams encoding, blank omitted). Enabled-state placeholder «جستجو در گفتگوها…» recorded as a divergence in `docs/design/sync/M12-001-inbox-search.md` (the design only defined the disabled state). Frontend `npm run verify` green (lint/typecheck/37 tests/build); backend Release build 0 warnings, `dotnet format --verify-no-changes` clean, all unit suites green (380 tests: BuildingBlocks 12, Automations 44, Billing 119, Contacts 23, Conversations 23, Identity 79, Instagram 80).
+
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
-**Suggested commit:** `chore(release): prepare qasedak v1 production baseline`
+**Suggested commit:** `feat(conversations): add server-side inbox search`
+
+## M12-002 — Enable inbox thread context panel
+**Status:** TODO
+
+**Outcome:** Replace the inbox thread's future-CRM placeholder with the real M07 contacts surface (contact name, tags, notes) behind the existing workspace-scoped Contacts APIs; the warning «Tags و Notes تا تکمیل M07 قابل ویرایش نیستند» is no longer true and must be removed with sync evidence.
+
+**Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `feat(web): enable inbox thread context panel`
+
+## M12-003 — Workspace dashboard overview
+**Status:** TODO
+
+**Outcome:** Implement the dashboard content area from the surveyed Admin Dashboard reference once a Qasedak-native design is approved (currently `reference surveyed; pending sync` in SCREEN-INVENTORY.md). Per the Penpot sync contract, no content is invented while no approved mapping exists; this task stays BLOCKED/TODO until the design source is approved.
+
+**Completion contract:** Graphify evidence recorded; Penpot sync contract applies; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
+
+**Suggested commit:** `feat(web): add workspace dashboard overview`

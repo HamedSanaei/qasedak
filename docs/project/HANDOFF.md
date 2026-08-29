@@ -2,80 +2,69 @@
 
 ## Where we are
 
-**M09-002 is DONE (2026-08-24): executable scope + final Penpot design reconciliation +
-Behpardakht Mellat live transport.** The vendor technical reference
-`docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md` (IPG User Guide v1.29 EN,
-"Unofficial - External" — provenance preserved) was supplied by the human and used as the
-sole protocol source for a complete Mellat SOAP transport behind the existing
-provider-neutral port. Nothing is committed — working tree only, per contract.
+**M12-001 is DONE (2026-08-28): server-side inbox search.** All v1 milestones (M00–M11)
+were complete and committed at `4e70f1e`; a human decision started M12 (v2 Product
+Features) with backend conversation search as the first task — the capability the
+approved Penpot inbox design explicitly marked as pending («جستجو — پس از تکمیل query
+backend», «فعلاً غیرفعال»). Nothing is committed — working tree only, per contract.
 
-## What this run delivered (Mellat transport completion)
+## What this run delivered (M12-001 — inbox search)
 
-### Transport (backend)
-- `BehpardakhtSoapClient`: explicit SOAP 1.1 envelopes over typed HttpClient for
-  bpPayRequest/bpVerifyRequest/bpSettleRequest/bpInquiryRequest/bpReversalRequest;
-  XML-escaped parameters; namespace-agnostic `*Response`→`return` parsing by local name
-  (namespace itself is config-overridable `ServiceNamespace`, not invented); SOAP fault /
-  non-success HTTP / timeout → `PaymentGatewayUnavailableException`. No SOAP-generated
-  types outside Infrastructure (`InternalsVisibleTo` test assemblies only).
-- `BehpardakhtMellatPaymentGateway`: pay per §8 (ten string params, amount IRR unchanged,
-  payerId "0", deterministic numeric orderId derived from the attempt id), defensive
-  `"ResCode,RefId"` parse with ResCode=0 requiring a non-empty exact-case RefId persisted
-  on the attempt; verify→settle chain with idempotent 43/45, bounded §19 classifier
-  (success/idempotent/user-cancel/configuration/definitive/unknown), Inquiry reconciliation
-  of unknown verify outcomes instead of blind retry, reversal ≤ ~3h post-verify exposed as
-  `ReverseAsync` on the concrete gateway only (never after settle, never on the port).
-- Callback: POST form variant on the public callback route parses RefId/ResCode/
-  SaleOrderId/SaleReferenceId/CardHolderPan(masked) → OK/CANCEL/FAILED hints; mandatory
-  identity check BEFORE verification: callback SaleOrderId must exactly equal the stored
-  ProviderOrderId and callback RefId must resolve the stored attempt — mismatch marks
-  `payment.callbackRejected`, makes ZERO bank calls, activates nothing, audited.
-- Jump endpoint `GET /api/v1/payments/mellat/startpay` renders an auto-submitting form
-  posting only the RefId to the configured payment page; credentials never reach the
-  browser; hosted on the registered merchant domain so Referer rule §62 holds.
-- Persistence: new nullable `ProviderOrderId` column on `billing.payment_attempts`
-  (migration `AddPaymentProviderOrderId` + Designer + snapshot); `{provider}` placeholder
-  in checkout callback templates now resolves to the selected gateway's provider id.
-- Config/docs: typed options extended (ServiceUrl/PaymentPageUrl/ServiceNamespace);
-  `.env.example` + docker-compose passthroughs + appsettings.json aligned; docs/08 §6
-  rewritten as implemented-with-prerequisites; ADR-009 updated to cite the vendor doc.
+### Backend
+- `SearchPattern` (Conversations.Application, `InboxQueries.cs`): trims the term and
+  escapes `%` / `_` / `\` so LIKE wildcards in user input match literally; blank terms
+  yield no filter.
+- `EfConversationQueries.ListAsync`: applies the escaped term with `EF.Functions.ILike`
+  over `ParticipantId` or any message body (`c.Messages.Any(...)`, EXISTS translation in
+  PostgreSQL). No migration needed — no schema change.
+- HTTP: optional `search` query param on `GET /api/v1/workspaces/{id}/conversations`;
+  backward compatible, composes with `status` and paging.
+- Tests: 8 new `InboxSearchTests` unit cases (Conversations suite 23/23); new API e2e
+  `InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies` (participant match,
+  case-insensitive body match, Persian terms, bare `%` → zero results, search+status
+  composition, blank term = unfiltered) — ADDED but NOT RUN: Testcontainers needs the
+  Docker daemon, which was down this session.
 
-### Tests
-- Billing unit 119/119 incl. new BehpardakhtMellatTransportTests (envelope contents +
-  escaping; malformed pay/code parsing incl. empty-RefId fail-closed; §19 classification
-  table; orchestration scripts pay/verify/settle/inquiry/reverse across success, idempotent,
-  definitive, timeout paths; use-case callback validation asserting ZERO verify calls on
-  forged SaleOrderId and exactly-once activation across duplicate callbacks).
-- API e2e (real host + real PostgreSQL + scripted SOAP fake; CI never touches
-  bpm.shaparak.ir): Mellat checkout persists ProviderOrderId + jump redirect with exact-case
-  REF; jump page HTML carries exact RefId and zero credential material; form callback
-  activates exactly once (verify+settle once, duplicate replay harmless, single period);
-  forged SaleOrderId → `payment.callbackRejected` with no entitlement.
-- Full backend solution suite green: 458 tests across all unit + Testcontainers projects.
+### Frontend
+- `conversationsApi().list` forwards `search` (URLSearchParams encoding; blank omitted).
+- `/dashboard/inbox`: search input live with 250 ms debounce, «فعلاً غیرفعال» badge
+  removed, empty state distinguishes «گفتگویی با این عبارت پیدا نشد.» from the empty
+  inbox copy. Contract tests updated in `tests/inbox.test.mjs`.
 
-## Earlier this day (context)
-
-- Payment architecture shipped: `PaymentAttempt` exactly-once persistence, neutral port,
-  Zarinpal official v4 REST gateway, endpoints, migration, ADR-008/ADR-009.
-- Codex final designs reconciled into Next.js (auth/inbox/billing); Penpot sync manifest
-  validated; frontend suites green.
+### Docs/state
+- MILESTONES.md: M12 — v2 Product Features (retire v1 deferrals; Penpot sync contract
+  applies to UI tasks).
+- TASKS.md: M12-001 DONE; M12-002 (inbox thread context panel, contacts/tags/notes) and
+  M12-003 (dashboard overview, blocked on approved design) TODO.
+- `docs/design/sync/M12-001-inbox-search.md`: enabled-state divergence recorded (design
+  only defined the disabled state; placeholder «جستجو در گفتگوها…»).
+- SCREEN-INVENTORY.md inbox row updated; PROJECT_STATE.json, STATUS.md updated.
 
 ## Verification status
 
-- Backend: Release build clean; full solution suite green as listed above.
-- Gates still to run at finalize time this session: `dotnet format --verify-no-changes`,
-  `validate_penpot_sync.py`, `check_architecture.py`, `agent_finalize.py --task M09-002`,
-  `verify.py --full`.
+- Backend Release build 0 warnings/0 errors; `dotnet format --verify-no-changes` clean;
+  all unit suites green: BuildingBlocks 12, Automations 44, Billing 119, Contacts 23,
+  Conversations 23, Identity 79, Instagram 80 (380 total).
+- Frontend `npm run verify` green: lint, typecheck, 37/37 tests, production build.
+- NOT run this session (honest residual): every Testcontainers integration/e2e suite
+  (API integration incl. the new search scenario, billing/contacts/automations/identity/
+  instagram Postgres suites) — Docker daemon is not running. Re-run once Docker is up.
+- Not re-run this session: `check_architecture.py`, `validate_penpot_sync.py` (no
+  manifest change), `verify.py --full`, rehearsals (unchanged since v1 freeze).
 
 ## Next actions for a human
 
-1. Operational go-live prerequisites (not CI): real Mellat terminal credentials; Shaparak
-   registration of the deployment's public host (IP allowlist; callback path + jump page
-   inside the registered domain); staging smoke incl. deliberate cancel (ResCode 17) and a
-   duplicate-callback replay. Same pattern applies to a Zarinpal staging smoke when ready.
-2. Continue with the next task in TASKS.md.
+1. Start Docker (Desktop or engine) so the Testcontainers suites — especially the new
+   M12-001 search e2e — can run.
+2. Operational go-live prerequisites (unchanged, not CI): real Mellat terminal
+   credentials; Shaparak registration of the deployment public host; staging smoke incl.
+   deliberate cancel and duplicate replay; Zarinpal staging smoke when ready.
 
 ## Next task for an agent
 
-M09-002 is fully DONE; pick the next actionable task from TASKS.md. Do not commit/push/tag
-unless explicitly asked; suggested commits are recorded per task in TASKS.md.
+M12-001 is DONE; next actionable task is **M12-002 — Enable inbox thread context panel**
+(TODO in TASKS.md): replace the thread's future-CRM placeholder with the real M07
+contacts surface (name/tags/notes) behind the existing workspace-scoped Contacts APIs,
+and remove the now-false «Tags و Notes تا تکمیل M07 قابل ویرایش نیستند» warning with
+sync evidence. Do not commit/push/tag unless explicitly asked; suggested commits are
+recorded per task in TASKS.md.
