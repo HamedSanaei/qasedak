@@ -19,6 +19,9 @@ env:
 
 jobs:
   deploy:
+    # Bind to the GitHub Environment so its secrets (DEPLOY_HOST, DEPLOY_PORT,
+    # DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_KNOWN_HOSTS) are available to the job.
+    environment: production
     # Optional read-only GHCR token. Placed at job level so steps can reference it
     # via env context instead of evaluating secrets in an `if:` condition.
     env:
