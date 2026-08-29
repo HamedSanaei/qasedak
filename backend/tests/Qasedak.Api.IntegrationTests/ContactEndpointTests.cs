@@ -111,6 +111,50 @@ public sealed class ContactEndpointTests(ApiPostgreSqlFixture fixture)
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync($"{foreignBase}/tags", new { tag = "x" })).StatusCode);
     }
 
+    [Fact]
+    public async Task ContactResolvesByProviderIdentityAndReturnsCrmSurface()
+    {
+        await SeedBoundAccountAsync();
+        await PostWebhookAsync("mid-resolve-1", "ep-resolve");
+
+        using var client = AuthedClient(await TokenAsync("contacts-resolve@example.com"));
+        var byIdentity = $"/api/v1/workspaces/{SeededWorkspaceId}/contacts/by-identity?channel=instagram&identity=ep-resolve";
+
+        var detail = await client.GetFromJsonAsync<JsonElement>(byIdentity);
+        Assert.Equal("ep-resolve", detail.GetProperty("displayName").GetString());
+        Assert.Equal("active", detail.GetProperty("status").GetString());
+        Assert.Empty(detail.GetProperty("tags").EnumerateArray());
+        Assert.Empty(detail.GetProperty("notes").EnumerateArray());
+        var identity = detail.GetProperty("identities").EnumerateArray().Single();
+        Assert.Equal("instagram", identity.GetProperty("channel").GetString());
+        Assert.Equal("ep-resolve", identity.GetProperty("providerIdentity").GetString());
+
+        // Mutating the resolved contact must be reflected by a later resolution (CRM surface).
+        var contactId = Guid.Parse(detail.GetProperty("id").GetString()!);
+        var baseUri = $"/api/v1/workspaces/{SeededWorkspaceId}/contacts/{contactId}";
+        Assert.True((await client.PostAsJsonAsync($"{baseUri}/tags", new { tag = "VIP" })).IsSuccessStatusCode);
+        Assert.True((await client.PostAsJsonAsync($"{baseUri}/notes", new { body = "Prefers email." })).IsSuccessStatusCode);
+        var again = await client.GetFromJsonAsync<JsonElement>(byIdentity);
+        var resolvedTags = again.GetProperty("tags").EnumerateArray().Select(t => t.GetString()).ToArray();
+        Assert.Single(resolvedTags);
+        Assert.Equal("vip", resolvedTags[0]);
+        Assert.Equal("Prefers email.", again.GetProperty("notes").EnumerateArray().Single().GetProperty("body").GetString());
+
+        // Unknown identity is 404 with the rule code.
+        using var missing = await client.GetAsync(
+            $"/api/v1/workspaces/{SeededWorkspaceId}/contacts/by-identity?channel=instagram&identity=nobody");
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+
+        // Missing identity parameters are rejected before any lookup.
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.GetAsync(
+            $"/api/v1/workspaces/{SeededWorkspaceId}/contacts/by-identity")).StatusCode);
+
+        // A workspace the caller does not belong to cannot resolve a contact by identity.
+        using var foreign = await client.GetAsync(
+            $"/api/v1/workspaces/{Guid.CreateVersion7()}/contacts/by-identity?channel=instagram&identity=ep-resolve");
+        Assert.Equal(HttpStatusCode.Forbidden, foreign.StatusCode);
+    }
+
     private async Task<HttpResponseMessage> PostWebhookAsync(string mid, string sender)
     {
         var body = Body(mid, sender);

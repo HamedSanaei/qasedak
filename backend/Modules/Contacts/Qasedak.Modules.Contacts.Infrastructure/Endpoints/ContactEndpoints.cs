@@ -51,6 +51,24 @@ public static class ContactEndpoints
             });
         });
 
+        contacts.MapGet("/by-identity", async (
+            Guid workspaceId,
+            string? channel,
+            string? identity,
+            IContactQueries queries,
+            CancellationToken cancellationToken) =>
+        {
+            if (string.IsNullOrWhiteSpace(channel) || string.IsNullOrWhiteSpace(identity))
+            {
+                return Results.Json(new { code = "contact.identityRequired" }, statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            var detail = await queries.FindByIdentityAsync(workspaceId, channel, identity, cancellationToken);
+            return detail is null
+                ? Results.NotFound(new { code = ContactFailures.NotFound })
+                : Results.Ok(ContactPayload.From(detail));
+        });
+
         contacts.MapGet("/{contactId:guid}", async (
             Guid workspaceId,
             Guid contactId,
@@ -60,19 +78,7 @@ public static class ContactEndpoints
             var detail = await queries.GetDetailAsync(workspaceId, contactId, cancellationToken);
             return detail is null
                 ? Results.NotFound(new { code = ContactFailures.NotFound })
-                : Results.Ok(new
-                {
-                    id = detail.Id,
-                    displayName = detail.DisplayName,
-                    status = detail.Status.ToLowerInvariant(),
-                    createdAtUtc = detail.CreatedAtUtc,
-                    lastSeenAtUtc = detail.LastSeenAtUtc,
-                    interactionCount = detail.InteractionCount,
-                    mergedIntoId = detail.MergedIntoId,
-                    identities = detail.Identities.Select(i => new { channel = i.Channel, providerIdentity = i.ProviderIdentity }),
-                    tags = detail.Tags,
-                    notes = detail.Notes.Select(n => new { id = n.Item1, body = n.Body, createdAtUtc = n.CreatedAtUtc }),
-                });
+                : Results.Ok(ContactPayload.From(detail));
         });
 
         contacts.MapPost("/{contactId:guid}/tags", async (
@@ -160,6 +166,36 @@ public static class ContactEndpoints
             Results.Json(new { code = exception.RuleCode }, statusCode: StatusCodes.Status409Conflict),
         _ => Results.Json(new { code = exception.RuleCode }, statusCode: StatusCodes.Status400BadRequest),
     };
+
+    /// <summary>Stable HTTP shape for the contact detail — shared by id and by-identity lookups.</summary>
+    private sealed record ContactPayload(
+        Guid Id,
+        string DisplayName,
+        string Status,
+        DateTimeOffset CreatedAtUtc,
+        DateTimeOffset LastSeenAtUtc,
+        long InteractionCount,
+        Guid? MergedIntoId,
+        IReadOnlyList<ContactIdentityPayload> Identities,
+        IReadOnlyList<string> Tags,
+        IReadOnlyList<ContactNotePayload> Notes)
+    {
+        public static ContactPayload From(ContactDetailRow detail) => new(
+            detail.Id,
+            detail.DisplayName,
+            detail.Status.ToLowerInvariant(),
+            detail.CreatedAtUtc,
+            detail.LastSeenAtUtc,
+            detail.InteractionCount,
+            detail.MergedIntoId,
+            detail.Identities.Select(i => new ContactIdentityPayload(i.Channel, i.ProviderIdentity)).ToList(),
+            detail.Tags,
+            detail.Notes.Select(n => new ContactNotePayload(n.Id, n.Body, n.CreatedAtUtc)).ToList());
+    }
+
+    private sealed record ContactIdentityPayload(string Channel, string ProviderIdentity);
+
+    private sealed record ContactNotePayload(Guid Id, string Body, DateTimeOffset CreatedAtUtc);
 
     public sealed record TagRequest(string? Tag);
 

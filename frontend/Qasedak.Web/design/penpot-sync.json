@@ -276,7 +276,9 @@
       "compositionPaths": [
         "src/app/dashboard/inbox/page.tsx",
         "src/app/dashboard/inbox/[conversationId]/page.tsx",
-        "src/shared/api/conversations.ts"
+        "src/shared/api/conversations.ts",
+        "src/shared/api/contacts.ts",
+        "src/features/contacts/presentation.ts"
       ],
       "responsiveTargets": ["desktop-1440", "tablet-834", "mobile-390"],
       "tokenDependencies": [
@@ -295,10 +297,10 @@
         "colorExtended.accentSofter"
       ],
       "assetDependencies": [],
-      "lastSyncedAtUtc": "2026-08-24T19:30:00Z",
+      "lastSyncedAtUtc": "2026-08-29T00:00:00Z",
       "penpotRevision": null,
       "syncStatus": "synced",
-      "notes": "Removes the historical M08-004 'no design source' blocker: the Penpot inbox now exists and is authoritative. Search stays visually disabled per the design itself until the backend ships a search query — capability honesty preserved."
+      "notes": "Removes the historical M08-004 'no design source' blocker: the Penpot inbox now exists and is authoritative. Search was enabled by M12-001 (2026-08-28) once the backend query shipped. M12-002 (2026-08-29): the context panel's future-CRM placeholder box is replaced by the live M07 contacts surface — name/tags/notes wired to GET /contacts/by-identity plus tag/note mutations — so the design's «غیرفعال» badge and «Tags و Notes تا تکمیل M07 …» warning no longer apply. No fresh MCP read this session (MCP client unavailable); code reconciled against the extracted contract in docs/design/sync/2026-08-24-qasedak-final-designs.md."
     },
     {
       "id": "billing.payment",

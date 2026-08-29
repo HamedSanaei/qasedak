@@ -595,9 +595,11 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(conversations): add server-side inbox search`
 
 ## M12-002 — Enable inbox thread context panel
-**Status:** TODO
+**Status:** DONE (2026-08-29)
 
 **Outcome:** Replace the inbox thread's future-CRM placeholder with the real M07 contacts surface (contact name, tags, notes) behind the existing workspace-scoped Contacts APIs; the warning «Tags و Notes تا تکمیل M07 قابل ویرایش نیستند» is no longer true and must be removed with sync evidence.
+
+**Completion evidence:** Backend gains a read-only workspace-scoped lookup `GET /api/v1/workspaces/{workspaceId}/contacts/by-identity?channel=…&identity=…` (`IContactQueries.FindByIdentityAsync` → `EfContactQueries`, resolving `MergedIntoId` chains to the absorbing primary) with the same detail payload as the by-id endpoint; the inbox resolves a conversation's `(channel, participantId)` to its CRM contact through it. New e2e `ContactEndpointTests.ContactResolvesByProviderIdentityAndReturnsCrmSurface` (resolve → tag/note mutations reappear on re-resolve; unknown identity 404; missing params 400; foreign workspace 403). Frontend: `src/shared/api/contacts.ts` client + `src/features/contacts/presentation.ts` (copy + tag/note bounds), and the thread page renders the «اطلاعات گفتگو» panel as a live CRM surface — display name, removable tag chips + add-tag, notes timeline + add-note, and a neutral (non-disabled) empty state when no contact exists yet; the design's «غیرفعال» badge and the «تا تکمیل M07» warning are gone. Sync: penpot-sync `inbox.conversations` notes updated (no fresh MCP read this session — MCP client unavailable; reconciled against the extracted 2026-08-24 contract), SCREEN-INVENTORY row updated, sync record `docs/design/sync/M12-002-thread-context-panel.md`. Gates: `dotnet build -c Release` 0 warnings/0 errors; full backend suite 471/471 (Contacts unit 23, Contacts integration 9, ContactEndpoint e2e 3 of the API integration suite); `npm run verify` 47/47; validate_penpot_sync/check_architecture/check_environment_contract → PASS.
 
 **Completion contract:** Graphify evidence recorded; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 

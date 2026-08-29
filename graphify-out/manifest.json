@@ -290,9 +290,9 @@
     "semantic_hash": "8195d2c60ce847a459ae9d308d6a5724"
   },
   "frontend/Qasedak.Web/next.config.ts": {
-    "mtime": 1787963920.5288012,
-    "ast_hash": "d9a2b19eb67df4f10376681942889568",
-    "semantic_hash": "d9a2b19eb67df4f10376681942889568"
+    "mtime": 1787964849.637,
+    "ast_hash": "3842985b9abbef010057627d19d61f3d",
+    "semantic_hash": "3842985b9abbef010057627d19d61f3d"
   },
   "frontend/Qasedak.Web/package.json": {
     "mtime": 1787436363.4376884,
@@ -355,9 +355,9 @@
     "semantic_hash": "9d8373d1fb3a1f7d296d2183d4c53ab4"
   },
   "scripts/generate_manifest.py": {
-    "mtime": 1787436936.8152003,
-    "ast_hash": "7f94bca5a3106e88488fff8f967b6fd5",
-    "semantic_hash": "7f94bca5a3106e88488fff8f967b6fd5"
+    "mtime": 1788015648.993488,
+    "ast_hash": "d86602b10abc0c079560719a615544cc",
+    "semantic_hash": "d86602b10abc0c079560719a615544cc"
   },
   "scripts/record_graphify_evidence.py": {
     "mtime": 1787434933.0,
@@ -1575,9 +1575,9 @@
     "semantic_hash": "72d96f6afc27ec5a5b2ee50c953512e2"
   },
   "scripts/rehearse_deployment.py": {
-    "mtime": 1787963941.8005774,
-    "ast_hash": "54ebd51ce8e422f500397ade8b53be9a",
-    "semantic_hash": "54ebd51ce8e422f500397ade8b53be9a"
+    "mtime": 1787965163.8884506,
+    "ast_hash": "fa2605dd76649fafe3d66b341a6050b5",
+    "semantic_hash": "fa2605dd76649fafe3d66b341a6050b5"
   },
   "frontend/Qasedak.Web/src/shared/design/SidebarIcon.tsx": {
     "mtime": 1787562682.2309294,
@@ -1900,9 +1900,9 @@
     "semantic_hash": "42a9df6447ba396d5405da702ca4bb76"
   },
   "deploy/remote-deploy.sh": {
-    "mtime": 1787961661.310898,
-    "ast_hash": "3e29f29f42820182b720d9332fd57a73",
-    "semantic_hash": "3e29f29f42820182b720d9332fd57a73"
+    "mtime": 1788020652.3971913,
+    "ast_hash": "461cfa691423943e4690335e4bfde1bc",
+    "semantic_hash": "461cfa691423943e4690335e4bfde1bc"
   },
   "frontend/Qasedak.Web/src/features/auth/rootRedirect.ts": {
     "mtime": 1787956692.7405665,

@@ -1,11 +1,12 @@
 "use client";
 
 /*
- * Conversation thread detail + reply composer.
- * Synchronized from the canonical Penpot board "Conversations / Inbox / Desktop"
- * thread panel (c48311ed-e700-80f8-8008-88200ed6b9fc) via
- * docs/design/sync/2026-08-24-qasedak-final-designs.md. Visual layer only; reply
- * validation, sending and reload behavior are unchanged.
+ * Conversation thread detail + reply composer + live CRM context panel.
+ * Thread panel synchronized from the canonical Penpot board "Conversations / Inbox /
+ * Desktop" (c48311ed-e700-80f8-8008-88200ed6b9fc). M12-002: the future-CRM placeholder
+ * is replaced by the real M07 contacts surface — the panel resolves the conversation's
+ * participant to its contact (GET /contacts/by-identity) and edits tags/notes behind the
+ * workspace-scoped Contacts APIs. Reply behavior and session handling are unchanged.
  */
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ import {
   type ConversationDetail,
   type ConversationMessage,
 } from "../../../../shared/api/conversations";
+import { contactsApi, type ContactDetail } from "../../../../shared/api/contacts";
 import { readSession, readWorkspaceId } from "../../../../shared/api/identity";
 import { useNowMs } from "../../../../shared/hooks/useNowMs";
 import {
@@ -25,6 +27,22 @@ import {
   statusLabel,
   validateReplyText,
 } from "../../../../features/inbox/presentation";
+import {
+  CONTACT_PANEL_EMPTY_BODY,
+  CONTACT_PANEL_EMPTY_TITLE,
+  describeContactFailure,
+  validateNoteInput,
+  validateTagInput,
+} from "../../../../features/contacts/presentation";
+
+type ContactState = "idle" | "ready" | "error";
+type Mutation = "tag" | "note" | null;
+
+function errorCode(error: unknown): string | null {
+  return error && typeof error === "object" && "code" in error
+    ? String((error as { code: unknown }).code)
+    : null;
+}
 
 export default function ConversationThreadPage() {
   const params = useParams<{ conversationId: string }>();
@@ -32,26 +50,58 @@ export default function ConversationThreadPage() {
   const conversationId = params.conversationId;
   const [detail, setDetail] = useState<ConversationDetail | null>(null);
   const [state, setState] = useState<"loading" | "error" | "ready">("loading");
+  const [contact, setContact] = useState<ContactDetail | null>(null);
+  const [contactState, setContactState] = useState<ContactState>("idle");
+  const [chipError, setChipError] = useState<string | null>(null);
+  const [tagInput, setTagInput] = useState("");
+  const [noteInput, setNoteInput] = useState("");
+  const [mutating, setMutating] = useState<Mutation>(null);
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const nowMs = useNowMs();
 
+  const creds = useCallback(() => {
+    const session = readSession();
+    const workspaceId = readWorkspaceId();
+    return session && workspaceId ? { token: session.accessToken, workspaceId } : null;
+  }, []);
+
+  const refreshContact = useCallback(
+    async (token: string, workspaceId: string, target: ConversationDetail) => {
+      try {
+        const resolved = await contactsApi().getByIdentity(
+          token,
+          workspaceId,
+          target.channel,
+          target.participantId,
+        );
+        setContact(resolved);
+        setContactState("ready");
+        setChipError(null);
+      } catch {
+        setContactState("error");
+      }
+    },
+    [],
+  );
+
   const load = useCallback(async () => {
     setState("loading");
     try {
-      const session = readSession();
-      const workspaceId = readWorkspaceId();
-      if (!session || !workspaceId) {
+      const c = creds();
+      if (!c) {
         router.replace("/login");
         return;
       }
-      setDetail(await conversationsApi().get(session.accessToken, workspaceId, conversationId));
+      const d = await conversationsApi().get(c.token, c.workspaceId, conversationId);
+      setDetail(d);
       setState("ready");
+      await refreshContact(c.token, c.workspaceId, d);
     } catch {
       setState("error");
     }
-  }, [conversationId, router]);
+  }, [conversationId, router, creds, refreshContact]);
 
   useEffect(() => {
     // Defer so the first setState happens outside the effect body (react-hooks lint).
@@ -68,20 +118,62 @@ export default function ConversationThreadPage() {
     setSending(true);
     setSendError(null);
     try {
-      const session = readSession();
-      const workspaceId = readWorkspaceId();
-      if (!session || !workspaceId) return;
-      await conversationsApi().reply(session.accessToken, workspaceId, conversationId, draft);
+      const c = creds();
+      if (!c) return;
+      await conversationsApi().reply(c.token, c.workspaceId, conversationId, draft);
       setDraft("");
       await load();
     } catch (error) {
-      const code =
-        error && typeof error === "object" && "code" in error
-          ? String((error as { code: unknown }).code)
-          : null;
-      setSendError(describeReplyFailure(code));
+      setSendError(describeReplyFailure(errorCode(error)));
     } finally {
       setSending(false);
+    }
+  }
+
+  async function mutateTag(tag: string, add: boolean) {
+    const c = creds();
+    if (!c || !contact) return;
+    setMutating("tag");
+    setChipError(null);
+    try {
+      const api = contactsApi();
+      if (add) {
+        const invalid = validateTagInput(tag);
+        if (invalid) {
+          setChipError(describeContactFailure(invalid));
+          return;
+        }
+        await api.addTag(c.token, c.workspaceId, contact.id, tag);
+      } else {
+        await api.removeTag(c.token, c.workspaceId, contact.id, tag);
+      }
+      setTagInput("");
+      await refreshContact(c.token, c.workspaceId, detail!);
+    } catch (error) {
+      setChipError(describeContactFailure(errorCode(error)));
+    } finally {
+      setMutating(null);
+    }
+  }
+
+  async function addNote() {
+    const c = creds();
+    if (!c || !contact) return;
+    const invalid = validateNoteInput(noteInput);
+    if (invalid) {
+      setChipError(describeContactFailure(invalid));
+      return;
+    }
+    setMutating("note");
+    setChipError(null);
+    try {
+      await contactsApi().addNote(c.token, c.workspaceId, contact.id, noteInput);
+      setNoteInput("");
+      await refreshContact(c.token, c.workspaceId, detail!);
+    } catch (error) {
+      setChipError(describeContactFailure(errorCode(error)));
+    } finally {
+      setMutating(null);
     }
   }
 
@@ -144,6 +236,168 @@ export default function ConversationThreadPage() {
               </span>
             </span>
           </div>
+
+          {/* CRM context panel — «اطلاعات گفتگو» (context panel on the canonical inbox board). */}
+          <section
+            aria-label="اطلاعات گفتگو"
+            style={{
+              background: "var(--qs-canvas)",
+              borderRadius: "var(--qs-radius-panel)",
+              padding: "1rem 1.25rem",
+              marginBottom: "1rem",
+              display: "grid",
+              gap: ".75rem",
+            }}
+          >
+            <strong style={{ fontSize: 14, color: "var(--color-text-primary)" }}>اطلاعات گفتگو</strong>
+
+            {contactState !== "ready" ? (
+              contactState === "error" ? (
+                <div role="alert">
+                  <span style={{ fontSize: 13, color: "var(--qs-status-danger)" }}>دریافت مخاطب ناموفق بود.</span>
+                  <span style={{ display: "inline-flex", marginInlineStart: ".5rem" }}>
+                    <Button variant="outline" size="small" onClick={() => void load()}>تلاش مجدد</Button>
+                  </span>
+                </div>
+              ) : (
+                <p style={{ margin: 0, fontSize: 13, color: "var(--color-text-secondary)" }}>در حال بارگذاری مخاطب…</p>
+              )
+            ) : contact === null ? (
+              <div style={{ display: "grid", gap: ".25rem" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  {CONTACT_PANEL_EMPTY_TITLE}
+                </span>
+                <span style={{ fontSize: 12, color: "var(--qs-muted-final)" }}>{CONTACT_PANEL_EMPTY_BODY}</span>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: "grid", gap: ".25rem" }}>
+                  <span style={{ fontSize: 11, color: "var(--qs-muted-final)" }}>نام مخاطب</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                    {contact.displayName}
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gap: ".4rem" }}>
+                  <span style={{ fontSize: 11, color: "var(--qs-muted-final)" }}>برچسب‌ها</span>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem" }}>
+                    {contact.tags.length === 0 ? (
+                      <span style={{ fontSize: 12, color: "var(--qs-muted-final)" }}>هنوز برچسبی ثبت نشده است.</span>
+                    ) : (
+                      contact.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: ".3rem",
+                            background: "var(--qs-accent-soft-final)",
+                            color: "var(--color-brand-accent)",
+                            borderRadius: "var(--qs-radius-panel)",
+                            padding: ".25rem .55rem",
+                            fontSize: 12,
+                          }}
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            aria-label={`حذف برچسب ${tag}`}
+                            disabled={mutating !== null}
+                            onClick={() => void mutateTag(tag, false)}
+                            style={{
+                              border: "none",
+                              background: "transparent",
+                              color: "inherit",
+                              cursor: "pointer",
+                              fontSize: 12,
+                              lineHeight: 1,
+                              padding: 0,
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: ".4rem" }}>
+                    <label htmlFor="contact-tag" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+                      برچسب جدید
+                    </label>
+                    <input
+                      id="contact-tag"
+                      value={tagInput}
+                      maxLength={32}
+                      onChange={(event) => setTagInput(event.target.value)}
+                      placeholder="برچسب جدید…"
+                      style={{
+                        flex: 1,
+                        background: "#ffffff",
+                        border: "1px solid var(--qs-card-border)",
+                        borderRadius: 10,
+                        padding: ".4rem .6rem",
+                        font: "inherit",
+                        fontSize: 13,
+                      }}
+                    />
+                    <Button size="small" disabled={mutating !== null} onClick={() => void mutateTag(tagInput, true)}>
+                      {mutating === "tag" ? "در حال ثبت…" : "افزودن"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gap: ".4rem" }}>
+                  <span style={{ fontSize: 11, color: "var(--qs-muted-final)" }}>یادداشت‌ها</span>
+                  {contact.notes.length === 0 ? (
+                    <span style={{ fontSize: 12, color: "var(--qs-muted-final)" }}>یادداشتی ثبت نشده است.</span>
+                  ) : (
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: ".4rem" }}>
+                      {contact.notes.map((note) => (
+                        <li key={note.id} style={{ background: "#ffffff", border: "1px solid var(--qs-card-border)", borderRadius: 10, padding: ".45rem .6rem" }}>
+                          <div style={{ fontSize: 13, color: "var(--color-text-primary)", whiteSpace: "pre-wrap" }}>{note.body}</div>
+                          <div style={{ fontSize: 10, color: "var(--qs-muted-final)", marginTop: ".2rem" }}>
+                            {nowMs !== null ? formatRelativeFa(note.createdAtUtc, nowMs) : ""}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div style={{ display: "grid", gap: ".4rem" }}>
+                    <label htmlFor="contact-note" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+                      یادداشت جدید
+                    </label>
+                    <textarea
+                      id="contact-note"
+                      value={noteInput}
+                      maxLength={2000}
+                      onChange={(event) => setNoteInput(event.target.value)}
+                      rows={2}
+                      placeholder="یادداشت جدید…"
+                      style={{
+                        width: "100%",
+                        background: "#ffffff",
+                        border: "1px solid var(--qs-card-border)",
+                        borderRadius: 10,
+                        padding: ".45rem .6rem",
+                        font: "inherit",
+                        fontSize: 13,
+                        resize: "vertical",
+                      }}
+                    />
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button size="small" disabled={mutating !== null} onClick={() => void addNote()}>
+                        {mutating === "note" ? "در حال ثبت…" : "ثبت یادداشت"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {chipError ? (
+                  <div role="alert" style={{ fontSize: 13, color: "var(--qs-status-danger)" }}>{chipError}</div>
+                ) : null}
+              </>
+            )}
+          </section>
 
           <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1rem", display: "grid", gap: ".55rem" }}>
             {detail.messages.map((message: ConversationMessage) => {

@@ -2,9 +2,28 @@
 
 **Project:** Qasedak  
 **Current milestone:** M12 — v2 Product Features  
-**Current task:** M12-001 — Server-side inbox search  
-**Last completed:** M12-001 (2026-08-28)  
+**Current task:** M12-002 — Enable inbox thread context panel
+**Last completed:** M12-002 (2026-08-29)
 **Product implementation:** In progress (M12)
+
+## 2026-08-29 — Inbox thread context panel COMPLETE (M12-002 → DONE)
+
+- Backend: read-only workspace-scoped lookup `GET /api/v1/workspaces/{id}/contacts/by-identity`
+  (`IContactQueries.FindByIdentityAsync`, resolving `MergedIntoId` chains) so a conversation's
+  `(channel, participantId)` resolves to its CRM contact; reuses the by-id detail payload.
+  New e2e `ContactResolvesByProviderIdentityAndReturnsCrmSurface` (resolve → tag/note
+  mutations reappear on re-resolve, 404 for unknown identity, 400 for missing params, 403
+  for foreign workspace).
+- Frontend: `src/shared/api/contacts.ts` (resolve + tag/note mutations), `src/features/contacts/presentation.ts`
+  (copy + validation), and the thread page `[conversationId]/page.tsx` renders the
+  «اطلاعات گفتگو» panel as a live CRM surface — contact name, removable tag chips + add-tag,
+  notes timeline + add-note, and a neutral empty state when no contact exists yet. The
+  design's «غیرفعال» badge and the «Tags و Notes تا تکمیل M07 …» warning are gone (M07 shipped).
+- Sync: penpot-sync `inbox.conversations` notes updated + SCREEN-INVENTORY row + sync record
+  `docs/design/sync/M12-002-thread-context-panel.md`. No fresh Penpot MCP read this session
+  (MCP client unavailable) — reconciled against the extracted 2026-08-24 contract.
+- Gates: backend Release build 0 warnings/0 errors, full backend suite 471/471, `npm run verify`
+  47/47, validate_penpot_sync + check_architecture + check_environment_contract all PASS.
 
 ## 2026-08-28 — Server-side inbox search COMPLETE (M12-001 → DONE)
 

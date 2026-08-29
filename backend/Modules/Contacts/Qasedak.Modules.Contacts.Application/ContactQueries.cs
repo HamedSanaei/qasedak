@@ -45,4 +45,15 @@ public interface IContactQueries
 
     /// <summary>Returns the contact detail when it belongs to the workspace; otherwise null.</summary>
     Task<ContactDetailRow?> GetDetailAsync(Guid workspaceId, Guid contactId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the detail of the contact bound to the given provider identity in the workspace,
+    /// resolving any merge pointer to the absorbing primary; otherwise null. This is the read
+    /// side bridge the inbox uses to surface CRM context (name/tags/notes) for a conversation.
+    /// </summary>
+    Task<ContactDetailRow?> FindByIdentityAsync(
+        Guid workspaceId,
+        string channel,
+        string providerIdentity,
+        CancellationToken cancellationToken = default);
 }

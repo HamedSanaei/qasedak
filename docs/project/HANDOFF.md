@@ -2,11 +2,34 @@
 
 ## Where we are
 
-**M12-001 is DONE (2026-08-28): server-side inbox search.** All v1 milestones (M00–M11)
-were complete and committed at `4e70f1e`; a human decision started M12 (v2 Product
-Features) with backend conversation search as the first task — the capability the
-approved Penpot inbox design explicitly marked as pending («جستجو — پس از تکمیل query
-backend», «فعلاً غیرفعال»). Nothing is committed — working tree only, per contract.
+**M12-002 is DONE (2026-08-29): live inbox thread context panel.** M12-001 (inbox
+search) shipped 2026-08-28. The next actionable task is **M12-003 — Workspace dashboard
+overview**, which stays blocked until an approved Qasedak-native dashboard design exists
+(`reference surveyed; pending sync` in SCREEN-INVENTORY.md; Penpot sync contract forbids
+inventing content). Changes for M12-002 are in the working tree, not committed.
+
+## What this run delivered (M12-002)
+
+### Backend
+- `GET /api/v1/workspaces/{workspaceId}/contacts/by-identity?channel=…&identity=…`
+  (`IContactQueries.FindByIdentityAsync` in `EfContactQueries`): returns the contact bound
+  to a provider identity, resolving any `MergedIntoId` chain to the absorbing primary;
+  404/`contact.notFound` when none. Same `ContactPayload` shape as the by-id endpoint
+  (factored out). New e2e `ContactResolvesByProviderIdentityAndReturnsCrmSurface`.
+
+### Frontend
+- `src/shared/api/contacts.ts` — by-identity resolve (404 → `null`) + add/remove tag +
+  add note. `src/features/contacts/presentation.ts` — copy + tag/note bounds.
+- `[conversationId]/page.tsx` — the «اطلاعات گفتگو» panel now shows the contact's display
+  name, removable tag chips + add-tag, and a notes timeline + add-note; a neutral empty
+  state covers conversations whose CRM contact isn't materialized yet. The design's
+  «غیرفعال» badge and the «تا تکمیل M07» warning are removed (M07 shipped).
+
+### Sync evidence
+- penpot-sync `inbox.conversations` notes updated, SCREEN-INVENTORY row updated, and a
+  sync record `docs/design/sync/M12-002-thread-context-panel.md` written. Honest note: no
+  fresh Penpot MCP read this session (MCP client unavailable) — reconciled against the
+  extracted 2026-08-24 contract; `penpotRevision` stays `null`.
 
 ## What this run delivered (M12-001 — inbox search)
 
@@ -62,9 +85,7 @@ backend», «فعلاً غیرفعال»). Nothing is committed — working tree
 
 ## Next task for an agent
 
-M12-001 is DONE; next actionable task is **M12-002 — Enable inbox thread context panel**
-(TODO in TASKS.md): replace the thread's future-CRM placeholder with the real M07
-contacts surface (name/tags/notes) behind the existing workspace-scoped Contacts APIs,
-and remove the now-false «Tags و Notes تا تکمیل M07 قابل ویرایش نیستند» warning with
-sync evidence. Do not commit/push/tag unless explicitly asked; suggested commits are
-recorded per task in TASKS.md.
+M12-002 is DONE; next actionable task is **M12-003 — Workspace dashboard overview**
+(TODO in TASKS.md) but it is BLOCKED until a Qasedak-native dashboard design is approved
+(`reference surveyed; pending sync`). Do not commit/push/tag unless explicitly asked;
+suggested commits are recorded per task in TASKS.md.

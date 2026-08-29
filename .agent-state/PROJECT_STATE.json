@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-28T00:00:00+00:00",
+  "updatedAt": "2026-08-29T00:00:00+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M12",
-  "currentTask": "M12-001",
-  "lastCompletedTask": "M12-001",
+  "currentTask": "M12-002",
+  "lastCompletedTask": "M12-002",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -56,7 +56,8 @@
     "M08-004",
     "M08-005",
     "M09-002",
-    "M12-001"
+    "M12-001",
+    "M12-002"
   ],
   "graphify": {
     "required": true,
