@@ -14,9 +14,12 @@ coverage/
 *.tsbuildinfo
 
 # Environment / secrets
+# .env.* would also ignore deploy/.env.production.example (a tracked example template,
+# not the real production file). Re-allow only that example; never real .env.production.
 .env
 .env.*
 !.env.example
+!deploy/.env.production.example
 *.pfx
 *.pem
 *.key
@@ -33,6 +36,10 @@ Thumbs.db
 graphify-out/graph.html
 graphify-out/.cache/
 graphify-out/cache/
+
+# Python
+__pycache__/
+*.py[cod]
 
 # Agent locks/runs are runtime state; keep placeholders only.
 .agent-state/locks/*
