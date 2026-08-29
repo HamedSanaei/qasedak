@@ -89,6 +89,27 @@ wait_for_http() {
   return 1
 }
 
+wait_for_postgres() {
+  local attempts="${1:-60}" i
+
+  for i in $(seq 1 "$attempts"); do
+    if compose exec -T postgres \
+      pg_isready \
+      -U "$POSTGRES_USER" \
+      -d "$POSTGRES_DB" >/dev/null 2>&1; then
+      echo "PostgreSQL is ready."
+      return 0
+    fi
+
+    sleep 2
+  done
+
+  echo "Timed out waiting for PostgreSQL readiness." >&2
+  compose ps postgres >&2 || true
+  compose logs --no-color --tail=100 postgres >&2 || true
+  return 1
+}
+
 health_and_smoke() {
   local api_base="http://${API_BIND_ADDRESS:-127.0.0.1}:${API_PORT:-8080}"
   local web_base="http://${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}"
@@ -133,11 +154,8 @@ rollback() {
 
 compose pull migrate api web
 compose up -d postgres
-compose ps postgres
-if ! compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null; then
-  echo "PostgreSQL is not ready" >&2
-  exit 1
-fi
+echo "Starting PostgreSQL and waiting for readiness..."
+wait_for_postgres
 backup_database
 
 # Migration failure must not switch application containers.
