@@ -1,11 +1,13 @@
 name: CodeQL
 
+# PRs are validated by CI; CodeQL runs on master pushes, weekly, and manually.
+# No branch-protection config in this repository requires CodeQL on pull requests.
 on:
-  pull_request:
   push:
     branches: [master]
   schedule:
     - cron: '23 3 * * 2'
+  workflow_dispatch:
 
 permissions:
   security-events: write

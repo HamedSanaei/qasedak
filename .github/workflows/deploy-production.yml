@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: [Publish Images]
     types: [completed]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -18,10 +19,15 @@ env:
 
 jobs:
   deploy:
+    # Optional read-only GHCR token. Placed at job level so steps can reference it
+    # via env context instead of evaluating secrets in an `if:` condition.
+    env:
+      GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+    # The trigger already limits workflow_run to master, so only require that
+    # image publication succeeded.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'master')
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -80,10 +86,9 @@ jobs:
             "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/qasedak/"
 
       - name: Authenticate server to GHCR when packages are private
-        if: ${{ secrets.GHCR_READ_TOKEN != '' }}
+        if: env.GHCR_READ_TOKEN != ''
         shell: bash
         env:
-          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
           GHCR_USER: ${{ github.repository_owner }}
         run: |
           set -Eeuo pipefail
