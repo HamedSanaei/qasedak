@@ -9,6 +9,8 @@ Commit `b177542` regenerated the manifest from all 641 tracked files without wea
 the gate. CI `33286334704` passed repository-contracts, backend, frontend and Docker;
 CodeQL `33286334733`, Publish Images `33286464960` and Deploy Production `33286506764`
 also passed for the same SHA.
+The final local `python scripts/verify.py --full` passed as well after Docker became
+available (471 backend tests, frontend verify, Docker images and static gates).
 
 **M12-004 is DONE (2026-08-30): duplicate repository clone consolidated.**
 `C:\Users\Hamed\Documents\Qasedak` is canonical and is the clone connected to the

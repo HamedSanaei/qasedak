@@ -666,5 +666,7 @@ static verify, frontend verify and backend Release build/format passed. GitHub A
 CI run `33286334704` for `b177542` passed all four jobs: repository-contracts, backend,
 frontend and Docker. CodeQL `33286334733`, Publish Images `33286464960` and Deploy
 Production `33286506764` also completed successfully.
+The final local `python scripts/verify.py --full` passed after Docker became available,
+including 471 backend tests and both Docker image builds.
 
 **Suggested commit:** `fix(ci): refresh repository manifest after clone consolidation`

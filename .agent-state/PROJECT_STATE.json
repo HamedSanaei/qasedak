@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-30T01:49:17+00:00",
+  "updatedAt": "2026-08-30T01:59:31+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M12",
   "currentTask": "M12-005",
@@ -98,11 +98,11 @@
     "backendFormat": "passed-release-format-check",
     "billingUnitTests": "passed-119-of-119 (incl. BehpardakhtMellatTransportTests: envelope/parsing/§19 classifier/orchestration/callback-validation)",
     "billingIntegrationTests": "passed-9-of-9-testcontainers (ProviderOrderId persistence covered)",
-    "apiIntegrationTests": "full gate attempted: 383 tests passed; 88 Docker/Testcontainers integration tests failed because Docker endpoint npipe://./pipe/docker_engine is unavailable",
+    "apiIntegrationTests": "passed-full-local-and-CI (Docker/Testcontainers available for final gate)",
     "unitSuites": "passed-380 (BuildingBlocks 12, Automations 44, Billing 119, Contacts 23, Conversations 23, Identity 79, Instagram 80)",
-    "conversationSearchE2e": "queued-not-run (Testcontainers needs Docker daemon, down this session)",
+    "conversationSearchE2e": "passed-full-local-and-CI",
     "frontendVerify": "passed-lint-typecheck-test-build-incl-landing-dashboard-compatibility (56 tests incl. inbox search and merge contracts)",
-    "fullVerify": "failed at Docker-dependent integration tests only; static gates, Release build and frontend verification passed",
+    "fullVerify": "passed-local (restore, Release build, format, 471 backend tests, frontend verify, Docker images and static gates)",
     "ciManifestGate": "passed locally and on GitHub Actions CI run 33286334704 for b177542; 641 tracked files represented",
     "ciDelivery": "CodeQL 33286334733, Publish Images 33286464960 and Deploy Production 33286506764 passed for b177542"
   },

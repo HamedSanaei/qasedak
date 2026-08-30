@@ -15,6 +15,9 @@
   CI contracts or weakening quality assertions. CI run `33286334704` passed all jobs,
   including Docker; CodeQL, Publish Images and Deploy Production also passed for the
   same SHA.
+- The final local `python scripts/verify.py --full` also passed once Docker became
+  available: restore, Release build, format, 471 backend tests, frontend verification,
+  Docker image builds and static contracts all passed.
 
 ## 2026-08-30 — Duplicate clone consolidation COMPLETE (M12-004 → DONE)
 
