@@ -670,3 +670,48 @@ The final local `python scripts/verify.py --full` passed after Docker became ava
 including 471 backend tests and both Docker image builds.
 
 **Suggested commit:** `fix(ci): refresh repository manifest after clone consolidation`
+
+## M12-006 — Repair registration/login session flow
+**Status:** DONE (2026-08-30)
+
+**Outcome:** Make the active login and registration screens use the server-owned
+HttpOnly session flow consistently, while preserving the short-lived bearer compatibility
+value required by the still-client-side M12 feature screens. A successful account
+creation/login must be visible to the server-side dashboard guard and every failure must
+be rendered instead of being swallowed by the legacy browser-token path.
+
+**Completion contract:** Graphify evidence recorded; regression coverage proves the
+active auth screens call the web-owned auth handlers and preserve visible failure handling; frontend
+verification and repository architecture/state gates pass; state, handoff and manifest
+are updated; no unrelated auth or design contract is weakened.
+
+**Completion evidence:** The active `/login` and `/register` pages now call the
+same-origin Web handlers, so the
+server establishes `qasedak_session`/`qasedak_workspace` cookies before dashboard
+navigation. The short-lived access token remains in the existing client session store
+only as a compatibility bridge for M12 client feature APIs; the server proxy prefers the
+HttpOnly cookie. Missing token payloads, backend failures, duplicate emails and workspace
+creation failures all render a Persian form-level error. Added a regression contract in
+`frontend/Qasedak.Web/tests/auth.test.mjs`. Frontend `npm run verify` passed (57 tests,
+lint, typecheck and production build); full `python scripts/verify.py --full` passed,
+including 471 backend tests, architecture/document/state/Penpot/environment checks and
+both Docker image builds.
+
+**Suggested commit:** `fix(auth): restore visible login session flow`
+
+## M12-007 — Repair production auth proxy routing and deploy
+**Status:** IN PROGRESS (2026-08-30)
+
+**Outcome:** Make the M12-006 server-owned session flow reachable through the production
+reverse proxy. Web-owned auth/workspace handlers must live outside the public `/api/`
+prefix because that prefix is routed directly to ASP.NET Core. Publish the corrected
+release and verify the complete CI, image and production deployment chain.
+
+**Completion contract:** Graphify evidence recorded; the handlers and all active callers
+use `/web-api/*`; regression coverage prevents auth callers from returning to the
+production `/api/` proxy prefix; the production deploy script proves the public auth
+route returns the expected invalid-credentials response; frontend/full verification,
+CI, image publishing and production deployment pass; project state and manifest are
+current.
+
+**Suggested commit:** `fix(auth): route web sessions outside production api proxy`

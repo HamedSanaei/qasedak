@@ -120,6 +120,23 @@ health_and_smoke() {
   echo "Health and smoke checks passed."
 }
 
+public_auth_routing_smoke() {
+  local public_auth_status
+  public_auth_status="$(
+    curl --silent --show-error --max-time 15 \
+      --output /dev/null \
+      --write-out '%{http_code}' \
+      --header 'content-type: application/json' \
+      --data '{"email":"deployment-smoke@invalid.example","password":"invalid-auth-smoke"}' \
+      "$PUBLIC_WEB_ORIGIN/web-api/auth/login"
+  )"
+  if [[ "$public_auth_status" != "401" ]]; then
+    echo "Public Web auth routing smoke expected HTTP 401 but received '$public_auth_status'." >&2
+    return 1
+  fi
+  echo "Public Web auth routing smoke passed at $PUBLIC_WEB_ORIGIN."
+}
+
 verify_running_tag() {
   local service expected
   for service in api web; do
@@ -165,7 +182,7 @@ if ! compose run --rm migrate; then
 fi
 
 compose up -d --no-deps api web
-if ! health_and_smoke || ! verify_running_tag; then
+if ! health_and_smoke || ! public_auth_routing_smoke || ! verify_running_tag; then
   rollback
 fi
 

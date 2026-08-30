@@ -4,16 +4,15 @@
  * Registration + workspace creation — synchronized from the canonical Penpot board
  * "Identity / Register / Desktop" (c48311ed-e700-80f8-8008-881f075bc2f7, page
  * c48311ed-e700-80f8-8008-881f0352eb6a). Visual layer only; the register → login →
- * createWorkspace flow, validation and error mapping are unchanged.
+ * createWorkspace flow and validation remain application-owned while the server
+ * auth/workspace handlers own session state and transport errors.
  */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, TextField } from "../../shared/design/ui";
-import { api, ApiError } from "../../shared/api/http";
 import { saveSession, saveWorkspaceId } from "../../shared/api/identity";
 import {
-  describeFailure,
   validateDisplayName,
   validateEmail,
   validatePassword,
@@ -45,23 +44,34 @@ export default function RegisterPage() {
 
     setSubmitting(true);
     try {
-      await api().register({
-        email: email.trim(),
-        displayName: displayName.trim(),
-        password,
+      const authResponse = await fetch("/web-api/auth/register", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ email: email.trim(), displayName: displayName.trim(), password }),
       });
-      const session = await api().login({ email: email.trim(), password });
-      saveSession(session.accessToken, session.expiresAtUtc);
-      const workspace = await api().createWorkspace(session.accessToken, { name: workspaceName.trim() });
-      saveWorkspaceId(workspace.workspaceId);
-      router.replace("/dashboard");
-    } catch (error) {
-      const code = error instanceof ApiError ? error.code : null;
-      if (code === "auth.emailTaken") {
-        setErrors((prev) => ({ ...prev, email: describeFailure(code) }));
-      } else {
-        setFormError(describeFailure(code));
+      const authBody = await authResponse.json() as { accessToken?: string; expiresAtUtc?: string; message?: string };
+      if (!authResponse.ok || !authBody.accessToken || !authBody.expiresAtUtc) {
+        setFormError(authBody.message ?? "ساخت حساب انجام نشد. دوباره تلاش کنید.");
+        return;
       }
+      saveSession(authBody.accessToken, authBody.expiresAtUtc);
+
+      const workspaceResponse = await fetch("/web-api/workspace", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ name: workspaceName.trim() }),
+      });
+      const workspaceBody = await workspaceResponse.json() as { workspaceId?: string; message?: string };
+      if (!workspaceResponse.ok || !workspaceBody.workspaceId) {
+        setFormError(workspaceBody.message ?? "حساب ساخته شد؛ ساخت فضای کاری انجام نشد.");
+        return;
+      }
+      saveWorkspaceId(workspaceBody.workspaceId);
+      router.replace("/dashboard");
+    } catch {
+      setFormError("ارتباط با سرویس برقرار نشد. دوباره تلاش کنید.");
     } finally {
       setSubmitting(false);
     }

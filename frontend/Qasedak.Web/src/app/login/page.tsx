@@ -5,16 +5,15 @@
  * "Identity / Login / Desktop" (c48311ed-e700-80f8-8008-881f0372388a, page
  * c48311ed-e700-80f8-8008-881f0352eb6a) via the extracted contract in
  * docs/design/sync/2026-08-24-qasedak-final-designs.md. Visual layer only;
- * email+password behavior, validation and error mapping are unchanged.
+ * email+password behavior and validation remain application-owned while the
+ * server-owned auth handler now establishes the session cookie.
  */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, TextField } from "../../shared/design/ui";
-import { api, ApiError } from "../../shared/api/http";
 import { saveSession } from "../../shared/api/identity";
 import {
-  describeFailure,
   validateEmail,
   validatePassword,
 } from "../../features/auth/validation";
@@ -37,12 +36,23 @@ export default function LoginPage() {
 
     setSubmitting(true);
     try {
-      const session = await api().login({ email: email.trim(), password });
-      saveSession(session.accessToken, session.expiresAtUtc);
+      const response = await fetch("/web-api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const body = await response.json() as { accessToken?: string; expiresAtUtc?: string; message?: string };
+      if (!response.ok || !body.accessToken || !body.expiresAtUtc) {
+        setFormError(body.message ?? "ورود انجام نشد. دوباره تلاش کنید.");
+        return;
+      }
+      // Keep the legacy feature clients working while the HttpOnly cookie is used
+      // by server components and guards.
+      saveSession(body.accessToken, body.expiresAtUtc);
       router.replace("/dashboard");
-    } catch (error) {
-      const code = error instanceof ApiError ? error.code : null;
-      setFormError(describeFailure(code));
+    } catch {
+      setFormError("ارتباط با سرویس برقرار نشد. دوباره تلاش کنید.");
     } finally {
       setSubmitting(false);
     }

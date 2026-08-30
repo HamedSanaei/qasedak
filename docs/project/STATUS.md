@@ -2,9 +2,28 @@
 
 **Project:** Qasedak  
 **Current milestone:** M12 — v2 Product Features  
-**Current task:** M12-005 — Repair GitHub Actions repository manifest gate
-**Last completed:** M12-005 (2026-08-30)
+**Current task:** M12-007 — Repair production auth proxy routing and deploy
+**Last completed:** M12-006 (2026-08-30)
 **Product implementation:** In progress (M12)
+
+## 2026-08-30 — Production auth proxy repair IN PROGRESS (M12-007)
+
+- Production routes public `/api/` traffic directly to ASP.NET Core, so the M12-006
+  Next.js handlers under `/api/auth/*` and `/api/workspace` were unreachable after
+  deployment. The web-owned routes and callers are moving to `/web-api/*`.
+- The production deployment smoke is being extended to POST invalid credentials through
+  the public `/web-api/auth/login` route and require HTTP 401, covering both reverse-proxy
+  routing and the internal Web-to-API auth path.
+
+## 2026-08-30 — Registration/login session flow COMPLETE (M12-006)
+
+- The active `/login` and `/register` pages now use same-origin web-owned auth/workspace
+  handlers. Successful auth establishes the server-owned HttpOnly
+  session/workspace cookies before dashboard navigation; the short-lived bearer value is
+  retained only for the existing client-feature compatibility bridge.
+- Auth and workspace failures are rendered as Persian form-level errors, including the
+  previously silent missing-session/token path. Frontend auth regression coverage was
+  added and the full repository verification gate passed.
 
 ## 2026-08-30 — GitHub Actions manifest gate repair COMPLETE (M12-005)
 

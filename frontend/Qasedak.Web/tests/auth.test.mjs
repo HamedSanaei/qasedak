@@ -45,3 +45,24 @@ test("every stable backend failure code has a Persian description", () => {
     assert.notEqual(described, "خطایی رخ داد؛ دوباره تلاش کنید.", `untranslated failure code ${code}`);
   }
 });
+
+test("active auth pages use server session handlers and keep visible failure states", () => {
+  const login = readFileSync(path.join(root, "src/app/login/page.tsx"), "utf8");
+  const register = readFileSync(path.join(root, "src/app/register/page.tsx"), "utf8");
+  const loginRoute = readFileSync(path.join(root, "src/app/web-api/auth/login/route.ts"), "utf8");
+  const registerRoute = readFileSync(path.join(root, "src/app/web-api/auth/register/route.ts"), "utf8");
+
+  assert.match(login, /fetch\("\/web-api\/auth\/login"/);
+  assert.match(login, /credentials:\s*"same-origin"/);
+  assert.match(login, /setFormError\(/);
+  assert.doesNotMatch(login, /api\(\)\.login/);
+  assert.match(register, /fetch\("\/web-api\/auth\/register"/);
+  assert.match(register, /fetch\("\/web-api\/workspace"/);
+  assert.match(register, /setFormError\(/);
+  assert.doesNotMatch(register, /api\(\)\.(register|login|createWorkspace)/);
+  assert.match(loginRoute, /accessToken:\s*body\.accessToken/);
+  assert.match(loginRoute, /clearSessionCookies\(response\)/);
+  assert.match(registerRoute, /accessToken:\s*body\.accessToken/);
+  assert.doesNotMatch(login, /fetch\("\/api\//, "web-owned auth must stay outside the production API proxy prefix");
+  assert.doesNotMatch(register, /fetch\("\/api\//, "web-owned registration must stay outside the production API proxy prefix");
+});

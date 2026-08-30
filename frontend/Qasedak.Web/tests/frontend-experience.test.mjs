@@ -103,7 +103,7 @@ test("browser components use same-origin API calls only", () => {
     const source = readFileSync(file, "utf8");
     assert.doesNotMatch(source, /https?:\/\/(?:localhost|127\.0\.0\.1|api)(?::\d+)?/i, `browser host fallback in ${file}`);
     for (const match of source.matchAll(/fetch\(\s*["'`]([^"'`]+)["'`]/g)) {
-      assert.match(match[1], /^\/api\//, `non same-origin fetch in ${file}: ${match[1]}`);
+      assert.match(match[1], /^\/(?:api|web-api)\//, `non same-origin fetch in ${file}: ${match[1]}`);
     }
   }
 });

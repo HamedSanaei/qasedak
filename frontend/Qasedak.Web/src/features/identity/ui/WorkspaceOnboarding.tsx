@@ -18,7 +18,7 @@ export function WorkspaceOnboarding({ workspaceReady }: { workspaceReady: boolea
     setError(null);
     const form = new FormData(event.currentTarget);
     try {
-      const response = await fetch("/api/workspace", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: form.get("name") }) });
+      const response = await fetch("/web-api/workspace", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: form.get("name") }) });
       const body = await response.json() as { message?: string };
       if (!response.ok) { setError(body.message ?? "فضای کاری ساخته نشد."); return; }
       router.replace("/dashboard");

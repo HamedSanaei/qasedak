@@ -73,7 +73,7 @@ git push master
   -> custom-format backup in /opt/qasedak/backups/
   -> one-shot migrate container (--migrate, all seven contexts)
   -> API/Web switch
-  -> /health/live, /health/ready, /api/v1/system, Web smoke checks
+  -> /health/live, /health/ready, /api/v1/system, Web and public auth-routing smoke checks
   -> persist state/last-successful.env
 ```
 
@@ -147,10 +147,13 @@ docker compose --env-file .env.production -f compose.production.yml ps -q api we
 ```
 
 Production PostgreSQL has no published host port. Put a reverse proxy/TLS terminator in
-front of the loopback-bound API/Web ports. The public Web origin must route `/` to
-`127.0.0.1:${WEB_PORT}` and `/api/` to `127.0.0.1:${API_PORT}`; route `/health/` to the API
-if operational checks require it. Browser API calls are same-origin relative `/api/...`
-paths. `QASEDAK_API_INTERNAL_URL=http://api:8080` is Docker-internal only and must never
-be exposed to browser code. Keep `PUBLIC_WEB_ORIGIN` aligned with the public Web origin
-for CORS. DNS/TLS, Meta public webhook reachability, managed PostgreSQL, and real
-payment-provider credentials remain production-only checks.
+front of the loopback-bound API/Web ports. The public Web origin must route `/api/` to
+`127.0.0.1:${API_PORT}` and every other application path, including `/web-api/`, to
+`127.0.0.1:${WEB_PORT}`; route `/health/` to the API if operational checks require it.
+Browser backend calls are same-origin relative `/api/...` paths. Web-owned session
+handlers deliberately use `/web-api/...` so the API proxy prefix cannot bypass their
+HttpOnly cookie logic. The deployment smoke requires a public invalid-login request to
+`/web-api/auth/login` to return HTTP 401. `QASEDAK_API_INTERNAL_URL=http://api:8080` is
+Docker-internal only and must never be exposed to browser code. Keep `PUBLIC_WEB_ORIGIN`
+aligned with the public Web origin for CORS. DNS/TLS, Meta public webhook reachability,
+managed PostgreSQL, and real payment-provider credentials remain production-only checks.

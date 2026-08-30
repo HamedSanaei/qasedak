@@ -23,7 +23,7 @@ export function UserMenu({ email }: { email: string }) {
 
   async function logout() {
     setLoggingOut(true);
-    await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
+    await fetch("/web-api/auth/logout", { method: "POST" }).catch(() => undefined);
     clearSession();
     router.replace("/login");
     router.refresh();

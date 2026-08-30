@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-30T01:59:31+00:00",
+  "updatedAt": "2026-08-30T12:06:15Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M12",
-  "currentTask": "M12-005",
-  "lastCompletedTask": "M12-005",
+  "currentTask": "M12-007",
+  "lastCompletedTask": "M12-006",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -59,7 +59,8 @@
     "M12-001",
     "M12-002",
     "M12-004",
-    "M12-005"
+    "M12-005",
+    "M12-006"
   ],
   "graphify": {
     "required": true,
@@ -102,15 +103,17 @@
     "unitSuites": "passed-380 (BuildingBlocks 12, Automations 44, Billing 119, Contacts 23, Conversations 23, Identity 79, Instagram 80)",
     "conversationSearchE2e": "passed-full-local-and-CI",
     "frontendVerify": "passed-lint-typecheck-test-build-incl-landing-dashboard-compatibility (56 tests incl. inbox search and merge contracts)",
-    "fullVerify": "passed-local (restore, Release build, format, 471 backend tests, frontend verify, Docker images and static gates)",
     "ciManifestGate": "passed locally and on GitHub Actions CI run 33286334704 for b177542; 641 tracked files represented",
-    "ciDelivery": "CodeQL 33286334733, Publish Images 33286464960 and Deploy Production 33286506764 passed for b177542"
+    "ciDelivery": "CodeQL 33286334733, Publish Images 33286464960 and Deploy Production 33286506764 passed for b177542",
+    "frontendAuthRegression": "passed-active-server-auth-handlers-visible-errors-and-cookie-compatible-bearer",
+    "fullVerify": "passed-2026-08-30 (471 backend tests, frontend 57 tests, Docker images, static gates)"
   },
   "nextActions": [
+    "M12-007 — finish local verification, push corrected auth routing, and monitor CI/image/deploy workflows",
     "Run the M12-001 API e2e search scenario once Docker is up (ConversationInboxEndpointTests.InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies); Testcontainers was unavailable this session",
     "M12-003 — Workspace dashboard overview standalone Penpot mapping remains a follow-up (implementation transferred using approved primitives)",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M12-005 completed: refreshed FILE_MANIFEST.txt after the consolidation files were fully tracked and pushed fix commit b177542. GitHub Actions CI run 33286334704 passed repository-contracts, backend, frontend and Docker; CodeQL 33286334733, Publish Images 33286464960 and Deploy Production 33286506764 also passed."
+  "lastInstruction": "M12-007 in progress: move web-owned auth/workspace handlers outside the production /api reverse-proxy prefix, add a public deployment auth-routing smoke, verify, push, and monitor delivery."
 }

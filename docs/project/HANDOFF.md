@@ -1,5 +1,26 @@
 # Current handoff
 
+## M12-007 — Production auth proxy repair IN PROGRESS (2026-08-30)
+
+The deployed reverse proxy owns the `/api/` prefix and forwards it directly to ASP.NET
+Core. M12-006 had placed Next.js cookie handlers under that same prefix, so production
+login bypassed the handlers even though local frontend tests passed. The handlers and
+callers are moving to `/web-api/*`, and the deploy script now requires a public invalid
+login to return HTTP 401 before accepting a release. Local gates and CI/CD deployment
+remain to be completed.
+
+## M12-006 — Registration/login session flow COMPLETE (2026-08-30)
+
+The reported symptom was caused by the active `src/app/login/page.tsx` and
+`src/app/register/page.tsx` bypassing the server auth handlers used by the dashboard
+guards. They now call same-origin server auth and workspace handlers with
+same-origin credentials; the server establishes HttpOnly cookies and the existing
+client-side feature screens retain a compatibility bearer value. Missing/failed responses
+are rendered visibly. `npm run verify` (57 tests) and `python scripts/verify.py --full`
+(471 backend tests plus Docker/static gates) passed.
+
+M12-007 supersedes the original route namespace and carries the production push.
+
 ## Where we are
 
 **M12-005 is DONE (2026-08-30): GitHub Actions manifest gate repaired.**

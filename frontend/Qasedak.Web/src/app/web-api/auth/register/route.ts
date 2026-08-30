@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const login = await requestBackend("/api/v1/identity/login", { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify({ email: payload.email, password: payload.password }) });
     const body = await login.json() as LoginResponse;
     if (!login.ok || !body.accessToken || !body.expiresAtUtc) return NextResponse.json({ message: "حساب ساخته شد؛ برای ادامه وارد شوید." }, { status: 409 });
-    const response = NextResponse.json({ authenticated: true, expiresAtUtc: body.expiresAtUtc }, { status: 201 });
+    const response = NextResponse.json({ authenticated: true, accessToken: body.accessToken, expiresAtUtc: body.expiresAtUtc }, { status: 201 });
     attachSessionCookie(response, body.accessToken, body.expiresAtUtc);
     return response;
   } catch (error) {

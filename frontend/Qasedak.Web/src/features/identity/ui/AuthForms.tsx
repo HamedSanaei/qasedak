@@ -21,7 +21,7 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
     setError(null);
     const form = new FormData(event.currentTarget);
     try {
-      const response = await fetch("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: form.get("email"), password: form.get("password") }) });
+      const response = await fetch("/web-api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: form.get("email"), password: form.get("password") }) });
       const body = await response.json() as { message?: string };
       if (!response.ok) { setError(body.message ?? "ورود انجام نشد."); return; }
       router.replace("/dashboard");
@@ -62,7 +62,7 @@ export function RegisterForm() {
     setBusy(true);
     setError(null);
     try {
-      const response = await fetch("/api/auth/register", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ displayName: form.get("displayName"), email: form.get("email"), password }) });
+      const response = await fetch("/web-api/auth/register", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ displayName: form.get("displayName"), email: form.get("email"), password }) });
       const body = await response.json() as { message?: string };
       if (!response.ok) { setError(body.message ?? "ساخت حساب انجام نشد."); return; }
       router.replace("/onboarding/workspace");

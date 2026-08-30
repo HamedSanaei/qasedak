@@ -13,8 +13,12 @@ The desktop login and product-state boards were structurally inspected and expor
 desktop/mobile auth boards were live-inspected before implementation. `AuthShell.tsx`,
 `AuthForms.tsx`, `WorkspaceOnboarding.tsx`, `/login`, `/register`, and
 `/onboarding/workspace` now use real Identity/Workspace requests through same-origin web
-handlers. Tokens never reach browser JavaScript; the web server owns HttpOnly session and
-workspace cookies.
+handlers. The web server owns the HttpOnly session and workspace cookies. The active M12
+feature screens still receive the short-lived access token from the same auth response for
+their legacy bearer-client compatibility bridge (the `/api/v1` proxy prefers the cookie);
+this is an explicitly temporary migration seam, not the server-side authorization source.
+Web-owned handlers use `/web-api/*` because production reserves `/api/*` for the ASP.NET
+Core reverse-proxy target.
 
 Visual evidence: `artifacts/visual-review/M08-006/screenshots-final/desktop-login.png` and
 `desktop-register.png` at 1440 × 1000. Narrow auth behavior follows the inspected 390 px
