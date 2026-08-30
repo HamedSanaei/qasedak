@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-30T01:36:28+00:00",
+  "updatedAt": "2026-08-30T01:49:17+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M12",
   "currentTask": "M12-005",
-  "lastCompletedTask": "M12-004",
+  "lastCompletedTask": "M12-005",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -58,7 +58,8 @@
     "M09-002",
     "M12-001",
     "M12-002",
-    "M12-004"
+    "M12-004",
+    "M12-005"
   ],
   "graphify": {
     "required": true,
@@ -91,10 +92,10 @@
     "mergeNote": "No fresh Penpot MCP read was available during M12-004; imported M08-006/M08-007 evidence retained and penpotRevision remains null."
   },
   "quality": {
-    "architectureChecks": "passed (35 projects, 6 business modules) — re-verify at finalize",
+    "architectureChecks": "passed (35 projects, 6 business modules)",
     "penpotSyncValidation": "passed-6-of-6",
     "backendBuild": "passed-release-0-warnings-0-errors",
-    "backendFormat": "pass-pending-final-full-gate",
+    "backendFormat": "passed-release-format-check",
     "billingUnitTests": "passed-119-of-119 (incl. BehpardakhtMellatTransportTests: envelope/parsing/§19 classifier/orchestration/callback-validation)",
     "billingIntegrationTests": "passed-9-of-9-testcontainers (ProviderOrderId persistence covered)",
     "apiIntegrationTests": "full gate attempted: 383 tests passed; 88 Docker/Testcontainers integration tests failed because Docker endpoint npipe://./pipe/docker_engine is unavailable",
@@ -102,14 +103,14 @@
     "conversationSearchE2e": "queued-not-run (Testcontainers needs Docker daemon, down this session)",
     "frontendVerify": "passed-lint-typecheck-test-build-incl-landing-dashboard-compatibility (56 tests incl. inbox search and merge contracts)",
     "fullVerify": "failed at Docker-dependent integration tests only; static gates, Release build and frontend verification passed",
-    "ciManifestGate": "failed on GitHub Actions run 33284839710 at commit b39d508; committed manifest omitted files added by the consolidation commit; repair in progress"
+    "ciManifestGate": "passed locally and on GitHub Actions CI run 33286334704 for b177542; 641 tracked files represented",
+    "ciDelivery": "CodeQL 33286334733, Publish Images 33286464960 and Deploy Production 33286506764 passed for b177542"
   },
   "nextActions": [
-    "Regenerate FILE_MANIFEST.txt after all consolidation files are tracked, run CI-equivalent checks, commit and push the M12-005 repair",
     "Run the M12-001 API e2e search scenario once Docker is up (ConversationInboxEndpointTests.InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies); Testcontainers was unavailable this session",
     "M12-003 — Workspace dashboard overview standalone Penpot mapping remains a follow-up (implementation transferred using approved primitives)",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M12-005 in progress: GitHub Actions run 33284839710 failed only at repository-contracts Ensure manifest is current. Backend and frontend jobs passed. The pushed consolidation commit b39d508 contains 641 tracked files while its manifest was generated before newly transferred files were staged; regenerate after final tracking, preserve all CI contracts, verify, commit and push the repair."
+  "lastInstruction": "M12-005 completed: refreshed FILE_MANIFEST.txt after the consolidation files were fully tracked and pushed fix commit b177542. GitHub Actions CI run 33286334704 passed repository-contracts, backend, frontend and Docker; CodeQL 33286334733, Publish Images 33286464960 and Deploy Production 33286506764 also passed."
 }

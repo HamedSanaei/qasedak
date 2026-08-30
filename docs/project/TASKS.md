@@ -646,7 +646,7 @@ design approval remains an explicit follow-up rather than being invented here.
 **Suggested commit:** `chore(repo): consolidate duplicate qasedak clones`
 
 ## M12-005 — Repair GitHub Actions repository manifest gate
-**Status:** IN_PROGRESS (2026-08-30)
+**Status:** DONE (2026-08-30)
 
 **Outcome:** Repair the failed `ci.yml` run for the consolidation push. The failure is
 the repository-contract `FILE_MANIFEST.txt` freshness gate: the consolidation commit
@@ -659,5 +659,12 @@ minimal repair commit without weakening the contract or product tests.
 clean checkout; frontend/backend/repository-contract gates pass; state, handoff,
 manifest and task tracker are updated; the repaired commit is pushed and its GitHub
 Actions run is observed to completion.
+
+**Completion evidence:** Regenerated `FILE_MANIFEST.txt` after the consolidation tree
+was fully tracked (641 files); local `python scripts/generate_manifest.py --check`,
+static verify, frontend verify and backend Release build/format passed. GitHub Actions
+CI run `33286334704` for `b177542` passed all four jobs: repository-contracts, backend,
+frontend and Docker. CodeQL `33286334733`, Publish Images `33286464960` and Deploy
+Production `33286506764` also completed successfully.
 
 **Suggested commit:** `fix(ci): refresh repository manifest after clone consolidation`

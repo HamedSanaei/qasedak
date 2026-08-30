@@ -2,13 +2,13 @@
 
 ## Where we are
 
-**M12-005 is IN PROGRESS (2026-08-30): repair the GitHub Actions manifest gate.**
-GitHub Actions run `33284839710` for pushed commit `b39d508` failed only in
-`repository-contracts / Ensure manifest is current`; the backend and frontend jobs
-passed. The consolidation commit added tracked files after `FILE_MANIFEST.txt` was
-generated, so the committed manifest describes fewer files than a clean checkout.
-The repair is to regenerate it from the final tracked tree, rerun CI-equivalent gates,
-then commit and push without weakening the contract.
+**M12-005 is DONE (2026-08-30): GitHub Actions manifest gate repaired.**
+Run `33284839710` for `b39d508` failed only in `repository-contracts / Ensure manifest is
+current` because the consolidation commit added tracked files after manifest generation.
+Commit `b177542` regenerated the manifest from all 641 tracked files without weakening
+the gate. CI `33286334704` passed repository-contracts, backend, frontend and Docker;
+CodeQL `33286334733`, Publish Images `33286464960` and Deploy Production `33286506764`
+also passed for the same SHA.
 
 **M12-004 is DONE (2026-08-30): duplicate repository clone consolidated.**
 `C:\Users\Hamed\Documents\Qasedak` is canonical and is the clone connected to the
