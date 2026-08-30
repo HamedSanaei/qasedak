@@ -1,13 +1,20 @@
 # Current handoff
 
-## M12-007 — Production auth proxy repair IN PROGRESS (2026-08-30)
+## M12-007 — Production auth proxy repair COMPLETE (2026-08-30)
 
 The deployed reverse proxy owns the `/api/` prefix and forwards it directly to ASP.NET
 Core. M12-006 had placed Next.js cookie handlers under that same prefix, so production
 login bypassed the handlers even though local frontend tests passed. The handlers and
-callers are moving to `/web-api/*`, and the deploy script now requires a public invalid
-login to return HTTP 401 before accepting a release. Local gates and CI/CD deployment
-remain to be completed.
+callers now use `/web-api/*`, and the deploy script requires a public invalid login to
+return HTTP 401 before accepting a release. Commit `7e72322` passed CI `33311180968`,
+CodeQL `33311180901`, Publish Images `33311326079`, and Deploy Production `33311381218`.
+The server runs immutable `sha-7e723229b191` images and the public auth-routing smoke
+passed at `https://qasedak.tofanservice.ir`.
+
+Local frontend verification passed all 57 tests and production build. Local full
+verification was attempted, but Docker Desktop 4.86.0 crashed while initializing its
+Inference socket; GitHub's Linux backend/Testcontainers and Docker jobs passed. Product
+work returns to M12-003.
 
 ## M12-006 — Registration/login session flow COMPLETE (2026-08-30)
 

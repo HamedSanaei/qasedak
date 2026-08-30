@@ -700,7 +700,7 @@ both Docker image builds.
 **Suggested commit:** `fix(auth): restore visible login session flow`
 
 ## M12-007 — Repair production auth proxy routing and deploy
-**Status:** IN PROGRESS (2026-08-30)
+**Status:** DONE (2026-08-30)
 
 **Outcome:** Make the M12-006 server-owned session flow reachable through the production
 reverse proxy. Web-owned auth/workspace handlers must live outside the public `/api/`
@@ -713,5 +713,17 @@ production `/api/` proxy prefix; the production deploy script proves the public 
 route returns the expected invalid-credentials response; frontend/full verification,
 CI, image publishing and production deployment pass; project state and manifest are
 current.
+
+**Completion evidence:** All web-owned auth/workspace handlers and callers moved from
+the production-reserved `/api/*` prefix to `/web-api/*`. Frontend `npm run verify`
+passed lint, typecheck, 57 tests and the production build, whose route table contains all
+four `/web-api/*` handlers. CI `33311180968` passed repository, backend (including
+Testcontainers), frontend and Docker jobs; CodeQL `33311180901` and image publishing
+`33311326079` passed. Production deploy `33311381218` switched API/Web to immutable
+`sha-7e723229b191` images and the public auth-routing smoke at
+`https://qasedak.tofanservice.ir/web-api/auth/login` returned the required HTTP 401.
+Local full verification reached the integration suites but could not complete because
+Docker Desktop 4.86.0 crashed while initializing its unrelated Inference socket; the
+equivalent Linux CI gate passed.
 
 **Suggested commit:** `fix(auth): route web sessions outside production api proxy`

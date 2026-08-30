@@ -2,18 +2,21 @@
 
 **Project:** Qasedak  
 **Current milestone:** M12 — v2 Product Features  
-**Current task:** M12-007 — Repair production auth proxy routing and deploy
-**Last completed:** M12-006 (2026-08-30)
+**Current task:** M12-003 — Workspace dashboard overview (follow-up)
+**Last completed:** M12-007 (2026-08-30)
 **Product implementation:** In progress (M12)
 
-## 2026-08-30 — Production auth proxy repair IN PROGRESS (M12-007)
+## 2026-08-30 — Production auth proxy repair COMPLETE (M12-007)
 
 - Production routes public `/api/` traffic directly to ASP.NET Core, so the M12-006
   Next.js handlers under `/api/auth/*` and `/api/workspace` were unreachable after
-  deployment. The web-owned routes and callers are moving to `/web-api/*`.
-- The production deployment smoke is being extended to POST invalid credentials through
+  deployment. The web-owned routes and callers now use `/web-api/*`.
+- The production deployment smoke now POSTs invalid credentials through
   the public `/web-api/auth/login` route and require HTTP 401, covering both reverse-proxy
   routing and the internal Web-to-API auth path.
+- Commit `7e72322` passed CI `33311180968`, CodeQL `33311180901`, image publish
+  `33311326079` and production deploy `33311381218`. The public auth-routing smoke passed
+  at `https://qasedak.tofanservice.ir` on the running immutable release.
 
 ## 2026-08-30 — Registration/login session flow COMPLETE (M12-006)
 
