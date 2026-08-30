@@ -644,3 +644,20 @@ archive/source verification and final gates pass. The M12-003 standalone dashboa
 design approval remains an explicit follow-up rather than being invented here.
 
 **Suggested commit:** `chore(repo): consolidate duplicate qasedak clones`
+
+## M12-005 — Repair GitHub Actions repository manifest gate
+**Status:** IN_PROGRESS (2026-08-30)
+
+**Outcome:** Repair the failed `ci.yml` run for the consolidation push. The failure is
+the repository-contract `FILE_MANIFEST.txt` freshness gate: the consolidation commit
+added tracked files after the manifest had been generated, so CI's clean checkout sees
+641 tracked files while the committed manifest still describes the pre-staging set.
+Regenerate the manifest from the final tracked tree, verify all CI gates, and push the
+minimal repair commit without weakening the contract or product tests.
+
+**Completion contract:** Graphify evidence recorded; the manifest check passes from a
+clean checkout; frontend/backend/repository-contract gates pass; state, handoff,
+manifest and task tracker are updated; the repaired commit is pushed and its GitHub
+Actions run is observed to completion.
+
+**Suggested commit:** `fix(ci): refresh repository manifest after clone consolidation`

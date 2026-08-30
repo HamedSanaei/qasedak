@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-30T00:00:00+00:00",
+  "updatedAt": "2026-08-30T01:36:28+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M12",
-  "currentTask": "M12-004",
+  "currentTask": "M12-005",
   "lastCompletedTask": "M12-004",
   "completedTasks": [
     "M00-001",
@@ -101,13 +101,15 @@
     "unitSuites": "passed-380 (BuildingBlocks 12, Automations 44, Billing 119, Contacts 23, Conversations 23, Identity 79, Instagram 80)",
     "conversationSearchE2e": "queued-not-run (Testcontainers needs Docker daemon, down this session)",
     "frontendVerify": "passed-lint-typecheck-test-build-incl-landing-dashboard-compatibility (56 tests incl. inbox search and merge contracts)",
-    "fullVerify": "failed at Docker-dependent integration tests only; static gates, Release build and frontend verification passed"
+    "fullVerify": "failed at Docker-dependent integration tests only; static gates, Release build and frontend verification passed",
+    "ciManifestGate": "failed on GitHub Actions run 33284839710 at commit b39d508; committed manifest omitted files added by the consolidation commit; repair in progress"
   },
   "nextActions": [
+    "Regenerate FILE_MANIFEST.txt after all consolidation files are tracked, run CI-equivalent checks, commit and push the M12-005 repair",
     "Run the M12-001 API e2e search scenario once Docker is up (ConversationInboxEndpointTests.InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies); Testcontainers was unavailable this session",
     "M12-003 — Workspace dashboard overview standalone Penpot mapping remains a follow-up (implementation transferred using approved primitives)",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M12-004 completed: consolidated the duplicate Python clone into the GitHub-connected Qasedak clone. A byte-for-byte recovery archive was created before selective transfer. Landing/dashboard shell/overview, server session/API adapters, unique routes, design primitives, Penpot records and visual-review artifacts were transferred; canonical backend, CI/CD, automations, billing, Instagram, Inbox search/context, API clients and tests were preserved. Frontend lint/typecheck/56 tests/build pass. Docker-dependent integration suites remain queued when the daemon is unavailable; fresh Penpot MCP read was unavailable, so imported evidence is explicitly labeled."
+  "lastInstruction": "M12-005 in progress: GitHub Actions run 33284839710 failed only at repository-contracts Ensure manifest is current. Backend and frontend jobs passed. The pushed consolidation commit b39d508 contains 641 tracked files while its manifest was generated before newly transferred files were staged; regenerate after final tracking, preserve all CI contracts, verify, commit and push the repair."
 }

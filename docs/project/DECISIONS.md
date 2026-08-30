@@ -14,6 +14,7 @@
 | ADR-010 | Production database migrations run explicitly by `dotnet Qasedak.Api.dll --migrate` from the exact API release image; normal API startup never silently migrates; all seven contexts target one physical PostgreSQL with module-owned schemas | Accepted — M12-001 |
 | ADR-011 | Production delivery is CI-gated: CI success triggers immutable SHA images, then the deployment workflow transfers only deployment artifacts over pinned SSH and runs a flock-protected remote deploy; binary rollback never destroys or automatically rolls back PostgreSQL data | Accepted — M12-001 |
 | M12-004 | `C:\Users\Hamed\Documents\Qasedak` is the canonical GitHub-connected working clone; the Python clone is retained only as a byte-for-byte recovery archive after selective merge | Accepted — 2026-08-30 |
+| M12-005 | `FILE_MANIFEST.txt` is regenerated only after the final consolidation files are tracked, then checked from a clean checkout; the CI freshness gate remains strict | Accepted — 2026-08-30 |
 
 ## Open decisions requiring human input
 

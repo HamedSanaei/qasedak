@@ -2,9 +2,20 @@
 
 **Project:** Qasedak  
 **Current milestone:** M12 — v2 Product Features  
-**Current task:** M12-004 — Consolidate duplicate local repository clones
+**Current task:** M12-005 — Repair GitHub Actions repository manifest gate
 **Last completed:** M12-004 (2026-08-30)
 **Product implementation:** In progress (M12)
+
+## 2026-08-30 — GitHub Actions manifest gate repair IN PROGRESS (M12-005)
+
+- GitHub Actions run `33284839710` for commit `b39d508` failed only at
+  `repository-contracts / Ensure manifest is current`; backend and frontend jobs passed.
+- The consolidation commit contains 641 tracked files, while `FILE_MANIFEST.txt` was
+  generated before the newly transferred files were staged. A clean checkout therefore
+  correctly reports the committed manifest as stale.
+- The repair is limited to regenerating the manifest from the final tracked tree and
+  rerunning the repository-contract, architecture, environment, frontend and backend
+  gates. CI contracts and quality assertions must remain unchanged.
 
 ## 2026-08-30 — Duplicate clone consolidation COMPLETE (M12-004 → DONE)
 
