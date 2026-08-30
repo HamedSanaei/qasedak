@@ -2,11 +2,39 @@
 
 ## Where we are
 
-**M12-002 is DONE (2026-08-29): live inbox thread context panel.** M12-001 (inbox
-search) shipped 2026-08-28. The next actionable task is **M12-003 — Workspace dashboard
-overview**, which stays blocked until an approved Qasedak-native dashboard design exists
-(`reference surveyed; pending sync` in SCREEN-INVENTORY.md; Penpot sync contract forbids
-inventing content). Changes for M12-002 are in the working tree, not committed.
+**M12-004 is DONE (2026-08-30): duplicate repository clone consolidated.**
+`C:\Users\Hamed\Documents\Qasedak` is canonical and is the clone connected to the
+live GitHub `master`. The older Python clone was snapshotted byte-for-byte at
+`C:\Users\Hamed\Documents\Python\qasedak-archive-20260830`, then its unique frontend,
+server-adapter and design evidence was transferred. The verified original duplicate at
+`C:\Users\Hamed\Documents\Python\qasedak` has now been deleted; no commit or push was
+made.
+
+The next product follow-up remains **M12-003 — Workspace dashboard overview**. Its
+implementation is present using real Identity/Workspace/Inbox data and approved
+primitives, but its standalone Qasedak-native Penpot mapping is still pending. This
+merge imported the prior M08-006/M08-007 records; the current session had no live Penpot
+MCP connection, so no new design approval is claimed.
+
+## What this run delivered (M12-004)
+
+- Canonical clone proof: `master` and `origin/master` resolve to
+  `0cd57876b3a672fffc5b773bf7c40e2bfd00dbf9`; the Python clone's push dry-run returned
+  `fetch first`.
+- Recovery archive: `C:\Users\Hamed\Documents\Python\qasedak-archive-20260830`,
+  exactly 27,029 files / 915,560,857 bytes, matching the source snapshot.
+- Transferred public landing (three WebP assets), responsive dashboard shell/overview,
+  account/help/onboarding/feature routes, shared design components, server session/API
+  routes and the compatibility billing routes.
+- Preserved the canonical clone's newer automations, billing, Instagram, Inbox search +
+  CRM context, API clients, backend modules, CI/CD workflows, deployment scripts and
+  tests. The older four conversation UI files remain available in the recovery archive
+  because they predate the canonical M12 implementation.
+- Added `landing.main` to the existing v1 Penpot manifest, retained `penpotRevision: null`,
+  and copied M08-006/M08-007 sync records plus visual-review artifacts.
+- `/api/v1/[...path]` forwards a legacy bearer header when no cookie exists and attaches
+  HttpOnly session/workspace cookies to successful legacy login/workspace responses;
+  logout clears the client-side token too.
 
 ## What this run delivered (M12-002)
 
@@ -68,7 +96,12 @@ inventing content). Changes for M12-002 are in the working tree, not committed.
 - Backend Release build 0 warnings/0 errors; `dotnet format --verify-no-changes` clean;
   all unit suites green: BuildingBlocks 12, Automations 44, Billing 119, Contacts 23,
   Conversations 23, Identity 79, Instagram 80 (380 total).
-- Frontend `npm run verify` green: lint, typecheck, 37/37 tests, production build.
+- Frontend `npm run verify` green after consolidation: lint, typecheck, 56/56 tests,
+  production build (36 routes including landing, dashboard shell and compatibility
+  routes).
+- `python scripts/verify.py --full` was attempted: static gates, restore, format and
+  Release build passed; 383 tests passed and 88 Testcontainers tests failed because the
+  Docker endpoint `npipe://./pipe/docker_engine` is unavailable on this workstation.
 - NOT run this session (honest residual): every Testcontainers integration/e2e suite
   (API integration incl. the new search scenario, billing/contacts/automations/identity/
   instagram Postgres suites) — Docker daemon is not running. Re-run once Docker is up.

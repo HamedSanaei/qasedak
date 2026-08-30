@@ -1,0 +1,7 @@
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.copy { min-width: 0; }
+.eyebrow { margin: 0 0 4px; color: var(--color-brand-accent); font-size: 12px; font-weight: var(--font-weight-semibold); }
+.title { margin: 0; color: var(--color-text-primary); font-size: clamp(24px, 2.3vw, var(--font-size-title)); font-weight: var(--font-weight-extrabold); line-height: 1.45; }
+.description { max-width: 720px; margin: 6px 0 0; color: var(--color-text-secondary); font-size: 14px; line-height: 1.8; }
+.actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+@media (max-width: 640px) { .header { flex-direction: column; margin-bottom: 22px; } .actions { width: 100%; } .actions > * { flex: 1; } }

@@ -1,97 +1,126 @@
 /*
- * Design tokens — canonical values extracted from the approved Penpot source through MCP.
- * Origin per value is annotated; the mapping lives in design/penpot-sync.json and
- * docs/design/PENPOT-SYNC.md governs how these may change. Do not hardcode duplicates of
- * mapped values elsewhere; do not introduce new visual constants without a Penpot origin.
+ * Qasedak product tokens. Values are live-inspected from the human-designated Penpot
+ * file c269caa0-e456-818c-8008-89e5136d6851. Keep application behavior out of this
+ * layer; docs/design/PENPOT-SYNC.md owns the synchronization contract.
  */
 :root {
-  /* color — Penpot "Navigation / Sidebar" board + component library inspection */
-  --color-surface-page: #ffffff;        /* Penpot sidebar board fill */
-  --color-surface-subtle: #f7f7f9;      /* Penpot footer card / subtle surfaces */
-  --color-border-default: #e8e9ec;      /* Penpot sidebar border stroke */
-  --color-text-primary: #2e2938;        /* Penpot brand/logo text */
-  --color-text-nav: #514d5e;            /* Penpot nav item text */
-  --color-text-secondary: #7d7887;      /* Penpot sub-item text */
-  --color-text-muted: #8a8592;          /* Penpot footer time text */
-  --color-brand-accent: #be0183;        /* Penpot logo mark accent */
+  color-scheme: light;
+  --color-surface-page: #ffffff;
+  --color-surface-subtle: #f7f7f9;
+  --color-surface-canvas: #f6f7f9; /* Penpot Qasedak product canvas */
+  --color-border-default: #e8e9ec; /* Penpot navigation/component boards */
+  --color-border-product: #e3e5e8; /* Penpot Qasedak product boards */
+  --color-text-primary: #2e2938;
+  --color-text-nav: #514d5e;
+  --color-text-secondary: #7d7887;
+  --color-text-muted: #a09ba8;
+  --color-text-disabled: #737373;
+  --color-brand-accent: #be0183;
+  --color-brand-strong: #8e0062;
+  --color-brand-deep: #670048;
+  --color-brand-soft: #fcebf6;
+  --color-landing-purple: #8919a1;
+  --color-landing-pink: #be0182;
+  --color-landing-ink: #242424;
+  --color-landing-muted: #6b6b6b;
+  --color-landing-soft: #f1f5f8;
+  --color-landing-soft-strong: #f6edf8;
+  --color-landing-gold: #fed400;
+  --color-status-success: #168b5b; /* Penpot status success token */
+  --color-status-success-soft: #e8f7f1; /* Penpot status success surface */
+  --color-status-warning: #a8640a; /* Penpot status warning token */
+  --color-status-warning-soft: #fff5e5; /* Penpot status warning surface */
+  --color-status-danger: #c93c54; /* Penpot status danger token */
+  --color-status-danger-soft: #fff0f3; /* Penpot status danger surface */
+  --color-status-info: #2f6fed; /* Penpot status info token */
+  --color-status-info-soft: #eaf1ff; /* Penpot status info surface */
 
-  /* typography — Vazirmatn, weights observed in Penpot text styles.
-     The family itself is loaded by next/font (see src/app/layout.tsx) which defines
-     the --font-vazirmatn variable; sizes/weights below are Penpot-observed values. */
-  --font-size-brand: 22px;              /* Penpot sidebar logo (weight 800) */
-  --font-size-mark: 16px;               /* Penpot logo mark (weight 800) */
-  --font-size-nav: 14px;                /* Penpot nav items (weight 500) */
-  --font-size-sub: 12px;                /* Penpot sub items (400) / footer plan (600) */
-  --font-size-footer-time: 11px;        /* Penpot footer time (400) */
+  --font-size-brand: 22px;
+  --font-size-mark: 16px;
+  --font-size-nav: 14px;
+  --font-size-sub: 12px;
+  --font-size-footer-time: 11px;
+  --font-size-title: 28px;
+  --font-size-heading: 22px;
+  --font-size-body: 16px;
+  --font-size-small: 13px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-extrabold: 800;
 
-  /* radius */
-  --radius-card: 12px;                  /* Penpot footer card / card containers */
-  --radius-control: 8px;                /* Penpot buttons & inputs (comp states board) */
-  --radius-chip: 6px;                   /* Penpot small chips/tags */
-  --radius-pill: 4px;                   /* Penpot outlined button (navDoc spec "radius 2px"→4px rendered) */
-
-  /* color — extended set extracted live during M08-001 from
-     "Global Navigation — Documentation", "Dashboard — Directam Reference",
-     "Smart Answering — Component States", "Navigation / User Menu" boards */
-  --color-ink-strong: #141414;          /* Penpot user-menu primary labels */
-  --color-heading-plum: #2a0020;        /* Penpot documentation page title */
-  --color-accent-soft: #fceef6;         /* Penpot dashboard soft accent surface */
-  --color-accent-softer: #ffebf9;       /* Penpot user-menu accent tint */
-  --color-border-input: #c8c6cc;        /* Penpot input border (component states) */
-  --color-text-placeholder: #aaa6b0;    /* Penpot input placeholder */
-  --color-status-success: #0d9f00;      /* Penpot "اشتراک فعال" status text */
-  --color-status-warning: #f47b20;      /* Penpot connection warning banner */
-  --color-status-danger: #d32f2f;       /* Penpot destructive menu item */
-  --color-status-error: #e72d3d;        /* Penpot dashboard error accent */
-  --color-accent-violet: #9b21d1;       /* Penpot dashboard secondary accent */
-
-  /* elevation — Penpot user-menu dropdown spec */
-  --shadow-menu: 0 4px 4px rgba(0, 0, 0, 0.3); /* Penpot user-menu: "Menu shadow: 0 4px 4px #0000004D" */
-
-  /* layout metrics from Penpot geometry (sidebar board 256×1050) */
+  --radius-card: 12px;
+  --radius-panel: 16px;
+  --radius-input: 10px;
+  --radius-pill: 999px;
   --sidebar-width: 256px;
   --sidebar-footer-card-width: 224px;
   --sidebar-footer-card-height: 96px;
-  --nav-row-step: 55px;                 /* Penpot nav row vertical rhythm */
-  --sub-row-step: 36px;                 /* Penpot sub row vertical rhythm */
+  --nav-row-step: 52px;
+  --sub-row-step: 36px;
+  --content-max-width: 1180px;
+  --focus-ring: 0 0 0 3px rgba(190, 1, 131, 0.18);
+  --transition-fast: 180ms ease;
 
-  /* Qasedak final-design set extracted live 2026-08-24 from the canonical file's
-     "Qasedak ·" boards: Identity / Login / Desktop, Inbox / Desktop,
-     Billing / Plans + Checkout + Payment Results (see
-     docs/design/sync/2026-08-24-qasedak-final-designs.md). */
-  --qs-canvas: #f6f7f9;                 /* auth/inbox/billing canvas */
-  --qs-brand-deep: #670048;             /* auth brand panel fill */
-  --qs-brand-decor-1: #8e0062;          /* brand panel decor ellipse */
-  --qs-brand-decor-2: #a90075;          /* brand panel decor ellipse */
-  --qs-on-brand-body: #f7d8ec;          /* body text on the brand panel */
-  --qs-card-border: #e3e5e8;            /* auth card / inbox thread bubble stroke */
-  --qs-radius-screen-card: 28px;        /* auth cards & brand panel */
-  --qs-radius-panel: 14px;              /* inbox/billing panels */
-  --qs-control-radius: 10px;            /* inputs & primary buttons on final boards */
-  --qs-status-success: #168b5b;
-  --qs-status-success-bg: #e9f7f1;
-  --qs-status-danger: #c93c54;
-  --qs-status-danger-bg: #fff0f3;
-  --qs-status-warning: #a8640a;
-  --qs-status-warning-bg: #fff6e6;
-  --qs-info: #2f6fed;
-  --qs-info-bg: #edf3ff;
-  --qs-accent-soft-final: #fcebf6;      /* selected rows/chips/outgoing bubbles */
-  --qs-muted-final: #a09ba8;            /* timestamps / placeholders on final boards */
-  --qs-disabled-fill: #d8d5db;          /* disabled primary button fill */
+  /* Legacy M05/M08 tokens retained for the functional authenticated screens. */
+  --radius-control: 8px; /* Penpot component states */
+  --radius-chip: 6px; /* Penpot component states */
+  --color-ink-strong: #141414; /* Penpot user-menu labels */
+  --color-heading-plum: #2a0020; /* Penpot documentation heading */
+  --color-accent-soft: #fceef6; /* Penpot dashboard soft surface */
+  --color-accent-softer: #ffebf9; /* Penpot user-menu accent tint */
+  --color-border-input: #c8c6cc; /* Penpot form component state */
+  --color-text-placeholder: #aaa6b0; /* Penpot form component state */
+  --color-status-error: #e72d3d; /* Penpot dashboard error accent */
+  --color-accent-violet: #9b21d1; /* Penpot dashboard secondary accent */
+  --shadow-menu: 0 4px 4px rgba(0, 0, 0, 0.3); /* Penpot user-menu menu shadow */
+  --qs-canvas: #f6f7f9; /* Penpot Qasedak auth/inbox/billing canvas */
+  --qs-brand-deep: #670048; /* Penpot Qasedak auth brand panel */
+  --qs-brand-decor-1: #8e0062; /* Penpot Qasedak auth decoration */
+  --qs-brand-decor-2: #a90075; /* Penpot Qasedak auth decoration */
+  --qs-on-brand-body: #f7d8ec; /* Penpot Qasedak auth body text */
+  --qs-card-border: #e3e5e8; /* Penpot Qasedak product card border */
+  --qs-radius-screen-card: 28px; /* Penpot Qasedak auth screen card */
+  --qs-radius-panel: 14px; /* Penpot Qasedak product panel */
+  --qs-control-radius: 10px; /* Penpot Qasedak controls */
+  --qs-status-success: #168b5b; /* Penpot status success token */
+  --qs-status-success-bg: #e9f7f1; /* Penpot status success surface */
+  --qs-status-danger: #c93c54; /* Penpot status danger token */
+  --qs-status-danger-bg: #fff0f3; /* Penpot status danger surface */
+  --qs-status-warning: #a8640a; /* Penpot status warning token */
+  --qs-status-warning-bg: #fff6e6; /* Penpot status warning surface */
+  --qs-info: #2f6fed; /* Penpot status info token */
+  --qs-info-bg: #edf3ff; /* Penpot status info surface */
+  --qs-accent-soft-final: #fcebf6; /* Penpot selected product surface */
+  --qs-muted-final: #a09ba8; /* Penpot muted product text */
+  --qs-disabled-fill: #d8d5db; /* Penpot disabled control surface */
 }
 
-* { box-sizing: border-box; }
-html, body { margin: 0; min-height: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+html { min-height: 100%; background: var(--color-surface-canvas); }
 body {
-  font-family: var(--font-vazirmatn), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: var(--color-surface-subtle);
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-surface-canvas);
   color: var(--color-text-primary);
+  font-family: var(--font-vazirmatn), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: var(--font-size-body);
+  line-height: 1.75;
+  text-rendering: optimizeLegibility;
 }
-.starter-shell { min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
-.starter-card { width: min(42rem, 100%); background: white; border: 1px solid var(--color-border-default); border-radius: var(--radius-card); padding: 2rem; box-shadow: 0 16px 48px rgba(18, 46, 31, .08); }
-.eyebrow { font-weight: 700; color: var(--color-brand-accent); }
-.auth-card { width: min(26rem, 100%); }
-h1 { margin-block: .5rem 1rem; }
-p { line-height: 1.9; }
+button, input, textarea, select { color: inherit; font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; }
+h1, h2, h3, p { margin-block-start: 0; }
 code { direction: ltr; unicode-bidi: embed; }
+::selection { background: var(--color-brand-soft); color: var(--color-brand-deep); }
+:focus-visible { outline: 2px solid var(--color-brand-accent); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

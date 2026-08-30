@@ -1,42 +1,26 @@
-import Sidebar from "../../shared/design/Sidebar";
+import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
+import { getIdentity, getWorkspaceMembers } from "@/features/identity/api/server";
+import { DashboardShell } from "@/shared/design/DashboardShell";
+import { readSession } from "@/shared/server/session";
 
-/*
- * Dashboard shell composition — the application-owned half of the
- * global-navigation.sidebar mapping (design/penpot-sync.json). The visual layer comes
- * from the Penpot-synchronized Sidebar component; navigation targets are application
- * decisions mapped in docs/design/SCREEN-INVENTORY.md. Screen content itself lands with
- * the M08 tasks after their designs are synced.
- */
-const navItems = [
-  { label: "داشبورد", href: "/dashboard", icon: "Dashboard" },
-  { label: "امکانات", href: "/dashboard/features", icon: "Features" },
-  { label: "پیامک هوشمند", href: "/dashboard/smart-sms", icon: "SmartSMS" },
-  { label: "اتصال پیج اینستاگرام", href: "/dashboard/settings/instagram", icon: "Instagram" },
-  { label: "خرید اشتراک", href: "/dashboard/billing", icon: "Pricing" },
-  { label: "حساب‌های من", href: "/dashboard/accounts", icon: "Accounts" },
-  { label: "راهنمایی و پشتیبانی", href: "/dashboard/help", icon: "Help" },
-] as const;
+const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const subItems = [
-  { label: "پاسخ هوشمند", href: "/dashboard/features/smart-answer" },
-  { label: "ویترین‌ساز", href: "/dashboard/features/cards" },
-  { label: "پشتیبان هوشمند", href: "/dashboard/features/follow-up" },
-  { label: "کامنت / لایو هوشمند", href: "/dashboard/features/comment-automation" },
-  { label: "فرم‌ساز", href: "/dashboard/features/form-maker" },
-  { label: "پیام خوش‌آمدگویی", href: "/dashboard/features/ice-breakers" },
-];
-
-export default function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <div style={{ display: "flex" }}>
-      <Sidebar
-        navItems={navItems}
-        subItems={subItems}
-        activeHref="/dashboard"
-        planLabel="اشتراک آزمایشی"
-        planTimeLabel="۱۴ روز باقی‌مانده"
-      />
-      <main style={{ flex: 1, padding: "2rem" }}>{children}</main>
-    </div>
-  );
+export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const session = await readSession();
+  if (!session.token) redirect("/login");
+  const identity = await getIdentity(session.token);
+  if (!identity.ok && identity.status === 401) redirect("/login?reason=session");
+  let workspaceLabel = "فضای کاری قاصدک";
+  let workspaceMeta = "فضای کاری انتخاب نشده است";
+  if (session.workspaceId && uuid.test(session.workspaceId)) {
+    const workspace = await getWorkspaceMembers(session.token, session.workspaceId);
+    if (workspace.ok) {
+      workspaceLabel = workspace.data.workspaceName;
+      workspaceMeta = `${workspace.data.members.length.toLocaleString("fa-IR")} عضو`;
+    } else if (workspace.status === 503) {
+      workspaceMeta = "اطلاعات موقتاً در دسترس نیست";
+    }
+  }
+  return <DashboardShell email={identity.ok ? identity.data.email : "حساب قاصدک"} workspaceLabel={workspaceLabel} workspaceMeta={workspaceMeta}>{children}</DashboardShell>;
 }

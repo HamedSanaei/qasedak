@@ -2,9 +2,34 @@
 
 **Project:** Qasedak  
 **Current milestone:** M12 — v2 Product Features  
-**Current task:** M12-002 — Enable inbox thread context panel
-**Last completed:** M12-002 (2026-08-29)
+**Current task:** M12-004 — Consolidate duplicate local repository clones
+**Last completed:** M12-004 (2026-08-30)
 **Product implementation:** In progress (M12)
+
+## 2026-08-30 — Duplicate clone consolidation COMPLETE (M12-004 → DONE)
+
+- Canonical Git state is `C:\Users\Hamed\Documents\Qasedak`: `master` and
+  `origin/master` both resolve to GitHub SHA `0cd57876b3a672fffc5b773bf7c40e2bfd00dbf9`.
+  The Python clone was a stale independent checkout; its push dry-run was rejected with
+  `fetch first`.
+- A byte-for-byte recovery archive was created at
+  `C:\Users\Hamed\Documents\Python\qasedak-archive-20260830` (27,029 files,
+  915,560,857 bytes). Unique landing, dashboard shell/overview, server session/proxy,
+  feature routes, design primitives, sync records and visual-review evidence were
+  transferred selectively.
+- After source/archive verification, the duplicate active clone at
+  `C:\Users\Hamed\Documents\Python\qasedak` was deleted. The recovery archive remains.
+- The canonical clone's newer backend, CI/CD/deployment workflows, automations, billing,
+  Instagram, Inbox search/context, API clients and tests remain authoritative. The
+  `/api/v1` proxy now bridges legacy bearer headers with server-owned HttpOnly cookies.
+- Frontend verification passes (lint, typecheck, 56 tests, production build). Release
+  backend build passes and static architecture/manifest/state gates pass. The full
+  `verify.py --full` gate was attempted; 383 tests passed and 88 Testcontainers tests
+  failed only because Docker is unavailable at `npipe://./pipe/docker_engine`.
+  The
+  standalone dashboard design approval remains a follow-up (M12-003); no fresh Penpot
+  MCP read was possible during this merge, so imported sync evidence is explicitly
+  recorded as such.
 
 ## 2026-08-29 — Inbox thread context panel COMPLETE (M12-002 → DONE)
 

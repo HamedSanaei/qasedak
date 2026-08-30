@@ -1,25 +1,12 @@
-"use client";
+import type { Metadata } from "next";
+import { LandingPage } from "@/features/landing/ui/LandingPage";
 
-/*
- * Application entry route (`/`).
- *
- * Qasedak has no approved Penpot public landing page yet, so `/` acts purely as an
- * entry point: with a valid session the user is forwarded to /dashboard, otherwise to
- * /login. Session state lives in localStorage (shared/api/identity.ts), so the redirect
- * is resolved on the client via readSession(), which clears expired sessions. Nothing is
- * rendered while redirecting — the old starter placeholder is deliberately gone.
- */
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { readSession } from "@/shared/api/identity";
-import { resolveRootTarget } from "@/features/auth/rootRedirect";
+export const metadata: Metadata = {
+  title: "دایرکتم | دستیار هوشمند فروش در اینستاگرام",
+  description:
+    "پاسخ‌گویی خودکار دایرکت، مدیریت کامنت، پیگیری مشتری و ابزارهای فروش اینستاگرامی در یک پنل ساده و حرفه‌ای.",
+};
 
-export default function RootEntry() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace(resolveRootTarget(readSession()));
-  }, [router]);
-
-  return null;
+export default function Home() {
+  return <LandingPage />;
 }

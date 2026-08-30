@@ -50,8 +50,8 @@
     ],
     "designSourceNotes": {
       "directamLandingPage": {
-        "status": "missing-as-page",
-        "note": "No Penpot page named 'Directam Landing' exists. A board named 'Directam Landing — Desktop' lives on 'Page 1' instead; its internal structure differs from the earlier 13-section flex build, so it is treated as unverified until a human designates the canonical landing source.",
+        "status": "approved-board-source",
+        "note": "No Penpot page named 'Directam Landing' exists. The human-designated board 'Directam Landing — Desktop' lives on 'Page 1' and is the source for the public route only; authenticated product mappings continue to use the Qasedak-native source. Imported from the M08-007 sync record; a fresh MCP read was unavailable during this repository merge.",
         "candidateBoardId": "f6b8d46f-5deb-801d-8008-85ab43d94e44",
         "candidateBoardName": "Directam Landing — Desktop",
         "candidateHostPageId": "c269caa0-e456-818c-8008-85a77340be65"
@@ -95,7 +95,8 @@
     "radius": {
       "card": "12px",
       "control": "8px",
-      "chip": "6px"
+      "chip": "6px",
+      "landingCard": "24px"
     },
     "elevation": {
       "menu": "0 4px 4px rgba(0, 0, 0, 0.3)"
@@ -111,7 +112,14 @@
       "statusWarning": "#F47B20",
       "statusDanger": "#D32F2F",
       "statusError": "#E72D3D",
-      "accentViolet": "#9B21D1"
+      "accentViolet": "#9B21D1",
+      "landingPurple": "#8919A1",
+      "landingPink": "#BE0182",
+      "landingInk": "#242424",
+      "landingMuted": "#6B6B6B",
+      "landingSoft": "#F1F5F8",
+      "landingSoftStrong": "#F6EDF8",
+      "landingGold": "#FED400"
     },
     "spacing": {
       "sidebar.width": "256px",
@@ -341,6 +349,46 @@
       "penpotRevision": null,
       "syncStatus": "synced",
       "notes": "Amounts render exactly as received from GET /billing/plans (IRR grouping + ریال only); checkout submits only planCode+providerId; result page polls the workspace-scoped status endpoint because callback query hints alone are never trusted."
+    },
+    {
+      "id": "landing.main",
+      "designName": "Directam Landing — Desktop",
+      "penpotPageId": "c269caa0-e456-818c-8008-85a77340be65",
+      "penpotPageName": "Page 1",
+      "penpotBoardId": "f6b8d46f-5deb-8008-85ab43d94e44",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "approved",
+        "basis": "Human-designated public landing board; exact file/page/board identity and implementation evidence are preserved in docs/design/sync/M08-007-landing-main.md."
+      },
+      "nextRoutes": ["/"],
+      "componentPath": "src/features/landing/ui/LandingPage.tsx",
+      "compositionPaths": ["src/app/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.brand.accent",
+        "colorExtended.landingPurple",
+        "colorExtended.landingPink",
+        "colorExtended.landingInk",
+        "colorExtended.landingMuted",
+        "colorExtended.landingSoft",
+        "colorExtended.landingSoftStrong",
+        "colorExtended.landingGold",
+        "typography.font.family",
+        "typography.font.weight.regular",
+        "typography.font.weight.semibold",
+        "typography.font.weight.extrabold",
+        "radius.landingCard"
+      ],
+      "assetDependencies": [
+        "public/landing/directam-team.webp",
+        "public/landing/directam-video.webp",
+        "public/landing/directam-support.webp"
+      ],
+      "lastSyncedAtUtc": "2026-08-29T23:27:32Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Transferred from the Python clone's M08-007 implementation. This route is public; authenticated screens continue to use their existing mappings."
     }
   ]
 }

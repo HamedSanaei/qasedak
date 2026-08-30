@@ -1,0 +1,11 @@
+.errorPage { min-height: 420px; display: grid; place-items: center; }
+.errorCard { width: min(560px, 100%); text-align: center; }
+.errorCard h2 { margin-bottom: 8px; font-size: 22px; }
+.errorCard p { margin-bottom: 20px; color: var(--color-text-secondary); font-size: 14px; }
+.actions { display: flex; justify-content: center; gap: 10px; }
+.loading { display: grid; gap: 18px; }
+.loadingCard { display: grid; gap: 14px; }
+.spacerSmall { height: 10px; }
+.spacerMedium { height: 20px; }
+.spacerLarge { height: 24px; }
+@media (max-width: 540px) { .actions { flex-direction: column; } }

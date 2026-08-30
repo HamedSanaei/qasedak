@@ -8,7 +8,7 @@
  * (برابر/شامل/هر ریپلایی), keyword chips («مثال: قیمت، خرید، لینک»), reply composer with
  * ۰/حداکثر counter, live preview bubble, action row «دایرکت», submit «ثبت».
  * Divergence note: the design shows a ۰/۲۰۰۰ counter; the backend domain caps action
- * text at 1000 chars — the backend limit wins (documented in M08-005 evidence).
+ * text at 1000 chars — the backend limit wins (documented in the design sync evidence).
  */
 import { useState } from "react";
 import Link from "next/link";

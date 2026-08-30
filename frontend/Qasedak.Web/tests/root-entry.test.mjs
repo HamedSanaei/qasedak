@@ -59,12 +59,12 @@ test("readSession ignores expired sessions", () => {
   }
 });
 
-test("root page is a client entry route that uses readSession and resolveRootTarget", () => {
+test("root page is the public landing entry and preserves auth routes", () => {
   const pageSource = readFileSync(path.join(root, "src/app/page.tsx"), "utf8");
-  assert.match(pageSource, /"use client"/, "root page must be a client component");
-  assert.match(pageSource, /resolveRootTarget\(/);
-  assert.match(pageSource, /readSession\(\)/);
-  assert.match(pageSource, /router\.replace/);
+  assert.match(pageSource, /<LandingPage\s*\/>/);
+  assert.doesNotMatch(pageSource, /redirect\(/);
+  assert.match(readFileSync(path.join(root, "src/features/landing/ui/LandingPage.tsx"), "utf8"), /href="\/login"/);
+  assert.match(readFileSync(path.join(root, "src/features/landing/ui/LandingPage.tsx"), "utf8"), /href="\/register"/);
 });
 
 test("starter placeholder text is no longer emitted by the root page", () => {

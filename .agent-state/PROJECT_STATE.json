@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-29T00:00:00+00:00",
+  "updatedAt": "2026-08-30T00:00:00+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M12",
-  "currentTask": "M12-002",
-  "lastCompletedTask": "M12-002",
+  "currentTask": "M12-004",
+  "lastCompletedTask": "M12-004",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -57,7 +57,8 @@
     "M08-005",
     "M09-002",
     "M12-001",
-    "M12-002"
+    "M12-002",
+    "M12-004"
   ],
   "graphify": {
     "required": true,
@@ -72,7 +73,7 @@
     ]
   },
   "penpot": {
-    "mcpReachable": true,
+    "mcpReachable": false,
     "verifiedAtUtc": "2026-08-24T19:30:00Z",
     "fileId": "c269caa0-e456-818c-8008-85a77340be64",
     "fileName": "New File 1",
@@ -85,8 +86,9 @@
       "billingPayments": "c48311ed-e700-80f8-8008-8820a6cf5187"
     },
     "manifest": "frontend/Qasedak.Web/design/penpot-sync.json",
-    "manifestValidation": "passed-6-of-6",
-    "verificationEvidence": "docs/design/sync/2026-08-24-qasedak-final-sync-record.md"
+    "manifestValidation": "passed-7-of-7",
+    "verificationEvidence": "docs/design/sync/2026-08-24-qasedak-final-sync-record.md; docs/design/sync/M08-007-landing-main.md",
+    "mergeNote": "No fresh Penpot MCP read was available during M12-004; imported M08-006/M08-007 evidence retained and penpotRevision remains null."
   },
   "quality": {
     "architectureChecks": "passed (35 projects, 6 business modules) — re-verify at finalize",
@@ -95,16 +97,17 @@
     "backendFormat": "pass-pending-final-full-gate",
     "billingUnitTests": "passed-119-of-119 (incl. BehpardakhtMellatTransportTests: envelope/parsing/§19 classifier/orchestration/callback-validation)",
     "billingIntegrationTests": "passed-9-of-9-testcontainers (ProviderOrderId persistence covered)",
-    "apiIntegrationTests": "passed-50-of-50 incl. 13 billing e2e (4 new Mellat transport e2e over real host + scripted SOAP fake; CI never calls bpm.shaparak.ir); M12-001 search e2e ADDED but NOT RUN (Docker daemon down)",
+    "apiIntegrationTests": "full gate attempted: 383 tests passed; 88 Docker/Testcontainers integration tests failed because Docker endpoint npipe://./pipe/docker_engine is unavailable",
     "unitSuites": "passed-380 (BuildingBlocks 12, Automations 44, Billing 119, Contacts 23, Conversations 23, Identity 79, Instagram 80)",
     "conversationSearchE2e": "queued-not-run (Testcontainers needs Docker daemon, down this session)",
-    "frontendVerify": "passed-lint-typecheck-test-build-incl-billing-pages (37 tests incl. inbox search contract)"
+    "frontendVerify": "passed-lint-typecheck-test-build-incl-landing-dashboard-compatibility (56 tests incl. inbox search and merge contracts)",
+    "fullVerify": "failed at Docker-dependent integration tests only; static gates, Release build and frontend verification passed"
   },
   "nextActions": [
     "Run the M12-001 API e2e search scenario once Docker is up (ConversationInboxEndpointTests.InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies); Testcontainers was unavailable this session",
-    "M12-002 — Enable inbox thread context panel (contacts/tags/notes) — next actionable task in TASKS.md",
+    "M12-003 — Workspace dashboard overview standalone Penpot mapping remains a follow-up (implementation transferred using approved primitives)",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M12-001 completed to DONE (M12 — v2 Product Features started): server-side inbox search enables the Penpot-marked-disabled inbox search — SearchPattern (trim + %/_/\\ escape, blank → no filter) with 8 unit tests; EfConversationQueries ILike contains-search over ParticipantId or message bodies; optional search query param on GET /workspaces/{id}/conversations composing with status/paging; frontend live 250ms-debounced search, «فعلاً غیرفعال» badge removed, no-results empty state; sync evidence + divergence (enabled placeholder «جستجو در گفتگوها…») recorded. Backend Release build 0 warnings, format clean, unit suites 380 green; frontend verify green (37 tests). Residual: new API e2e search scenario queued-not-run (Docker daemon down this session)."
+  "lastInstruction": "M12-004 completed: consolidated the duplicate Python clone into the GitHub-connected Qasedak clone. A byte-for-byte recovery archive was created before selective transfer. Landing/dashboard shell/overview, server session/API adapters, unique routes, design primitives, Penpot records and visual-review artifacts were transferred; canonical backend, CI/CD, automations, billing, Instagram, Inbox search/context, API clients and tests were preserved. Frontend lint/typecheck/56 tests/build pass. Docker-dependent integration suites remain queued when the daemon is unavailable; fresh Penpot MCP read was unavailable, so imported evidence is explicitly labeled."
 }

@@ -1,120 +1,64 @@
-/*
- * Sidebar visual styles — values extracted from Penpot board "Navigation / Sidebar"
- * (MCP inspection, see docs/design/sync/M05-005-navigation-sidebar.md).
- *
- * Geometry notes from the design: 256px board, white surface, 1px border on the inline
- * edge; brand row at top (22px/800 name + 16px/800 accent mark); nav rows on a 55px
- * vertical rhythm starting y=88; sub items on a 36px rhythm; footer card 224×96,
- * radius 12, #F7F7F9, anchored to the bottom (y=930 in a 1050px frame).
- */
 .sidebar {
   width: var(--sidebar-width);
-  min-height: 100vh;
+  height: 100dvh;
   background: var(--color-surface-page);
   border-inline-end: 1px solid var(--color-border-default);
   display: flex;
   flex-direction: column;
   padding-block: 18px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transition: width var(--transition-fast);
 }
-
-.brand {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 6px;
-}
-
-.brandName {
-  font-size: var(--font-size-brand);
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
-
-.brandMark {
-  font-size: var(--font-size-mark);
-  font-weight: 800;
-  color: var(--color-brand-accent);
-}
-
-.navList {
-  list-style: none;
-  margin: 52px 0 0;
-  padding: 0;
-}
-
+.brandRow { min-height: 38px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-inline: 20px; }
+.brand { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+.brandName { color: var(--color-text-primary); font-size: var(--font-size-brand); font-weight: var(--font-weight-extrabold); }
+.brandMark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--color-brand-accent); color: #fff; font-size: var(--font-size-mark); font-weight: var(--font-weight-extrabold); }
+.closeButton { margin-inline-start: auto; width: 42px; height: 42px; border: 0; border-radius: 10px; display: grid; place-items: center; background: transparent; color: var(--color-text-disabled); cursor: pointer; }
+.closeButton:hover { background: var(--color-surface-subtle); }
+.toggleButton { width: 38px; height: 38px; border: 0; border-radius: 10px; display: grid; place-items: center; flex: 0 0 auto; background: transparent; color: var(--color-text-disabled); cursor: pointer; }
+.toggleButton:hover { background: var(--color-surface-subtle); color: var(--color-text-primary); }
+.navList, .subList { list-style: none; padding: 0; }
+.navList { margin: 34px 0 0; }
 .navItem {
+  width: calc(100% - 24px);
+  min-height: var(--nav-row-step);
+  border: 0;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-inline-start: 24px;
-  padding-inline-end: 16px;
+  gap: 13px;
+  margin: 2px 12px;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--color-text-nav);
+  cursor: pointer;
   font-size: var(--font-size-nav);
-  font-weight: 500;
-  min-height: var(--nav-row-step);
-  color: var(--color-text-nav);
+  font-weight: var(--font-weight-medium);
+  text-align: start;
   text-decoration: none;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
 }
+.navItem:hover { background: var(--color-surface-subtle); color: var(--color-text-primary); }
+.navItemActive { background: var(--color-brand-soft); color: var(--color-brand-deep); font-weight: var(--font-weight-extrabold); }
+.navItemActive:hover { background: var(--color-brand-soft); color: var(--color-brand-deep); }
+.navItem span { min-width: 0; flex: 1; }
+.caret { margin-inline-start: auto; color: var(--color-text-disabled); transition: transform var(--transition-fast); }
+.caretOpen { transform: rotate(180deg); }
+.subList { margin: 0 0 6px; }
+.subItem { min-height: var(--sub-row-step); display: flex; align-items: center; gap: 12px; margin-inline: 29px 12px; padding-inline: 12px; border-radius: 9px; color: var(--color-text-secondary); font-size: var(--font-size-sub); text-decoration: none; transition: color var(--transition-fast), background-color var(--transition-fast); }
+.subItem:hover { background: var(--color-surface-subtle); color: var(--color-text-primary); }
+.subItemActive { color: var(--color-brand-deep); font-weight: var(--font-weight-semibold); }
+.subDot { width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; flex: 0 0 auto; }
+.subItemActive .subDot { border-color: var(--color-brand-accent); background: var(--color-brand-accent); box-shadow: 0 0 0 3px var(--color-brand-soft); }
+.footerCard { width: var(--sidebar-footer-card-width); min-height: var(--sidebar-footer-card-height); margin: auto 16px 0; border-radius: var(--radius-card); background: var(--color-surface-subtle); padding: 16px 20px; }
+.footerPlan { overflow: hidden; color: var(--color-text-nav); font-size: var(--font-size-sub); font-weight: var(--font-weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
+.footerTime { margin-top: 8px; color: var(--color-text-muted); font-size: var(--font-size-footer-time); font-weight: var(--font-weight-regular); line-height: 1.6; }
+.sidebarCollapsed { width: 80px; overflow-x: hidden; }
+.sidebarCollapsed .brandRow { gap: 4px; padding-inline: 6px; }
+.sidebarCollapsed .brandName, .sidebarCollapsed .navItem span, .sidebarCollapsed .caret, .sidebarCollapsed .subList, .sidebarCollapsed .footerCard { display: none; }
+.sidebarCollapsed .navItem { width: 56px; justify-content: center; padding: 0; }
+@media (max-width: 1023px) { .sidebar { width: min(86vw, var(--sidebar-width)); border-inline-end: 0; } .brandRow { justify-content: flex-start; } }
 
-.navItem:hover {
-  color: var(--color-text-primary);
-}
-
-/*
- * Active treatment — OPEN QUESTION recorded in docs/design/sync/M08-001-design-foundation.md:
- * the Penpot board defines no explicit active/hover state for nav rows. The minimal,
- * non-inventive mapping uses existing Penpot values only: brand accent (#BE0183) on the
- * label/icon and weight 800 (the logo weight). Pending human sign-off like the rest of
- * the provisional design system.
- */
-.navItemActive,
-.navItemActive:hover {
-  font-weight: 800;
-  color: var(--color-brand-accent);
-}
-
-.navIcon {
-  display: inline-flex;
-  color: inherit;
-}
-
-.subList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.subItem {
-  display: block;
-  padding-inline-start: 40px;
-  font-size: var(--font-size-sub);
-  font-weight: 400;
-  line-height: var(--sub-row-step);
-  color: var(--color-text-secondary);
-  text-decoration: none;
-}
-
-.subItem:hover {
-  color: var(--color-text-nav);
-}
-
-.footerCard {
-  margin: auto 16px 0;
-  width: var(--sidebar-footer-card-width);
-  height: var(--sidebar-footer-card-height);
-  background: var(--color-surface-subtle);
-  border-radius: var(--radius-card);
-  padding: 16px 20px;
-}
-
-.footerPlan {
-  font-size: var(--font-size-sub);
-  font-weight: 600;
-  color: var(--color-text-nav);
-}
-
-.footerTime {
-  margin-top: 8px;
-  font-size: var(--font-size-footer-time);
-  font-weight: 400;
-  color: var(--color-text-muted);
-}
+/* OPEN QUESTION: final active-row treatment remains a Penpot sign-off item. */

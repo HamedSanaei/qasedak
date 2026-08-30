@@ -1,85 +1,83 @@
-/*
- * Sidebar — synchronized from Penpot board "Navigation / Sidebar"
- * (page "Directam — Global Navigation Components", board
- * f5bf3c2c-b970-8002-8008-8752c6768b24, component
- * f5bf3c2c-b970-8002-8008-8752c87448ee).
- *
- * Visual layer only (Penpot-owned per docs/design/PENPOT-SYNC.md): colors, typography,
- * spacing and geometry mirror the inspected design. Navigation targets and active-item
- * state are application-owned props — re-sync must never overwrite them.
- */
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useMemo, useState } from "react";
+import { routeIsActive } from "@/shared/navigation/route-policy.mjs";
+import { Icon } from "./Icons";
 import styles from "./Sidebar.module.css";
-import { SidebarIcon, type IconName } from "./SidebarIcon";
 
 export interface SidebarNavItem {
-  /** Visible label, verbatim from the Penpot design. */
   label: string;
-  /** Application-owned route target. */
-  href: string;
-  /**
-   * Icon extracted verbatim from the Penpot sidebar board (M08-001).
-   * Application-owned mapping between route and icon.
-   */
-  icon?: IconName;
-}
-
-export interface SidebarSubItem {
-  label: string;
-  href: string;
+  href?: string;
+  icon: "dashboard" | "features" | "inbox" | "instagram" | "billing" | "accounts" | "help";
+  children?: readonly { label: string; href: string }[];
 }
 
 export interface SidebarProps {
   navItems: readonly SidebarNavItem[];
-  /** Sub-items rendered beneath their parent nav item's group. */
-  subItems?: readonly SidebarSubItem[];
-  /** Route of the currently active nav entry; visual state only. */
-  activeHref?: string;
-  planLabel: string;
-  planTimeLabel: string;
+  workspaceLabel: string;
+  workspaceMeta: string;
+  onNavigate?: () => void;
+  onClose?: () => void;
+  onToggle?: () => void;
+  collapsed?: boolean;
+  mobile?: boolean;
 }
 
-export default function Sidebar({ navItems, subItems = [], activeHref, planLabel, planTimeLabel }: SidebarProps) {
+export default function Sidebar({ navItems, workspaceLabel, workspaceMeta, onNavigate, onClose, onToggle, collapsed = false, mobile = false }: SidebarProps) {
+  const pathname = usePathname();
+  const groupInitiallyOpen = useMemo(() => navItems.some((item) => item.children?.some((child) => routeIsActive(pathname, child.href))), [navItems, pathname]);
+  const [expanded, setExpanded] = useState(groupInitiallyOpen);
+
   return (
-    <nav className={styles.sidebar} aria-label="ناوبری اصلی">
-      <div className={styles.brand}>
-        <span className={styles.brandName}>دایرکتم</span>
-        <span className={styles.brandMark}>DM</span>
+    <nav className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ""}`} aria-label="ناوبری اصلی">
+      <div className={styles.brandRow}>
+        <Link href="/dashboard" className={styles.brand} onClick={onNavigate} aria-label="قاصدک؛ رفتن به داشبورد">
+          <span className={styles.brandName}>قاصدک</span>
+          <span className={styles.brandMark}>ق</span>
+        </Link>
+        {mobile ? <button type="button" className={styles.closeButton} onClick={onClose} aria-label="بستن منو"><Icon name="close" size={22} /></button> : null}
+        {!mobile ? <button type="button" className={styles.toggleButton} onClick={onToggle} aria-label={collapsed ? "باز کردن منو" : "جمع کردن منو"} aria-expanded={!collapsed}><Icon name="toggle" size={22} /></button> : null}
       </div>
 
       <ul className={styles.navList}>
-        {navItems.map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className={`${styles.navItem} ${activeHref === item.href ? styles.navItemActive : ""}`}
-              aria-current={activeHref === item.href ? "page" : undefined}
-            >
-              {item.icon ? (
-                <span className={styles.navIcon}>
-                  <SidebarIcon name={item.icon} />
-                </span>
-              ) : null}
-              {item.label}
-            </Link>
-            {subItems.length > 0 && activeHref === item.href ? (
-              <ul className={styles.subList}>
-                {subItems.map((sub) => (
-                  <li key={sub.href}>
-                    <Link href={sub.href} className={styles.subItem}>
-                      {sub.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </li>
-        ))}
+        {navItems.map((item) => {
+          const groupActive = item.children?.some((child) => routeIsActive(pathname, child.href)) ?? false;
+          if (item.children) {
+            return (
+              <li key={item.label}>
+                <button type="button" title={collapsed ? item.label : undefined} className={`${styles.navItem} ${groupActive ? styles.navItemActive : ""}`} onClick={() => collapsed ? onToggle?.() : setExpanded((value) => !value)} aria-expanded={collapsed ? false : expanded}>
+                  <Icon name={item.icon} size={20} />
+                  <span>{item.label}</span>
+                  <Icon name="caret" size={18} className={`${styles.caret} ${expanded ? styles.caretOpen : ""}`} />
+                </button>
+                {expanded && !collapsed ? (
+                  <ul className={styles.subList}>
+                    {item.children.map((child) => {
+                      const active = routeIsActive(pathname, child.href);
+                      return <li key={child.href}><Link href={child.href} onClick={onNavigate} className={`${styles.subItem} ${active ? styles.subItemActive : ""}`} aria-current={active ? "page" : undefined}><span className={styles.subDot} aria-hidden="true" />{child.label}</Link></li>;
+                    })}
+                  </ul>
+                ) : null}
+              </li>
+            );
+          }
+          const active = item.href ? routeIsActive(pathname, item.href) : false;
+          return (
+            <li key={item.href ?? item.label}>
+              <Link href={item.href ?? "/dashboard"} title={collapsed ? item.label : undefined} onClick={onNavigate} className={`${styles.navItem} ${active ? styles.navItemActive : ""}`} aria-current={active ? "page" : undefined}>
+                <Icon name={item.icon} size={20} />
+                <span>{item.label}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
 
       <div className={styles.footerCard}>
-        <div className={styles.footerPlan}>{planLabel}</div>
-        <div className={styles.footerTime}>{planTimeLabel}</div>
+        <div className={styles.footerPlan}>{workspaceLabel}</div>
+        <div className={styles.footerTime}>{workspaceMeta}</div>
       </div>
     </nav>
   );

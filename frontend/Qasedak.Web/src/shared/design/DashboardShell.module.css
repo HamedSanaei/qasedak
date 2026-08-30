@@ -1,0 +1,25 @@
+.shell { min-height: 100dvh; display: flex; direction: rtl; background: var(--color-surface-canvas); }
+.desktopSidebar { position: sticky; inset-block-start: 0; flex: 0 0 var(--sidebar-width); height: 100dvh; transition: flex-basis var(--transition-fast); }
+.desktopSidebarCollapsed { flex-basis: 80px; }
+.column { min-width: 0; flex: 1; }
+.topbar { height: 64px; border: 1px solid var(--color-border-product); border-radius: var(--radius-card); display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 16px 0; padding: 0 20px; background: var(--color-surface-page); }
+.workspace { min-width: 0; color: var(--color-text-nav); font-size: 13px; font-weight: var(--font-weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.content { width: min(100%, calc(var(--content-max-width) + 64px)); margin-inline: auto; padding: 32px; }
+.mobileBrand, .menuButton, .mobileLayer { display: none; }
+.mobileBrand { align-items: center; gap: 7px; font-weight: var(--font-weight-extrabold); }
+.mobileMark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--color-brand-accent); color: #fff; }
+@media (max-width: 1023px) {
+  .desktopSidebar { display: none; }
+  .topbar { position: sticky; z-index: 20; inset-block-start: 0; height: 64px; border-radius: 0; border-inline: 0; margin: 0; padding-inline: 16px; }
+  .workspace { display: none; }
+  .mobileBrand { display: flex; }
+  .menuButton { width: 44px; height: 44px; border: 0; border-radius: 10px; display: grid; place-items: center; margin-inline-end: 4px; background: transparent; color: var(--color-text-primary); cursor: pointer; }
+  .menuButton:hover { background: var(--color-surface-subtle); }
+  .mobileTools { display: flex; align-items: center; }
+  .content { padding: 24px; }
+  .mobileLayer { position: fixed; z-index: 60; inset: 0; display: block; }
+  .overlay { position: absolute; inset: 0; border: 0; background: rgba(46, 41, 56, 0.38); cursor: pointer; }
+  .drawer { position: absolute; inset-block: 0; inset-inline-start: 0; animation: drawer-in var(--transition-fast); }
+}
+@media (max-width: 640px) { .content { padding: 22px 16px 32px; } }
+@keyframes drawer-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }

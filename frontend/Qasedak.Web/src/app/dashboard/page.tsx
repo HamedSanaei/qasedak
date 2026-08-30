@@ -1,14 +1,13 @@
-/*
- * Dashboard route placeholder. The Penpot board "Dashboard — Directam Reference" exists
- * but is NOT yet synchronized (see design/penpot-sync.json); per the AGENTS.md design
- * sync rules its UI may not be invented here. It lands with M08 once that mapping is
- * created through MCP.
- */
-export default function DashboardPage() {
-  return (
-    <section>
-      <h1>داشبورد</h1>
-      <p>این صفحه در انتظار همگام‌سازی طرح پنپات است (M08).</p>
-    </section>
-  );
+import { PageHeader } from "@/shared/design/PageHeader";
+import { readSession } from "@/shared/server/session";
+import { getIdentity, getWorkspaceMembers } from "@/features/identity/api/server";
+import { getInboxPage } from "@/features/conversations/api/server";
+import { DashboardOverview } from "@/features/dashboard/DashboardOverview";
+
+export default async function DashboardPage() {
+  const session = await readSession();
+  const identity = await getIdentity(session.token!);
+  const workspace = session.workspaceId ? await getWorkspaceMembers(session.token!, session.workspaceId) : null;
+  const inbox = session.workspaceId && workspace?.ok ? await getInboxPage(session.token!, session.workspaceId) : null;
+  return <><PageHeader eyebrow="فضای کاری" title="داشبورد" description="نمای واقعی وضعیت حساب، فضای کاری و صندوق گفتگو؛ بدون آمار ساختگی." /><DashboardOverview identity={identity} workspace={workspace} inbox={inbox} workspaceSelected={Boolean(session.workspaceId)} /></>;
 }

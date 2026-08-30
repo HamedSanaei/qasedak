@@ -1,0 +1,51 @@
+{
+  "route": "/",
+  "horizontalOverflow": false,
+  "viewports": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "featureColumns": 3,
+      "mobileMenu": false
+    },
+    {
+      "width": 1280,
+      "scrollWidth": 1280,
+      "featureColumns": 3,
+      "mobileMenu": false
+    },
+    {
+      "width": 1024,
+      "scrollWidth": 1024,
+      "featureColumns": 3,
+      "mobileMenu": false
+    },
+    {
+      "width": 768,
+      "scrollWidth": 768,
+      "featureColumns": 2,
+      "mobileMenu": true
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390,
+      "featureColumns": 1,
+      "mobileMenu": true
+    },
+    {
+      "width": 360,
+      "scrollWidth": 360,
+      "featureColumns": 1,
+      "mobileMenu": true
+    }
+  ],
+  "mobileMenu390": {
+    "open": true,
+    "left": 16,
+    "right": 326,
+    "top": 124,
+    "bottom": 457.25,
+    "insideViewport": true
+  },
+  "runtimeIssues": []
+}

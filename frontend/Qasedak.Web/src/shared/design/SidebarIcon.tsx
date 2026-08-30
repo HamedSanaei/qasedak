@@ -1,6 +1,6 @@
 // AUTO-EXTRACTED from canonical Penpot file c269caa0-e456-818c-8008-85a77340be64.
 // Source: board "Navigation / Sidebar" (f5bf3c2c-b970-8002-8008-8752c6768b24) on page
-// f5bf3c2c-b970-8002-8008-8752c5573aef. Extracted via Penpot MCP during M08-001
+// f5bf3c2c-b970-8002-8008-8752c5573aef. Extracted via the official Penpot MCP.
 // (resolves the icon/SVG extraction deferred from M05-005).
 // Path data is verbatim from the live design; do not hand-edit.
 export type IconName =

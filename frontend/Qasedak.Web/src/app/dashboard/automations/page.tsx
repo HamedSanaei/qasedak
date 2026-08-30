@@ -3,7 +3,7 @@
 /*
  * Automation list — synchronized from canonical board
  * "Comment Automation — List" (f5bf3c2c-b970-8002-8008-874ebb85c7c2) on page
- * f5bf3c2c-b970-8002-8008-874eb9e5a3b1, live-inspected during M08-005:
+ * f5bf3c2c-b970-8002-8008-874eb9e5a3b1, live-inspected in the approved design pass:
  * breadcrumb 13/400, title 24/800, help banner (accentSoft ؟ chip, 14/700 title,
  * 12/400 body, accent 12/700 link), primary «＋ اضافه کردن دستور», search field,
  * cards with thumbnail ▧ / name 15/700 / «کامنت ← دایرکت» 12/500 / keyword chips

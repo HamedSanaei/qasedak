@@ -613,3 +613,34 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Completion contract:** Graphify evidence recorded; Penpot sync contract applies; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
 **Suggested commit:** `feat(web): add workspace dashboard overview`
+
+## M12-004 — Consolidate duplicate local repository clones
+**Status:** DONE (2026-08-30)
+
+**Outcome:** Make `C:\Users\Hamed\Documents\Qasedak` the canonical GitHub-connected
+clone and transfer the unique work from `C:\Users\Hamed\Documents\Python\qasedak`
+without overwriting the canonical clone's newer backend, CI/CD, automations, billing,
+Instagram, Inbox search/context, API clients or tests. The older clone was snapshotted
+byte-for-byte to `C:\Users\Hamed\Documents\Python\qasedak-archive-20260830` before
+selective transfer. Landing, dashboard shell/overview, server session/proxy adapters,
+feature routes, design primitives, Penpot sync records and visual-review artifacts are
+now present in the canonical tree. The `/api/v1` proxy bridges legacy bearer headers and
+new HttpOnly cookies; login/workspace responses establish server-owned cookies and
+logout clears both session stores. Historical Inbox UI files that predate M12 remain
+only in the recovery archive because the canonical M12 implementation is newer.
+
+**Completion evidence:** Main clone `master` and `origin/master` resolve to GitHub SHA
+`0cd57876b3a672fffc5b773bf7c40e2bfd00dbf9`; the Python clone's push dry-run was rejected
+as behind (`fetch first`). The archive and source each contain 27,029 files and
+915,560,857 bytes. Frontend lint, typecheck, 56 tests and production build pass; the
+manifest remains valid v1 with a new `landing.main` mapping; architecture checks and
+backend gates are re-run at finalization. No fresh Penpot MCP read was available in this
+merge session; imported M08-006/M08-007 evidence is retained and `penpotRevision` stays
+`null`. Docker-dependent integration tests remain not-run when the daemon is absent.
+
+**Completion contract:** Graphify evidence recorded for this consolidation; state,
+manifest and file inventory updated; the original duplicate is removed only after the
+archive/source verification and final gates pass. The M12-003 standalone dashboard
+design approval remains an explicit follow-up rather than being invented here.
+
+**Suggested commit:** `chore(repo): consolidate duplicate qasedak clones`

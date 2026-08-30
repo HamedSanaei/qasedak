@@ -1,5 +1,5 @@
 /*
- * Visual primitives synchronized from the canonical Penpot file (M08-001).
+ * Visual primitives synchronized from the canonical Penpot file.
  * Presentation only — see ./ui.module.css header and docs/design/PENPOT-SYNC.md.
  */
 import type {

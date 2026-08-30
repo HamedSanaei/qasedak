@@ -1,0 +1,29 @@
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.full { grid-column: 1 / -1; }
+.cardTitle { margin-bottom: 6px; font-size: 18px; }
+.cardCopy { margin-bottom: 20px; color: var(--color-text-secondary); font-size: 13px; }
+.details { margin: 0; }
+.detail { min-height: 48px; border-bottom: 1px solid var(--color-border-product); display: grid; grid-template-columns: 150px minmax(0,1fr); align-items: center; gap: 16px; }
+.detail:last-child { border-bottom: 0; }
+.detail dt { color: var(--color-text-secondary); font-size: 12px; }
+.detail dd { margin: 0; overflow-wrap: anywhere; font-size: 13px; font-weight: var(--font-weight-semibold); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.afterAlert { margin-top: 20px; }
+.capability { min-height: 390px; display: grid; place-items: center; text-align: center; }
+.capabilityInner { max-width: 570px; }
+.capabilityIcon { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; margin: 0 auto 20px; background: var(--color-brand-soft); color: var(--color-brand-accent); }
+.capability h2 { margin-bottom: 8px; font-size: 22px; }
+.capability p { margin-bottom: 22px; color: var(--color-text-secondary); font-size: 14px; }
+.connection { display: flex; align-items: center; gap: 18px; }
+.connectionLogo { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; background: var(--color-brand-soft); color: var(--color-brand-accent); font-weight: var(--font-weight-extrabold); }
+.connectionCopy { min-width: 0; flex: 1; }
+.connectionCopy h2 { margin-bottom: 2px; font-size: 18px; }
+.connectionCopy p { margin: 0; color: var(--color-text-secondary); font-size: 12px; }
+.connectionAction { margin-inline-start: auto; }
+.faq { display: grid; gap: 12px; }
+.faq details { border: 1px solid var(--color-border-product); border-radius: var(--radius-card); background: var(--color-surface-page); padding: 0 18px; }
+.faq summary { min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; font-size: 14px; font-weight: var(--font-weight-semibold); }
+.faq summary::after { content: "+"; color: var(--color-brand-accent); font-size: 20px; }
+.faq details[open] summary::after { content: "−"; }
+.faq p { padding-bottom: 18px; color: var(--color-text-secondary); font-size: 13px; }
+@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } .detail { grid-template-columns: 1fr; gap: 2px; padding-block: 10px; } .connection { align-items: flex-start; flex-wrap: wrap; } .connectionAction { width: 100%; margin: 0; } .connectionAction > * { width: 100%; } }
