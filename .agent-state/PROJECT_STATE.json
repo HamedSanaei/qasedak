@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-04T21:55:30Z",
+  "updatedAt": "2026-09-04T22:23:00Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-001",
@@ -122,6 +122,7 @@
     "responsiveReview": "passed-authenticated-exact-1440-1280-1024-768-390-360-rtl-drawer-close-on-navigation-dashboard-accounts-help",
     "fullVerify": "M12-008 passed: architecture/docs/state/Penpot/repository contracts, restore, Release build (0 warnings/errors), format, 471 backend tests with Testcontainers, frontend 60/60 plus build, and both Docker image builds",
     "m13PlanningVerify": "2026-09-05 planning pass: docs/state/architecture, Penpot 6/6, repository contracts 2/2, manifest, restore, Release build 0 warnings/errors, format and 380 unit tests passed; verify.py --full stopped at Docker-backed PostgreSQL suites because npipe://./pipe/docker_engine was unavailable, so frontend verify and Docker image builds were not reached",
+    "m13PlanningRefinement": "passed 2026-09-05: provider-conditional plan refinement keeps all 15 tasks TODO; M13-012 no longer hard-depends on M13-011; M13-011 follow status is optional when officially unsupported while opening/postback/reveal remains required where supported; M13-013 has independent comment-reconciliation and conversation-history phases; M13-014/M13-015 parity is limited to current-Meta-supported intentionally scoped capabilities; docs/state/architecture/Penpot 6-of-6/manifest 662/diff and bounded dependency assertions passed",
     "productionAuthRouting": "passed-Deploy-Production-33311381218-public-web-api-login-smoke-on-sha-7e723229b191; M12-008 local Docker post-login navigation regression fixed but not deployed"
   },
   "nextActions": [
@@ -130,5 +131,5 @@
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "2026-09-05 planning-only OpenReply parity pass: created M13 and 15 TODO tasks (M13-001 current; M12-008 remains last completed), narrowed around completed M01-M08 work, recorded exact-account/private-reply/Graph-transport/durable-work corrections, inspected OpenReply f180d2db6381f0c37e4b29848ab97e77c18f610f, and changed no production code/tests/frontend/dependencies. Official Meta docs returned HTTP 429, so live reconciliation remains M13-001. Planning/static/build/format/380 unit gates passed; full verify stopped at unavailable Docker/Testcontainers before frontend and image builds. No commit or push."
+  "lastInstruction": "2026-09-05 planning-only M13 refinement: all M13 tasks remain TODO and current/last-completed state is unchanged; M13-012 no longer hard-depends on M13-011, M13-011 separates provider-independent reveal flow from optional verified follow status, M13-013 has explicit reconciliation/history phases, and M13-014/M13-015 parity is current-Meta-supported and intentionally scoped. Critical exact-account/private-reply/durable-work/module/evaluator requirements were preserved. No production code, ADR, migration, package, feature test, commit or push."
 }

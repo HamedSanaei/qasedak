@@ -1,5 +1,54 @@
 # Current handoff
 
+## 2026-09-05 — M13 planning dependencies refined; M13-001 remains next
+
+Planning-only refinement completed without starting M13-001 or changing any M13 status.
+M13-001 through M13-015 remain TODO; `currentMilestone=M13`,
+`currentTask=M13-001`, and `lastCompletedTask=M12-008` remain authoritative.
+
+The dependency correction is deliberate: M13-012 now depends on M13-002, M13-004,
+M13-008, M13-009 and M13-010—not M13-011. Its DM triggers, post scoping,
+original-media matching, keyword modes, public replies, delayed follow-ups,
+exact-account routing and direct/Private Reply capabilities can complete independently.
+It consumes follow-gate configuration/execution from M13-011 only if current official
+Meta evidence verifies and implementation delivers that provider capability.
+
+M13-011 remains one task but has two explicit scopes. Provider-independent opening
+Private Reply, opaque postback correlation/validation, durable continuation, exact-
+account/workspace checks, direct-message reveal, supported read fallback and race/
+idempotency handling still ship. Relationship/follow-status lookup is provider-dependent:
+if unavailable or too restricted, record the official limitation, disable only that gate,
+and never scrape, call private APIs or invent status. Either a fully supported follow-
+gated flow or a supported opening/postback/reveal flow with the gate truthfully unavailable
+can satisfy the task.
+
+M13-013 now has Phase A for bounded restart-safe comment reconciliation through the same
+normalized automation/global Private Reply claim path, and Phase B for bounded provider
+conversation/message import through Api/CrossModule into a channel-neutral Conversations
+upsert contract. Phase B is explicitly designed not to inherit M13-012 automation
+concerns, and Instagram Infrastructure still cannot write the Conversations schema.
+
+M13-014 exposes only verified/implemented capability, exact ConnectedAccount state and
+truthful unsupported/permission/disconnected/unhealthy/temporary-failure states.
+M13-015 defines OpenReply parity as current-Meta-supported, intentionally scoped behavior
+and requires a six-category compliance matrix. Unsupported historical/reference behavior
+does not fail the final gate merely because OpenReply contains it.
+
+The next agent still executes only M13-001 and must use live current official Meta
+documentation before any production work. Preserve the extensive unrelated frontend/
+design changes already in the dirty worktree. No ADR, production source, migration,
+package, test, commit, push, tag or deployment was changed by this refinement.
+
+Verification for this refinement: `agent_preflight.py --task M13-001` ready; Graphify
+0.9.26 code-only update + cluster refresh + the exact planning query at budget 1200
+succeeded and evidence was appended; `check_docs.py`, `check_state.py` (72 tasks,
+current M13-001), `check_architecture.py` (35 projects/6 modules),
+`validate_penpot_sync.py` (6/6), `generate_manifest.py --check` (662 files), and
+`git diff --check` passed. A bounded tracker assertion confirmed all 15 M13 statuses are
+TODO, M13-012's dependency list excludes M13-011, and M13-013 contains both phase labels.
+No Docker/Testcontainers, live Meta call, full toolchain verification or agent finalizer
+was run; M13-001 remains TODO.
+
 ## 2026-09-05 — M13 OpenReply parity plan READY; M13-001 is next
 
 M13 — Instagram OpenReply Parity & Production Integration is registered with

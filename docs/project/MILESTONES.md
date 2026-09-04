@@ -104,11 +104,13 @@ Suggested milestone commit: `feat(v2): deliver inbox search and product v2 featu
 
 ## M13 — Instagram OpenReply Parity & Production Integration
 
-**Goal:** complete the Qasedak backend architecture required to provide the supported
-Instagram capabilities demonstrated by OpenReply while correcting Qasedak's current
+**Goal:** complete the Qasedak backend architecture required to provide the Instagram
+capabilities demonstrated by OpenReply that are supported by the current official Meta
+contract and intentionally included in Qasedak scope, while correcting Qasedak's current
 connected-account routing and comment Private Reply semantics. OpenReply is a product-
 behavior reference only; current official Meta documentation and Qasedak's modular Clean
-Architecture remain authoritative.
+Architecture remain authoritative. Unsupported provider behavior is documented and
+excluded truthfully rather than simulated or allowed to block independent capabilities.
 
 M13 preserves the completed M01–M08 foundations: OAuth exchange and protected token
 storage, account health primitives, verified/durable webhook ingestion, transport-free
@@ -118,11 +120,14 @@ this order: current Meta contract reconciliation → exact channel-account ident
 versioned Graph transport and durable work → provider primitives → automation
 orchestration → Penpot-governed frontend integration → production/compliance gate.
 
-Exit: all M13 tasks are complete; every Meta adapter has deterministic current-contract
-coverage; two connected Instagram accounts in one workspace remain isolated end to end;
-comment-triggered first contact uses a globally claimed Private Reply rather than the
-normal conversation send path; scheduled work is restart-safe; no secret reaches a job,
-log, browser or foreign workspace; and the full repository/production-parity gates pass
-without live Meta calls in CI.
+Exit: all M13 tasks are complete for the supported, intentionally scoped capability set;
+every investigated behavior is classified in the final compliance matrix and every Meta
+adapter has deterministic current-contract coverage; two connected Instagram accounts in
+one workspace remain isolated end to end; comment-triggered first contact uses a globally
+claimed Private Reply rather than the normal conversation send path; scheduled work is
+restart-safe; no secret reaches a job, log, browser or foreign workspace; and the full
+repository/production-parity gates pass without live Meta calls in CI. A provider-
+unsupported follow-status lookup does not block the supported opening/postback/reveal or
+independent automation-parity exit criteria.
 
 Suggested milestone commit: `feat(instagram): deliver openreply parity integration`

@@ -6,6 +6,33 @@
 **Last completed:** M12-008 (2026-08-30)
 **Product implementation:** M13 planning ready; no M13 feature implementation started
 
+## 2026-09-05 — M13 provider-conditional dependency refinement
+
+- All M13-001 through M13-015 tasks remain TODO; current milestone/task remain
+  M13/M13-001 and last completed remains M12-008. No implementation task was started.
+- M13-012 no longer hard-depends on M13-011. Independent automation parity can complete
+  when follow status is officially unavailable; it conditionally consumes M13-011's
+  follow-gate capability only when verified and implemented.
+- M13-011 now separates provider-independent opening Private Reply, postback validation,
+  durable reveal/read-fallback orchestration and exact-account idempotency from the
+  provider-dependent relationship lookup. Follow-status unavailability disables only
+  the gate and does not block the otherwise supported flow.
+- M13-013 now contains explicit Phase A comment reconciliation and Phase B Conversations
+  history synchronization scopes; Phase B crosses through a channel-neutral import/upsert
+  contract and is not coupled to automation behavior.
+- M13-014 and M13-015 define parity only for capabilities supported by the current
+  official Meta contract and intentionally included in Qasedak. Unsupported provider
+  behavior must be omitted/disabled/classified truthfully, never simulated.
+- Exact channel-account identity, distinct direct/Private/public operations, the global
+  account+comment Private Reply claim, deterministic evaluator, PostgreSQL durable work
+  and Clean Architecture/cross-module boundaries remain unchanged.
+- Planning verification passed: agent preflight; Graphify 0.9.26 code-only refresh,
+  re-cluster and budget-1200 query; document/state/architecture checks; Penpot manifest
+  validation 6/6; manifest freshness at 662 files; `git diff --check`; and a bounded M13
+  assertion proving 15 TODO tasks, the exact M13-012 dependency list and both M13-013
+  phase headings. Docker/Testcontainers, live Meta and full implementation gates were not
+  run because this instruction changed planning documentation only.
+
 ## 2026-09-05 — OpenReply parity milestone planned (M13-001 → M13-015 TODO)
 
 - Added M13 with 15 ordered TODO tasks: current Meta-contract reconciliation; exact

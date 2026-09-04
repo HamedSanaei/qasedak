@@ -754,13 +754,15 @@ current supported contract and deliberate Qasedak product need justify a dual pa
 **Implementation scope:** Audit ADR-006, the Instagram capability matrix, OAuth/token
 lifecycle document, current OAuth/token-inspection/messaging adapters, configuration and
 permission snapshot. Produce an explicit provider/identity matrix covering authorization
-and token types, professional-account versus app-scoped IDs, Graph hosts and configured
-API versions, messaging and Conversations API support, Private Replies, webhook payloads
-and subscription fields, token refresh, App Review/Advanced Access, messaging windows,
-and Human Agent as operator-only behavior. Correct stale Facebook-Login/Messenger-only
-assumptions in documentation with direct official Meta citations; record unsupported or
-unverifiable capabilities as such. Do not change production code, schemas, packages,
-frontend behavior or tests in this task.
+and token types, professional-account versus app-scoped IDs, Instagram Login, Graph hosts
+and configured API versions, Conversations API, Direct Messages, Private Replies, public
+comment replies, webhook payloads/subscription fields, postbacks, read receipts, media,
+insights, relationship/follow status, token refresh, App Review/Advanced Access,
+messaging windows, Human Agent as operator-only behavior, and current API limitations.
+Correct stale Facebook-Login/Messenger-only assumptions in documentation with direct
+official Meta citations; record unsupported or unverifiable capabilities as such.
+OpenReply remains a behavior reference only. Do not change production code, schemas,
+packages, frontend behavior or tests in this task.
 
 **Completion contract:** Graphify evidence recorded; every external contract claim is
 rechecked against current official Meta documentation and cited; ADR/product/configuration
@@ -1022,29 +1024,41 @@ gates pass with no live Meta calls.
 ## M13-011 — Add follow gate, opening DM and postback reveal flow
 **Status:** TODO
 
-**Outcome:** Implement the durable comment → opening Private Reply → postback → optional
-follow check → direct-message reveal flow without network access inside the deterministic
-evaluator.
+**Outcome:** Implement the officially supported durable comment → opening Private Reply
+→ postback → direct-message reveal flow, with relationship/follow gating added only when
+the current Meta contract supports the intended scenario. Provider-dependent follow
+status must not erase or block the provider-independent flow.
 
 **Depends on:** M13-004, M13-008, M13-009, M13-010.
 
-**Implementation scope:** Add a focused relationship port returning follows/does-not-
-follow/unknown; verify the current Meta field/token/account contract and block the feature
-with evidence if unsupported—never scrape or use private APIs. Model signed/opaque or
-persisted postback correlation bound to automation/version, exact ConnectedAccount and
-intended operation; validate bounds and authorization before continuation. Orchestrate
-configurable opening text/button, repeated follow prompt and reveal Direct Message with
-durable/idempotent continuation and deliberate first-contact versus recheck unknown-
-status policy. Integrate read-receipt fallback through configurable scheduled work that
-checks reveal/postback completion, respects follow gates and terminates policy failures.
+**Provider-independent implementation scope:** Model signed/opaque or persisted postback
+correlation bound to automation/version, exact ConnectedAccount and intended operation;
+validate bounds and workspace/account authorization before continuation. Orchestrate the
+opening Private Reply, postback validation, reveal Direct Message and durable/idempotent
+continuation. Where current official payloads support reliable correlation, integrate a
+configurable read-receipt fallback that checks reveal/postback completion before sending.
+Cover postback-versus-fallback races, redelivery, restart recovery and single-reveal
+semantics without putting network, token, clock or random provider behavior inside the
+deterministic evaluator.
 
-**Completion contract:** Graphify evidence recorded; current provider contract tests pin
-tri-state relationship behavior; unit/PostgreSQL/API integration tests cover signed
-correlation tamper, wrong-account/workspace rejection, postback/read redelivery,
-postback-versus-fallback race, unknown-status policy, follow recheck, restart recovery and
-single reveal; evaluator tests prove it remains deterministic/network-free;
-architecture/state/handoff/manifest and relevant gates pass or a verified provider
-blocker is recorded.
+**Provider-dependent implementation scope:** Add a focused relationship port returning
+follows/does-not-follow/unknown only if current official Meta documentation verifies the
+field, token/account path and intended product scenario. Define deliberate first-contact,
+recheck and unknown/unavailable policies at execution/orchestration time. If follow status
+is unavailable, restricted beyond the intended scenario or otherwise unusable, do not
+scrape, call private Instagram APIs or invent a substitute: record the provider limitation
+and disable only the follow-status gate while still implementing the officially supported
+opening/postback/reveal flow.
+
+**Completion contract:** Graphify evidence recorded; completion is valid either (1) with
+the fully supported opening/postback/follow-gate/reveal flow and tri-state relationship
+contract tests, or (2) with the supported opening/postback/reveal flow complete and the
+follow gate explicitly marked unavailable by current official Meta evidence. In either
+case, unit/PostgreSQL/API integration tests cover signed-correlation tamper, wrong-account/
+workspace rejection, postback/read redelivery where supported, fallback races, restart
+recovery and single reveal; evaluator tests prove deterministic/network-free behavior;
+architecture/state/handoff/manifest and relevant gates pass. Follow-status unavailability
+alone does not block or fail the entire task.
 
 **Suggested commit:** `feat(automations): add instagram reveal and follow gate flow`
 
@@ -1054,7 +1068,7 @@ blocker is recorded.
 **Outcome:** Reach the remaining core OpenReply automation behavior through Qasedak's
 existing immutable version definitions, deterministic evaluator and AutomationRun ledger.
 
-**Depends on:** M13-002, M13-004, M13-008, M13-009, M13-010, M13-011.
+**Depends on:** M13-002, M13-004, M13-008, M13-009, M13-010.
 
 **Implementation scope:** Extend channel-neutral trigger context/definitions with channel
 account, comment versus inbound-DM trigger, provider message/comment identity, specific-
@@ -1066,13 +1080,21 @@ stable versioned definitions. If public reply pools are retained, select once at
 and persist the chosen variant for reproducible retry—no randomness/network/clock/token
 access in the evaluator. DM triggers use provider message ID and direct-message semantics;
 scheduled follow-ups carry no secret and revalidate automation/account/window state.
+Follow-gate-specific definition fields and execution integrate with M13-011 only when the
+provider capability is verified and implemented. M13-012 consumes those capabilities
+conditionally; unsupported follow status must be documented and truthfully excluded, and
+must not block inbound-DM triggers, post scoping, original-media matching, whole-word/
+every-comment modes, public replies, durable follow-ups, exact-account routing or direct/
+Private Reply execution.
 
 **Completion contract:** Graphify evidence recorded; exhaustive evaluator/unit tests cover
 post/original-post, any-post, whole-word/every-comment and DM triggers; PostgreSQL/API e2e
 tests cover exact-account isolation, provider-message idempotency, separate public/private
 effects, persisted reply choice, delayed follow-up restart/duplicate/window behavior and
 version reproducibility; existing automation invariants remain green; architecture/state/
-handoff/manifest and relevant gates pass without live Meta calls.
+handoff/manifest and relevant gates pass without live Meta calls. Completion remains
+possible when M13-011 records follow status as officially unavailable, provided the
+unsupported gate is excluded truthfully and all independent automation parity passes.
 
 **Suggested commit:** `feat(automations): complete instagram trigger and action parity`
 
@@ -1085,16 +1107,26 @@ application/idempotency paths rather than creating a second execution model.
 
 **Depends on:** M13-002, M13-003, M13-004, M13-006, M13-008, M13-009, M13-012.
 
-**Implementation scope:** Add focused comments and Conversations Graph ports/adapters.
-For comment reconciliation, scan only recent active-automation media/comments with cursor
-and per-sweep caps, owner/self-reply awareness, local keyword filtering and observed
-original-media mapping; submit results into the same normalized automation pipeline and
-global Private Reply claim as webhooks. For history sync, list provider conversations/
-participants/previews and bounded message pages, map direction/body/provider IDs/times to
-Qasedak records, then use a composition-root bridge into a channel-neutral Conversations
-import/upsert use case. Support initial sync after connection and authorized manual resync;
-make repeat/incremental runs idempotent and document provider history limits. Instagram
-Infrastructure must never write the Conversations schema.
+**Phase A — Comment reconciliation:** Add a focused comments Graph port/adapter and scan
+only recent comments for media used by active automations, using cursor-based traversal,
+per-sweep hard caps, cancellation and restart-safe/rate-limit-aware scheduled execution.
+Apply owner/self-reply awareness, local keyword filtering, exact ConnectedAccount routing
+and observed media/original-media mapping. Feed recovered comments into the same normalized
+automation pipeline and the same global `ConnectedAccountId + CommentId + PrivateReply`
+semantic claim as webhook comments. Deduplicate webhook-versus-reconciliation races and
+do not create an alternate automation execution engine. This phase is conceptually tied
+to M13-002, M13-003, M13-004, M13-006, M13-008, M13-009 and M13-012.
+
+**Phase B — Conversation history synchronization:** Add a focused Conversations API
+provider adapter for listing conversations, participants/previews and bounded/cursor-
+paged message history. Map direction, body/content, provider message ID and timestamps
+with exact ConnectedAccount identity, then cross the module boundary through an explicit
+composition-root bridge into a channel-neutral Conversations import/upsert contract.
+Support initial synchronization after account connection where appropriate, authorized
+manual resync and repeat/incremental import idempotency; document provider history limits.
+Design and test this phase independently of M13-012 automation behavior wherever possible:
+its provider-history import must not inherit automation definitions or execution concerns.
+Instagram Infrastructure must never write the Conversations database/schema.
 
 **Completion contract:** Graphify evidence recorded; deterministic HTTP tests cover
 cursors, caps, owner-reply and limited-history shapes; real-PostgreSQL/job tests cover
@@ -1108,9 +1140,9 @@ without live Meta calls.
 ## M13-014 — Expose complete frontend Instagram application surface
 **Status:** TODO
 
-**Outcome:** Make the completed M13 capabilities usable through authenticated Qasedak
-APIs and the existing Next.js product without exposing provider implementation details,
-tokens or unsupported states.
+**Outcome:** Make M13 complete in the frontend for the capabilities verified and
+implemented under the current official Meta contract, without simulating unsupported
+OpenReply behavior or exposing provider implementation details, tokens or false states.
 
 **Depends on:** M13-002 and M13-005 through M13-013.
 
@@ -1118,7 +1150,14 @@ tokens or unsupported states.
 connection and subscription health, media picker, overview/insights/follower history,
 conversation sync state/operation and automation connected-account/post/trigger/opening/
 reveal/link/follow/public-reply/follow-up configuration. Every request validates workspace
-membership plus ConnectedAccount ownership; no frontend call reaches Meta directly.
+membership plus exact `ConnectedAccountId` ownership; every account-specific screen and
+automation configuration carries that exact account key, and no frontend call reaches
+Meta directly. The UI must never show an operable control for a capability M13-001 or a
+later implementation proved unavailable; never fabricate follow status or expose Human
+Agent as automation behavior; and never expose Ads API, publishing or other features
+outside M13 scope. It must distinguish unsupported, unavailable-permission, disconnected,
+unhealthy and temporarily failed states. If M13-011 records follow gating as unsupported,
+omit or truthfully disable only that control rather than blocking M13-014.
 Before modifying any Penpot-owned screen, live-read the mapped page/board/component via
 official Penpot MCP, update reusable components/tokens without replacing application
 behavior, and update `penpot-sync.json` plus a sync record. If an approved required design
@@ -1137,7 +1176,9 @@ and residual not-run gates are explicit.
 **Status:** TODO
 
 **Outcome:** Prove the complete M13 implementation is production-safe, policy-current,
-observable and regression-protected without calling live Meta from CI.
+observable and regression-protected without calling live Meta from CI. "OpenReply parity"
+means parity only with OpenReply Instagram behaviors supported by the current official
+Meta API contract and intentionally included in Qasedak scope—not blind reproduction.
 
 **Depends on:** M13-001 through M13-014.
 
@@ -1152,13 +1193,18 @@ existing metrics for Graph operations, refresh/subscription, webhook/work queues
 private/direct/public sends, automation/postback/reconciliation, rate limits, permission
 loss and token invalidation. Publish current official-policy links, App Review/Advanced
 Access/webhook-subscription checklists, production smoke runbook, and explicit unsupported
-features/residual risks.
+features/residual risks. The final compliance matrix must classify every investigated
+capability as `Supported and implemented`, `Supported but intentionally out of Qasedak
+scope`, `Unsupported by current Meta contract`, `Requires App Review / Advanced Access`,
+`Requires production-only verification`, or `Unverified / externally blocked`.
 
 **Completion contract:** Graphify evidence recorded; every listed contract, isolation,
 concurrency, restart, redelivery, redaction, API and mocked-provider e2e gate passes;
 Testcontainers runs against real PostgreSQL; frontend/full repository verification and
 production runbook checks pass; CI contains zero live Meta calls; state/handoff/manifest
 are current and any externally unexecuted App Review/production smoke is reported rather
-than claimed.
+than claimed. The gate must not fail merely because OpenReply contains behavior that the
+current official Meta contract no longer supports; such behavior must instead be
+classified truthfully and excluded from the supported parity claim.
 
 **Suggested commit:** `test(instagram): validate openreply parity and meta compliance`
