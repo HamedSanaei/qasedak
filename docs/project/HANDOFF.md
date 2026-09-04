@@ -14,6 +14,29 @@ repo for the doc gate and restored byte-identical; it stays untracked/unpushed.
 Commit/push/CI/deploy/smoke/evidence-commit follow in this same instruction;
 deployment evidence will be appended in the subsection below.
 
+### Deployment evidence — M13-001 (2026-09-04, all times UTC)
+
+- Task commit: `6e5b912e4be735df0aad773dbc8e0d2524d29085`
+  (`docs(instagram): reconcile current meta api contract`), pushed
+  `c989cce..6e5b912` to `origin/master`, docs/state-only (no runtime change).
+- CI `33928409880`: success (repository-contracts, backend, frontend, docker).
+- CodeQL `33928409979`: success.
+- Publish Images `33928610451`: success — `ghcr.io/hamedsanaei/qasedak-api` +
+  `qasedak-web` tagged immutable `sha-6e5b912e4be7` (first 12 of the task SHA).
+- Deploy Production `33928687404`: success for exactly the task SHA.
+  Previous tag `sha-c989ccee330e` → `sha-6e5b912e4be7`; DB backup
+  `qasedak-20260904T231403Z-sha-6e5b912e4be7.dump`; migrations replayed;
+  api/web containers Healthy; in-workflow health + public auth-routing smoke
+  passed at `https://qasedak.tofanservice.ir` (~23:13:58–23:14:20Z).
+- Independent smoke: `/` → 200, `/api/v1/system` → 200
+  (`{"name":"Qasedak API","architecture":"Modular Monolith","status":"scaffold"}`),
+  invalid-credential `POST /web-api/auth/login` → 401. No live Instagram
+  mutation was performed (none exists in this task).
+- **HEAD vs production distinction:** after the evidence commit below,
+  repository HEAD is docs/state-only and newer than the deployed code, while
+  the production runtime remains the immutable `sha-6e5b912e4be7` images. This
+  is intentional: M13-001 contains no runtime change to deploy.
+
 ### M13-002 packet (read-only handoff)
 
 - Verified assumptions for exact-account routing: Instagram Login is primary;

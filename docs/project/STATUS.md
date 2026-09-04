@@ -40,6 +40,20 @@
 - State: M13-001 DONE, lastCompletedTask=M13-001, currentTask=M13-002 (TODO).
   Next: commit/push/deploy per the M13-001 instruction, then M13-002.
 
+## 2026-09-04 — M13-001 deployed; production on immutable task image
+
+- Task commit `6e5b912e4be735df0aad773dbc8e0d2524d29085` pushed to
+  `origin/master`. CI `33928409880` success (4 jobs); CodeQL `33928409979`
+  success; Publish Images `33928610451` success
+  (`ghcr.io/hamedsanaei/qasedak-api|web:sha-6e5b912e4be7`); Deploy Production
+  `33928687404` success for the exact SHA (previous `sha-c989ccee330e`, DB
+  backup taken, migrations replayed, containers Healthy, in-workflow smoke
+  passed ~23:14Z).
+- Independent public smoke at `https://qasedak.tofanservice.ir`: `/` 200,
+  `/api/v1/system` 200, invalid-login `/web-api/auth/login` 401. No Instagram
+  mutations performed. Production runtime = immutable `sha-6e5b912e4be7`;
+  a later docs-only evidence commit does not change the deployed image.
+
 ## 2026-09-05 — M13 provider-conditional dependency refinement
 
 - All M13-001 through M13-015 tasks remain TODO; current milestone/task remain
