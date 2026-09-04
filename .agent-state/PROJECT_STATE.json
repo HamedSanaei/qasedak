@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-04T23:08:01Z",
+  "updatedAt": "2026-09-04T23:38:58Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-002",
@@ -134,5 +134,5 @@
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-001 DONE + DEPLOYED 2026-09-04: contract reconciled (ADR-010, IG Login primary, follow status unsupported); task SHA 6e5b912e4be735df0aad773dbc8e0d2524d29085 pushed; CI/CodeQL/Publish/Deploy all success; production on immutable sha-6e5b912e4be7 with public smoke 200/200/401. State: lastCompletedTask=M13-001, currentTask=M13-002 TODO. Next: evidence [skip ci] commit, then M13-002."
+  "lastInstruction": "M13-001 follow-status correction DONE 2026-09-05: User Profile API verified (GET /<IGSID>, is_user_follow_business, consent-gated); contract §3.9/Q14/Q20/§4/§6/§7, ADR-010, M13-011 verdict, DECISIONS/MILESTONES/STATUS/HANDOFF corrected; M13-012 decoupled; gates re-passed incl. verify.py --full; docs-only [skip ci], runtime stays sha-6e5b912e4be7. State: lastCompletedTask=M13-001, currentTask=M13-002 TODO."
 }

@@ -742,7 +742,7 @@ equivalent Linux CI gate passed.
 **Suggested commit:** `feat(web): complete customer dashboard navigation`
 
 ## M13-001 — Reconcile current Meta Instagram API contract
-**Status:** DONE (2026-09-04)
+**Status:** DONE (2026-09-04; follow-status correction 2026-09-05)
 
 **Outcome:** Revalidate Qasedak's Meta-facing contracts against current official
 Instagram API with Instagram Login documentation before any M13 production change.
@@ -779,7 +779,8 @@ Instagram Login confirmed primary for messaging/Conversations/Private Replies/pu
 replies/webhooks/media/insights; ADR-006 messaging decision superseded by new
 ADR-010 (ADR-006 preserved as history); matrix + OAuth lifecycle + SRS §4 reconciled;
 DECISIONS.md disambiguated; verdict notes added to M13-003/008/009/011 (follow status
-officially unsupported → M13-011 branch 2). Window signal is 10/2534022 (no official
+officially supported via the User Profile API subject to user consent — corrected
+2026-09-05; ordinary template-postback consent remains unverified). Window signal is 10/2534022 (no official
 490); read receipts are `read:{mid}`; latest observed Graph v26.0 (configured, not
 hardcoded). Zero production source/migration/package/test/secret changes. Gates:
 check_docs/state/architecture/environment/Penpot 6/6/manifest/diff-check pass;
@@ -790,6 +791,21 @@ Docker image builds). Local-only note: `check_docs.py` transiently failed on a
 pre-existing untracked user export in `docs/fa/`; the file was hash-parked
 outside the repo for the gate run and restored byte-identical (SHA256 recorded
 in STATUS/HANDOFF), so CI clean-checkout state is unaffected.
+
+**Correction evidence (2026-09-05):** post-completion audit proved the
+"follow status officially unsupported" conclusion wrong. The official Instagram
+User Profile API with Instagram Login (`GET graph.instagram.com/<IGSID>` →
+`is_user_follow_business`, basic + manage_messages) was verified same-day via
+first-party pages (IG Login profile page + Messenger variant + persistent-menu
+postback semantics). Contract §3.9 rewritten as SUPPORTED WITH USER-CONSENT
+CONSTRAINTS (consented lookup supported; raw-comment lookup officially fails;
+ordinary template-postback consent Unverified); Q14/Q20/§4-item-8/§6/§7 updated;
+ADR-010 decision 4 corrected (Cases A/B/C, capability-switched gate, no polling,
+no scraping); M13-011 verdict replaced (conditional design kept, M13-012 stays
+decoupled); DECISIONS/MILESTONES/STATUS/HANDOFF corrected. All other M13-001
+conclusions preserved. Gates re-run: docs/state/arch/env/Penpot/manifest/
+diff-check pass, agent_finalize M13-001 pass, verify.py --full pass. Docs-only;
+no production code changed.
 
 **Suggested commit:** `docs(instagram): reconcile current meta api contract`
 
@@ -1072,11 +1088,18 @@ status must not erase or block the provider-independent flow.
 
 **Depends on:** M13-004, M13-008, M13-009, M13-010.
 
-**M13-001 verdict (2026-09-04):** per-user follow status is officially
-unsupported (no endpoint exposes "does IGSID X follow this account";
-Business Discovery yields aggregate counts only, FB Login only) — implement
-completion branch (2): full opening/postback/reveal flow with the gate
-truthfully unavailable. No scraping, private APIs or substitutes.
+**M13-001 verdict (2026-09-04, corrected 2026-09-05):** per-user follow status is
+officially supported through the User Profile API (`GET /<IGSID>` →
+`is_user_follow_business`, IG User token, basic + manage_messages), subject to
+Meta user-consent rules — implement the relationship/profile port
+(follows / does-not-follow / unavailable-unknown) with three cases: (A) consented
+user (sent message / icebreaker / persistent menu) → query; (B) unconsented user
+(raw comment) → never call blindly, continue via an allowed path and check only
+once provider consent exists (consent error is definitive, not a retry signal);
+(C) ordinary template-postback consent unverified → keep the Follow Gate behind a
+provider capability/policy switch until proven, without blocking the
+opening/postback/reveal flow. No scraping, private APIs, substitutes or
+consent-error polling.
 
 **Provider-independent implementation scope:** Model signed/opaque or persisted postback
 correlation bound to automation/version, exact ConnectedAccount and intended operation;

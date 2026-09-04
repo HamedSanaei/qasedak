@@ -126,8 +126,8 @@ adapter has deterministic current-contract coverage; two connected Instagram acc
 one workspace remain isolated end to end; comment-triggered first contact uses a globally
 claimed Private Reply rather than the normal conversation send path; scheduled work is
 restart-safe; no secret reaches a job, log, browser or foreign workspace; and the full
-repository/production-parity gates pass without live Meta calls in CI. A provider-
-unsupported follow-status lookup does not block the supported opening/postback/reveal or
+repository/production-parity gates pass without live Meta calls in CI. A consent-less
+or unverified follow-status lookup does not block the supported opening/postback/reveal or
 independent automation-parity exit criteria.
 
 Suggested milestone commit: `feat(instagram): deliver openreply parity integration`

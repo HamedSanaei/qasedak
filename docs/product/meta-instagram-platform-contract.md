@@ -182,17 +182,59 @@ M13-007 implements organic metrics + follower snapshots with degradation.
 Sources: Insights guide (2025-01-21); Account Insights (2026-06-16); Media
 Insights (2026-06-18); insights-on-IG-Login blog (2025-03-24).
 
-### 3.9 Relationship / follow status — UNSUPPORTED for the intended gate
+### 3.9 Relationship / follow status — SUPPORTED WITH USER-CONSENT CONSTRAINTS
 
-No current official endpoint or field exposes "does IGSID X follow this
-professional account". The closest official surface, Business Discovery
-(updated 2026-08-12, **Facebook Login only**), returns aggregate
-`followers_count`/`media_count` for *other* professional accounts — not a
-per-user relationship. Insight `follow_type` breakdowns describe content
-viewers, not a lookup. **Classification: unsupported/unusable. No scraping, no
-private APIs, no substitute.** This confirms the M13-011 branch-(2) outcome and
-the conditional consumption in M13-012/M13-014/M13-015. If Meta ships such a
-field later, it arrives as a new task, not a silent addition.
+> **Correction 2026-09-05 (M13-001):** the 2026-09-04 version of this section
+> wrongly classified per-user follow status as globally unsupported. The
+> official Instagram User Profile API with Instagram Login exposes
+> `is_user_follow_business`. What follows supersedes that conclusion; the old
+> claim is preserved only in git history, not in this document.
+
+Endpoint: `GET https://graph.instagram.com/<IGSID>` with `fields=` listing the
+wanted profile fields. Token: Instagram User access token of the app user who
+can manage messages on the professional account. Permissions:
+`instagram_business_basic` + `instagram_business_manage_messages`. Access:
+Advanced (third-party) / Standard (own dashboard accounts). IGSID comes from a
+messaging webhook notification (`messages.sender.id`, postback/referral
+senders). Supported fields: `name`, `username`, `profile_pic` (expires after
+days), `follower_count` (the *user's* followers), `is_user_follow_business`
+(**whether the Instagram user follows your app user**), `is_business_follow_user`,
+`is_verified_user`. Blocked users are unviewable.
+
+**User-consent requirement (official):** consent is set **only** when the user
+sends a message to the app user, or clicks an icebreaker or persistent menu. A
+user who merely comments (post/comment) does **not** grant profile access —
+lookup fails with `User consent is required to access user profile` (a
+distinguishable, non-retryable-until-consent signal; M13-011 must not poll on
+it). Persistent-menu clicks arrive as `messaging_postbacks` **and** open the
+standard 24h window (persistent-menu guide) — they are documented
+consent-establishing events. Whether an *ordinary* button-template/quick-reply
+postback tap from our own message establishes consent is **not explicitly
+proven** by current documentation, even though `messaging_postbacks` is a
+listed profile-lookup subscription.
+
+| Capability | Status |
+|---|---|
+| User Profile API (`GET /<IGSID>`) | Supported |
+| `is_user_follow_business` | Supported |
+| Existing-consented messaging-user lookup (sent message / icebreaker / persistent menu) | Supported |
+| Raw comment → immediate follow lookup | Unsupported (missing consent — official error) |
+| Opening Private Reply → ordinary template postback → follow lookup | **Unverified / requires provider-contract or production-safe verification** (NOT globally unsupported; NOT assumed supported) |
+| No-consent polling / blind retries | Forbidden (wastes rate budget; treat consent error as definitive until a consent event arrives) |
+| Scraping / private API fallback | Forbidden |
+
+**Consequence:** M13-011 implements the relationship/profile port
+(follows / does-not-follow / unavailable-unknown) behind a provider
+capability/policy switch: query in Case A (consented), never blindly in Case B
+(unconsented — continue via an allowed path), keep the Follow Gate switched off
+until Case C (ordinary-postback consent) is proven. M13-012 stays decoupled
+from M13-011; M13-014/015 consume the gate conditionally. Business Discovery
+remains the FB-only aggregate-counts surface, not a substitute.
+
+Sources: Instagram User Profile API with IG Login (page 2025-01-21; v25.0/v26.0
+examples); User Profile API — Instagram Messaging/Messenger (updated
+2026-04-01, same consent sentence, FB path); Persistent Menu with IG Login
+(updated 2026-06-30, postback + window semantics).
 
 ### 3.10 App Review / access levels (current)
 
@@ -229,6 +271,10 @@ IG Messaging overview testing limitations (2026-06-26).
 7. Message tags other than `human_agent` are unusable for Instagram (deprecated
    tags now error 100); Sponsored/One-Time/Marketing/News messages are
    unavailable for Instagram Messaging — M13-010/011 must not plan on them.
+8. (Correction 2026-09-05.) The User Profile API exposes `is_user_follow_business`
+   on Instagram Login, gated by user consent (sent message / icebreaker /
+   persistent menu; comment-only fails officially); ordinary template-postback
+   consent is unverified — see §3.9.
 
 ## 5. Explicit answers (§25 of the M13-001 instruction)
 
@@ -252,7 +298,10 @@ IG Messaging overview testing limitations (2026-06-26).
     10/2534022; comments do not open the window.
 12. **Postback shape for M13-008?** `postback:{mid,title,payload[,referral]}` in `messaging[]`.
 13. **Read/Seen shape for M13-008?** `read:{mid}` — message ID, never a watermark.
-14. **Follow Status usable?** No — officially unsupported for the intended gate.
+14. **Follow Status usable?** Yes, with user-consent constraints: `GET /<IGSID>`
+returns `is_user_follow_business`; works for consented users (sent message /
+icebreaker / persistent menu); raw-comment lookup fails officially; ordinary
+template-postback consent is Unverified (§3.9).
 15. **Standard/Advanced?** Standard = own dashboard accounts; Advanced =
     third-party (review + verification); Live app + roles for webhooks; Advanced
     for comments/live_comments.
@@ -268,7 +317,7 @@ IG Messaging overview testing limitations (2026-06-26).
     accounts/health lifecycle, Business Discovery, `total_*` insights,
     `story_insights` webhook, hashtag search, ads/shopping (out of M13 scope).
 20. **OpenReply behaviors excluded?** Out-of-window proactive sends; Sponsored /
-    One-Time / Marketing / News messages; follow-gate enforcement; publishing;
+    One-Time / Marketing / News messages; consent-less follow-gate enforcement; publishing;
     ads/shopping/hashtag/Business-Discovery features; group messaging; folder
     semantics; >20-message history detail; `total_*` on the IG path; insight
     webhooks on the IG path; non-`human_agent` tags.
@@ -282,10 +331,15 @@ IG Messaging overview testing limitations (2026-06-26).
   adopted here; M13-009/010 verify at implementation time (as the original
   matrix already prescribed).
 - `message_echoes` / `message_reactions` / `message_edit` subscription-field
-  availability on the IG-Login path — observed in the examples index; M13-008
-  confirms against the live subscription table before subscribing.
+availability on the IG-Login path — observed in the examples index; M13-008
+confirms against the live subscription table before subscribing.
+- Whether an ordinary button-template/quick-reply postback tap establishes User
+Profile consent — current docs prove it only for sent messages, icebreakers
+and persistent-menu clicks; M13-011 keeps the Follow Gate behind a
+capability/policy switch until provider-contract or production-safe
+verification proves the ordinary-postback case.
 
-## 7. Sources (all retrieved 2026-09-04; page revision dates as shown)
+## 7. Sources (retrieved 2026-09-04 unless marked 2026-09-05; page revision dates as shown)
 
 - Instagram Platform overview — updated 2026-04-17
 - Business Login for Instagram — updated 2026-03-13
@@ -311,6 +365,9 @@ IG Messaging overview testing limitations (2026-06-26).
 - Messenger Common Error Codes — updated 2026-06-25 (10/2534022)
 - Instagram Platform error codes — updated 2026-06-02
 - Facebook Login long-lived tokens — updated 2026-06-30 ("Latest Graph API Version: v26.0")
+- Instagram User Profile API with IG Login — page 2025-01-21, v25.0/v26.0 examples (endpoint, fields, consent rule; retrieved 2026-09-05)
+- User Profile API — Instagram Messaging/Messenger — updated 2026-04-01 (same consent sentence, FB path)
+- Persistent Menu with IG Login — updated 2026-06-30 (menu postback + 24h window semantics)
 - Facebook Login for Business IG onboarding — 2025-05-29
 - Instagram API with Instagram Login overview — 2025-01-21 (scope names; 2025-01-27 deprecation)
 - Meta-owned Postman collection `postman.com/meta/instagram` — located 2026-09-04 (supplementary; documentation pages sufficed)

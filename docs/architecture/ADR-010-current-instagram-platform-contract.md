@@ -15,7 +15,9 @@ current official Meta documentation (page revisions March–August 2026,
 retrieved 2026-09-04) shows that split no longer holds: Instagram Login now
 directly supports the full messaging surface Qasedak needs. In parallel, the
 audit corrected two implementation-level assumptions (window-error code,
-read-receipt shape) and confirmed follow-status unavailability.
+read-receipt shape) and characterized follow-status availability (corrected
+2026-09-05: supported via the User Profile API subject to user consent, not
+globally unavailable).
 
 ## Decision
 
@@ -34,11 +36,18 @@ read-receipt shape) and confirmed follow-status unavailability.
    `10` + `error_subcode` `2534022` (no official `490` exists in current
    tables); read receipts are `read:{mid}` (message ID, never a watermark);
    postbacks are `postback:{mid,title,payload}`.
-4. **Per-user follow status is officially unsupported** for Qasedak's intended
-   gate: no endpoint or field exposes "does IGSID X follow this account".
-   M13-011 therefore ships branch (2) — supported opening/postback/reveal flow
-   with the gate truthfully unavailable — unless Meta ships such a field under
-   a future task. No scraping, private APIs or substitutes, ever.
+4. **Per-user follow status is supported subject to user consent** (corrected
+   2026-09-05; the 2026-09-04 "officially unsupported" statement was wrong). The
+   Meta User Profile API (`GET /<IGSID>` on `graph.instagram.com`) exposes
+   `is_user_follow_business`, but profile access is gated by Meta user-consent
+   rules: consent exists after the user sends a message or clicks an
+   icebreaker/persistent menu; comment-only interaction fails officially.
+   Qasedak may implement the Follow Gate only at a point in the interaction
+   where the required consent is established (Case A), never blindly (Case B),
+   and the exact ordinary-template-postback consent behavior (Case C) stays
+   behind a capability/policy switch until proven — it must not block the
+   opening/postback/reveal flow. No scraping, private APIs, substitutes, or
+   consent-error polling, ever.
 5. **Human Agent stays human/operator-only**: the `human_agent` tag (7-day,
    feature approval required) must never appear in automation paths.
 6. Latest Graph version observed is `v26.0`; M13-003 configures one version for

@@ -1,6 +1,23 @@
 # Current handoff
 
-## 2026-09-04 — M13-001 DONE; M13-002 packet ready (do not start M13-002)
+## 2026-09-05 — M13-001 follow-status correction DONE (M13-002 not started)
+
+M13-001 was DONE and deployed, but a post-completion audit found one material
+error: the contract classified per-user follow status as globally unsupported.
+The official Instagram User Profile API with Instagram Login
+(`GET graph.instagram.com/<IGSID>` → `is_user_follow_business`, IG User token,
+basic + manage_messages) proves the field exists. Corrected semantics:
+SUPPORTED with user-consent constraints (consent = sent message / icebreaker /
+persistent menu; raw comment fails officially with a definitive consent error);
+ordinary template-postback consent is UNVERIFIED and stays behind a
+capability/policy switch. M13-011 keeps its provider-conditional design with
+Cases A (query when consented) / B (never blindly) / C (gated until proven);
+M13-012 stays decoupled from M13-011. All other M13-001 conclusions preserved.
+Correction verified green (docs/state/arch/env/Penpot/manifest/diff-check,
+agent_finalize, verify.py --full) and restored to DONE. State:
+currentTask=M13-002 (TODO), lastCompletedTask=M13-001. Production runtime unchanged
+(`sha-6e5b912e4be7`); this correction ships as a docs-only `[skip ci]` commit
+with no new deployment.
 
 M13-001 completed docs/state-only (zero production source/migration/package/
 test/secret changes). Normative contract: `docs/product/meta-instagram-platform-contract.md`;
@@ -51,9 +68,9 @@ deployment evidence will be appended in the subsection below.
 - Superseded: Messenger-Platform-only messaging, FB-Login-required messaging,
   Page-required-for-messaging, code-490 window mapping (now 10/2534022),
   watermark-shaped reads (now `read:{mid}`).
-- Provider blockers: none for M13-002 scope; follow-status unavailability does
-  not touch this task; carried-over text-limit/rate-limit assumptions belong to
-  M13-003/010, not here.
+- Provider blockers: none for M13-002 scope; follow-gate consent semantics do
+not touch this task; carried-over text-limit/rate-limit assumptions belong to
+M13-003/010, not here.
 - First architectural objective: introduce Qasedak-owned opaque
   `ChannelAccountId`, change thread uniqueness to `(WorkspaceId, Channel,
   ChannelAccountId, ParticipantId)` with a backward-compatible migration, and

@@ -3,8 +3,22 @@
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
 **Current task:** M13-002 — Bind conversations and automations to exact connected accounts (TODO)
-**Last completed:** M13-001 (2026-09-04)
-**Product implementation:** Current Meta contract reconciled; no M13 feature implementation started
+**Last completed:** M13-001 (2026-09-04; follow-status correction 2026-09-05)
+**Product implementation:** Current Meta contract reconciled and corrected; no M13 feature implementation started
+
+## 2026-09-05 — M13-001 follow-status correction DONE
+
+- The 2026-09-04 "globally unsupported" follow-status conclusion was wrong. The
+  official Instagram User Profile API (`GET graph.instagram.com/<IGSID>` →
+  `is_user_follow_business`) was verified same-day from first-party Meta pages.
+- Corrected: profile lookup SUPPORTED with user-consent constraints (sent
+  message / icebreaker / persistent menu consented; raw comment fails
+  officially); ordinary template-postback consent UNVERIFIED behind a
+  capability switch. M13-011 conditional design kept (Cases A/B/C); M13-012
+  stays decoupled. All other M13-001 conclusions preserved.
+- Gates re-run green (docs/state/arch/env/Penpot/manifest/diff-check,
+  agent_finalize, verify.py --full). Docs-only; production runtime unchanged
+  (`sha-6e5b912e4be7`); ships as `[skip ci]` with no new deployment.
 
 ## 2026-09-04 — M13-001 DONE: current Meta Instagram contract reconciled
 
