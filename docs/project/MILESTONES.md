@@ -101,3 +101,28 @@ approved mappings in `penpot-sync.json` are the visual source; divergences are r
 in sync evidence, never invented.
 
 Suggested milestone commit: `feat(v2): deliver inbox search and product v2 features`
+
+## M13 — Instagram OpenReply Parity & Production Integration
+
+**Goal:** complete the Qasedak backend architecture required to provide the supported
+Instagram capabilities demonstrated by OpenReply while correcting Qasedak's current
+connected-account routing and comment Private Reply semantics. OpenReply is a product-
+behavior reference only; current official Meta documentation and Qasedak's modular Clean
+Architecture remain authoritative.
+
+M13 preserves the completed M01–M08 foundations: OAuth exchange and protected token
+storage, account health primitives, verified/durable webhook ingestion, transport-free
+normalization, Conversations/Contacts projections, versioned deterministic automations,
+the execution ledger, and the existing Next.js/Penpot sync contract. Work proceeds in
+this order: current Meta contract reconciliation → exact channel-account identity →
+versioned Graph transport and durable work → provider primitives → automation
+orchestration → Penpot-governed frontend integration → production/compliance gate.
+
+Exit: all M13 tasks are complete; every Meta adapter has deterministic current-contract
+coverage; two connected Instagram accounts in one workspace remain isolated end to end;
+comment-triggered first contact uses a globally claimed Private Reply rather than the
+normal conversation send path; scheduled work is restart-safe; no secret reaches a job,
+log, browser or foreign workspace; and the full repository/production-parity gates pass
+without live Meta calls in CI.
+
+Suggested milestone commit: `feat(instagram): deliver openreply parity integration`

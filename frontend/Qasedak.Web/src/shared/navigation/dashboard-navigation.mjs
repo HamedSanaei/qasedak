@@ -5,7 +5,12 @@ export const dashboardNavigation = Object.freeze([
     label: "امکانات",
     icon: "features",
     children: Object.freeze([
-      Object.freeze({ label: "پاسخ‌های خودکار", href: "/dashboard/automations" }),
+      Object.freeze({ label: "پاسخ هوشمند", href: "/dashboard/features/smart-answer" }),
+      Object.freeze({ label: "ویترین‌ساز", href: "/dashboard/features/cards" }),
+      Object.freeze({ label: "پشتیبان هوشمند", href: "/dashboard/features/follow-up" }),
+      Object.freeze({ label: "کامنت / لایو هوشمند", href: "/dashboard/features/comment-automation" }),
+      Object.freeze({ label: "فرم‌ساز", href: "/dashboard/features/form-maker" }),
+      Object.freeze({ label: "پیام خوش‌آمدگویی", href: "/dashboard/features/ice-breakers" }),
     ]),
   }),
   Object.freeze({ label: "اتصال اینستاگرام", href: "/dashboard/settings/instagram", icon: "instagram" }),

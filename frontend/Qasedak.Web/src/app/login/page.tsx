@@ -9,7 +9,6 @@
  * server-owned auth handler now establishes the session cookie.
  */
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, TextField } from "../../shared/design/ui";
 import { saveSession } from "../../shared/api/identity";
@@ -20,7 +19,6 @@ import {
 import { AuthBrandRow, AuthLayout } from "../../features/auth/AuthLayout";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ email?: string | null; password?: string | null }>({});
@@ -50,7 +48,9 @@ export default function LoginPage() {
       // Keep the legacy feature clients working while the HttpOnly cookie is used
       // by server components and guards.
       saveSession(body.accessToken, body.expiresAtUtc);
-      router.replace("/dashboard");
+      // A full navigation prevents the App Router from reusing an unauthenticated
+      // route-cache entry before the freshly issued HttpOnly cookie is observed.
+      window.location.replace("/dashboard");
     } catch {
       setFormError("ارتباط با سرویس برقرار نشد. دوباره تلاش کنید.");
     } finally {

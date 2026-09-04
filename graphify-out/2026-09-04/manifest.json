@@ -1,8 +1,8 @@
 {
   ".agent-state/PROJECT_STATE.json": {
-    "mtime": 1788558925.0794816,
-    "ast_hash": "3990a58302e0704530195fabc1f0c1be",
-    "semantic_hash": "3990a58302e0704530195fabc1f0c1be"
+    "mtime": 1788098809.9493916,
+    "ast_hash": "97c216e52aa8131a7be51d8d4ca0d406",
+    "semantic_hash": "97c216e52aa8131a7be51d8d4ca0d406"
   },
   "backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/IClock.cs": {
     "mtime": 1787434829.0,
@@ -285,9 +285,9 @@
     "semantic_hash": "b5d7df09a0c46f49dc0840132dfff1ed"
   },
   "frontend/Qasedak.Web/next-env.d.ts": {
-    "mtime": 1788498839.4138398,
-    "ast_hash": "8195d2c60ce847a459ae9d308d6a5724",
-    "semantic_hash": "8195d2c60ce847a459ae9d308d6a5724"
+    "mtime": 1788485790.7024152,
+    "ast_hash": "aa94238a90e7d04b7a47ecc3145ba6a0",
+    "semantic_hash": "aa94238a90e7d04b7a47ecc3145ba6a0"
   },
   "frontend/Qasedak.Web/next.config.ts": {
     "mtime": 1787560450.1712818,

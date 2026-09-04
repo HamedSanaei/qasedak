@@ -73,6 +73,16 @@
   --color-text-placeholder: #aaa6b0; /* Penpot form component state */
   --color-status-error: #e72d3d; /* Penpot dashboard error accent */
   --color-accent-violet: #9b21d1; /* Penpot dashboard secondary accent */
+  --color-dashboard-tip-surface: #f4e2f0; /* Penpot dashboard notice */
+  --color-dashboard-tip-border: #e9b9dd; /* Penpot dashboard notice */
+  --color-dashboard-warning-surface: #fff4e9; /* Penpot dashboard notice */
+  --color-dashboard-warning-border: #f3dfc8; /* Penpot dashboard notice */
+  --color-dashboard-warning-accent: #f47b20; /* Penpot dashboard notice */
+  --color-dashboard-danger-surface: #fbedee; /* Penpot dashboard notice */
+  --color-dashboard-danger-border: #f0d0d3; /* Penpot dashboard notice */
+  --color-dashboard-quick-inbox: #239bd7; /* Penpot dashboard quick-access accent */
+  --color-dashboard-quick-help: #00a7a7; /* Penpot dashboard quick-access accent */
+  --radius-dashboard-card: 14px; /* Penpot dashboard feature cards */
   --shadow-menu: 0 4px 4px rgba(0, 0, 0, 0.3); /* Penpot user-menu menu shadow */
   --qs-canvas: #f6f7f9; /* Penpot Qasedak auth/inbox/billing canvas */
   --qs-brand-deep: #670048; /* Penpot Qasedak auth brand panel */

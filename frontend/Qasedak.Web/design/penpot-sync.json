@@ -5,8 +5,8 @@
     "fileId": "c269caa0-e456-818c-8008-85a77340be64",
     "fileIdNote": "Stable file id read live via penpot.currentFile.id during the M08 design-source verification pass. Never match this file by name alone: its default display name is 'New File 1', which other files can share.",
     "fileName": "New File 1",
-    "verifiedAtUtc": "2026-08-24T19:30:00Z",
-    "verifiedPageCount": 39,
+    "verifiedAtUtc": "2026-08-30T12:48:39Z",
+    "verifiedPageCount": 51,
     "verifiedPages": [
       { "id": "c269caa0-e456-818c-8008-85a77340be65", "name": "Page 1" },
       { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
@@ -46,7 +46,19 @@
       { "id": "9362b142-eccc-80db-8008-885a18a3f391", "name": "Vendora · 07 Addresses" },
       { "id": "9362b142-eccc-80db-8008-885a18a603af", "name": "Vendora · 08 Orders & Returns" },
       { "id": "9362b142-eccc-80db-8008-885a18a86f53", "name": "Vendora · 09 Wishlist & Transactions" },
-      { "id": "9362b142-eccc-80db-8008-885a18ab10a5", "name": "Vendora · 10 Quick Pay & Responsive States" }
+      { "id": "9362b142-eccc-80db-8008-885a18ab10a5", "name": "Vendora · 10 Quick Pay & Responsive States" },
+      { "id": "738244a4-fc88-8016-8008-887954b993a1", "name": "Vendora Admin · 00 Blueprint" },
+      { "id": "738244a4-fc88-8016-8008-8879563c6ccc", "name": "Vendora Admin · 01 Foundations" },
+      { "id": "738244a4-fc88-8016-8008-8879564fa000", "name": "Vendora Admin · 02 Components" },
+      { "id": "738244a4-fc88-8016-8008-887956634369", "name": "Vendora Admin · 03 Dashboard" },
+      { "id": "738244a4-fc88-8016-8008-8879566b36f3", "name": "Vendora Admin · 04 Products" },
+      { "id": "738244a4-fc88-8016-8008-8879567de6e7", "name": "Vendora Admin · 05 Orders" },
+      { "id": "738244a4-fc88-8016-8008-88795686e2ec", "name": "Vendora Admin · 06 Catalog" },
+      { "id": "738244a4-fc88-8016-8008-8879569173b2", "name": "Vendora Admin · 07 Customers & Growth" },
+      { "id": "738244a4-fc88-8016-8008-887956d6ad30", "name": "Vendora Admin · 08 Team & Storefront" },
+      { "id": "738244a4-fc88-8016-8008-88795706f958", "name": "Vendora Admin · 09 Auth & Responsive" },
+      { "id": "738244a4-fc88-8016-8008-8879572978d7", "name": "Vendora Admin · 10 Future Ready" },
+      { "id": "086d9f39-42be-80a2-8008-88b39aa8436a", "name": "Vendora · 11 Shop & Product" }
     ],
     "designSourceNotes": {
       "directamLandingPage": {
@@ -55,10 +67,26 @@
         "candidateBoardId": "f6b8d46f-5deb-801d-8008-85ab43d94e44",
         "candidateBoardName": "Directam Landing — Desktop",
         "candidateHostPageId": "c269caa0-e456-818c-8008-85a77340be65"
+      },
+      "m12CustomerFrontendPrimary": {
+        "status": "live-inspected-primary",
+        "note": "M12-008 first inspected the human-designated primary file through the official Penpot MCP. Its four Qasedak-native pages cover product components, Identity/Workspace, Inbox and Billing; no Accounts or Help board exists there. The existing source file's Directam Help Center board was therefore used only as the permitted legacy visual reference, while Next.js retained Qasedak behavior and real routes.",
+        "fileId": "c269caa0-e456-818c-8008-89e5136d6851",
+        "fileName": "directam",
+        "pageCount": 4,
+        "penpotRevision": null
+      },
+      "adHocFeaturesFile": {
+        "status": "live-inspected-user-designated",
+        "note": "User-supplied design link inspected live through the official Penpot plugin. File c828d3cf-7d4e-8145-8008-95c04412c3f4 (17 pages) carries the Directam-reference feature boards; all nine boards below were read plus PNG-exported. Same board UUIDs as the canonical file; penpotRevision stays null because the API exposes none.",
+        "fileId": "c828d3cf-7d4e-8145-8008-95c04412c3f4",
+        "pageCount": 17,
+        "penpotRevision": null
       }
     },
     "inspectedPages": [
       { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
+      { "id": "f5bf3c2c-b970-8002-8008-8749d0783515", "name": "Directam — Help Center" },
       { "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b", "name": "Directam — Connect Instagram" },
       { "id": "f5bf3c2c-b970-8002-8008-874ebb680e25", "name": "Directam — Comment Automation" },
       { "id": "f5bf3c2c-b970-8002-8008-8752c5573aef", "name": "Directam — Global Navigation Components" },
@@ -96,6 +124,7 @@
       "card": "12px",
       "control": "8px",
       "chip": "6px",
+      "dashboardCard": "14px",
       "landingCard": "24px"
     },
     "elevation": {
@@ -113,6 +142,15 @@
       "statusDanger": "#D32F2F",
       "statusError": "#E72D3D",
       "accentViolet": "#9B21D1",
+      "dashboardTipSurface": "#F4E2F0",
+      "dashboardTipBorder": "#E9B9DD",
+      "dashboardWarningSurface": "#FFF4E9",
+      "dashboardWarningBorder": "#F3DFC8",
+      "dashboardWarningAccent": "#F47B20",
+      "dashboardDangerSurface": "#FBEDEE",
+      "dashboardDangerBorder": "#F0D0D3",
+      "dashboardQuickInbox": "#239BD7",
+      "dashboardQuickHelp": "#00A7A7",
       "landingPurple": "#8919A1",
       "landingPink": "#BE0182",
       "landingInk": "#242424",
@@ -141,7 +179,7 @@
         "status": "provisional",
         "basis": "Connected Penpot file designated as the working design source for M05-005; pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard"],
+      "nextRoutes": ["/dashboard/*"],
       "componentPath": "src/shared/design/Sidebar.tsx",
       "compositionPaths": ["src/app/dashboard/layout.tsx"],
       "responsiveTargets": ["desktop-1440", "mobile-tbd"],
@@ -389,6 +427,368 @@
       "penpotRevision": null,
       "syncStatus": "synced",
       "notes": "Transferred from the Python clone's M08-007 implementation. This route is public; authenticated screens continue to use their existing mappings."
+    },
+    {
+      "id": "dashboard.overview",
+      "designName": "Dashboard — Directam Reference",
+      "penpotPageId": "f6b8d46f-5deb-801d-8008-85ad249c0ba1",
+      "penpotPageName": "Directam Admin Dashboard",
+      "penpotBoardId": "f6b8d46f-5deb-801d-8008-85ad24c7b3f3",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "approved",
+        "basis": "The human explicitly designated this exact Penpot page for M12-003. The board, all descendant text, dimensions, colors and live file revision were inspected through the official Penpot MCP on 2026-08-30."
+      },
+      "nextRoutes": ["/dashboard"],
+      "componentPath": "src/features/dashboard/DashboardOverview.tsx",
+      "compositionPaths": [
+        "src/app/dashboard/page.tsx",
+        "src/features/dashboard/dashboard-state.mjs"
+      ],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.nav",
+        "color.text.secondary",
+        "color.brand.accent",
+        "colorExtended.accentSoft",
+        "colorExtended.accentViolet",
+        "colorExtended.statusError",
+        "colorExtended.dashboardTipSurface",
+        "colorExtended.dashboardTipBorder",
+        "colorExtended.dashboardWarningSurface",
+        "colorExtended.dashboardWarningBorder",
+        "colorExtended.dashboardWarningAccent",
+        "colorExtended.dashboardDangerSurface",
+        "colorExtended.dashboardDangerBorder",
+        "colorExtended.dashboardQuickInbox",
+        "colorExtended.dashboardQuickHelp",
+        "radius.card",
+        "radius.control",
+        "radius.dashboardCard"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-08-30T12:48:39Z",
+      "penpotRevision": "281",
+      "syncStatus": "synced",
+      "notes": "The 1440px board is implemented as token-driven reusable notice, feature-card and quick-access compositions. Qasedak branding, existing routes and live Workspace/Inbox states replace Directam-specific copy, subscription assumptions and external social links. The existing authenticated shell remains the composition root. No mobile board exists; 390px behavior is explicitly derived and not claimed as a Penpot target."
+    },
+    {
+      "id": "support.help-center",
+      "designName": "Help Center — Desktop",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-8749d0783515",
+      "penpotPageName": "Directam — Help Center",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-8749d0a39e9f",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "The human explicitly allowed the older Directam Help Center as a visual reference for missing frontend areas. The primary Qasedak-native file was inspected first and contains no Help board, so this mapping records a behavior-preserving Qasedak adaptation pending pixel sign-off."
+      },
+      "nextRoutes": ["/dashboard/help"],
+      "componentPath": "src/features/help/HelpScreen.tsx",
+      "compositionPaths": [
+        "src/app/dashboard/help/page.tsx",
+        "src/features/help/HelpScreen.module.css"
+      ],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.text.muted",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.headingPlum",
+        "colorExtended.accentSoft",
+        "colorExtended.borderInput"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-08-30T13:36:44Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Live MCP inspection covered the complete 1440×1050 board, descendant text and PNG export. Qasedak keeps the search hero, quick paths, category cards and FAQ composition, but every card points to a real Qasedak route. The legacy online-chat CTA, support hours and Smart SMS category were removed because no configured ticket/chat backend or Smart SMS capability exists. Search filters the static FAQ locally and honestly; no request persistence or fake success was introduced. No Help mobile board exists, so 390px is a documented responsive derivation."
+    },
+    {
+      "id": "features.smart-answer",
+      "designName": "Smart Answering — Directam Reference",
+      "penpotPageId": "f6b8d46f-5deb-801d-8008-85ad249c0ba1",
+      "penpotPageName": "Directam Admin Dashboard",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-8744692773fc",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file c828d3cf-7d4e-8145-8008-95c04412c3f4 inspected live through the official Penpot plugin: 1440×1050 board, education banner, search card and empty state with add-command CTA. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/features/smart-answer"],
+      "componentPath": "src/features/product/FeatureScreens.tsx",
+      "compositionPaths": ["src/app/dashboard/features/smart-answer/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Empty-state list: no backend exists for smart answers, so the screen honestly renders the design empty state with a local search field and links to the local builder. No server state invented."
+    },
+    {
+      "id": "features.smart-answer-new",
+      "designName": "New Smart Answer — Directam Reference",
+      "penpotPageId": "f6b8d46f-5deb-801d-8008-85ad249c0ba1",
+      "penpotPageName": "Directam Admin Dashboard",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-8745805086fa",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live: 1440×1480 builder board with trigger card, match select, hint strip, like-toggle row, five response-type buttons and phone preview. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/features/smart-answer/new"],
+      "componentPath": "src/app/dashboard/features/smart-answer/new/page.tsx",
+      "compositionPaths": ["src/app/dashboard/features/smart-answer/new/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Only the text response type is enabled; voice/photo/video/card render disabled with an honest soon label because no backend field exists. Save keeps a browser-local draft with validation and never claims server persistence."
+    },
+    {
+      "id": "features.cards",
+      "designName": "Cards — List",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-874de5c3b32c",
+      "penpotPageName": "Directam — Cards / Showcase",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874de5e08228",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live and PNG-exported: education banner, search plus add row, three showcase cards with edit/delete, and the direct-message preview info card. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/features/cards"],
+      "componentPath": "src/features/product/FeatureScreens.tsx",
+      "compositionPaths": ["src/app/dashboard/features/cards/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "No showcase backend exists; the three design cards ship as a local working set with working search and local delete. Edit routes to the local builder."
+    },
+    {
+      "id": "features.cards-new",
+      "designName": "Cards — New Showcase",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-874de5c3b32c",
+      "penpotPageName": "Directam — Cards / Showcase",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874ded0a1711",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live and PNG-exported: trigger-chip card, response builder with five type buttons, empty canvas and phone preview. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/features/cards/new"],
+      "componentPath": "src/app/dashboard/features/cards/new/page.tsx",
+      "compositionPaths": ["src/app/dashboard/features/cards/new/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Only the card response type is enabled; the remaining four render disabled with an honest soon label. Save keeps a browser-local draft."
+    },
+    {
+      "id": "features.comment-automation-new",
+      "designName": "Comment Automation — New",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-874ebb680e25",
+      "penpotPageName": "Directam — Comment Automation",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874ec2cb62fb",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live and PNG-exported: post select, trigger input, follow-gated follow toggle, fixed-response composer with type buttons and phone preview. The shared builder form stays application-owned; this mapping covers the features-namespaced composition."
+      },
+      "nextRoutes": ["/dashboard/features/comment-automation/new"],
+      "componentPath": "src/features/automations/AutomationBuilderForm.tsx",
+      "compositionPaths": ["src/app/dashboard/features/comment-automation/new/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Create calls the real automations API and returns to the features list. The sibling list route reuses the already-approved automations.comment board instead of claiming it twice."
+    },
+    {
+      "id": "features.follow-up",
+      "designName": "Follow-up — List",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-874e49ee5813",
+      "penpotPageName": "Directam — Follow-up",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874e4a0e0215",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live and PNG-exported: education banner, new-follow-up CTA, four scenario cards with edit actions, and the how-it-works card. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/features/follow-up"],
+      "componentPath": "src/features/product/FeatureScreens.tsx",
+      "compositionPaths": ["src/app/dashboard/features/follow-up/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "No follow-up backend exists; scenario cards render the four design scenarios as navigation into the local builder. No schedule state invented."
+    },
+    {
+      "id": "features.form-maker",
+      "designName": "Form Maker — List",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-874f2719074c",
+      "penpotPageName": "Directam — Form Maker",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874f2735ec6d",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live and PNG-exported: education banner, new-form CTA, three form cards with answer/question counts and results actions, plus the export info card. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/features/form-maker"],
+      "componentPath": "src/features/product/FeatureScreens.tsx",
+      "compositionPaths": ["src/app/dashboard/features/form-maker/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "No form backend exists; the three design forms render with their board counts as static entries plus local search. Results buttons are presentational until a results API ships."
+    },
+    {
+      "id": "features.ice-breakers",
+      "designName": "Ice Breakers — Welcome Message",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-874f9cfc9e88",
+      "penpotPageName": "Directam — Ice Breakers",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874f9d060d9d",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live and PNG-exported: trigger editor with 2-of-4 counter, removable chips, dashed hint box, save-guard note and save/clear actions. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/features/ice-breakers"],
+      "componentPath": "src/app/dashboard/features/ice-breakers/page.tsx",
+      "compositionPaths": ["src/app/dashboard/features/ice-breakers/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Draft persists only in the browser; the design save-guard note is preserved verbatim so no Instagram application is claimed."
+    },
+    {
+      "id": "smart-sms.landing",
+      "designName": "Smart SMS — Desktop",
+      "penpotPageId": "f5bf3c2c-b970-8002-8008-874a0a4c21e6",
+      "penpotPageName": "Directam — Smart SMS",
+      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874a0a676492",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "provisional",
+        "basis": "User-designated file inspected live and PNG-exported: intro line, service banner, three method cards (bulk, sync, interactive with soon badge) and the three-step card. Pixel sign-off pending human review."
+      },
+      "nextRoutes": ["/dashboard/smart-sms"],
+      "componentPath": "src/app/dashboard/smart-sms/page.tsx",
+      "compositionPaths": ["src/app/dashboard/smart-sms/page.tsx"],
+      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.accentSofter"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-04T12:00:00Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "No SMS provider is connected; bulk/sync cards route to help and the interactive card stays honestly disabled with the design soon badge. No send capability invented."
     }
   ]
 }

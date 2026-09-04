@@ -1,10 +1,103 @@
 # Project status
 
-**Project:** Qasedak  
-**Current milestone:** M12 — v2 Product Features  
-**Current task:** M12-003 — Workspace dashboard overview (follow-up)
-**Last completed:** M12-007 (2026-08-30)
-**Product implementation:** In progress (M12)
+**Project:** Qasedak
+**Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
+**Current task:** M13-001 — Reconcile current Meta Instagram API contract (TODO)
+**Last completed:** M12-008 (2026-08-30)
+**Product implementation:** M13 planning ready; no M13 feature implementation started
+
+## 2026-09-05 — OpenReply parity milestone planned (M13-001 → M13-015 TODO)
+
+- Added M13 with 15 ordered TODO tasks: current Meta-contract reconciliation; exact
+  ConnectedAccount binding; common versioned Graph transport; PostgreSQL-native durable
+  scheduled work; account enrichment/subscriptions/refresh; media; insights/follower
+  history; webhook expansion; Private Reply correctness; interactive messaging;
+  opening/postback/follow/read-fallback flow; automation parity; reconciliation/history
+  import; Penpot-governed frontend/API integration; and final compliance/production gates.
+- Scope was narrowed around completed M01–M08 work. Existing OAuth exchanges, AES-GCM
+  protected token storage, account health primitives, challenge/HMAC verification,
+  durable webhook inbox, normalized event boundary, Conversations/Contacts projections,
+  24-hour normal reply path, automation versioning/evaluator/run ledger, and current
+  frontend surfaces remain authoritative and are not duplicated.
+- Repository inspection confirmed the critical corrections: conversation identity is
+  currently `(workspace, channel, participant)`; inbound bridges resolve only workspace;
+  `InstagramReplyGateway` chooses the first active Instagram-login account; automations
+  are workspace-wide; and M06-005 sends a commenter through the normal `recipient.id`
+  path rather than a comment-scoped Private Reply. No durable general scheduler, media/
+  insights clients, subscription lifecycle, postback/read normalizers, or provider-history
+  sync exists.
+- OpenReply reference commit `f180d2db6381f0c37e4b29848ab97e77c18f610f`
+  (2026-09-03) was inspected for behavior only. Current official Meta pages could not be
+  fetched during this planning pass because the documentation host returned HTTP 429;
+  M13-001 explicitly requires a fresh official-source reconciliation before code changes.
+- Planning gates passed: document/state/architecture checks, Penpot manifest 6/6,
+  repository-contract tests 2/2, manifest freshness, restore, Release build with 0
+  warnings/errors, format, and all 380 unit tests. `python scripts/verify.py --full` was
+  attempted but the Docker-backed PostgreSQL suites could not connect to
+  `npipe://./pipe/docker_engine`; the script stopped there, so current-run frontend
+  verification and Docker image builds were not reached.
+- Planning-only instruction honored: no production code, migration, feature test,
+  frontend behavior, dependency, commit, push, tag or deployment change was made.
+
+## 2026-09-04 — Undone-task sweep: nothing registered TODO, ad-hoc screens verified
+
+- All 57 task statuses in `docs/project/TASKS.md` are DONE; `PROJECT_STATE.json`
+  lists all 57 as completed with `currentTask`/`lastCompletedTask` M12-008. Zero
+  TODO/IN_PROGRESS/BLOCKED-as-status rows. Remaining items are human-operational
+  only (Mellat terminal/Shaparak/Zarinpal go-live smokes, never in CI).
+- Today's unregistered ad-hoc instruction (Directam-reference feature screens, no
+  task ID, local-only) was verified, not re-implemented: `npm run verify` green
+  (lint, typecheck, 64/64 tests incl. 4 new `features-penpot` cases, production
+  build with all `/dashboard/features/*` + `/dashboard/smart-sms` routes);
+  `check_architecture.py` passed (35 projects, 6 modules);
+  `validate_penpot_sync.py` passed 6/6; `agent_finalize.py --task M12-008`
+  passed and regenerated `FILE_MANIFEST.txt` (646 files, check passes).
+- Backend tree has 0 changed files vs HEAD, so the backend suite
+  (`verify.py --full`, 471-test Testcontainers gate) was not re-run; M12-008's
+  full pass stands for the identical backend tree. Divergence noted: the
+  navigation contract now nests 6 feature destinations under «امکانات» (12 unique
+  destinations), superseding M12-008's recorded 7-destination count by direct
+  human request. No commit or push was performed.
+
+## 2026-08-30 — Customer dashboard navigation COMPLETE (M12-008)
+
+- M08-007 Landing and M12-003 DashboardOverview are preserved; the dashboard contains
+  customer/workspace actions only and no admin-only system or cross-workspace controls.
+- One shared navigation contract now feeds the desktop Sidebar and mobile drawer. It has
+  8 clickable link instances (7 unique destinations), all valid, with zero Sidebar 404s;
+  nested active routing is covered deterministically.
+- Accounts remains backed by live Identity/workspace APIs. Help was reconciled from a
+  live MCP read of the permitted legacy Help board after the primary Qasedak file was
+  confirmed to have no Help screen; it now has real local FAQ search and only real links,
+  without invented tickets, chat hours or Smart SMS capability.
+- Smart Answer and Comment Automation redirect to canonical Automations. Unsupported
+  Cards, Follow-up, Form Maker, Ice Breakers and Smart SMS remain truthful unavailable
+  states and are not active Sidebar destinations.
+- A real Docker browser smoke reproduced the silent post-login navigation race: the
+  cookie/backend login succeeded while the App Router stayed on `/login`. Successful
+  login now performs a full `/dashboard` navigation; the Docker regression smoke passed.
+- Exact authenticated review passed at 1440/1280/1024/768/390/360, including RTL,
+  drawer open/close-on-navigation and Dashboard/Accounts/Help at 1440/390.
+- Docker Desktop 4.86.0 / Engine 29.7.2 is healthy. Full backend discovery/execution is
+  471/471 passed, 0 failed/skipped, with Testcontainers executed. Frontend verification
+  is 60/60 passed plus lint/typecheck/build. Docker smoke passed `/`, same-origin
+  `/api/v1/system`, register/login, dashboard and core routes. `verify.py --full` passed,
+  including both Docker image builds. No commit or push was performed.
+
+## 2026-08-30 — Penpot-synced dashboard overview COMPLETE (M12-003)
+
+- The human-designated Penpot page was read live through the official MCP. Source board
+  `Dashboard — Directam Reference` (`f6b8d46f-…-85ad24c7b3f3`) is now mapped as
+  `dashboard.overview`, approved and synced at exposed file revision `281`.
+- `/dashboard` now implements the reference's status rows, two-column 220px feature
+  cards, full-width final feature and three-card lower section with responsive RTL CSS.
+  Qasedak's real Workspace/Inbox state, authorization and existing routes remain
+  authoritative; no external social URL, entitlement or connection state was invented.
+- `npm run verify` passed lint, typecheck, 58 tests and production build;
+  `validate_penpot_sync.py` passed 6/6 and architecture checks passed (35 projects,
+  6 business modules). `agent_finalize.py` passed. The full gate also passed static,
+  restore, format and Release build (0 warnings/errors), then stopped at PostgreSQL
+  Testcontainers because local Docker is unavailable at `npipe://./pipe/docker_engine`.
 
 ## 2026-08-30 — Production auth proxy repair COMPLETE (M12-007)
 

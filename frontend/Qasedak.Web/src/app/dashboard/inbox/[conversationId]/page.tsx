@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../../../../shared/design/ui";
+import { Skeleton } from "@/shared/design/Feedback";
 import {
   conversationsApi,
   type ConversationDetail,
@@ -260,7 +261,11 @@ export default function ConversationThreadPage() {
                   </span>
                 </div>
               ) : (
-                <p style={{ margin: 0, fontSize: 13, color: "var(--color-text-secondary)" }}>در حال بارگذاری مخاطب…</p>
+                <div aria-label="در حال بارگذاری اطلاعات مخاطب" aria-busy="true" style={{ display: "grid", gap: ".5rem" }}>
+                  <Skeleton width="34%" height={12} />
+                  <Skeleton width="62%" height={16} />
+                  <Skeleton width="48%" height={12} />
+                </div>
               )
             ) : contact === null ? (
               <div style={{ display: "grid", gap: ".25rem" }}>

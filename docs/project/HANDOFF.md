@@ -1,5 +1,148 @@
 # Current handoff
 
+## 2026-09-05 — M13 OpenReply parity plan READY; M13-001 is next
+
+M13 — Instagram OpenReply Parity & Production Integration is registered with
+M13-001 through M13-015 all TODO. The next agent must execute only M13-001: reconcile
+ADR-006, the capability matrix, OAuth/token-lifecycle document and current adapter
+assumptions against live official Meta documentation. Do not begin M13-002 or production
+feature work until that current-contract task is complete.
+
+Planning evidence: Graphify 0.9.26 full semantic refresh first reported no LLM API key for
+133 changed document/image files; the documented code-only refresh succeeded, then
+`graphify cluster-only .` refreshed `graphify-out/graph.json`, `GRAPH_REPORT.md` and
+`graph.html` (3758 nodes, 7571 edges, 284 communities). The budget-1200 discovery query
+traced OAuth, connected accounts, webhook ingestion, messaging, Conversations identity,
+automation dispatch and Contacts projection; a second budget-1200 query found no durable
+scheduled-work subsystem beyond the webhook inbox/metrics hosted service. Evidence is
+recorded under M13-001 with the code-only limitation explicit in project state.
+
+The gap analysis used the current Qasedak implementation and OpenReply reference commit
+`f180d2db6381f0c37e4b29848ab97e77c18f610f` (2026-09-03). OpenReply was treated only as
+a behavior reference. Direct requests to the official Meta documentation host returned
+HTTP 429 in this session; that is why M13-001 remains TODO and requires a fresh live
+official-source audit rather than carrying the prompt or OpenReply assumptions forward.
+
+Critical current-code corrections recorded in the tasks:
+
+- Conversations lacks `ChannelAccountId`; its uniqueness key can merge the same
+  participant across two Instagram accounts in one workspace.
+- inbound bridges resolve provider identity only to workspace, outbound replies select
+  the first active Instagram-login account, and active automations are enumerated across
+  the workspace rather than bound to the receiving account;
+- M06-005 routes comment first contact through the standard direct-message gateway, but
+  M13 requires distinct direct-message, comment Private Reply and public-comment-reply
+  operations plus a global account+comment Private Reply claim;
+- Graph URLs/error handling are fragmented and mostly unversioned; a common transport is
+  needed without creating a giant client;
+- token refresh exists only as a primitive and the repository has no general durable
+  scheduler; profile/professional identity enrichment, webhook subscription health,
+  media/insights/history, postback/read events, interactive/follow flows and bounded
+  reconciliation/history import remain missing.
+
+No production code, migration, feature test, frontend behavior or dependency was changed.
+Planning/state/manifest checks passed, as did Penpot manifest 6/6, repository contracts
+2/2, restore, Release build (0 warnings/errors), format and all 380 unit tests.
+`python scripts/verify.py --full` was attempted and stopped only when the Docker-backed
+PostgreSQL suites could not connect to `npipe://./pipe/docker_engine`; frontend verify and
+Docker image builds were not reached in that invocation. `agent_finalize.py --task
+M13-001` was intentionally not run because M13-001 remains TODO, not completed. The
+worktree already contained extensive unrelated user/frontend/design changes; preserve
+them and do not reset or overwrite them. No commit, push, tag or deploy was requested or
+performed.
+
+## 2026-09-04 — Undone-task sweep (no registered TODOs; ad-hoc feature screens verified)
+
+The human asked for every undone task to be done. Result: all 57 registered tasks
+(M00-001 → M12-008) are DONE in `docs/project/TASKS.md` with zero TODO,
+IN_PROGRESS or BLOCKED-as-status rows, so no registered task work was started.
+The only unverified work in the tree was today's unregistered ad-hoc instruction
+(Directam-reference feature screens under `/dashboard/features/*` and
+`/dashboard/smart-sms`, explicitly assigned no task ID, local-only, no push).
+
+Verification performed this session (no product edits): Graphify 0.9.26 healthy,
+code-only refresh (3758 nodes/7571 edges/285 communities) plus a bounded task
+query; `npm run verify` green (lint, typecheck, 64/64 frontend tests incl. 4 new
+`features-penpot` cases, production build rendering every feature route);
+`check_architecture.py` passed (35 projects, 6 business modules);
+`validate_penpot_sync.py` passed 6/6; `agent_finalize.py --task M12-008` passed
+and regenerated `FILE_MANIFEST.txt` (646 files; `--check` passes). Backend tree
+has 0 changed files vs HEAD, so `verify.py --full` was not re-run — M12-008's
+471/471 Testcontainers pass stands for the identical backend tree.
+
+Divergence on record: `dashboard-navigation.mjs` now nests 6 feature
+destinations under «امکانات» (12 unique destinations total), superseding the
+7-destination count recorded in M12-008's evidence, by direct human request in
+the ad-hoc instruction. Next agent: no registered product task is scheduled;
+operational Mellat/Shaparak/Zarinpal go-live steps remain human-owned. No
+commit, push, tag or deploy was performed.
+
+## M12-008 — Customer dashboard navigation COMPLETE (2026-08-30)
+
+The current working tree preserves the completed M08-007 landing and M12-003 dashboard
+overview. `/dashboard` was audited as a normal customer/workspace surface: its actions
+cover onboarding, Inbox, Automations, Accounts and Help only; no admin-only system,
+cross-workspace or operational controls are exposed.
+
+`src/shared/navigation/dashboard-navigation.mjs` is now the sole navigation contract
+passed to both Sidebar instances. It defines 7 unique destinations; with the Sidebar
+brand link there are 8 clickable link instances. Deterministic tests read this exact
+contract and the Sidebar/DashboardShell composition, prove all pages exist and cover all
+requested nested active paths. There are zero Sidebar redirects, disabled destinations
+or 404s. Smart Answer and Comment Automation remain compatibility redirects to canonical
+Automations; Cards, Follow-up, Form Maker, Ice Breakers and Smart SMS have no backend and
+remain truthful unavailable screens outside active Sidebar navigation.
+
+Accounts continues to read the real Identity and workspace-member APIs and covers
+identity error, selected/no-workspace and session-expiry behavior. The human-designated
+primary Penpot file (`c269caa0-e456-818c-8008-89e5136d6851`) was read first through the
+official MCP; it contains no Help or Accounts board. The primary Identity states board
+was used to validate Accounts. The permitted legacy `Directam — Help Center` board
+(`f5bf3c2c-b970-8002-8008-8749d0a39e9f`, 1440×1050) was then live-read and PNG-exported.
+Help now retains its search/quick-path/category/FAQ composition with Qasedak tokens and
+real routes. FAQ search is genuinely functional; chat/ticket, support hours and Smart SMS
+were not copied because no backend/configuration exists. `penpotRevision` remains null
+because the API exposed none; evidence is in `docs/design/sync/M12-008-help-center.md`.
+
+An authenticated Docker browser smoke reproduced the reported silent login symptom:
+backend login and the HttpOnly cookie succeeded, but a cached client transition left the
+browser on `/login` without an error. Successful login now uses a full
+`window.location.replace("/dashboard")`; the same Docker logout/login flow then navigated
+directly to Dashboard. Exact responsive review at 1440/1280/1024/768/390/360 passed;
+desktop Sidebar is present through 1024, drawer below it, selection closes the drawer,
+RTL and active state are correct, and Dashboard/Accounts/Help were visually inspected at
+1440 and 390 without page-wide overflow.
+
+Verification: Graphify 0.9.26 healthy with refreshed graph/report and the M12-008 budget
+1200 query; `npm run verify` passed lint, typecheck, 60/60 tests and build; Docker Desktop
+4.86.0 / Engine 29.7.2 healthy; full backend 471 discovered/executed/passed, 0 failed or
+skipped, Testcontainers executed; isolated application smoke passed landing 200,
+same-origin system API 200, register/login, Dashboard, Inbox, Automations, Instagram,
+Billing, Accounts and Help. `python scripts/verify.py --full` passed static checks,
+restore/build/format, backend tests, frontend verification and both Docker image builds.
+No commit, push or deployment was performed.
+
+## M12-003 — Penpot-synced dashboard overview COMPLETE (2026-08-30)
+
+The exact page supplied by the human was inspected live through the official Penpot MCP:
+file `c269caa0-e456-818c-8008-85a77340be64`, page
+`f6b8d46f-5deb-801d-8008-85ad249c0ba1`, board
+`f6b8d46f-5deb-801d-8008-85ad24c7b3f3`, exposed revision `281`. The approved
+`dashboard.overview` mapping and `docs/design/sync/M12-003-dashboard-overview.md` now
+own the `/dashboard` visual contract.
+
+The content follows the Penpot geometry (three status rows, two-column 220px feature
+cards, full-width final feature, three-column lower cards), but preserves Qasedak's real
+Workspace/Inbox state and existing routes. Directam branding, static subscription/
+connection assumptions and unapproved social URLs were not copied. `npm run verify`
+passed lint, typecheck, 58 tests and production build; Penpot validation passed 6/6;
+architecture passed (35 projects, 6 business modules). No commit, push or deployment was
+performed because the human did not request one for this phase. `agent_finalize.py`
+passed. `verify.py --full` passed static gates, restore, format and Release build with
+0 warnings/errors; 380 unit tests and 3 non-container API tests passed, while the
+Docker-backed PostgreSQL suites could not start because the local endpoint
+`npipe://./pipe/docker_engine` is unavailable. This is the only residual gate.
+
 ## M12-007 — Production auth proxy repair COMPLETE (2026-08-30)
 
 The deployed reverse proxy owns the `/api/` prefix and forwards it directly to ASP.NET
@@ -48,11 +191,9 @@ server-adapter and design evidence was transferred. The verified original duplic
 `C:\Users\Hamed\Documents\Python\qasedak` has now been deleted; no commit or push was
 made.
 
-The next product follow-up remains **M12-003 — Workspace dashboard overview**. Its
-implementation is present using real Identity/Workspace/Inbox data and approved
-primitives, but its standalone Qasedak-native Penpot mapping is still pending. This
-merge imported the prior M08-006/M08-007 records; the current session had no live Penpot
-MCP connection, so no new design approval is claimed.
+M12-003 has since completed the standalone dashboard mapping through a live Penpot MCP
+read; see the current handoff section above. The historical M12-004 merge evidence below
+remains preserved as the state before that design approval.
 
 ## What this run delivered (M12-004)
 
@@ -156,7 +297,6 @@ MCP connection, so no new design approval is claimed.
 
 ## Next task for an agent
 
-M12-002 is DONE; next actionable task is **M12-003 — Workspace dashboard overview**
-(TODO in TASKS.md) but it is BLOCKED until a Qasedak-native dashboard design is approved
-(`reference surveyed; pending sync`). Do not commit/push/tag unless explicitly asked;
-suggested commits are recorded per task in TASKS.md.
+No product task is currently scheduled after M12-003. Keep the remaining operational
+payment-provider go-live steps human-owned. Do not commit/push/tag unless explicitly
+asked; suggested commits are recorded per task in TASKS.md.

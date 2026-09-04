@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-08-30T12:25:22Z",
+  "updatedAt": "2026-09-04T21:55:30Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
-  "currentMilestone": "M12",
-  "currentTask": "M12-003",
-  "lastCompletedTask": "M12-007",
+  "currentMilestone": "M13",
+  "currentTask": "M13-001",
+  "lastCompletedTask": "M12-008",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -58,10 +58,12 @@
     "M09-002",
     "M12-001",
     "M12-002",
+    "M12-003",
     "M12-004",
     "M12-005",
     "M12-006",
-    "M12-007"
+    "M12-007",
+    "M12-008"
   ],
   "graphify": {
     "required": true,
@@ -76,22 +78,30 @@
     ]
   },
   "penpot": {
-    "mcpReachable": false,
-    "verifiedAtUtc": "2026-08-24T19:30:00Z",
+    "mcpReachable": true,
+    "verifiedAtUtc": "2026-08-30T13:36:44Z",
     "fileId": "c269caa0-e456-818c-8008-85a77340be64",
     "fileName": "New File 1",
     "fileNameWarning": "Default display name; match files by stable fileId only.",
-    "pageCount": 39,
+    "pageCount": 51,
     "qasedakPages": {
       "productUiComponents": "c48311ed-e700-80f8-8008-881e9771c583",
       "identityWorkspace": "c48311ed-e700-80f8-8008-881f0352eb6a",
       "inboxConversations": "c48311ed-e700-80f8-8008-88200ec40bf3",
-      "billingPayments": "c48311ed-e700-80f8-8008-8820a6cf5187"
+      "billingPayments": "c48311ed-e700-80f8-8008-8820a6cf5187",
+      "dashboardOverview": "f6b8d46f-5deb-801d-8008-85ad249c0ba1"
     },
     "manifest": "frontend/Qasedak.Web/design/penpot-sync.json",
-    "manifestValidation": "passed-7-of-7",
-    "verificationEvidence": "docs/design/sync/2026-08-24-qasedak-final-sync-record.md; docs/design/sync/M08-007-landing-main.md",
-    "mergeNote": "No fresh Penpot MCP read was available during M12-004; imported M08-006/M08-007 evidence retained and penpotRevision remains null."
+    "manifestValidation": "passed-6-of-6",
+    "verificationEvidence": "docs/design/sync/2026-08-24-qasedak-final-sync-record.md; docs/design/sync/M08-007-landing-main.md; docs/design/sync/M12-003-dashboard-overview.md; docs/design/sync/M12-008-help-center.md",
+    "primaryDesignatedFile": {
+      "fileId": "c269caa0-e456-818c-8008-89e5136d6851",
+      "fileName": "directam",
+      "pageCount": 4,
+      "accountsOrHelpBoard": false,
+      "penpotRevision": null
+    },
+    "mergeNote": "M12-008 live-inspected the primary Qasedak file first, used its Identity states to validate Accounts, then live-inspected and exported the permitted legacy Help board. The Help mapping records penpotRevision null because the API exposed none."
   },
   "quality": {
     "architectureChecks": "passed (35 projects, 6 business modules)",
@@ -103,18 +113,22 @@
     "apiIntegrationTests": "passed-full-local-and-CI (Docker/Testcontainers available for final gate)",
     "unitSuites": "passed-380 (BuildingBlocks 12, Automations 44, Billing 119, Contacts 23, Conversations 23, Identity 79, Instagram 80)",
     "conversationSearchE2e": "passed-full-local-and-CI",
-    "frontendVerify": "passed-lint-typecheck-test-build-incl-landing-dashboard-compatibility (56 tests incl. inbox search and merge contracts)",
+    "frontendVerify": "passed-lint-typecheck-64-tests-production-build (2026-09-04: 60 M12-008 tests + 4 ad-hoc features-penpot tests) including navigation integrity, Help truthfulness and login-navigation regression",
     "ciManifestGate": "passed locally and on GitHub Actions CI run 33286334704 for b177542; 641 tracked files represented",
     "ciDelivery": "CodeQL 33286334733, Publish Images 33286464960 and Deploy Production 33286506764 passed for b177542",
-    "frontendAuthRegression": "passed-active-server-auth-handlers-visible-errors-and-cookie-compatible-bearer",
-    "fullVerify": "M12-007 local attempt blocked by Docker Desktop 4.86.0 Inference socket crash after static/build gates; equivalent CI run 33311180968 passed backend Testcontainers, frontend and Docker",
-    "productionAuthRouting": "passed-Deploy-Production-33311381218-public-web-api-login-smoke-on-sha-7e723229b191"
+    "frontendAuthRegression": "passed-active-server-auth-handlers-visible-errors-cookie-compatible-bearer-and-full-navigation-after-login-cookie",
+    "fullBackendTests": "passed-471-discovered-471-executed-471-passed-0-failed-0-skipped-with-Testcontainers",
+    "dockerApplicationSmoke": "passed-isolated-compose-landing-system-api-register-login-dashboard-inbox-automations-instagram-billing-accounts-help",
+    "responsiveReview": "passed-authenticated-exact-1440-1280-1024-768-390-360-rtl-drawer-close-on-navigation-dashboard-accounts-help",
+    "fullVerify": "M12-008 passed: architecture/docs/state/Penpot/repository contracts, restore, Release build (0 warnings/errors), format, 471 backend tests with Testcontainers, frontend 60/60 plus build, and both Docker image builds",
+    "m13PlanningVerify": "2026-09-05 planning pass: docs/state/architecture, Penpot 6/6, repository contracts 2/2, manifest, restore, Release build 0 warnings/errors, format and 380 unit tests passed; verify.py --full stopped at Docker-backed PostgreSQL suites because npipe://./pipe/docker_engine was unavailable, so frontend verify and Docker image builds were not reached",
+    "productionAuthRouting": "passed-Deploy-Production-33311381218-public-web-api-login-smoke-on-sha-7e723229b191; M12-008 local Docker post-login navigation regression fixed but not deployed"
   },
   "nextActions": [
-    "Run the M12-001 API e2e search scenario once Docker is up (ConversationInboxEndpointTests.InboxListSupportsCaseInsensitiveSearchAcrossParticipantAndBodies); Testcontainers was unavailable this session",
-    "M12-003 — Workspace dashboard overview standalone Penpot mapping remains a follow-up (implementation transferred using approved primitives)",
+    "M13-001 — reconcile ADR-006, capability matrix, OAuth/token lifecycle and provider contracts against live current official Meta documentation before any M13 production code",
+    "Then execute M13-002 through M13-015 in dependency order; keep every task scoped to one session and preserve completed M01-M08 foundations",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M12-007 completed and deployed: commit 7e72322 moved web-owned sessions to /web-api, CI 33311180968, CodeQL 33311180901, image publish 33311326079, and production deploy 33311381218 passed, including the public auth-routing smoke."
+  "lastInstruction": "2026-09-05 planning-only OpenReply parity pass: created M13 and 15 TODO tasks (M13-001 current; M12-008 remains last completed), narrowed around completed M01-M08 work, recorded exact-account/private-reply/Graph-transport/durable-work corrections, inspected OpenReply f180d2db6381f0c37e4b29848ab97e77c18f610f, and changed no production code/tests/frontend/dependencies. Official Meta docs returned HTTP 429, so live reconciliation remains M13-001. Planning/static/build/format/380 unit gates passed; full verify stopped at unavailable Docker/Testcontainers before frontend and image builds. No commit or push."
 }

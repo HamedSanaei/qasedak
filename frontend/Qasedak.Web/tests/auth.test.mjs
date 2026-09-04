@@ -55,6 +55,8 @@ test("active auth pages use server session handlers and keep visible failure sta
   assert.match(login, /fetch\("\/web-api\/auth\/login"/);
   assert.match(login, /credentials:\s*"same-origin"/);
   assert.match(login, /setFormError\(/);
+  assert.match(login, /window\.location\.replace\("\/dashboard"\)/, "successful login must cross the server guard with the new cookie");
+  assert.doesNotMatch(login, /router\.replace\("\/dashboard"\)/, "client route cache can strand a valid login on the sign-in screen");
   assert.doesNotMatch(login, /api\(\)\.login/);
   assert.match(register, /fetch\("\/web-api\/auth\/register"/);
   assert.match(register, /fetch\("\/web-api\/workspace"/);

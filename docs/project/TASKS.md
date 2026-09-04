@@ -606,9 +606,11 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 **Suggested commit:** `feat(web): enable inbox thread context panel`
 
 ## M12-003 — Workspace dashboard overview
-**Status:** TODO
+**Status:** DONE (2026-08-30)
 
-**Outcome:** Implement the dashboard content area from the surveyed Admin Dashboard reference once a Qasedak-native design is approved (currently `reference surveyed; pending sync` in SCREEN-INVENTORY.md). Per the Penpot sync contract, no content is invented while no approved mapping exists; this task stays BLOCKED/TODO until the design source is approved.
+**Outcome:** Redesign the authenticated dashboard content from the human-designated Penpot board `Dashboard — Directam Reference`, while keeping Qasedak's existing routing, authorization, Workspace/Inbox data loading and state model authoritative. The live Penpot source was read through the official MCP at file revision 281; the implementation now follows its three status rows, two-column feature grid, full-width final feature and three-card lower section with Qasedak-owned copy and real internal routes.
+
+**Completion evidence:** Graphify 0.9.26 healthy (`graphify . --update --no-viz --code-only`; `graphify cluster-only .`; task query budget 1200). Penpot page `f6b8d46f-5deb-801d-8008-85ad249c0ba1` and board `f6b8d46f-5deb-801d-8008-85ad24c7b3f3` live-inspected and PNG-exported; mapping `dashboard.overview` approved/synced at revision `281`; record `docs/design/sync/M12-003-dashboard-overview.md`. Frontend `npm run verify` passed lint, typecheck, 58 tests and production build; `python scripts/validate_penpot_sync.py` passed 6/6; `python scripts/check_architecture.py` passed (35 projects, 6 business modules). `agent_finalize.py --task M12-003` passed. `verify.py --full` passed static gates, restore, format and Release build (0 warnings/errors), then stopped only because all PostgreSQL Testcontainers could not connect to the unavailable local Docker endpoint `npipe://./pipe/docker_engine`; 380 unit tests plus 3 non-container API tests passed before that external-tool failure.
 
 **Completion contract:** Graphify evidence recorded; Penpot sync contract applies; scoped tests/gates pass; project state/handoff/manifest updated; residual not-run gates explicitly reported.
 
@@ -727,3 +729,436 @@ Docker Desktop 4.86.0 crashed while initializing its unrelated Inference socket;
 equivalent Linux CI gate passed.
 
 **Suggested commit:** `fix(auth): route web sessions outside production api proxy`
+
+## M12-008 — Complete customer dashboard navigation
+**Status:** DONE (2026-08-30)
+
+**Outcome:** Finish the remaining authenticated customer/workspace frontend from the current working tree without redesigning M08-007 or M12-003. Audit the actual Sidebar contract and every visible destination; complete Accounts and Help from real APIs and live Penpot evidence where needed; reconcile duplicate/unsupported Directam feature routes with canonical Qasedak capabilities; prove active routing, responsive drawer behavior, RTL, placeholder hygiene and zero visible-navigation 404s; then execute the complete frontend, Docker/Testcontainers and application-smoke gates without weakening or fabricating product behavior.
+
+**Completion contract:** Graphify evidence recorded; live official Penpot MCP evidence for every newly implemented Penpot-owned route; deterministic navigation-integrity coverage reads the real Sidebar navigation source; M08-007 and M12-003 regressions remain green; responsive visual review covers 1440/1280/1024/768/390/360 and at least dashboard/accounts/help at 1440/390; `npm run verify`, architecture/environment/manifest/finalize gates and `verify.py --full` pass with Testcontainers actually executed; Docker application smoke covers landing, same-origin system API, auth, dashboard and core routes; state/handoff/manifest updated; no commit or push.
+
+**Completion evidence:** M08-007 and M12-003 were preserved; `/dashboard` was audited customer-safe. The shared `dashboardNavigation` contract supplies both desktop and drawer Sidebar instances; deterministic coverage proves 8 clickable link instances (7 unique destinations), all real, 0 redirects inside Sidebar and 0 missing/404 destinations, plus nested active-route cases. Accounts uses real Identity/workspace APIs and its existing success/error/no-workspace/session states. Help was live-reconciled from the legacy `Help Center — Desktop` board only after the primary Qasedak file was inspected and found to contain no Help board; its search filters truthful static FAQs and all cards use real routes, with no fake ticket/chat backend. Smart Answer and Comment Automation canonicalize to Automations; Cards, Follow-up, Form Maker, Ice Breakers and Smart SMS remain truthful unavailable states and are absent from active Sidebar navigation. A reproduced post-login route-cache race was fixed with a full navigation after the HttpOnly cookie response. Browser-authenticated Docker review passed at exact 1440/1280/1024/768/390/360 widths, including drawer open/close-on-navigation, RTL, active state and Dashboard/Accounts/Help at 1440/390. Docker Desktop 4.86.0 / Engine 29.7.2 was healthy; 471/471 backend tests passed with Testcontainers (0 skipped), `npm run verify` passed 60/60 and production build, application smoke passed landing + same-origin system API + register/login + authenticated core routes, and `python scripts/verify.py --full` passed including both Docker image builds. No commit or push was performed.
+
+**Suggested commit:** `feat(web): complete customer dashboard navigation`
+
+## M13-001 — Reconcile current Meta Instagram API contract
+**Status:** TODO
+
+**Outcome:** Revalidate Qasedak's Meta-facing contracts against current official
+Instagram API with Instagram Login documentation before any M13 production change.
+Instagram Login is the primary OpenReply-parity path; retain Facebook Login only where a
+current supported contract and deliberate Qasedak product need justify a dual path.
+
+**Depends on:** M12-008. This is the first M13 task and gates all later M13 work.
+
+**Implementation scope:** Audit ADR-006, the Instagram capability matrix, OAuth/token
+lifecycle document, current OAuth/token-inspection/messaging adapters, configuration and
+permission snapshot. Produce an explicit provider/identity matrix covering authorization
+and token types, professional-account versus app-scoped IDs, Graph hosts and configured
+API versions, messaging and Conversations API support, Private Replies, webhook payloads
+and subscription fields, token refresh, App Review/Advanced Access, messaging windows,
+and Human Agent as operator-only behavior. Correct stale Facebook-Login/Messenger-only
+assumptions in documentation with direct official Meta citations; record unsupported or
+unverifiable capabilities as such. Do not change production code, schemas, packages,
+frontend behavior or tests in this task.
+
+**Completion contract:** Graphify evidence recorded; every external contract claim is
+rechecked against current official Meta documentation and cited; ADR/product/configuration
+assumptions are mutually consistent; the provider-contract matrix records any remaining
+unknowns or external blockers; architecture/state/handoff/manifest checks pass; residual
+not-run gates are explicit. No M13 feature implementation is bundled.
+
+**Suggested commit:** `docs(instagram): reconcile current meta api contract`
+
+## M13-002 — Bind conversations and automations to exact connected accounts
+**Status:** TODO
+
+**Outcome:** Introduce a Qasedak-owned opaque channel-account identity so inbound events,
+conversation threads, outbound replies and automations always use the exact connected
+Instagram account instead of resolving only a workspace or selecting its first account.
+
+**Depends on:** M13-001.
+
+**Implementation scope:** Extend channel-neutral Conversations contracts/domain/read
+models with `ChannelAccountId`; change thread uniqueness from `(WorkspaceId, Channel,
+ParticipantId)` to `(WorkspaceId, Channel, ChannelAccountId, ParticipantId)`; migrate
+existing rows with explicit backward-compatible semantics and no cross-schema joins.
+Make the Instagram inbound bridge resolve and persist the exact `ConnectedAccount.Id`,
+carry it through normal reply requests and resolve only that account/token in the
+composition-root gateway. Bind Instagram automations to the same opaque account key,
+filter webhook execution by it, and keep Automations/Conversations free of Instagram
+domain types. Update Contacts resolution only where needed to prevent account collisions
+without weakening its workspace-owned CRM boundary.
+
+**Completion contract:** Graphify evidence recorded; an ADR records the changed cross-
+module identity/persistence contract; migration and read/write compatibility are tested
+against real PostgreSQL; unit/API integration tests prove two Instagram accounts in one
+workspace can share a participant identity without thread merging, wrong-account sends
+or cross-account automation execution; foreign-workspace/account negatives pass;
+architecture/state/handoff/manifest and scoped/full gates pass or residual not-run gates
+are explicit.
+
+**Suggested commit:** `refactor(instagram): bind channel activity to connected accounts`
+
+## M13-003 — Centralize versioned Meta Graph transport and failure taxonomy
+**Status:** TODO
+
+**Outcome:** Provide one versioned, secret-safe Graph transport foundation reused by
+focused Instagram adapters, replacing today's independently assembled and sometimes
+unversioned OAuth, token-inspection and messaging URLs/error handling.
+
+**Depends on:** M13-001.
+
+**Implementation scope:** Add typed configuration for Graph host, API version, OAuth
+endpoints, scopes, webhook fields and timeouts; a central URI builder and authorization
+policy; named/typed HttpClients; and one Graph error parser carrying safe operation,
+HTTP status, provider code/subcode and `fbtrace_id`. Classify token invalid/expired,
+permission loss, rate limiting, messaging-window/policy rejection, malformed response,
+transport timeout/failure and transient Meta/server failure. Refactor existing OAuth,
+token inspector and direct-message adapter only enough to converge on the foundation.
+Keep provider DTOs in Infrastructure and retain separate capability-specific Application
+ports—do not create a giant Instagram client or log token-bearing URLs/headers.
+
+**Completion contract:** Graphify evidence recorded; deterministic HTTP contract tests
+prove one configuration version changes every Graph path consistently, cancellation and
+timeouts work, semantic retryability is correct, `fbtrace_id` is correlated, secrets are
+redacted, and known existing OAuth/health/messaging behavior remains green; architecture,
+state, handoff and manifest gates pass; no live Meta call occurs in CI.
+
+**Suggested commit:** `refactor(instagram): centralize meta graph transport`
+
+## M13-004 — Add durable scheduled work infrastructure
+**Status:** TODO
+
+**Outcome:** Add the missing Qasedak-native, restart-safe scheduled-work mechanism used by
+Instagram refresh, snapshots, reconciliation, read fallback and automation follow-ups,
+without copying OpenReply's BullMQ/Redis/cron topology.
+
+**Depends on:** M13-003.
+
+**Implementation scope:** Prefer a small PostgreSQL-backed platform/building-block
+abstraction appropriate to the modular monolith. Persist a unique idempotency key, work
+type, versioned Qasedak-owned payload, due/next-attempt times, status, attempts, bounded
+failure code, lease owner/expiry and completion/terminal-failure timestamps. Implement
+atomic concurrency-safe claim/renew/complete/fail behavior, bounded exponential backoff,
+lease recovery after process loss, cancellation and operational metrics. Define module-
+owned handlers and composition-root registration without letting payloads contain access
+tokens or provider DTOs; jobs carry `ConnectedAccountId` and resolve protected tokens at
+execution time. If a sufficient scheduler is discovered, adopt it instead of duplicating
+it (none was found during this planning pass).
+
+**Completion contract:** Graphify evidence recorded; an ADR documents ownership/runtime
+and transaction semantics; real-PostgreSQL tests cover competing workers, unique enqueue,
+lease expiry/reclaim, retry/backoff, restart recovery, completion and dead-letter state;
+payload/log secret-leak tests pass; architecture/observability/state/handoff/manifest and
+full relevant gates pass or residual not-run gates are explicit.
+
+**Suggested commit:** `feat(platform): add durable scheduled work`
+
+## M13-005 — Complete Instagram connection enrichment, subscriptions and token refresh
+**Status:** TODO
+
+**Outcome:** Extend the shipped OAuth, protected-token, account aggregate and health
+primitives with the missing professional-account identity/profile, webhook subscription
+and scheduled refresh lifecycle; do not reimplement existing cryptography or exchanges.
+
+**Depends on:** M13-002, M13-003, M13-004.
+
+**Implementation scope:** After OAuth, use a focused profile client to distinguish the
+authentication/app-scoped identity from the professional account ID used by messaging and
+webhooks; persist username, display name, avatar and relevant safe metadata. Replace the
+current unbound GUID OAuth state with a short-lived, integrity-protected, workspace-bound,
+replay-resistant state validated before mutation. Add a subscription client, validated
+current subscribed-field set, subscription health/timestamps and an idempotent repair/
+resubscribe operation. Schedule near-expiry Instagram-login token refresh using a
+configurable policy; claim per account, decrypt only at execution, atomically rotate
+ciphertext/expiry/health, and distinguish permanent invalidation from transient failure.
+Expose an exact-account, token-free connection/profile projection. Preserve supported
+Facebook-path behavior only as established by M13-001.
+
+**Completion contract:** Graphify evidence recorded; deterministic provider contracts and
+real-PostgreSQL integration tests cover identity mapping, state tamper/replay/cross-
+workspace rejection, partial subscription failure and repair, concurrent refresh,
+rotation rollback/success, permanent versus transient health, and token/log/browser
+redaction; APIs enforce workspace plus account ownership; architecture/state/handoff/
+manifest and relevant full gates pass with no live Meta call in CI.
+
+**Suggested commit:** `feat(instagram): complete account connection operations`
+
+## M13-006 — Add Instagram media catalog and post-selection APIs
+**Status:** TODO
+
+**Outcome:** Add an exact-account Instagram media catalog and Qasedak cursor contracts so
+the automation builder can select real posts/reels without exposing Meta paging DTOs or
+supporting content publishing.
+
+**Depends on:** M13-002, M13-003, M13-005.
+
+**Implementation scope:** Add a focused media Application port and Infrastructure Graph
+adapter for recent-N and cursor-paginated traversal with configurable page and total
+ceilings, cancellation and graceful missing media URLs. Map provider media to Qasedak-
+owned records containing opaque ID, caption, media/product type, timestamp, permalink,
+thumbnail/media availability, likes and comments; distinguish image/video/reel/carousel
+when the current contract supports it. Add workspace-scoped APIs/read models and a post-
+picker contract that always addresses a validated `ConnectedAccountId`. Do not add
+publishing, Ads API or unbounded all-history traversal.
+
+**Completion contract:** Graphify evidence recorded; scripted HTTP tests cover versioned
+paths, cursor mapping, cancellation, hard caps, unavailable fields, errors/redaction and
+media-type mapping; API tests cover workspace/account authorization and page bounds;
+frontend contract tests cover the picker data shape without implementing M13-014 UI;
+architecture/state/handoff/manifest and scoped/full gates pass or residual not-run gates
+are explicit.
+
+**Suggested commit:** `feat(instagram): add media catalog queries`
+
+## M13-007 — Add Instagram insights and follower history
+**Status:** TODO
+
+**Outcome:** Add Instagram-owned analytics/read models for media insights, current
+followers and durable follower history with graceful permission/metric degradation.
+
+**Depends on:** M13-004, M13-006.
+
+**Implementation scope:** Add a focused insights port/adapter that selects valid metrics
+by media type and executes per-media requests with bounded concurrency/cancellation.
+Persist one follower snapshot per connected account/day with observed versus derived/
+backfilled provenance; never overwrite a directly observed value with lower-quality
+derived data. Schedule idempotent daily snapshots and bounded backfill from currently
+available provider deltas where supported. Add an exact-account overview read model/API
+covering media totals, available metrics, current follower count and history; permission
+loss disables only affected analytics, not the base media catalog. Conversations and
+Contacts must not own this data.
+
+**Completion contract:** Graphify evidence recorded; deterministic HTTP tests cover
+media-type metric selection, missing metrics, permission failure and concurrency bounds;
+real-PostgreSQL tests cover account/day uniqueness, observed-over-derived precedence,
+snapshot retry/restart safety and account isolation; API tests cover graceful degradation
+and authorization; architecture/state/handoff/manifest and relevant gates pass without
+live Meta calls in CI.
+
+**Suggested commit:** `feat(instagram): add account and media insights`
+
+## M13-008 — Expand Instagram webhook normalization for automation parity
+**Status:** TODO
+
+**Outcome:** Extend the existing raw-HMAC → durable-inbox → normalizer boundary with the
+transport-free fields/events needed for account-aware post, postback and read flows while
+preserving unknown-fragment observability.
+
+**Depends on:** M13-001, M13-002, M13-003.
+
+**Implementation scope:** Enrich `InstagramCommentCreated` with exact connected-account
+resolution, media ID, optional `original_media_id`, commenter username and provider
+timestamp. Add Qasedak-owned `InstagramPostbackReceived` and `InstagramMessageRead`
+events with bounded payload/correlation fields defined from current official Meta
+fixtures. Tighten inbound-message filtering so echoes, deletions, unsupported/attachment-
+only fragments and self events cannot trigger automations; preserve malformed/unknown
+fragments and the durable inbox. Do not leak Meta JSON DTOs across the Instagram module or
+perform slow Graph/business work in the webhook endpoint.
+
+**Completion contract:** Graphify evidence recorded; official current Meta fixtures pin
+comment/ad-original-media, message, postback and read shapes plus missing/unknown fields;
+normalizer unit and signed-webhook integration tests cover filters, redelivery and exact-
+account fan-out; existing challenge/HMAC/inbox/metrics regressions stay green;
+architecture/state/handoff/manifest and relevant gates pass with no live Meta calls.
+
+**Suggested commit:** `feat(instagram): normalize interactive webhook events`
+
+## M13-009 — Correct comment automation to Meta Private Reply semantics
+**Status:** TODO
+
+**Outcome:** Replace M06-005's incorrect first-contact comment → normal DM route with a
+distinct, policy-aware Private Reply keyed by the origin comment, while keeping standard
+conversation DMs and public replies as separate provider operations.
+
+**Depends on:** M13-002, M13-003, M13-008.
+
+**Implementation scope:** Introduce focused Application operations/ports for direct
+message (`recipient.id`), comment Private Reply (`recipient.comment_id`) and public
+comment reply (comment reply edge). Add a global semantic claim/ledger equivalent to
+`ConnectedAccountId + CommentId + PrivateReply`, acquired before any Meta call so two
+matching automations or concurrent redeliveries cannot consume the single allowed reply
+twice. Enforce the current Private Reply window/Live rules at an Application policy
+boundary. Record Private Reply and public-reply outcomes independently and integrate with
+the existing versioned AutomationRun ledger without weakening its resume/idempotency
+semantics; a failure in one leg must not repeat or suppress the other incorrectly.
+
+**Completion contract:** Graphify evidence recorded; deterministic adapter/policy tests
+and real-PostgreSQL concurrency tests prove comment-ID addressing, current timing rules,
+global claim behavior across two matching automations, webhook redelivery safety,
+independent effect outcomes and no send on wrong account/workspace; M05 normal-reply and
+M06 ledger regressions remain green; architecture/state/handoff/manifest and full relevant
+gates pass without live Meta calls.
+
+**Suggested commit:** `fix(instagram): use private replies for comment automations`
+
+## M13-010 — Add interactive Instagram messaging capabilities
+**Status:** TODO
+
+**Outcome:** Add validated Qasedak-owned text and interactive message capabilities for
+direct messages and comment Private Replies, returning provider message identity without
+exposing Meta transport shapes.
+
+**Depends on:** M13-003, M13-009.
+
+**Implementation scope:** Model discriminated Application contracts for plain text,
+postback-button and web-URL-button templates; implement focused adapters for direct text,
+Private Reply text, direct/Private Reply postback templates and direct/Private Reply link
+templates. Centralize current Meta text/button/count/URL/payload limits and return a typed
+success with provider recipient/message IDs. Classify template-specific failures and
+allow plain-text/link fallback only where M13-001's current contract proves it semantically
+safe; never issue a second Private Reply for used/expired/permission/token/rate-limit or
+otherwise unsafe failures, and preserve the original failure evidence.
+
+**Completion contract:** Graphify evidence recorded; deterministic HTTP tests pin every
+payload/addressing variant, limit boundary, typed success, error taxonomy, safe/unsafe
+fallback branch, cancellation and redaction; integration tests prove fallback cannot
+bypass the global Private Reply claim; architecture/state/handoff/manifest and relevant
+gates pass with no live Meta calls.
+
+**Suggested commit:** `feat(instagram): add interactive messaging adapters`
+
+## M13-011 — Add follow gate, opening DM and postback reveal flow
+**Status:** TODO
+
+**Outcome:** Implement the durable comment → opening Private Reply → postback → optional
+follow check → direct-message reveal flow without network access inside the deterministic
+evaluator.
+
+**Depends on:** M13-004, M13-008, M13-009, M13-010.
+
+**Implementation scope:** Add a focused relationship port returning follows/does-not-
+follow/unknown; verify the current Meta field/token/account contract and block the feature
+with evidence if unsupported—never scrape or use private APIs. Model signed/opaque or
+persisted postback correlation bound to automation/version, exact ConnectedAccount and
+intended operation; validate bounds and authorization before continuation. Orchestrate
+configurable opening text/button, repeated follow prompt and reveal Direct Message with
+durable/idempotent continuation and deliberate first-contact versus recheck unknown-
+status policy. Integrate read-receipt fallback through configurable scheduled work that
+checks reveal/postback completion, respects follow gates and terminates policy failures.
+
+**Completion contract:** Graphify evidence recorded; current provider contract tests pin
+tri-state relationship behavior; unit/PostgreSQL/API integration tests cover signed
+correlation tamper, wrong-account/workspace rejection, postback/read redelivery,
+postback-versus-fallback race, unknown-status policy, follow recheck, restart recovery and
+single reveal; evaluator tests prove it remains deterministic/network-free;
+architecture/state/handoff/manifest and relevant gates pass or a verified provider
+blocker is recorded.
+
+**Suggested commit:** `feat(automations): add instagram reveal and follow gate flow`
+
+## M13-012 — Extend automations with post scope, DM triggers, public replies and follow-ups
+**Status:** TODO
+
+**Outcome:** Reach the remaining core OpenReply automation behavior through Qasedak's
+existing immutable version definitions, deterministic evaluator and AutomationRun ledger.
+
+**Depends on:** M13-002, M13-004, M13-008, M13-009, M13-010, M13-011.
+
+**Implementation scope:** Extend channel-neutral trigger context/definitions with channel
+account, comment versus inbound-DM trigger, provider message/comment identity, specific-
+source versus any-source scope, media/original-media identity, keyword/every-comment and
+whole-word modes. Add generic execution capabilities for direct/Private Reply,
+interactive opening/reveal, public reply and durable follow-up while mapping to Instagram
+only in Api/CrossModule. Persist opening/reveal/link/follow/public-reply/follow-up config in
+stable versioned definitions. If public reply pools are retained, select once at execution
+and persist the chosen variant for reproducible retry—no randomness/network/clock/token
+access in the evaluator. DM triggers use provider message ID and direct-message semantics;
+scheduled follow-ups carry no secret and revalidate automation/account/window state.
+
+**Completion contract:** Graphify evidence recorded; exhaustive evaluator/unit tests cover
+post/original-post, any-post, whole-word/every-comment and DM triggers; PostgreSQL/API e2e
+tests cover exact-account isolation, provider-message idempotency, separate public/private
+effects, persisted reply choice, delayed follow-up restart/duplicate/window behavior and
+version reproducibility; existing automation invariants remain green; architecture/state/
+handoff/manifest and relevant gates pass without live Meta calls.
+
+**Suggested commit:** `feat(automations): complete instagram trigger and action parity`
+
+## M13-013 — Add comment reconciliation and provider history synchronization
+**Status:** TODO
+
+**Outcome:** Recover recent provider comments and conversations that were not projected
+through webhooks, using bounded exact-account synchronization that feeds existing
+application/idempotency paths rather than creating a second execution model.
+
+**Depends on:** M13-002, M13-003, M13-004, M13-006, M13-008, M13-009, M13-012.
+
+**Implementation scope:** Add focused comments and Conversations Graph ports/adapters.
+For comment reconciliation, scan only recent active-automation media/comments with cursor
+and per-sweep caps, owner/self-reply awareness, local keyword filtering and observed
+original-media mapping; submit results into the same normalized automation pipeline and
+global Private Reply claim as webhooks. For history sync, list provider conversations/
+participants/previews and bounded message pages, map direction/body/provider IDs/times to
+Qasedak records, then use a composition-root bridge into a channel-neutral Conversations
+import/upsert use case. Support initial sync after connection and authorized manual resync;
+make repeat/incremental runs idempotent and document provider history limits. Instagram
+Infrastructure must never write the Conversations schema.
+
+**Completion contract:** Graphify evidence recorded; deterministic HTTP tests cover
+cursors, caps, owner-reply and limited-history shapes; real-PostgreSQL/job tests cover
+webhook-versus-reconciliation dedup, restart/rate-limit retry, exact-account isolation,
+initial/manual message import and repeat-import idempotency; cross-workspace negatives and
+operational metrics pass; architecture/state/handoff/manifest and relevant gates pass
+without live Meta calls.
+
+**Suggested commit:** `feat(instagram): reconcile comments and conversation history`
+
+## M13-014 — Expose complete frontend Instagram application surface
+**Status:** TODO
+
+**Outcome:** Make the completed M13 capabilities usable through authenticated Qasedak
+APIs and the existing Next.js product without exposing provider implementation details,
+tokens or unsupported states.
+
+**Depends on:** M13-002 and M13-005 through M13-013.
+
+**Implementation scope:** Consolidate exact-account API/read-model coverage for profile/
+connection and subscription health, media picker, overview/insights/follower history,
+conversation sync state/operation and automation connected-account/post/trigger/opening/
+reveal/link/follow/public-reply/follow-up configuration. Every request validates workspace
+membership plus ConnectedAccount ownership; no frontend call reaches Meta directly.
+Before modifying any Penpot-owned screen, live-read the mapped page/board/component via
+official Penpot MCP, update reusable components/tokens without replacing application
+behavior, and update `penpot-sync.json` plus a sync record. If an approved required design
+is missing or MCP is unavailable, record the precise blocker rather than inventing UI.
+
+**Completion contract:** Graphify and live Penpot MCP evidence recorded for every changed
+owned screen; API/frontend contract and behavior tests cover exact-account selection,
+loading/empty/permission/health/error states and no token/provider DTO leakage; responsive
+and accessibility review passes; `npm run verify`, Penpot manifest validation,
+architecture/state/handoff/manifest and relevant full gates pass or exact design blockers
+and residual not-run gates are explicit.
+
+**Suggested commit:** `feat(web): expose instagram parity workflows`
+
+## M13-015 — Add Meta compliance, app-review and production parity gates
+**Status:** TODO
+
+**Outcome:** Prove the complete M13 implementation is production-safe, policy-current,
+observable and regression-protected without calling live Meta from CI.
+
+**Depends on:** M13-001 through M13-014.
+
+**Implementation scope:** Complete deterministic HTTP contract coverage for every Graph
+adapter and current official webhook fixtures; signature/challenge, multi-account and
+cross-workspace isolation, Private Reply concurrency, webhook/postback redelivery,
+scheduled-job restart/idempotency, token-refresh concurrency, transient/rate-limit retry,
+and secret/log redaction gates. Add real-PostgreSQL full flows for comment → opening →
+postback → optional follow gate → reveal/follow-up, inbound DM → automation → reply,
+conversation backfill idempotency, and media/insights APIs with mocked Meta. Build on
+existing metrics for Graph operations, refresh/subscription, webhook/work queues,
+private/direct/public sends, automation/postback/reconciliation, rate limits, permission
+loss and token invalidation. Publish current official-policy links, App Review/Advanced
+Access/webhook-subscription checklists, production smoke runbook, and explicit unsupported
+features/residual risks.
+
+**Completion contract:** Graphify evidence recorded; every listed contract, isolation,
+concurrency, restart, redelivery, redaction, API and mocked-provider e2e gate passes;
+Testcontainers runs against real PostgreSQL; frontend/full repository verification and
+production runbook checks pass; CI contains zero live Meta calls; state/handoff/manifest
+are current and any externally unexecuted App Review/production smoke is reported rather
+than claimed.
+
+**Suggested commit:** `test(instagram): validate openreply parity and meta compliance`
