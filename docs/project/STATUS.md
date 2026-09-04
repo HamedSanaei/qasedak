@@ -2,9 +2,43 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-001 — Reconcile current Meta Instagram API contract (TODO)
-**Last completed:** M12-008 (2026-08-30)
-**Product implementation:** M13 planning ready; no M13 feature implementation started
+**Current task:** M13-002 — Bind conversations and automations to exact connected accounts (TODO)
+**Last completed:** M13-001 (2026-09-04)
+**Product implementation:** Current Meta contract reconciled; no M13 feature implementation started
+
+## 2026-09-04 — M13-001 DONE: current Meta Instagram contract reconciled
+
+- Fresh audit against current official Meta pages (revisions March–August 2026,
+  retrieved 2026-09-04; direct host fetch is bot-blocked, first-party pages read
+  same-day via full-text index; Meta-owned Postman collection located as
+  supplementary). Normative result: `docs/product/meta-instagram-platform-contract.md`
+  (provider/identity matrix + all 20 instruction questions answered + residual
+  assumptions for M13-003/008/010).
+- Headline: Instagram Login is primary for messaging/Conversations/Private
+  Replies/public replies/webhooks/media/insights; ADR-010 accepted, ADR-006
+  messaging decision superseded (file preserved); capability matrix marked
+  historical; OAuth lifecycle re-verified unchanged; SRS §4 updated; DECISIONS.md
+  disambiguated; verdict notes added to M13-003/008/009/011. Follow status is
+  officially unsupported (M13-011 branch 2 confirmed). Window signal is Graph
+  10/2534022 (no official 490); read receipts are `read:{mid}`; latest observed
+  Graph v26.0 (configured, not hardcoded).
+- Zero production source/migration/package/test/secret changes (docs/state only).
+- Gates: Graphify 0.9.26 code-only refresh + 2 budget-1200 queries + evidence;
+  check_docs/state/architecture/environment/Penpot 6/6/manifest (662 files)/
+  diff-check pass; `agent_finalize.py --task M13-001` pass;
+  `verify.py --full` pass (static, restore, Release build, format, backend
+  suites with Testcontainers, frontend verify, both Docker image builds).
+- Environment notes: the local Docker daemon was down, so the first full run
+  failed 52/55 Api.IntegrationTests; Docker Desktop was started locally and the
+  rerun passed fully. `check_docs.py` transiently failed on a pre-existing
+  untracked user export (`docs/fa/qasedak_m13_production_handbook_fa.html`,
+  created 2026-09-05 04:08, SHA256
+  `9E15231D6FF648F76D01115A57A9AB03E972E328891CC8267DE8260E96702AE1`); it was
+  parked outside the repo for the gate run and restored byte-identical
+  (hash-verified), so CI clean-checkout state is unaffected. The file remains
+  untracked and unpushed by design.
+- State: M13-001 DONE, lastCompletedTask=M13-001, currentTask=M13-002 (TODO).
+  Next: commit/push/deploy per the M13-001 instruction, then M13-002.
 
 ## 2026-09-05 — M13 provider-conditional dependency refinement
 

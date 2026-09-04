@@ -742,7 +742,7 @@ equivalent Linux CI gate passed.
 **Suggested commit:** `feat(web): complete customer dashboard navigation`
 
 ## M13-001 — Reconcile current Meta Instagram API contract
-**Status:** TODO
+**Status:** DONE (2026-09-04)
 
 **Outcome:** Revalidate Qasedak's Meta-facing contracts against current official
 Instagram API with Instagram Login documentation before any M13 production change.
@@ -769,6 +769,27 @@ rechecked against current official Meta documentation and cited; ADR/product/con
 assumptions are mutually consistent; the provider-contract matrix records any remaining
 unknowns or external blockers; architecture/state/handoff/manifest checks pass; residual
 not-run gates are explicit. No M13 feature implementation is bundled.
+
+**Completion evidence:** Fresh 2026-09-04 audit against current official Meta pages
+(revision dates March–August 2026 recorded per claim; direct host fetch bot-blocked,
+first-party pages retrieved same-day via full-text index; Meta-owned Postman collection
+located as supplementary). New normative `docs/product/meta-instagram-platform-contract.md`
+(§6 matrix + all 20 §25 answers + carried-over assumptions for M13-003/008/010).
+Instagram Login confirmed primary for messaging/Conversations/Private Replies/public
+replies/webhooks/media/insights; ADR-006 messaging decision superseded by new
+ADR-010 (ADR-006 preserved as history); matrix + OAuth lifecycle + SRS §4 reconciled;
+DECISIONS.md disambiguated; verdict notes added to M13-003/008/009/011 (follow status
+officially unsupported → M13-011 branch 2). Window signal is 10/2534022 (no official
+490); read receipts are `read:{mid}`; latest observed Graph v26.0 (configured, not
+hardcoded). Zero production source/migration/package/test/secret changes. Gates:
+check_docs/state/architecture/environment/Penpot 6/6/manifest/diff-check pass;
+`agent_finalize.py --task M13-001` and `verify.py --full` pass (full run: static,
+restore, Release build 0 warnings/errors, format, backend suites with
+Testcontainers after starting the local Docker daemon, frontend verify, both
+Docker image builds). Local-only note: `check_docs.py` transiently failed on a
+pre-existing untracked user export in `docs/fa/`; the file was hash-parked
+outside the repo for the gate run and restored byte-identical (SHA256 recorded
+in STATUS/HANDOFF), so CI clean-checkout state is unaffected.
 
 **Suggested commit:** `docs(instagram): reconcile current meta api contract`
 
@@ -810,6 +831,11 @@ focused Instagram adapters, replacing today's independently assembled and someti
 unversioned OAuth, token-inspection and messaging URLs/error handling.
 
 **Depends on:** M13-001.
+
+**M13-001 verdict (2026-09-04):** latest Graph version observed v26.0 (configure,
+do not hardcode); window-expiry signal is code `10` + `error_subcode` `2534022`
+(no official `490` exists — drop that mapping); carry `fbtrace_id`; message tags
+other than `human_agent` are unusable for Instagram. Contract: `docs/product/meta-instagram-platform-contract.md`, ADR-010.
 
 **Implementation scope:** Add typed configuration for Graph host, API version, OAuth
 endpoints, scopes, webhook fields and timeouts; a central URI builder and authorization
@@ -950,6 +976,14 @@ preserving unknown-fragment observability.
 
 **Depends on:** M13-001, M13-002, M13-003.
 
+**M13-001 verdict (2026-09-04):** read receipts are `read:{mid}` (never a
+watermark); postbacks are `postback:{mid,title,payload}`; IG-Login
+subscribed-field set is `comments`, `live_comments`, `messages`,
+`messaging_postbacks`, `messaging_seen` (+ handover/optins/referral/standby as
+needed) via `POST /<IG_ID>/subscribed_apps`; `policy_enforcement` /
+`response_feedback` / insight webhooks are unavailable on IG Login. Full shapes:
+`docs/product/meta-instagram-platform-contract.md` §3.6.
+
 **Implementation scope:** Enrich `InstagramCommentCreated` with exact connected-account
 resolution, media ID, optional `original_media_id`, commenter username and provider
 timestamp. Add Qasedak-owned `InstagramPostbackReceived` and `InstagramMessageRead`
@@ -975,6 +1009,13 @@ distinct, policy-aware Private Reply keyed by the origin comment, while keeping 
 conversation DMs and public replies as separate provider operations.
 
 **Depends on:** M13-002, M13-003, M13-008.
+
+**M13-001 verdict (2026-09-04):** Instagram Login is the confirmed primary path:
+Private Reply is `POST /<IG_ID>/messages` with `recipient.comment_id` (Bearer IG
+User token, basic + manage_comments); one reply per comment, 7 days
+(post/reel/story/ad), Live during broadcast only, follow-ups need a recipient
+response + 24h window; comments do **not** open the DM window (normal send fails
+10/2534022). Public reply is the distinct `POST /<COMMENT_ID>/replies` edge.
 
 **Implementation scope:** Introduce focused Application operations/ports for direct
 message (`recipient.id`), comment Private Reply (`recipient.comment_id`) and public
@@ -1030,6 +1071,12 @@ the current Meta contract supports the intended scenario. Provider-dependent fol
 status must not erase or block the provider-independent flow.
 
 **Depends on:** M13-004, M13-008, M13-009, M13-010.
+
+**M13-001 verdict (2026-09-04):** per-user follow status is officially
+unsupported (no endpoint exposes "does IGSID X follow this account";
+Business Discovery yields aggregate counts only, FB Login only) — implement
+completion branch (2): full opening/postback/reveal flow with the gate
+truthfully unavailable. No scraping, private APIs or substitutes.
 
 **Provider-independent implementation scope:** Model signed/opaque or persisted postback
 correlation bound to automation/version, exact ConnectedAccount and intended operation;

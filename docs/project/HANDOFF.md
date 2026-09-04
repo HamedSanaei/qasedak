@@ -1,5 +1,42 @@
 # Current handoff
 
+## 2026-09-04 — M13-001 DONE; M13-002 packet ready (do not start M13-002)
+
+M13-001 completed docs/state-only (zero production source/migration/package/
+test/secret changes). Normative contract: `docs/product/meta-instagram-platform-contract.md`;
+ADR-010 accepted; ADR-006 messaging decision superseded (preserved as history);
+matrix marked historical; lifecycle re-verified; SRS §4 updated; DECISIONS.md
+disambiguated; verdict notes on M13-003/008/009/011. State:
+lastCompletedTask=M13-001, currentTask=M13-002 (TODO). `verify.py --full` passed
+(Docker Desktop started locally for Testcontainers). The pre-existing untracked
+`docs/fa/qasedak_m13_production_handbook_fa.html` was hash-parked outside the
+repo for the doc gate and restored byte-identical; it stays untracked/unpushed.
+Commit/push/CI/deploy/smoke/evidence-commit follow in this same instruction;
+deployment evidence will be appended in the subsection below.
+
+### M13-002 packet (read-only handoff)
+
+- Verified assumptions for exact-account routing: Instagram Login is primary;
+  professional account identity is the numeric `IG_ID` (`/me` alias) on
+  `graph.instagram.com`, distinct from the app-scoped `user_id` from code
+  exchange and from partner IGSIDs; token is the Instagram User long-lived
+  token (basic + manage_messages for messaging reads).
+- IDs that must not be confused: `IG_ID` (account) vs app-scoped user id vs
+  `IGSID` (conversation partner) vs `mid` (provider message id) vs comment ID.
+- Token/account path: per-`ConnectedAccountId` IG User token from the protected
+  store; no workspace-first-account fallback afterward.
+- Superseded: Messenger-Platform-only messaging, FB-Login-required messaging,
+  Page-required-for-messaging, code-490 window mapping (now 10/2534022),
+  watermark-shaped reads (now `read:{mid}`).
+- Provider blockers: none for M13-002 scope; follow-status unavailability does
+  not touch this task; carried-over text-limit/rate-limit assumptions belong to
+  M13-003/010, not here.
+- First architectural objective: introduce Qasedak-owned opaque
+  `ChannelAccountId`, change thread uniqueness to `(WorkspaceId, Channel,
+  ChannelAccountId, ParticipantId)` with a backward-compatible migration, and
+  resolve the exact `ConnectedAccount.Id` on the inbound bridge and in the
+  reply gateway — no Instagram domain types outside the Instagram module.
+
 ## 2026-09-05 — M13 planning dependencies refined; M13-001 remains next
 
 Planning-only refinement completed without starting M13-001 or changing any M13 status.

@@ -1,6 +1,10 @@
 # Qasedak — Meta OAuth & Token Lifecycle Contract
 
-**Task:** M01-002 · **Status:** Verified against official Meta documentation (fetched August 2026)  
+**Task:** M01-002 · **Status:** Verified against official Meta documentation (fetched August 2026);
+re-verified unchanged against current pages on 2026-09-04 (M13-001: Business Login page
+2026-03-13, Access Token reference 2026-03-09, Refresh reference 2025-07-17 — same
+endpoints, scopes, 60-day lifetimes and refresh preconditions; latest observed Graph
+version v26.0; Qasedak's unversioned hosts are M13-003 input, not a contract change.
 **Companion documents:** [Instagram MVP Capability Matrix](instagram-mvp-capability-matrix.md) (M01-001), ADR-006/ADR-007 (M01-004).
 
 ## 1. Purpose
@@ -15,6 +19,14 @@ Define the binding contract for connecting an Instagram professional account to 
 | **Facebook Login for Business** + Messenger Platform | All messaging capabilities (inbox replies, comment→DM private replies) — requires a Facebook Page linked to the professional account | Facebook User/Page access tokens (`graph.facebook.com`) |
 
 Rationale: the capability matrix (C2/C3/C5) shows messaging routes through the Messenger Platform with Facebook-side tokens, while C7 shows the Instagram-only path works without a Page. Qasedak therefore treats the Instagram-only path as the fast connection flow and the Facebook path as the messaging-capable upgrade — a decision formalized in ADR-006.
+
+> **M13-001 update (2026-09-04):** the messaging premise above is superseded.
+> Current official documentation proves Instagram Login directly supports Send
+> API messaging, Conversations, Private Replies and the full webhook field set
+> (see `meta-instagram-platform-contract.md` and ADR-010). Instagram Login is
+> now the primary path; the Facebook path is retained deliberately for
+> FB-only extras and existing FB-path accounts, not as the messaging default.
+> The flow/endpoint/lifetime rules in §3–§5 below were re-verified unchanged.
 
 ## 3. Authorization flow (Business Login for Instagram) — verified contract
 

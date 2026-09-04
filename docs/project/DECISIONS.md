@@ -17,6 +17,13 @@
 | M12-005 | `FILE_MANIFEST.txt` is regenerated only after the final consolidation files are tracked, then checked from a clean checkout; the CI freshness gate remains strict | Accepted — 2026-08-30 |
 | M12-006 | Login/registration use same-origin server handlers that establish HttpOnly cookies; the active M12 client feature screens may retain the short-lived bearer value only as a temporary cookie-first proxy compatibility seam | Accepted — 2026-08-30 |
 | M12-007 | Web-owned session handlers use `/web-api/*`; public `/api/*` remains exclusively routed to ASP.NET Core in production | Accepted — 2026-08-30 |
+| ADR-010 (architecture file `docs/architecture/ADR-010-current-instagram-platform-contract.md`) | Instagram Login is the primary Meta path for all M13 capabilities; Facebook Login retained deliberately for FB-only extras; window signal is Graph 10/2534022; read receipts are `read:{mid}`; per-user follow status officially unsupported; Human Agent stays operator-only; `docs/architecture/ADR-006-meta-integration-paths.md` messaging decision superseded (file preserved as history) | Accepted — M13-001 (2026-09-04) |
+
+> **Numbering note:** the pre-existing ADR-006…ADR-011 rows above predate the
+> `docs/architecture/` file sequence (which runs ADR-001…ADR-009) and are
+> retained verbatim. The new architecture file is numbered ADR-010 within the
+> `docs/architecture/` sequence; it is unrelated to the legacy DECISIONS.md
+> ADR-010 row (migrations).
 
 ## Open decisions requiring human input
 

@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-04T22:23:00Z",
+  "updatedAt": "2026-09-04T23:08:01Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
-  "currentTask": "M13-001",
-  "lastCompletedTask": "M12-008",
+  "currentTask": "M13-002",
+  "lastCompletedTask": "M13-001",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -63,7 +63,8 @@
     "M12-005",
     "M12-006",
     "M12-007",
-    "M12-008"
+    "M12-008",
+    "M13-001"
   ],
   "graphify": {
     "required": true,
@@ -123,13 +124,14 @@
     "fullVerify": "M12-008 passed: architecture/docs/state/Penpot/repository contracts, restore, Release build (0 warnings/errors), format, 471 backend tests with Testcontainers, frontend 60/60 plus build, and both Docker image builds",
     "m13PlanningVerify": "2026-09-05 planning pass: docs/state/architecture, Penpot 6/6, repository contracts 2/2, manifest, restore, Release build 0 warnings/errors, format and 380 unit tests passed; verify.py --full stopped at Docker-backed PostgreSQL suites because npipe://./pipe/docker_engine was unavailable, so frontend verify and Docker image builds were not reached",
     "m13PlanningRefinement": "passed 2026-09-05: provider-conditional plan refinement keeps all 15 tasks TODO; M13-012 no longer hard-depends on M13-011; M13-011 follow status is optional when officially unsupported while opening/postback/reveal remains required where supported; M13-013 has independent comment-reconciliation and conversation-history phases; M13-014/M13-015 parity is limited to current-Meta-supported intentionally scoped capabilities; docs/state/architecture/Penpot 6-of-6/manifest 662/diff and bounded dependency assertions passed",
-    "productionAuthRouting": "passed-Deploy-Production-33311381218-public-web-api-login-smoke-on-sha-7e723229b191; M12-008 local Docker post-login navigation regression fixed but not deployed"
+    "productionAuthRouting": "passed-Deploy-Production-33311381218-public-web-api-login-smoke-on-sha-7e723229b191; M12-008 local Docker post-login navigation regression fixed but not deployed",
+    "m13001ContractReconciliation": "DONE-2026-09-04: fresh official-Meta audit; normative docs/product/meta-instagram-platform-contract.md; ADR-010 accepted, ADR-006 messaging decision superseded; matrix/lifecycle/SRS reconciled; verdict notes on M13-003/008/009/011; zero production-code changes; agent_finalize + verify.py --full pass (Docker daemon started locally for Testcontainers)"
   },
   "nextActions": [
-    "M13-001 — reconcile ADR-006, capability matrix, OAuth/token lifecycle and provider contracts against live current official Meta documentation before any M13 production code",
-    "Then execute M13-002 through M13-015 in dependency order; keep every task scoped to one session and preserve completed M01-M08 foundations",
+    "M13-002 — Bind conversations and automations to exact connected accounts (TODO, next)",
+    "Then execute M13-003 through M13-015 in dependency order; keep every task scoped to one session and preserve completed M01-M08 foundations",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "2026-09-05 planning-only M13 refinement: all M13 tasks remain TODO and current/last-completed state is unchanged; M13-012 no longer hard-depends on M13-011, M13-011 separates provider-independent reveal flow from optional verified follow status, M13-013 has explicit reconciliation/history phases, and M13-014/M13-015 parity is current-Meta-supported and intentionally scoped. Critical exact-account/private-reply/durable-work/module/evaluator requirements were preserved. No production code, ADR, migration, package, feature test, commit or push."
+  "lastInstruction": "M13-001 DONE 2026-09-04: current Meta contract reconciled (Instagram Login primary, ADR-010 accepted, ADR-006 messaging decision superseded, follow status officially unsupported); zero production-code changes; full gates pass; state now currentTask=M13-002 TODO, lastCompletedTask=M13-001. Next: commit/push/deploy per the M13-001 instruction, then M13-002."
 }

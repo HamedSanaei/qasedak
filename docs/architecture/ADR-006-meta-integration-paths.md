@@ -1,6 +1,8 @@
 # ADR-006 — Meta integration paths and MVP capability boundary
 
-- Status: Accepted
+- Status: Superseded by ADR-010 (2026-09-04, M13-001) for the messaging-path
+  decision. Preserved verbatim below as historical evidence of the August-2026
+  contract; do not edit the body.
 - Date: 2026-08-23
 - Task: M01-004 (decisions from M01-001 research)
 

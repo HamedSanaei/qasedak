@@ -1,5 +1,11 @@
 # Qasedak — Instagram MVP Capability Matrix
 
+> **Historical document (August 2026, M01-001).** Its messaging-path claims
+> (Messenger-Platform-only messaging, Facebook Login required, Page required)
+> are **superseded** by `meta-instagram-platform-contract.md` (M13-001,
+> verified 2026-09-04) and ADR-010. Preserved verbatim below as research
+> evidence; do not treat it as the current contract.
+
 **Task:** M01-001 · **Status:** Verified against official Meta documentation (fetched August 2026)  
 **Method:** Every capability below was checked against Meta's current developer documentation on `developers.facebook.com` during this task. No capability is asserted from memory or third-party blogs. Sources are cited inline and listed at the end.
 
