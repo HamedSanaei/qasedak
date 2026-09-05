@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Qasedak.BuildingBlocks.Application.Auditing;
 using Qasedak.BuildingBlocks.Infrastructure.Auditing;
+using Qasedak.BuildingBlocks.Infrastructure.Scheduling;
 using Qasedak.Modules.Automations.Infrastructure.Persistence;
 using Qasedak.Modules.Billing.Application.Payments;
 using Qasedak.Modules.Billing.Infrastructure.Persistence;
@@ -215,6 +216,7 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
             builder.UseSetting("ConnectionStrings:Contacts", _container.GetConnectionString());
             builder.UseSetting("ConnectionStrings:Billing", _container.GetConnectionString());
             builder.UseSetting("ConnectionStrings:Audit", _container.GetConnectionString());
+            builder.UseSetting("ConnectionStrings:Platform", _container.GetConnectionString());
             // Detailed error surfaces keep integration failures diagnosable.
             builder.UseSetting("ASPNETCORE_ENVIRONMENT", "Development");
             builder.UseSetting("Identity:Auth:TokenSigningKey", SigningKey);
@@ -277,6 +279,7 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
         await scope.ServiceProvider.GetRequiredService<ContactsDbContext>().Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<BillingDbContext>().Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<AuditDbContext>().Database.MigrateAsync();
+        await scope.ServiceProvider.GetRequiredService<ScheduledWorkDbContext>().Database.MigrateAsync();
 
         Client = _factory.CreateClient();
     }

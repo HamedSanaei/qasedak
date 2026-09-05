@@ -916,7 +916,7 @@ schema change (rollback trivially safe).
 **Suggested commit:** `refactor(instagram): centralize meta graph transport`
 
 ## M13-004 — Add durable scheduled work infrastructure
-**Status:** TODO
+**Status:** DONE (2026-09-05)
 
 **Outcome:** Add the missing Qasedak-native, restart-safe scheduled-work mechanism used by
 Instagram refresh, snapshots, reconciliation, read fallback and automation follow-ups,
@@ -940,6 +940,20 @@ and transaction semantics; real-PostgreSQL tests cover competing workers, unique
 lease expiry/reclaim, retry/backoff, restart recovery, completion and dead-letter state;
 payload/log secret-leak tests pass; architecture/observability/state/handoff/manifest and
 full relevant gates pass or residual not-run gates are explicit.
+
+**Completion evidence:** Platform-owned mechanism in BuildingBlocks (ADR-012):
+contracts (`ScheduledWorkItem/Status/Handler/Store/Options/Backoff/PayloadGuard`),
+PostgreSQL `platform.scheduled_jobs` (migration
+`20260905132336_InitialScheduledWorkCreation`, idempotency unique + due-scan
+indexes), atomic single-statement `UPDATE..RETURNING` claim with `FOR UPDATE SKIP
+LOCKED`, lease-checked settlement, deterministic capped backoff, dead-letter
+terminal states, poll/claim/dispatch hosted loop with per-scope handlers and
+metrics; `ConnectionStrings:Platform` wired through migrator/compose/fixture/env
+contract (eight schemas). Tests: 12 unit (backoff/guard) + 15 PG integration
+(unique/race enqueue, disjoint claims, lease reclaim, retry→dead-letter,
+restart, cancel, lost-lease refusal, secret refusal, dispatcher settlement incl.
+cancelled-poll and settled-non-reclaim). 573/573 backend, `verify.py --full`
+green. No provider handlers yet (M13-005+); at-least-once semantics documented.
 
 **Suggested commit:** `feat(platform): add durable scheduled work`
 

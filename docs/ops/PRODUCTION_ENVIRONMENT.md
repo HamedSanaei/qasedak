@@ -14,14 +14,14 @@ in sync with what the code actually reads.
 | Database | `postgres:18-alpine` or managed equivalent | One physical database, module-owned schemas |
 
 One physical PostgreSQL instance hosts all module schemas (`identity`, `instagram`,
-`conversations`, `automations`, `contacts`, `billing`, `audit`). Splitting to separate
+`conversations`, `automations`, `contacts`, `billing`, `audit`, `platform`). Splitting to separate
 databases later is an ADR-level change.
 
 ## 2. Connection strings (required)
 
-All seven are **mandatory for the production deployment contract**. Missing/unreachable
+All eight are **mandatory for the production deployment contract**. Missing/unreachable
  databases fail migration and startup health probes (`/health/ready`), never silently degrade.
-All seven may safely point to the same physical PostgreSQL database; schemas remain module-owned.
+All eight may safely point to the same physical PostgreSQL database; schemas remain module-owned.
 
 | Key | Used by | Schema | Notes |
 |---|---|---|---|
@@ -32,6 +32,7 @@ All seven may safely point to the same physical PostgreSQL database; schemas rem
 | `ConnectionStrings:Contacts` | ContactsDbContext | `contacts` | contacts, identities, tags, notes, ledger |
 | `ConnectionStrings:Billing` | BillingDbContext | `billing` | plans, entitlements, subscriptions, periods |
 | `ConnectionStrings:Audit` | AuditDbContext | `audit` | append-only audit trail (required by the production deployment contract) |
+| `ConnectionStrings:Platform` | ScheduledWorkDbContext | `platform` | durable scheduled-work records (required since M13-004; dispatcher no-ops without handlers) |
 
 ## 3. Application settings (required unless marked optional)
 
@@ -47,6 +48,7 @@ All seven may safely point to the same physical PostgreSQL database; schemas rem
 | `Instagram:Protection:KeyBase64` | exactly-32-byte key encrypting stored Meta tokens | account connections unusable; rotate via re-connect flow |
 | `Cors:AllowedOrigins` | browser origins allowed by API | optional; empty = same-origin only |
 | `Qasedak:RateLimits:{Public,Authenticated,Webhook,Sensitive}:{Limit,WindowSeconds}` | abuse-control budgets | optional; defaults apply (240/600/2000/30 per minute) |
+| `Platform:ScheduledWork:{PollIntervalSeconds,BatchSize,LeaseSeconds,MaxAttemptsDefault,BackoffBaseSeconds,BackoffMaxSeconds}` | durable scheduled-work poll/lease/retry policy | optional; defaults apply (30/10/300/8/30/3600) |
 | `ASPNETCORE_ENVIRONMENT` | host environment | must be `Production` in real deployments |
 
 ## 4. Secrets policy

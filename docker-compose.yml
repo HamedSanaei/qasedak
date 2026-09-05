@@ -33,6 +33,7 @@ services:
       ConnectionStrings__Contacts: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
       ConnectionStrings__Billing: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
       ConnectionStrings__Audit: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
+      ConnectionStrings__Platform: Host=postgres;Port=5432;Database=${POSTGRES_DB:-qasedak};Username=${POSTGRES_USER:-qasedak};Password=${POSTGRES_PASSWORD:-change-me-for-local-only}
       Identity__Auth__TokenSigningKey: ${IDENTITY_TOKEN_SIGNING_KEY:-local-dev-signing-key-0123456789abcdef}
       Instagram__Meta__AppSecret: ${INSTAGRAM_META_APP_SECRET:-local-dev-meta-app-secret}
       Instagram__Meta__VerifyToken: ${INSTAGRAM_META_VERIFY_TOKEN:-local-dev-verify-token}

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Qasedak.Api.Migrations;
 using Qasedak.BuildingBlocks.Infrastructure.Auditing;
+using Qasedak.BuildingBlocks.Infrastructure.Scheduling;
 using Qasedak.Modules.Automations.Infrastructure.Persistence;
 using Qasedak.Modules.Billing.Infrastructure.Persistence;
 using Qasedak.Modules.Contacts.Infrastructure.Persistence;
@@ -17,7 +18,7 @@ using Xunit;
 namespace Qasedak.Api.IntegrationTests;
 
 /// <summary>
-/// Proves the one-shot `--migrate` mechanism (DatabaseMigrator) creates all seven module
+/// Proves the one-shot `--migrate` mechanism (DatabaseMigrator) creates all eight module
 /// schemas on a FRESH empty database and is idempotent: a second run applies nothing.
 /// Uses a real PostgreSQL 18 container — the production host never needs dotnet-ef.
 /// </summary>
@@ -48,6 +49,7 @@ public sealed class DatabaseMigratorTests : IAsyncLifetime
             builder.UseSetting("ConnectionStrings:Automations", _container.GetConnectionString());
             builder.UseSetting("ConnectionStrings:Contacts", _container.GetConnectionString());
             builder.UseSetting("ConnectionStrings:Billing", _container.GetConnectionString());
+            builder.UseSetting("ConnectionStrings:Platform", _container.GetConnectionString());
             if (includeAudit)
             {
                 builder.UseSetting("ConnectionStrings:Audit", _container.GetConnectionString());
@@ -72,7 +74,7 @@ public sealed class DatabaseMigratorTests : IAsyncLifetime
         using var scope = _factory.Services.CreateScope();
         var schemas = new string[]
         {
-            "identity", "instagram", "conversations", "automations", "contacts", "billing", "audit",
+            "identity", "instagram", "conversations", "automations", "contacts", "billing", "audit", "platform",
         };
         foreach (var schema in schemas)
         {
@@ -85,6 +87,7 @@ public sealed class DatabaseMigratorTests : IAsyncLifetime
                     "automations" => typeof(AutomationsDbContext),
                     "contacts" => typeof(ContactsDbContext),
                     "billing" => typeof(BillingDbContext),
+                    "platform" => typeof(ScheduledWorkDbContext),
                     _ => typeof(AuditDbContext),
                 }) as DbContext;
             Assert.NotNull(context);

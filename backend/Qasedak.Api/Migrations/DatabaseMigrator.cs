@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Qasedak.BuildingBlocks.Infrastructure.Auditing;
+using Qasedak.BuildingBlocks.Infrastructure.Scheduling;
 using Qasedak.Modules.Automations.Infrastructure.Persistence;
 using Qasedak.Modules.Billing.Infrastructure.Persistence;
 using Qasedak.Modules.Contacts.Infrastructure.Persistence;
@@ -34,6 +35,7 @@ public static class DatabaseMigrator
             ("contacts", sp.GetService<ContactsDbContext>()),
             ("billing", sp.GetService<BillingDbContext>()),
             ("audit", sp.GetService<AuditDbContext>()),
+            ("platform", sp.GetService<ScheduledWorkDbContext>()),
         };
 
         foreach (var (label, context) in contexts)

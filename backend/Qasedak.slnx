@@ -25,6 +25,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Qasedak.Api.IntegrationTests/Qasedak.Api.IntegrationTests.csproj" />
+    <Project Path="tests/Qasedak.BuildingBlocks.IntegrationTests/Qasedak.BuildingBlocks.IntegrationTests.csproj" />
     <Project Path="tests/Qasedak.BuildingBlocks.UnitTests/Qasedak.BuildingBlocks.UnitTests.csproj" />
     <Project Path="tests/Qasedak.Modules.Billing.IntegrationTests/Qasedak.Modules.Billing.IntegrationTests.csproj" />
     <Project Path="tests/Qasedak.Modules.Billing.UnitTests/Qasedak.Modules.Billing.UnitTests.csproj" />

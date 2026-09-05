@@ -39,9 +39,11 @@ MODULES = [
      "BillingDbContext", "QASEDAK_BILLING_CONNECTION"),
     ("backend/BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure",
      "AuditDbContext", "QASEDAK_AUDIT_CONNECTION"),
+    ("backend/BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure",
+     "ScheduledWorkDbContext", "QASEDAK_PLATFORM_CONNECTION"),
 ]
 
-SCHEMAS = ["identity", "instagram", "conversations", "automations", "contacts", "billing", "audit"]
+SCHEMAS = ["identity", "instagram", "conversations", "automations", "contacts", "billing", "audit", "platform"]
 
 
 def run(cmd: list[str], env: dict[str, str] | None = None, capture: bool = True) -> subprocess.CompletedProcess[str]:

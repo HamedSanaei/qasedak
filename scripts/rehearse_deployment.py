@@ -35,7 +35,7 @@ PASSWORD = "rehearsal-db-password"
 SIGNING_KEY = "deployment-rehearsal-signing-key-0123456789abcdef"
 PROTECTION_KEY = base64.b64encode(b"0123456789abcdef0123456789abcdef").decode()
 CONNECTION = f"Host={DB_CONTAINER};Port=5432;Database={DB};Username={USER};Password={PASSWORD}"
-SCHEMAS = ["identity", "instagram", "conversations", "automations", "contacts", "billing", "audit"]
+SCHEMAS = ["identity", "instagram", "conversations", "automations", "contacts", "billing", "audit", "platform"]
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -98,6 +98,7 @@ def api_env() -> list[str]:
         "ConnectionStrings:Contacts": CONNECTION,
         "ConnectionStrings:Billing": CONNECTION,
         "ConnectionStrings:Audit": CONNECTION,
+        "ConnectionStrings:Platform": CONNECTION,
         "ASPNETCORE_ENVIRONMENT": "Production",
         "Identity:Auth:TokenSigningKey": SIGNING_KEY,
         "Identity:Auth:TokenLifetimeHours": "8",
@@ -142,7 +143,7 @@ def verify_schemas() -> None:
     actual = [line.strip() for line in (result.stdout or "").splitlines() if line.strip()]
     if actual != sorted(SCHEMAS):
         raise SystemExit(f"schema verification failed: {actual}")
-    print("seven schemas: " + ", ".join(actual))
+    print("eight schemas: " + ", ".join(actual))
 
 
 def start_api(name: str, image: str, port: int) -> None:

@@ -1,6 +1,49 @@
 # Current handoff
 
-## 2026-09-05 — M13-003 DONE; M13-004 packet ready (do not start M13-004)
+## 2026-09-05 — M13-004 DONE; M13-005 packet ready (do not start M13-005)
+
+M13-004 shipped the durable scheduled-work mechanism (contracts + PostgreSQL
+store + dispatcher + migration + ADR-012 + tests). 573/573 backend,
+`verify.py --full` green. Commit/push/CI/deploy/smoke/evidence follow in this
+same instruction. State: M13-004 DONE, currentTask=M13-005 TODO. Production
+runtime stays `sha-205018dfdb16` until the M13-004 deployment switches it.
+
+### M13-005 packet (read-only handoff)
+
+- Scheduler ownership: contracts `Qasedak.BuildingBlocks.Application.Scheduling`
+  (`ScheduledWorkItem`, `IScheduledWorkStore`, `IScheduledWorkHandler`,
+  `WorkOutcome` Succeeded/Retryable/Permanent/DeadLetter, `ScheduledWorkOptions`
+  `Platform:ScheduledWork`, `ScheduledWorkBackoff`, `ScheduledWorkPayloadGuard`).
+- Persistence: `platform.scheduled_jobs` via `ScheduledWorkDbContext`
+  (migration `20260905132336_InitialScheduledWorkCreation`; unique
+  `IdempotencyKey`; `(Status, NextAttemptAtUtc)` scan index).
+- Enqueue API: `IScheduledWorkStore.EnqueueAsync(ScheduledWorkEnqueue, now)` →
+  `(Item, Duplicate)`; one logical job per idempotency key, race-safe.
+- Payload rule: Qasedak-owned JSON, versioned (`PayloadVersion`), secrets
+  rejected at enqueue; recommended token-refresh payload carries
+  `ConnectedAccountId`/reference only, never the token.
+- Claim: `ClaimDueAsync(owner, batch, lease, now)` — single atomic statement,
+  oldest-due-first, expired leases reclaimed; attempts increment per claim.
+- Lease: owner id per host, `RenewLeaseAsync`; settlement verifies ownership
+  (`scheduledwork.leaseLost` otherwise); crashed work reclaims after
+  `LeaseSeconds` (default 300).
+- Stale-worker protection: completion/failure paths re-check lease in the write
+  predicate; cancellation propagates and leaves the lease to expire.
+- Retry: `Retryable(code)` reschedules with deterministic capped backoff until
+  `MaxAttempts`, then dead-letters; `Permanent` → Failed; unknown types →
+  `DeadLetter(UnknownWorkType)`.
+- Dead-letter: terminal, kept for inspection with failure code + finish time.
+- Handler registration: `AddScheduledWorkHandler{T}` (scoped, resolved per
+  dispatch); dispatcher polls every `PollIntervalSeconds` (default 30).
+- Cancellation: in-flight handler cancelled; record stays claimed → reclaimed.
+- Delivery: at-least-once job execution; handlers own external-effect
+  idempotency (same rule as the automation run ledger).
+- Observability: `ScheduledWorkMetrics` (`scheduled_work.claimed/finished/
+  unknown_type`, state + work_type dimensions) + structured logs; no payload
+  in logs.
+- Exact next starting point: implement the first module-owned handlers
+  (token refresh first) + enqueue sites per M13-005; do NOT rebuild the
+  mechanism.
 
 M13-003 centralized the Graph transport foundation without merging adapters:
 `MetaGraphOptions` (`Instagram:Meta`: GraphHost/ApiVersion/TimeoutSeconds),

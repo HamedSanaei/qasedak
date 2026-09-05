@@ -51,6 +51,14 @@ if (!string.IsNullOrWhiteSpace(auditConnectionString))
     builder.Services.AddQasedakAuditTrail(auditConnectionString);
 }
 
+// Durable scheduled work (M13-004 mechanism; module handlers register in later tasks).
+// Bound only when the composition root configures a "Platform" connection string.
+var platformConnectionString = builder.Configuration.GetConnectionString("Platform");
+if (!string.IsNullOrWhiteSpace(platformConnectionString))
+{
+    builder.Services.AddQasedakScheduledWork(platformConnectionString, builder.Configuration);
+}
+
 // Workspace-membership policy: every /workspaces/{workspaceId}/... endpoint group requires
 // the caller to be a member of the addressed workspace (tenant isolation, uniform 403).
 builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler,
