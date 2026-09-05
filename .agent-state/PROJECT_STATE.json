@@ -136,7 +136,8 @@
     "m13002CorrectionDeployment": "deployed-2026-09-05: correction SHA 3c3c721bfa61df7de56c1eea6415dceef272e5c8; CI 33938422386 success; CodeQL 33938422377 success; Publish 33938965616 success after 1 rerun (transient Ubuntu mirror flake); Deploy 33939832514 success (backup+migration+healthy+smoke ~02:42Z, no rollback); public smoke 200/200/401; live Meta smoke NOT RUN; production runtime = immutable sha-3c3c721bfa61",
     "m13003GraphTransport": "DONE-2026-09-05: MetaGraphOptions/Uris/Error/Classifier/Transport foundation; OAuth+inspector+messaging converged (versioned paths, official 10/2534022, fbtrace, redaction); no schema change; 546/546 backend; full verify green",
     "m13003Deployment": "deployed-2026-09-05: task SHA 205018dfdb160a79d8238b18eb2bf58dff2d7c6e; CI 33948478046 success; CodeQL 33948478023 success; Publish 33948604734 success (sha-205018dfdb16); Deploy 33948661815 success (backup+healthy+smoke ~06:01Z, no rollback, no schema change); public smoke 200/200/401; live Meta smoke NOT RUN; production runtime = immutable sha-205018dfdb16",
-    "m13004ScheduledWork": "DONE-2026-09-05: platform durable scheduled work (ADR-012, platform.scheduled_jobs, atomic UPDATE..RETURNING claims, leases, capped backoff, dead-letter, per-scope handlers, metrics); ConnectionStrings:Platform wired (8 schemas); 573/573 backend; full verify green"
+    "m13004ScheduledWork": "DONE-2026-09-05: platform durable scheduled work (ADR-012, platform.scheduled_jobs, atomic UPDATE..RETURNING claims, leases, capped backoff, dead-letter, per-scope handlers, metrics); ConnectionStrings:Platform wired (8 schemas); 573/573 backend; full verify green",
+    "m13004Deployment": "deployed-2026-09-05: task SHA 0a3fbc0ac295c8fc0be5ee7eb834c3fb5bb130bf; CI 33985619872 success; CodeQL 33985619861 success; Publish 33985798254 success (sha-0a3fbc0ac295); Deploy 33985867065 success (backup+platform-migration+healthy+smoke ~19:02Z, no rollback); public smoke 200/200/401; scheduler starts clean with zero handlers; production runtime = immutable sha-0a3fbc0ac295"
   },
   "nextActions": [
     "M13-005 — Complete Instagram connection enrichment, subscriptions and token refresh (TODO, next)",
@@ -144,5 +145,5 @@
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-004 DONE 2026-09-05: durable PostgreSQL scheduled work (ADR-012, platform schema, atomic claims, leases, backoff, dead-letter); 573/573 backend; full verify green. State: lastCompletedTask=M13-004, currentTask=M13-005 TODO."
+  "lastInstruction": "M13-004 DONE + DEPLOYED 2026-09-05: runtime sha-0a3fbc0ac295 (CI/CodeQL/Publish/Deploy green, platform migration applied, public smoke 200/200/401). State: lastCompletedTask=M13-004, currentTask=M13-005 TODO."
 }

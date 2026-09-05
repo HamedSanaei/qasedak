@@ -70,6 +70,26 @@ runtime stays `sha-3c3c721bfa61` until the M13-003 deployment switches it.
 - Config surface: `Instagram:Meta:TimeoutSeconds` bounds single Graph attempts;
   M13-004 owns attempt/backoff/lease timing separately.
 
+### Deployment evidence — M13-004 (2026-09-05, UTC)
+
+- Task commit: `0a3fbc0ac295c8fc0be5ee7eb834c3fb5bb130bf`
+  (`feat(platform): add durable scheduled work`), pushed to `origin/master`.
+- CI `33985619872`: success (repository-contracts, backend, frontend, docker).
+- CodeQL `33985619861`: success.
+- Publish Images `33985798254`: success — both images tagged immutable
+  `sha-0a3fbc0ac295`.
+- Deploy Production `33985867065`: success for exactly the task SHA.
+  Previous tag `sha-205018dfdb16` → `sha-0a3fbc0ac295`; DB backup
+  `qasedak-20260905T190215Z-sha-0a3fbc0ac295.dump`; migration
+  `20260905132336_InitialScheduledWorkCreation` applied in production;
+  api/web Healthy; in-workflow smoke passed (~19:02:08–19:02:31Z). No rollback.
+- Independent smoke: `/` 200, `/api/v1/system` 200, invalid-login 401.
+- Scheduler startup: no DI/startup exceptions in deploy evidence; api Healthy
+  with zero handlers registered (M13-005 adds the first).
+- Live Meta smoke: not applicable.
+- **HEAD vs production distinction:** the evidence commit below is docs/state-only;
+  production runtime remains the immutable `sha-0a3fbc0ac295` images.
+
 ### Deployment evidence — M13-003 (2026-09-05, UTC)
 
 - Task commit: `205018dfdb160a79d8238b18eb2bf58dff2d7c6e`

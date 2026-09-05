@@ -23,7 +23,23 @@
   disjoint claims, lease reclaim, retry→dead-letter, restart, cancel,
   lost-lease refusal, secret refusal, dispatcher settlement incl. cancelled-poll
   and settled-non-reclaim). 573/573 backend, `verify.py --full` green. No
-  provider handlers yet (M13-005+). Deployed below.
+  provider handlers yet (M13-005+).
+
+## 2026-09-05 — M13-004 deployed; production on immutable task image
+
+- Task commit `0a3fbc0ac295c8fc0be5ee7eb834c3fb5bb130bf` pushed to
+  `origin/master`. CI `33985619872` success (4 jobs); CodeQL `33985619861`
+  success; Publish Images `33985798254` success
+  (`ghcr.io/hamedsanaei/qasedak-api|web:sha-0a3fbc0ac295`); Deploy Production
+  `33985867065` success for the exact SHA (previous `sha-205018dfdb16`, DB
+  backup `qasedak-20260905T190215Z-sha-0a3fbc0ac295.dump`, platform migration
+  `20260905132336_InitialScheduledWorkCreation` applied in production,
+  api/web Healthy, in-workflow smoke passed ~19:02Z). No rollback.
+- Scheduler startup evidence: no DI/startup exceptions in deploy log; api
+  Healthy with the dispatcher hosted (zero handlers registered yet, polls
+  no-op). Independent public smoke at `https://qasedak.tofanservice.ir`: `/`
+  200, `/api/v1/system` 200, invalid-login `/web-api/auth/login` 401.
+- Live Meta smoke: not applicable (mechanism only; no provider calls).
 
 ## 2026-09-05 — M13-004 DONE: durable scheduled work infrastructure
 
