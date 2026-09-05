@@ -27,6 +27,24 @@ runtime stays `sha-3c3c721bfa61` until the M13-003 deployment switches it.
 - Config surface: `Instagram:Meta:TimeoutSeconds` bounds single Graph attempts;
   M13-004 owns attempt/backoff/lease timing separately.
 
+### Deployment evidence — M13-003 (2026-09-05, UTC)
+
+- Task commit: `205018dfdb160a79d8238b18eb2bf58dff2d7c6e`
+  (`refactor(instagram): centralize meta graph transport`), pushed to
+  `origin/master`.
+- CI `33948478046`: success (repository-contracts, backend, frontend, docker).
+- CodeQL `33948478023`: success.
+- Publish Images `33948604734`: success — both images tagged immutable
+  `sha-205018dfdb16`.
+- Deploy Production `33948661815`: success for exactly the task SHA.
+  Previous tag `sha-3c3c721bfa61` → `sha-205018dfdb16`; DB backup
+  `qasedak-20260905T060054Z-sha-205018dfdb16.dump`; no schema change;
+  api/web Healthy; in-workflow smoke passed (~06:00:49–06:01:09Z). No rollback.
+- Independent smoke: `/` 200, `/api/v1/system` 200, invalid-login 401.
+- Live Meta smoke: NOT RUN (no designated test accounts).
+- **HEAD vs production distinction:** the evidence commit below is docs/state-only;
+  production runtime remains the immutable `sha-205018dfdb16` images.
+
 Inbound exact-account routing is now deterministic: `ResolveActiveAccountAsync`
 returns Resolved/NotFound/Ambiguous over active rows only; connect enforces one
 active owner globally (`account.alreadyConnectedElsewhere`); Outcome A identity

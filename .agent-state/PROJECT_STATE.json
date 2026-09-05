@@ -133,7 +133,8 @@
     "m13002Deployment": "deployed-2026-09-05: task SHA 2fd1b3205d87bb10fda70c12789bc9c4168fae68; CI 33933983002 success; CodeQL 33933983007 success; Publish 33934204827 success (sha-2fd1b3205d87); Deploy 33934275735 success (backup+migrations+healthy+smoke ~00:50Z, no rollback); public smoke root 200/system 200/invalid-login 401; live Meta multi-account smoke NOT RUN (no designated test accounts); production runtime = immutable sha-2fd1b3205d87",
     "m13002RoutingCorrection": "DONE-2026-09-05: deterministic ResolveActiveAccountAsync (Resolved/NotFound/Ambiguous, active-only single query); connect single-owner guard account.alreadyConnectedElsewhere; Outcome A identity proven (OAuth user_id == IG_ID == entry.id); ProviderAccountId rename; unsafe workspace primitive removed; additive routing-index migration; 506/506 backend tests; full verify green",
     "m13002CorrectionDeployment": "deployed-2026-09-05: correction SHA 3c3c721bfa61df7de56c1eea6415dceef272e5c8; CI 33938422386 success; CodeQL 33938422377 success; Publish 33938965616 success after 1 rerun (transient Ubuntu mirror flake); Deploy 33939832514 success (backup+migration+healthy+smoke ~02:42Z, no rollback); public smoke 200/200/401; live Meta smoke NOT RUN; production runtime = immutable sha-3c3c721bfa61",
-    "m13003GraphTransport": "DONE-2026-09-05: MetaGraphOptions/Uris/Error/Classifier/Transport foundation; OAuth+inspector+messaging converged (versioned paths, official 10/2534022, fbtrace, redaction); no schema change; 546/546 backend; full verify green"
+    "m13003GraphTransport": "DONE-2026-09-05: MetaGraphOptions/Uris/Error/Classifier/Transport foundation; OAuth+inspector+messaging converged (versioned paths, official 10/2534022, fbtrace, redaction); no schema change; 546/546 backend; full verify green",
+    "m13003Deployment": "deployed-2026-09-05: task SHA 205018dfdb160a79d8238b18eb2bf58dff2d7c6e; CI 33948478046 success; CodeQL 33948478023 success; Publish 33948604734 success (sha-205018dfdb16); Deploy 33948661815 success (backup+healthy+smoke ~06:01Z, no rollback, no schema change); public smoke 200/200/401; live Meta smoke NOT RUN; production runtime = immutable sha-205018dfdb16"
   },
   "nextActions": [
     "M13-004 — Add durable scheduled work infrastructure (TODO, next)",
@@ -141,5 +142,5 @@
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-003 DONE 2026-09-05: versioned Graph transport foundation (options/URIs/envelope/taxonomy/executor); OAuth/inspector/messaging converged; 490 deleted for official 10/2534022; 546/546 backend; full verify green. State: lastCompletedTask=M13-003, currentTask=M13-004 TODO."
+  "lastInstruction": "M13-003 DONE + DEPLOYED 2026-09-05: runtime sha-205018dfdb16 (CI/CodeQL/Publish/Deploy green, public smoke 200/200/401, live Meta NOT RUN). State: lastCompletedTask=M13-003, currentTask=M13-004 TODO."
 }

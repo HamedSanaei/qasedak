@@ -22,7 +22,21 @@
 - Tests: Instagram unit 82→122 (envelope/classifier/retry/redact/URIs/timeout/
   cancel/version-switch/official-window/inspector-URL/trace); all pre-existing
   OAuth/health/messaging pins green. 546/546 backend, `verify.py --full`
-  green. Deployed below.
+  green.
+
+## 2026-09-05 — M13-003 deployed; production on immutable task image
+
+- Task commit `205018dfdb160a79d8238b18eb2bf58dff2d7c6e` pushed to
+  `origin/master`. CI `33948478046` success (4 jobs); CodeQL `33948478023`
+  success; Publish Images `33948604734` success
+  (`ghcr.io/hamedsanaei/qasedak-api|web:sha-205018dfdb16`); Deploy Production
+  `33948661815` success for the exact SHA (previous `sha-3c3c721bfa61`, DB
+  backup `qasedak-20260905T060054Z-sha-205018dfdb16.dump`, no schema change to
+  migrate, api/web Healthy, in-workflow smoke passed ~06:01Z). No rollback.
+- Independent public smoke at `https://qasedak.tofanservice.ir`: `/` 200,
+  `/api/v1/system` 200, invalid-login `/web-api/auth/login` 401.
+- Live Meta smoke: NOT RUN (no designated test accounts; deterministic
+  contract tests cover the transport).
 
 ## 2026-09-05 — M13-002 routing correction DONE
 
