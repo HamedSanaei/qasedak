@@ -1,25 +1,30 @@
 using System.Net;
+using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Messaging;
+using Qasedak.Modules.Instagram.Infrastructure.Graph;
 using Qasedak.Modules.Instagram.Infrastructure.Messaging;
 using Xunit;
 
 namespace Qasedak.Modules.Instagram.UnitTests;
 
 /// <summary>
-/// Deterministic contract tests for the messaging send adapter: request shape, auth header,
-/// success validation, Graph error taxonomy (490 = 24h window) and transport failures.
+/// Deterministic contract tests for the messaging send adapter: versioned request
+/// shape, auth header, success validation, official Graph error taxonomy
+/// (code 10 + subcode 2534022 = 24h window) and transport failures.
 /// </summary>
 public sealed class GraphInstagramMessagingClientTests
 {
     private const string AccessToken = "IGSVCTOKEN-material";
 
     private static (GraphInstagramMessagingClient Client, ScriptedHttpHandler Handler) NewClient(
-        HttpResponseMessage response)
+        HttpResponseMessage response,
+        string apiVersion = "v26.0")
     {
         var handler = new ScriptedHttpHandler(_ => response);
         var client = new GraphInstagramMessagingClient(
             new HttpClient(handler),
-            Microsoft.Extensions.Options.Options.Create(new MetaMessagingOptions()));
+            Options.Create(new MetaMessagingOptions()),
+            Options.Create(new MetaGraphOptions { ApiVersion = apiVersion }));
         return (client, handler);
     }
 
@@ -34,11 +39,24 @@ public sealed class GraphInstagramMessagingClientTests
         Assert.True(result.Succeeded);
         var last = handler.LastRequest;
         Assert.NotNull(last);
-        Assert.Equal(new Uri("https://graph.instagram.com/me/messages"), last!.RequestUri);
+        Assert.Equal(new Uri("https://graph.instagram.com/v26.0/me/messages"), last!.RequestUri);
         Assert.Equal("Bearer", last.Headers.Authorization!.Scheme);
         Assert.Equal(AccessToken, last.Headers.Authorization.Parameter);
         Assert.Contains("\"recipient\":{\"id\":\"customer-9\"}", handler.LastBody);
         Assert.Contains("\"message\":{\"text\":\"hello\"}", handler.LastBody);
+    }
+
+    [Fact]
+    public async Task ConfiguredVersionChangesEveryGraphPath()
+    {
+        var (client, handler) = NewClient(
+            new(HttpStatusCode.OK) { Content = new StringContent("""{"recipient_id":"r","message_id":"m_1"}""") },
+            apiVersion: "v99.9");
+
+        var result = await client.SendTextAsync(AccessToken, "r", "t", default);
+
+        Assert.True(result.Succeeded);
+        Assert.Equal(new Uri("https://graph.instagram.com/v99.9/me/messages"), handler.LastRequest!.RequestUri);
     }
 
     [Fact]
@@ -54,18 +72,19 @@ public sealed class GraphInstagramMessagingClientTests
     }
 
     [Fact]
-    public async Task GraphErrorCode490MapsToWindowExpired()
+    public async Task OfficialWindowSignalMapsToWindowExpired()
     {
         var (client, _) = NewClient(
             new(HttpStatusCode.Forbidden)
             {
-                Content = new StringContent("""{"error":{"message":"outside allowed window","type":"OAuthException","code":490,"fbtrace_id":"x"}}"""),
+                Content = new StringContent("""{"error":{"message":"This message is sent outside of allowed window.","type":"OAuthException","code":10,"error_subcode":2534022,"fbtrace_id":"w"}}"""),
             });
 
         var result = await client.SendTextAsync(AccessToken, "r", "t", default);
 
         Assert.False(result.Succeeded);
         Assert.Equal(MessagingFailureReason.MessagingWindowExpired, result.Failure!.Reason);
+        Assert.Contains("trace w", result.Failure.Detail);
     }
 
     [Fact]

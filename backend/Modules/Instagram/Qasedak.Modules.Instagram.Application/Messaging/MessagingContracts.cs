@@ -11,7 +11,8 @@ public enum MessagingFailureReason
 
     /// <summary>
     /// Meta refused because the recipient is outside the 24-hour customer service window
-    /// (Graph error code 490). Distinct so callers can schedule instead of retrying blindly.
+    /// (official Graph code 10 + subcode 2534022). Distinct so callers can schedule
+    /// instead of retrying blindly.
     /// </summary>
     MessagingWindowExpired,
 

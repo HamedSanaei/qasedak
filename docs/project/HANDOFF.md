@@ -1,6 +1,31 @@
 # Current handoff
 
-## 2026-09-05 — M13-002 routing correction DONE; M13-003 not started
+## 2026-09-05 — M13-003 DONE; M13-004 packet ready (do not start M13-004)
+
+M13-003 centralized the Graph transport foundation without merging adapters:
+`MetaGraphOptions` (`Instagram:Meta`: GraphHost/ApiVersion/TimeoutSeconds),
+`MetaGraphUris.Versioned`, `MetaGraphError` envelope + parser (both official
+shapes, redaction, fbtrace), `MetaGraphFailure` taxonomy + classifier (official
+10/2534022; IsRetryable), `MetaGraphTransport` executor. OAuth/inspector/
+messaging adapters converged (versioned paths; OAuth endpoints unversioned by
+contract; 490 deleted). Instagram unit 82→122; 546/546 backend; full verify
+green; no schema change. Commit/push/CI/deploy/smoke/evidence follow in this
+same instruction. State: M13-003 DONE, currentTask=M13-004 TODO. Production
+runtime stays `sha-3c3c721bfa61` until the M13-003 deployment switches it.
+
+### M13-004 packet (read-only handoff)
+
+- No scheduler exists yet: M13-003 deliberately built no retry loops or queues —
+  `MetaGraphFailure.IsRetryable` is the classification contract M13-004 job
+  handlers will consume (RateLimited/Transient/Transport → retry with backoff).
+- New shared primitives to reuse: `MetaGraphError.FbTraceId` for correlating
+  provider failures inside durable job records (store trace id, never tokens).
+- Module boundaries unchanged: Instagram adapters stay focused; durable work
+  belongs in BuildingBlocks/platform with module-owned handlers; job payloads
+  must never contain access tokens (resolve via `ConnectedAccountId` at
+  execution, per ADR-011).
+- Config surface: `Instagram:Meta:TimeoutSeconds` bounds single Graph attempts;
+  M13-004 owns attempt/backoff/lease timing separately.
 
 Inbound exact-account routing is now deterministic: `ResolveActiveAccountAsync`
 returns Resolved/NotFound/Ambiguous over active rows only; connect enforces one

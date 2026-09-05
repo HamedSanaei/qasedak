@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-05T02:06:48Z",
+  "updatedAt": "2026-09-05T05:24:16Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
-  "currentTask": "M13-003",
-  "lastCompletedTask": "M13-002",
+  "currentTask": "M13-004",
+  "lastCompletedTask": "M13-003",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -65,7 +65,8 @@
     "M12-007",
     "M12-008",
     "M13-001",
-    "M13-002"
+    "M13-002",
+    "M13-003"
   ],
   "graphify": {
     "required": true,
@@ -131,13 +132,14 @@
     "m13002ExactAccount": "DONE-2026-09-05: ChannelAccountId opaque struct; conversations key (Workspace,Channel,Account,Participant) via IX_conversations_exact_thread (migration 20260905000206); automations create-time-immutable binding (migration 20260905000458, additive); exact inbound/outbound routing, first-account fallback deleted; legacy NULL readable/refused; 495/495 backend tests; verify.py --full green",
     "m13002Deployment": "deployed-2026-09-05: task SHA 2fd1b3205d87bb10fda70c12789bc9c4168fae68; CI 33933983002 success; CodeQL 33933983007 success; Publish 33934204827 success (sha-2fd1b3205d87); Deploy 33934275735 success (backup+migrations+healthy+smoke ~00:50Z, no rollback); public smoke root 200/system 200/invalid-login 401; live Meta multi-account smoke NOT RUN (no designated test accounts); production runtime = immutable sha-2fd1b3205d87",
     "m13002RoutingCorrection": "DONE-2026-09-05: deterministic ResolveActiveAccountAsync (Resolved/NotFound/Ambiguous, active-only single query); connect single-owner guard account.alreadyConnectedElsewhere; Outcome A identity proven (OAuth user_id == IG_ID == entry.id); ProviderAccountId rename; unsafe workspace primitive removed; additive routing-index migration; 506/506 backend tests; full verify green",
-    "m13002CorrectionDeployment": "deployed-2026-09-05: correction SHA 3c3c721bfa61df7de56c1eea6415dceef272e5c8; CI 33938422386 success; CodeQL 33938422377 success; Publish 33938965616 success after 1 rerun (transient Ubuntu mirror flake); Deploy 33939832514 success (backup+migration+healthy+smoke ~02:42Z, no rollback); public smoke 200/200/401; live Meta smoke NOT RUN; production runtime = immutable sha-3c3c721bfa61"
+    "m13002CorrectionDeployment": "deployed-2026-09-05: correction SHA 3c3c721bfa61df7de56c1eea6415dceef272e5c8; CI 33938422386 success; CodeQL 33938422377 success; Publish 33938965616 success after 1 rerun (transient Ubuntu mirror flake); Deploy 33939832514 success (backup+migration+healthy+smoke ~02:42Z, no rollback); public smoke 200/200/401; live Meta smoke NOT RUN; production runtime = immutable sha-3c3c721bfa61",
+    "m13003GraphTransport": "DONE-2026-09-05: MetaGraphOptions/Uris/Error/Classifier/Transport foundation; OAuth+inspector+messaging converged (versioned paths, official 10/2534022, fbtrace, redaction); no schema change; 546/546 backend; full verify green"
   },
   "nextActions": [
-    "M13-003 — Centralize versioned Meta Graph transport and failure taxonomy (TODO, next)",
-    "Then execute M13-004 through M13-015 in dependency order; keep every task scoped to one session and preserve completed foundations",
+    "M13-004 — Add durable scheduled work infrastructure (TODO, next)",
+    "Then execute M13-005 through M13-015 in dependency order; keep every task scoped to one session and preserve completed foundations",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-002 routing correction DONE + DEPLOYED 2026-09-05: runtime sha-3c3c721bfa61 (CI/CodeQL/Publish-after-1-rerun/Deploy green, public smoke 200/200/401, live Meta smoke NOT RUN). State: lastCompletedTask=M13-002, currentTask=M13-003 TODO. Next: evidence [skip ci] commit."
+  "lastInstruction": "M13-003 DONE 2026-09-05: versioned Graph transport foundation (options/URIs/envelope/taxonomy/executor); OAuth/inspector/messaging converged; 490 deleted for official 10/2534022; 546/546 backend; full verify green. State: lastCompletedTask=M13-003, currentTask=M13-004 TODO."
 }

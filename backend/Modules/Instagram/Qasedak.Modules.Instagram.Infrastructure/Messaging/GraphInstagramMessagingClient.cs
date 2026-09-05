@@ -1,10 +1,9 @@
-using System.Globalization;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Messaging;
+using Qasedak.Modules.Instagram.Infrastructure.Graph;
 
 namespace Qasedak.Modules.Instagram.Infrastructure.Messaging;
 
@@ -18,21 +17,37 @@ public sealed class MetaMessagingOptions
 }
 
 /// <summary>
-/// HTTP adapter for Instagram's documented messaging send contract:
-/// POST {graph}/me/messages with Bearer page access token and body
-/// {"recipient":{"id":"..."},"message":{"text":"..."}}. Graph error code 490 marks a
-/// recipient outside the 24-hour customer service window. Failures are structured
-/// results; access-token material never appears in failure details.
+/// HTTP adapter for Instagram's documented messaging send contract over the shared
+/// Graph transport (M13-003): POST {graph}/{version}/me/messages with a Bearer
+/// Instagram User token and body {"recipient":{"id":"..."},"message":{"text":"..."}}.
+/// The 24-hour window signal is the official code 10 + subcode 2534022 (the
+/// historical code-490 mapping has no official standing and is not used).
+/// Failures are structured results; access-token material never appears in details.
 /// </summary>
-public sealed class GraphInstagramMessagingClient(HttpClient http, IOptions<MetaMessagingOptions> options) : IInstagramMessagingClient
+public sealed class GraphInstagramMessagingClient : IInstagramMessagingClient
 {
     public const string HttpClientName = "MetaInstagramMessaging";
 
-    private const int WindowExpiredGraphCode = 490;
+    public GraphInstagramMessagingClient(HttpClient http, IOptions<MetaMessagingOptions> messagingOptions)
+        : this(http, messagingOptions, Microsoft.Extensions.Options.Options.Create(new MetaGraphOptions()))
+    {
+    }
 
-    private readonly HttpClient _http = http;
+    public GraphInstagramMessagingClient(
+        HttpClient http,
+        IOptions<MetaMessagingOptions> messagingOptions,
+        IOptions<MetaGraphOptions> graphOptions)
+    {
+        _transport = new MetaGraphTransport(http, graphOptions.Value.TimeoutSeconds);
+        _messaging = messagingOptions.Value;
+        _graph = graphOptions.Value;
+    }
 
-    private readonly string _endpoint = new Uri(new Uri(options.Value.GraphBaseUrl), "me/messages").ToString();
+    private readonly MetaGraphTransport _transport;
+
+    private readonly MetaMessagingOptions _messaging;
+
+    private readonly MetaGraphOptions _graph;
 
     public async Task<MessagingSendResult> SendTextAsync(
         string accessToken,
@@ -40,7 +55,12 @@ public sealed class GraphInstagramMessagingClient(HttpClient http, IOptions<Meta
         string text,
         CancellationToken cancellationToken = default)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, _endpoint)
+        var endpoint = MetaGraphUris.Versioned(
+            string.IsNullOrWhiteSpace(_messaging.GraphBaseUrl) ? _graph.GraphHost : _messaging.GraphBaseUrl,
+            _graph.ApiVersion,
+            "me/messages");
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
         {
             Content = JsonContent.Create(new MessagingSendPayload(
                 new Recipient(recipientProviderUserId),
@@ -48,76 +68,44 @@ public sealed class GraphInstagramMessagingClient(HttpClient http, IOptions<Meta
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        HttpResponseMessage response;
-        try
+        var outcome = await _transport.SendAsync(request, cancellationToken);
+        return outcome switch
         {
-            response = await _http.SendAsync(request, cancellationToken);
-        }
-        catch (HttpRequestException)
-        {
-            return MessagingSendResult.Fail(MessagingFailureReason.TransportFailure, "HTTP request failed.");
-        }
-        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
-        {
-            return MessagingSendResult.Fail(MessagingFailureReason.TransportFailure, "HTTP request timed out.");
-        }
-
-        using (response)
-        {
-            if (response.IsSuccessStatusCode)
-            {
-                return ValidateSuccess(await ReadJsonAsync(response));
-            }
-
-            return FromMetaError(response.StatusCode, await ReadJsonAsync(response));
-        }
+            MetaGraphCallResult.Success success => ValidateSuccess(success.Document),
+            MetaGraphCallResult.Rejected rejected => FromMetaError(rejected.Error),
+            MetaGraphCallResult.Unreachable unreachable => MessagingSendResult.Fail(
+                MessagingFailureReason.TransportFailure, unreachable.Detail),
+            _ => MessagingSendResult.Fail(MessagingFailureReason.TransportFailure, "HTTP request failed."),
+        };
     }
 
-    private static MessagingSendResult ValidateSuccess(JsonDocument? document)
+    private static MessagingSendResult ValidateSuccess(JsonDocument document)
     {
         // Documented success: {"recipient_id":"...","message_id":"..."}. We require at least
         // a message id to treat the delivery as confirmed.
-        if (document?.RootElement.TryGetProperty("message_id", out _) == true)
+        using (document)
         {
-            return MessagingSendResult.Ok();
+            if (document.RootElement.TryGetProperty("message_id", out _))
+            {
+                return MessagingSendResult.Ok();
+            }
         }
 
         return MessagingSendResult.Fail(MessagingFailureReason.MalformedResponse, "Payload did not match the documented shape.");
     }
 
-    private static MessagingSendResult FromMetaError(HttpStatusCode statusCode, JsonDocument? document)
+    private static MessagingSendResult FromMetaError(MetaGraphError error)
     {
-        var root = document?.RootElement;
-        var error = root is not null && root.Value.TryGetProperty("error", out var errorElement) ? errorElement : (JsonElement?)null;
-
-        if (error is null)
+        var failure = MetaGraphClassifier.Classify(error);
+        return failure switch
         {
-            return MessagingSendResult.Fail(MessagingFailureReason.RejectedByMeta, $"Meta returned status {(int)statusCode}.");
-        }
-
-        var code = error.Value.TryGetProperty("code", out var codeElement) && codeElement.TryGetInt32(out var parsed) ? parsed : (int?)null;
-        if (code == WindowExpiredGraphCode)
-        {
-            return MessagingSendResult.Fail(MessagingFailureReason.MessagingWindowExpired, "Recipient is outside the 24-hour messaging window.");
-        }
-
-        var type = error.Value.TryGetProperty("type", out var typeElement) ? typeElement.GetString() : null;
-        return MessagingSendResult.Fail(
-            MessagingFailureReason.RejectedByMeta,
-            $"{(int)statusCode} {type ?? "Unknown"} (code {(code?.ToString(CultureInfo.InvariantCulture) ?? "?")}).");
-    }
-
-    private static async Task<JsonDocument?> ReadJsonAsync(HttpResponseMessage response)
-    {
-        try
-        {
-            await using var stream = await response.Content.ReadAsStreamAsync();
-            return await JsonDocument.ParseAsync(stream);
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
+            MetaGraphFailure.MessagingWindowExpired => MessagingSendResult.Fail(
+                MessagingFailureReason.MessagingWindowExpired,
+                MetaGraphClassifier.Describe(failure, error)),
+            _ => MessagingSendResult.Fail(
+                MessagingFailureReason.RejectedByMeta,
+                MetaGraphClassifier.Describe(failure, error)),
+        };
     }
 
     private sealed record MessagingSendPayload(Recipient Recipient, MessageBody Message);

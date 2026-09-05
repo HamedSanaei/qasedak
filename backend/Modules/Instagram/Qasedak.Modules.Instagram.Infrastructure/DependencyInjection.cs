@@ -6,6 +6,7 @@ using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Webhooks;
+using Qasedak.Modules.Instagram.Infrastructure.Graph;
 using Qasedak.Modules.Instagram.Infrastructure.Messaging;
 using Qasedak.Modules.Instagram.Infrastructure.OAuth;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
@@ -20,6 +21,7 @@ public static class DependencyInjection
     {
         services.Configure<MetaWebhookOptions>(configuration.GetSection(MetaWebhookOptions.SectionName));
         services.Configure<MetaOAuthOptions>(configuration.GetSection(MetaOAuthOptions.SectionName));
+        services.Configure<MetaGraphOptions>(configuration.GetSection(MetaGraphOptions.SectionName));
         services.Configure<TokenProtectionOptions>(configuration.GetSection(TokenProtectionOptions.SectionName));
         services.AddSingleton<IWebhookSignatureVerifier, HmacWebhookSignatureVerifier>();
         services.AddSingleton<IWebhookSubscriptionValidator, MetaWebhookSubscriptionValidator>();
@@ -29,13 +31,15 @@ public static class DependencyInjection
         services.AddHttpClient(GraphInstagramOAuthClient.HttpClientName);
         services.AddSingleton(sp => new GraphInstagramOAuthClient(
             sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramOAuthClient.HttpClientName),
-            sp.GetRequiredService<IOptions<MetaOAuthOptions>>()));
+            sp.GetRequiredService<IOptions<MetaOAuthOptions>>(),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
         services.AddSingleton<IMetaOAuthClient>(sp => sp.GetRequiredService<GraphInstagramOAuthClient>());
 
         // Live token inspection for health evaluation (OQ-3 taxonomy lives here).
         services.AddHttpClient(GraphInstagramTokenInspector.HttpClientName);
         services.AddSingleton(sp => new GraphInstagramTokenInspector(
-            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramTokenInspector.HttpClientName)));
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramTokenInspector.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
         services.AddSingleton<IMetaTokenInspector>(sp => sp.GetRequiredService<GraphInstagramTokenInspector>());
 
         // Messaging send API (M05-004): typed client + structured failure taxonomy.
@@ -43,7 +47,8 @@ public static class DependencyInjection
         services.AddHttpClient(GraphInstagramMessagingClient.HttpClientName);
         services.AddSingleton(sp => new GraphInstagramMessagingClient(
             sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramMessagingClient.HttpClientName),
-            sp.GetRequiredService<IOptions<MetaMessagingOptions>>()));
+            sp.GetRequiredService<IOptions<MetaMessagingOptions>>(),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
         services.AddSingleton<IInstagramMessagingClient>(sp => sp.GetRequiredService<GraphInstagramMessagingClient>());
 
         // Module-owned persistence under the "instagram" schema.

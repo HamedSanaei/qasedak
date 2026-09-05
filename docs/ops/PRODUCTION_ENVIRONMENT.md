@@ -41,6 +41,9 @@ All seven may safely point to the same physical PostgreSQL database; schemas rem
 | `Identity:Auth:TokenLifetimeHours` | access-token lifetime | default applies (see code) |
 | `Instagram:Meta:AppSecret` | HMAC verification of Meta webhook payloads | webhooks rejected — ingest dead but API healthy |
 | `Instagram:Meta:VerifyToken` | hub.subscription handshake echo | subscription verification fails |
+| `Instagram:Meta:GraphHost` | versioned Graph API host (Instagram Login path) | optional; defaults to `https://graph.instagram.com` |
+| `Instagram:Meta:ApiVersion` | Graph API version segment for versioned paths | optional; defaults to the M13-001-observed `v26.0`; OAuth token endpoints stay unversioned by contract |
+| `Instagram:Meta:TimeoutSeconds` | per-request timeout for Graph calls | optional; defaults to 100 (previous HttpClient behavior) |
 | `Instagram:Protection:KeyBase64` | exactly-32-byte key encrypting stored Meta tokens | account connections unusable; rotate via re-connect flow |
 | `Cors:AllowedOrigins` | browser origins allowed by API | optional; empty = same-origin only |
 | `Qasedak:RateLimits:{Public,Authenticated,Webhook,Sensitive}:{Limit,WindowSeconds}` | abuse-control budgets | optional; defaults apply (240/600/2000/30 per minute) |

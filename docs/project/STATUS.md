@@ -2,9 +2,27 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-003 — Centralize versioned Meta Graph transport and failure taxonomy (TODO)
-**Last completed:** M13-002 (2026-09-05; inbound routing correction included)
-**Product implementation:** Conversations/automations bound to exact connected accounts with deterministic inbound resolution; no M13-003 work started
+**Current task:** M13-004 — Add durable scheduled work infrastructure (TODO)
+**Last completed:** M13-003 (2026-09-05)
+**Product implementation:** Versioned Graph transport foundation live; no M13-004 work started
+
+## 2026-09-05 — M13-003 DONE: versioned Graph transport + failure taxonomy
+
+- New `Graph/` foundation in Instagram Infrastructure: `MetaGraphOptions`
+  (host/version/timeout on `Instagram:Meta`; defaults graph.instagram.com,
+  v26.0, 100s), `MetaGraphUris`, canonical `MetaGraphError` envelope/parser
+  (nested + flat OAuth shapes, 300-char redaction, fbtrace), `MetaGraphFailure`
+  taxonomy + classifier (official 10/2534022 window; retryability), and
+  `MetaGraphTransport` executor (timeout vs caller-cancel, safe reads).
+- OAuth, token inspector and messaging adapters converged without merging:
+  versioned `me/messages` + `me` probe; OAuth token endpoints stay unversioned
+  per the Business Login contract; stale code-490 mapping deleted; inspector
+  keeps OQ-3 health mapping (window stays Transient); DI passes graph options;
+  env doc keys added. No schema change — rollback trivially safe.
+- Tests: Instagram unit 82→122 (envelope/classifier/retry/redact/URIs/timeout/
+  cancel/version-switch/official-window/inspector-URL/trace); all pre-existing
+  OAuth/health/messaging pins green. 546/546 backend, `verify.py --full`
+  green. Deployed below.
 
 ## 2026-09-05 — M13-002 routing correction DONE
 

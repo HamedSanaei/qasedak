@@ -35,6 +35,16 @@ public sealed class MetaErrorTaxonomyTests
         Assert.Equal(TokenInspectionKind.PermissionLoss, byCode200.Kind);
     }
 
+    [Fact]
+    public void WindowSignalStaysTransientForHealth()
+    {
+        // Code 10 + subcode 2534022 is a closed messaging window, not token death:
+        // health must stay untouched so the inspector never degrades on it.
+        var window = GraphInstagramTokenInspector.Classify(403, 10, 2534022, "This message is sent outside of allowed window.");
+
+        Assert.Equal(TokenInspectionKind.Transient, window.Kind);
+    }
+
     [Theory]
     [InlineData(429, 4)]
     [InlineData(500, 1)]

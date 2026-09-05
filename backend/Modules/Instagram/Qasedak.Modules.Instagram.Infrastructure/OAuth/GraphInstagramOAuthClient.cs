@@ -1,8 +1,8 @@
-using System.Net;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Infrastructure.Graph;
 
 namespace Qasedak.Modules.Instagram.Infrastructure.OAuth;
 
@@ -62,14 +62,17 @@ public sealed class InstagramAuthorizationUrlBuilder(IOptions<MetaOAuthOptions> 
 }
 
 /// <summary>
-/// HTTP adapter for the verified Meta OAuth token contract:
+/// HTTP adapter for the verified Meta OAuth token contract over the shared Graph
+/// transport (M13-003):
 /// - POST api.instagram.com/oauth/access_token (form: client_id, client_secret,
 ///   grant_type=authorization_code, redirect_uri, code) → {data:[{access_token,user_id,permissions}]}
 /// - GET graph.instagram.com/access_token?grant_type=ig_exchange_token&amp;client_secret&amp;access_token
 ///   → {access_token, token_type, expires_in}
 /// - GET graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&amp;access_token
 ///   → {access_token, token_type, expires_in}
-/// Failures are returned as structured results; secret/token values never appear in details.
+/// The OAuth token endpoints stay unversioned per the official Business Login contract;
+/// only versioned Graph paths take the configured version. Failures are returned as
+/// structured results; secret/token values never appear in details.
 /// </summary>
 public sealed class GraphInstagramOAuthClient : IMetaOAuthClient
 {
@@ -82,29 +85,32 @@ public sealed class GraphInstagramOAuthClient : IMetaOAuthClient
 
     private const string RefreshGrantType = "ig_refresh_token";
 
-    private readonly HttpClient _http;
+    private readonly MetaGraphTransport _transport;
 
     private readonly MetaOAuthOptions _options;
 
     public GraphInstagramOAuthClient(HttpClient http, IOptions<MetaOAuthOptions> options)
+        : this(http, options, Microsoft.Extensions.Options.Options.Create(new MetaGraphOptions()))
     {
-        _http = http;
+    }
+
+    public GraphInstagramOAuthClient(HttpClient http, IOptions<MetaOAuthOptions> options, IOptions<MetaGraphOptions> graphOptions)
+    {
+        _transport = new MetaGraphTransport(http, graphOptions.Value.TimeoutSeconds);
         _options = options.Value;
     }
 
     public async Task<CodeExchangeResult> ExchangeCodeAsync(CodeExchangeRequest request, CancellationToken cancellationToken = default)
     {
-        using var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        var outcome = await _transport.PostFormAsync(_options.CodeExchangeEndpoint, new Dictionary<string, string>
         {
             ["client_id"] = _options.ClientId,
             ["client_secret"] = _options.ClientSecret,
             ["grant_type"] = CodeExchangeGrant,
             ["redirect_uri"] = request.RedirectUri,
             ["code"] = request.Code,
-        });
-
-        using var response = await PostAsync(_options.CodeExchangeEndpoint, content, cancellationToken);
-        return await InterpretCodeExchangeResponseAsync(response);
+        }, cancellationToken);
+        return InterpretCodeExchangeResponse(outcome);
     }
 
     public Task<LongLivedTokenResult> ExchangeShortLivedForLongLivedAsync(string shortLivedAccessToken, CancellationToken cancellationToken = default) =>
@@ -115,153 +121,101 @@ public sealed class GraphInstagramOAuthClient : IMetaOAuthClient
 
     private async Task<LongLivedTokenResult> FetchLongLivedAsync(string url, CancellationToken cancellationToken)
     {
-        using var response = await GetAsync(url, cancellationToken);
-        if (response is null)
+        var outcome = await _transport.GetAsync(url, cancellationToken);
+        if (outcome is MetaGraphCallResult.Rejected rejected
+            && !rejected.Error.HasJsonBody
+            && rejected.Error.HttpStatusCode is >= 200 and < 300)
         {
-            return LongLivedTokenResult.Fail(new MetaOAuthFailure(MetaOAuthFailureReason.TransportFailure, "HTTP request failed."));
+            return LongLivedTokenResult.Fail(new MetaOAuthFailure(
+                MetaOAuthFailureReason.MalformedResponse,
+                $"Meta returned non-JSON with status {rejected.Error.HttpStatusCode}."));
         }
 
-        using var document = await ReadJsonAsync(response, cancellationToken);
-        if (document is null)
+        if (outcome is not MetaGraphCallResult.Success success)
         {
-            return NonJsonResult(response, out var malformed)
-                ? LongLivedTokenResult.Fail(malformed!)
-                : LongLivedTokenResult.Fail(new MetaOAuthFailure(MetaOAuthFailureReason.RejectedByMeta, $"Meta returned status {(int)response.StatusCode}."));
+            return LongLivedTokenResult.Fail(ToFailure(outcome));
         }
 
-        var root = document.RootElement;
-        if (!response.IsSuccessStatusCode)
+        using (success.Document)
         {
-            return LongLivedTokenResult.Fail(FromMetaError(response.StatusCode, root));
-        }
-
-        if (root.TryGetProperty("access_token", out var accessToken)
-            && root.TryGetProperty("expires_in", out var expiresIn)
-            && expiresIn.TryGetInt64(out var seconds))
-        {
-            return LongLivedTokenResult.Ok(new LongLivedToken(accessToken.GetString()!, seconds));
+            var root = success.Document.RootElement;
+            if (root.TryGetProperty("access_token", out var accessToken)
+                && root.TryGetProperty("expires_in", out var expiresIn)
+                && expiresIn.TryGetInt64(out var seconds))
+            {
+                return LongLivedTokenResult.Ok(new LongLivedToken(accessToken.GetString()!, seconds));
+            }
         }
 
         return LongLivedTokenResult.Fail(new MetaOAuthFailure(MetaOAuthFailureReason.MalformedResponse, "Payload did not match the documented shape."));
     }
 
-    private static async Task<CodeExchangeResult> InterpretCodeExchangeResponseAsync(HttpResponseMessage? response)
+    private static MetaOAuthFailure ToFailure(MetaGraphCallResult outcome) => outcome switch
     {
-        if (response is null)
-        {
-            return CodeExchangeResult.Fail(new MetaOAuthFailure(MetaOAuthFailureReason.TransportFailure, "HTTP request failed."));
-        }
+        MetaGraphCallResult.Rejected rejected => FromMetaError(rejected.Error),
+        _ => new MetaOAuthFailure(MetaOAuthFailureReason.TransportFailure, "HTTP request failed."),
+    };
 
-        using var document = await ReadJsonAsync(response, CancellationToken.None);
-        if (document is null)
-        {
-            return CodeExchangeResult.Fail(new MetaOAuthFailure(
-                response.IsSuccessStatusCode ? MetaOAuthFailureReason.MalformedResponse : MetaOAuthFailureReason.RejectedByMeta,
-                $"Meta returned non-JSON with status {(int)response.StatusCode}."));
-        }
-
-        var root = document.RootElement;
-        if (!response.IsSuccessStatusCode)
-        {
-            return CodeExchangeResult.Fail(FromMetaError(response.StatusCode, root));
-        }
-
-        // Success payload wraps the object in a top-level "data" array.
-        if (root.TryGetProperty("data", out var data)
-            && data.ValueKind == JsonValueKind.Array
-            && data.GetArrayLength() > 0
-            && data[0].TryGetProperty("access_token", out var accessToken))
-        {
-            var first = data[0];
-            var userId = first.TryGetProperty("user_id", out var userIdElement)
-                ? userIdElement.ToString()
-                : string.Empty;
-            var permissions = first.TryGetProperty("permissions", out var permissionsElement)
-                && permissionsElement.GetString() is { } raw
-                ? raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                : [];
-            return CodeExchangeResult.Ok(new CodeExchangeSuccess(accessToken.GetString()!, userId, permissions));
-        }
-
-        return CodeExchangeResult.Fail(new MetaOAuthFailure(MetaOAuthFailureReason.MalformedResponse, "Payload did not match the documented shape."));
-    }
-
-    private async Task<HttpResponseMessage?> PostAsync(string url, FormUrlEncodedContent content, CancellationToken cancellationToken)
+    private static CodeExchangeResult InterpretCodeExchangeResponse(MetaGraphCallResult outcome)
     {
-        try
+        if (outcome is MetaGraphCallResult.Success success)
         {
-            return await _http.PostAsync(url, content, cancellationToken);
-        }
-        catch (HttpRequestException)
-        {
-            return null;
-        }
-    }
+            using (success.Document)
+            {
+                var root = success.Document.RootElement;
 
-    private async Task<HttpResponseMessage?> GetAsync(string url, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _http.GetAsync(url, cancellationToken);
-        }
-        catch (HttpRequestException)
-        {
-            return null;
-        }
-    }
+                // Success payload wraps the object in a top-level "data" array.
+                if (root.TryGetProperty("data", out var data)
+                    && data.ValueKind == JsonValueKind.Array
+                    && data.GetArrayLength() > 0
+                    && data[0].TryGetProperty("access_token", out var accessToken))
+                {
+                    var first = data[0];
+                    var userId = first.TryGetProperty("user_id", out var userIdElement)
+                        ? userIdElement.ToString()
+                        : string.Empty;
+                    var permissions = first.TryGetProperty("permissions", out var permissionsElement)
+                        && permissionsElement.GetString() is { } raw
+                        ? raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        : [];
+                    return CodeExchangeResult.Ok(new CodeExchangeSuccess(accessToken.GetString()!, userId, permissions));
+                }
+            }
 
-    private static async Task<JsonDocument?> ReadJsonAsync(HttpResponseMessage response, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            return await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+            return CodeExchangeResult.Fail(new MetaOAuthFailure(MetaOAuthFailureReason.MalformedResponse, "Payload did not match the documented shape."));
         }
-        catch (JsonException)
-        {
-            return null;
-        }
-    }
 
-    private static bool NonJsonResult(HttpResponseMessage response, out MetaOAuthFailure? failure)
-    {
-        failure = new MetaOAuthFailure(
-            response.IsSuccessStatusCode ? MetaOAuthFailureReason.MalformedResponse : MetaOAuthFailureReason.RejectedByMeta,
-            $"Meta returned non-JSON with status {(int)response.StatusCode}.");
-        return true;
+        if (outcome is MetaGraphCallResult.Rejected rejected && !rejected.Error.HasJsonBody)
+        {
+            // Preserved contract: a 2xx non-JSON answer is malformed; anything else is
+            // a provider rejection carrying only the status.
+            return rejected.Error.HttpStatusCode is >= 200 and < 300
+                ? CodeExchangeResult.Fail(new MetaOAuthFailure(
+                    MetaOAuthFailureReason.MalformedResponse,
+                    $"Meta returned non-JSON with status {rejected.Error.HttpStatusCode}."))
+                : CodeExchangeResult.Fail(ToFailure(outcome));
+        }
+
+        return CodeExchangeResult.Fail(ToFailure(outcome));
     }
 
     /// <summary>
-    /// Maps Meta's OAuth error payload ({error_type, code, error_message}) to a structured
-    /// failure. Only error metadata is kept — never echo token or secret material.
+    /// Maps the canonical envelope to a structured failure. Only bounded, redacted
+    /// error metadata is kept — never token or secret material (stripped at parse).
     /// </summary>
-    private static MetaOAuthFailure FromMetaError(HttpStatusCode statusCode, JsonElement body)
+    private static MetaOAuthFailure FromMetaError(MetaGraphError error)
     {
-        var errorType = body.TryGetProperty("error_type", out var type) ? type.GetString() : null;
-        var message = body.TryGetProperty("error_message", out var messageElement) ? messageElement.GetString() : null;
-        var detail = $"{(int)statusCode} {errorType ?? "Unknown"}";
-        return new MetaOAuthFailure(MetaOAuthFailureReason.RejectedByMeta, Sanitize(detail, message));
-    }
-
-    /// <summary>Appends a bounded, redacted Meta message; strips any bearer-ish substrings.</summary>
-    private static string Sanitize(string detail, string? metaMessage)
-    {
-        if (string.IsNullOrEmpty(metaMessage))
+        if (!error.HasJsonBody)
         {
-            return detail;
+            return new MetaOAuthFailure(
+                MetaOAuthFailureReason.RejectedByMeta,
+                $"Meta returned non-JSON with status {error.HttpStatusCode}.");
         }
 
-        var safe = metaMessage.Length > 300 ? metaMessage[..300] : metaMessage;
-        // Defense-in-depth: never propagate anything that looks like credential material.
-        if (safe.Contains("secret", StringComparison.OrdinalIgnoreCase)
-            || safe.Contains("token=", StringComparison.OrdinalIgnoreCase)
-            || safe.StartsWith("EAAC", StringComparison.Ordinal)
-            || safe.StartsWith("IG", StringComparison.Ordinal))
-        {
-            return detail + " (message withheld)";
-        }
-
-        return detail + ": " + safe;
+        var detail = $"{error.HttpStatusCode} {error.Type ?? "Unknown"}";
+        return new MetaOAuthFailure(
+            MetaOAuthFailureReason.RejectedByMeta,
+            string.IsNullOrEmpty(error.Message) ? detail : detail + ": " + error.Message);
     }
 
     private string BuildGraphUrl(string path, string grantType, string accessToken)

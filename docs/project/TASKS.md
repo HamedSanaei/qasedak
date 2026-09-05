@@ -870,7 +870,7 @@ are explicit.
 **Suggested commit:** `refactor(instagram): bind channel activity to connected accounts`
 
 ## M13-003 — Centralize versioned Meta Graph transport and failure taxonomy
-**Status:** TODO
+**Status:** DONE (2026-09-05)
 
 **Outcome:** Provide one versioned, secret-safe Graph transport foundation reused by
 focused Instagram adapters, replacing today's independently assembled and sometimes
@@ -898,6 +898,20 @@ prove one configuration version changes every Graph path consistently, cancellat
 timeouts work, semantic retryability is correct, `fbtrace_id` is correlated, secrets are
 redacted, and known existing OAuth/health/messaging behavior remains green; architecture,
 state, handoff and manifest gates pass; no live Meta call occurs in CI.
+
+**Completion evidence:** `MetaGraphOptions` (host/version/timeout, `Instagram:Meta`,
+defaults host graph.instagram.com, v26.0, 100s) + `MetaGraphUris` + canonical
+`MetaGraphError` envelope/parser (nested + flat OAuth shapes, 300-char redaction,
+trace) + `MetaGraphFailure` taxonomy/`MetaGraphClassifier` (incl. official
+10/2534022, retryability) + `MetaGraphTransport` executor (timeout vs
+caller-cancel, safe reads) in Instagram Infrastructure `Graph/`; OAuth/inspector/
+messaging adapters converged (versioned me/messages + me probe; OAuth token
+endpoints stay unversioned per Business Login contract; stale 490 mapping deleted;
+inspector 10/2534022 stays Transient for health); DI passes graph options; env doc
+keys added. Tests: Instagram unit 82→122 (envelope/classifier/retry/redact/URIs/
+timeout/cancel/version-switch/window-signal/inspector-URL/trace); all existing
+OAuth/health/messaging pins green. 546/546 backend, `verify.py --full` green, no
+schema change (rollback trivially safe).
 
 **Suggested commit:** `refactor(instagram): centralize meta graph transport`
 
