@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -32,6 +33,9 @@ public sealed class ActivateAutomationUseCaseTests
 
         public Task<IReadOnlyList<Automation>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<Automation>>(Store.Where(a => a.WorkspaceId == workspaceId).ToList());
+
+        public Task<IReadOnlyList<Automation>> ListByAccountAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Automation>>(Store.Where(a => a.ChannelAccountId == channelAccountId).ToList());
 
         public async Task SaveChangesAsync(Automation automation, CancellationToken cancellationToken = default)
         {

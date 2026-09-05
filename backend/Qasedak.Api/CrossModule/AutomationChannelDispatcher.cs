@@ -14,7 +14,7 @@ public sealed class AutomationChannelDispatcher(IConversationChannelGateway gate
     public async Task<ActionResult> DispatchAsync(ActionDispatch dispatch, CancellationToken cancellationToken = default)
     {
         var result = await gateway.DeliverAsync(
-            new ChannelDeliveryRequest(dispatch.WorkspaceId, dispatch.Channel, dispatch.ParticipantId, dispatch.MessageText),
+            new ChannelDeliveryRequest(dispatch.WorkspaceId, dispatch.Channel, dispatch.ChannelAccountId, dispatch.ParticipantId, dispatch.MessageText),
             cancellationToken);
 
         return result.Accepted ? ActionResult.Delivered() : ActionResult.Rejected(result.FailureCode ?? "action.rejected");

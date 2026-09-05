@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Conversations.Domain.Conversations;
 using Xunit;
 
@@ -21,6 +22,20 @@ public sealed class ConversationTests
             Conversation.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "instagram", " ", Now));
         var ok = NewConversation();
         Assert.Equal(ConversationStatus.Open, ok.Status);
+    }
+
+    [Fact]
+    public void CreateAcceptsExactAccountAndRejectsUnresolvedSentinel()
+    {
+        var account = new ChannelAccountId(Guid.CreateVersion7());
+        var bound = Conversation.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "instagram", "p", Now, account);
+        Assert.Equal(account, bound.ChannelAccountId);
+
+        var legacy = NewConversation();
+        Assert.Null(legacy.ChannelAccountId);
+
+        Assert.Throws<ConversationsDomainException>(() =>
+            Conversation.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "instagram", "p", Now, default(ChannelAccountId)));
     }
 
     [Fact]
@@ -105,10 +120,11 @@ public sealed class ConversationTests
         };
 
         var restored = Conversation.FromState(
-            id, workspaceId, "instagram", "participant-1",
+            id, workspaceId, "instagram", new ChannelAccountId(Guid.CreateVersion7()), "participant-1",
             ConversationStatus.Open, Now, Now.AddMinutes(2), 1, messageStates);
 
         Assert.Equal(workspaceId, restored.WorkspaceId);
+        Assert.NotNull(restored.ChannelAccountId);
         Assert.Equal(2, restored.Messages.Count);
         Assert.Equal(1, restored.UnreadCount);
         restored.AppendMessage(Guid.CreateVersion7(), MessageDirection.Inbound, "mid-c", "participant-1", "more", Now.AddMinutes(3));

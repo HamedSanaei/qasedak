@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
 
@@ -7,6 +8,7 @@ public sealed record ExecutionRequest(
     Guid AutomationId,
     TriggerContext Trigger,
     string Channel,
+    ChannelAccountId? ChannelAccountId,
     Guid? WorkspaceIdHint = null);
 
 public sealed record ExecutionOutcome(
@@ -72,6 +74,17 @@ public sealed class ExecuteAutomationUseCase(
             return new ExecutionOutcome(ExecutionStatus.RefusedNotActive, []);
         }
 
+        if (request.ChannelAccountId is not { IsResolved: true }
+            || automation.ChannelAccountId != request.ChannelAccountId)
+        {
+            // Exact-account enforcement: execution requires a resolved request
+            // account; a bound automation runs only for its own account's events,
+            // and a legacy unbound automation never matches an exact-account
+            // request. Refusal happens before evaluation and the ledger, so
+            // nothing is recorded or dispatched.
+            return new ExecutionOutcome(ExecutionStatus.RefusedNotActive, []);
+        }
+
         var frozenVersion = automation.FrozenActiveVersion();
         var evaluation = AutomationEvaluator.Evaluate(frozenVersion.Definition, request.Trigger);
         if (!evaluation.Matched)
@@ -125,6 +138,7 @@ public sealed class ExecuteAutomationUseCase(
             var result = await dispatcher.DispatchAsync(new ActionDispatch(
                 run.WorkspaceId,
                 request.Channel,
+                request.ChannelAccountId,
                 request.Trigger.SenderId ?? string.Empty,
                 action.MessageText,
                 run.AutomationId,

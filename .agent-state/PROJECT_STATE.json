@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-04T23:38:58Z",
+  "updatedAt": "2026-09-05T00:42:06Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
-  "currentTask": "M13-002",
-  "lastCompletedTask": "M13-001",
+  "currentTask": "M13-003",
+  "lastCompletedTask": "M13-002",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -64,7 +64,8 @@
     "M12-006",
     "M12-007",
     "M12-008",
-    "M13-001"
+    "M13-001",
+    "M13-002"
   ],
   "graphify": {
     "required": true,
@@ -126,13 +127,14 @@
     "m13PlanningRefinement": "passed 2026-09-05: provider-conditional plan refinement keeps all 15 tasks TODO; M13-012 no longer hard-depends on M13-011; M13-011 follow status is optional when officially unsupported while opening/postback/reveal remains required where supported; M13-013 has independent comment-reconciliation and conversation-history phases; M13-014/M13-015 parity is limited to current-Meta-supported intentionally scoped capabilities; docs/state/architecture/Penpot 6-of-6/manifest 662/diff and bounded dependency assertions passed",
     "productionAuthRouting": "passed-Deploy-Production-33311381218-public-web-api-login-smoke-on-sha-7e723229b191; M12-008 local Docker post-login navigation regression fixed but not deployed",
     "m13001ContractReconciliation": "DONE-2026-09-04: fresh official-Meta audit; normative docs/product/meta-instagram-platform-contract.md; ADR-010 accepted, ADR-006 messaging decision superseded; matrix/lifecycle/SRS reconciled; verdict notes on M13-003/008/009/011; zero production-code changes; agent_finalize + verify.py --full pass (Docker daemon started locally for Testcontainers)",
-    "m13001Deployment": "deployed-2026-09-04: task SHA 6e5b912e4be735df0aad773dbc8e0d2524d29085; CI 33928409880 success; CodeQL 33928409979 success; Publish 33928610451 success (sha-6e5b912e4be7); Deploy 33928687404 success (backup+migrations+healthy+smoke ~23:14Z); public smoke root 200/system 200/invalid-login 401; production runtime = immutable sha-6e5b912e4be7"
+    "m13001Deployment": "deployed-2026-09-04: task SHA 6e5b912e4be735df0aad773dbc8e0d2524d29085; CI 33928409880 success; CodeQL 33928409979 success; Publish 33928610451 success (sha-6e5b912e4be7); Deploy 33928687404 success (backup+migrations+healthy+smoke ~23:14Z); public smoke root 200/system 200/invalid-login 401; production runtime = immutable sha-6e5b912e4be7",
+    "m13002ExactAccount": "DONE-2026-09-05: ChannelAccountId opaque struct; conversations key (Workspace,Channel,Account,Participant) via IX_conversations_exact_thread (migration 20260905000206); automations create-time-immutable binding (migration 20260905000458, additive); exact inbound/outbound routing, first-account fallback deleted; legacy NULL readable/refused; 495/495 backend tests; verify.py --full green"
   },
   "nextActions": [
-    "M13-002 — Bind conversations and automations to exact connected accounts (TODO, next)",
-    "Then execute M13-003 through M13-015 in dependency order; keep every task scoped to one session and preserve completed M01-M08 foundations",
+    "M13-003 — Centralize versioned Meta Graph transport and failure taxonomy (TODO, next)",
+    "Then execute M13-004 through M13-015 in dependency order; keep every task scoped to one session and preserve completed foundations",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-001 follow-status correction DONE 2026-09-05: User Profile API verified (GET /<IGSID>, is_user_follow_business, consent-gated); contract §3.9/Q14/Q20/§4/§6/§7, ADR-010, M13-011 verdict, DECISIONS/MILESTONES/STATUS/HANDOFF corrected; M13-012 decoupled; gates re-passed incl. verify.py --full; docs-only [skip ci], runtime stays sha-6e5b912e4be7. State: lastCompletedTask=M13-001, currentTask=M13-002 TODO."
+  "lastInstruction": "M13-002 DONE 2026-09-05: exact channel-account binding shipped (ADR-011, 2 migrations, 495/495 backend tests, full verify green); first-account fallback deleted; legacy NULL semantics documented. State: lastCompletedTask=M13-002, currentTask=M13-003 TODO. Next: commit/push/deploy, then M13-003."
 }

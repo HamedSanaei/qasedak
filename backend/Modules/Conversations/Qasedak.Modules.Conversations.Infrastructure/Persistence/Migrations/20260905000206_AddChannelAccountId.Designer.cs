@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Qasedak.Modules.Conversations.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 namespace Qasedak.Modules.Conversations.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ConversationsDbContext))]
-    partial class ConversationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260905000206_AddChannelAccountId")]
+    partial class AddChannelAccountId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -7,7 +8,7 @@ namespace Qasedak.Modules.Automations.UnitTests;
 
 /// <summary>
 /// Orchestration semantics over fakes: ordering, redelivery idempotency, partial-failure
-/// resumption, disabled/stale refusals.
+/// resumption, disabled/stale refusals, exact-account binding enforcement.
 /// </summary>
 public sealed class ExecuteAutomationTests
 {
@@ -15,19 +16,23 @@ public sealed class ExecuteAutomationTests
 
     private const string EventId = "inbox-event-42";
 
-    private static Automation ActiveAutomation(int actionCount = 2)
+    private static Automation ActiveAutomation(int actionCount = 2, ChannelAccountId? account = null)
     {
         var actions = Enumerable.Range(1, actionCount)
             .Select(i => new AutomationAction(ActionKind.SendDirectMessage, $"message-{i}"))
             .ToArray();
         var automation = Automation.Create(
-            Guid.CreateVersion7(), Guid.CreateVersion7(), "flow", AutomationDefinition.Create(AutomationTrigger.CommentCreated(), actions), Now);
+            Guid.CreateVersion7(), Guid.CreateVersion7(), "flow", AutomationDefinition.Create(AutomationTrigger.CommentCreated(), actions), Now,
+            account ?? new ChannelAccountId(Guid.CreateVersion7()));
         automation.Activate(Now);
         return automation;
     }
 
     private static TriggerContext Context(string? eventId = EventId, string? text = "price?") =>
         new(eventId!, TriggerKind.CommentCreated, "comment-77", "customer-9", text, Now);
+
+    private static ExecutionRequest Request(Automation automation, TriggerContext? context = null) =>
+        new(automation.Id, context ?? Context(), "instagram", automation.ChannelAccountId);
 
     private sealed class FakeAutomationRepository(params Automation[] automations) : IAutomationRepository
     {
@@ -38,6 +43,9 @@ public sealed class ExecuteAutomationTests
 
         public Task<IReadOnlyList<Automation>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
+
+        public Task<IReadOnlyList<Automation>> ListByAccountAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Automation>>(Threads.Where(a => a.ChannelAccountId == channelAccountId).ToList());
 
         public Task SaveChangesAsync(Automation automation, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
@@ -99,7 +107,7 @@ public sealed class ExecuteAutomationTests
         var dispatcher = new FakeDispatcher();
         var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
 
-        var outcome = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(), "instagram"), default);
+        var outcome = await useCase.ExecuteAsync(Request(automation), default);
 
         Assert.Equal(ExecutionStatus.Executed, outcome.Status);
         Assert.Equal(["message-1", "message-2", "message-3"], dispatcher.Dispatches.Select(d => d.MessageText));
@@ -115,10 +123,10 @@ public sealed class ExecuteAutomationTests
         var runsRepo = new FakeRunRepository();
         var dispatcher = new FakeDispatcher();
         var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
-        await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(), "instagram"), default);
+        await useCase.ExecuteAsync(Request(automation), default);
         var dispatchesAfterFirst = dispatcher.Dispatches.Count;
 
-        var second = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(), "instagram"), default);
+        var second = await useCase.ExecuteAsync(Request(automation), default);
 
         Assert.Equal(ExecutionStatus.AlreadyProcessed, second.Status);
         Assert.Equal(dispatchesAfterFirst, dispatcher.Dispatches.Count);
@@ -134,7 +142,7 @@ public sealed class ExecuteAutomationTests
 
         // The probe misses (the other worker has not committed yet); our insert then loses
         // the ledger race exactly as the database's unique index would enforce.
-        var loser = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(), "instagram"), default);
+        var loser = await useCase.ExecuteAsync(Request(automation), default);
 
         Assert.Equal(ExecutionStatus.AlreadyProcessed, loser.Status);
         Assert.Empty(dispatcher.Dispatches);
@@ -148,7 +156,7 @@ public sealed class ExecuteAutomationTests
         var dispatcher = new FakeDispatcher { FailTextContaining = "message-1" };
         var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
 
-        var failed = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(), "instagram"), default);
+        var failed = await useCase.ExecuteAsync(Request(automation), default);
 
         Assert.Equal(ExecutionStatus.Failed, failed.Status);
         Assert.Equal(Domain.AutomationActionStatus.Failed, failed.Actions[0].Status);
@@ -156,7 +164,7 @@ public sealed class ExecuteAutomationTests
 
         // Retry with the fault removed: only the pending slots dispatch again.
         dispatcher.FailTextContaining = null;
-        var retried = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(), "instagram"), default);
+        var retried = await useCase.ExecuteAsync(Request(automation), default);
 
         Assert.Equal(ExecutionStatus.Executed, retried.Status);
         Assert.All(retried.Actions, a => Assert.Equal(Domain.AutomationActionStatus.Succeeded, a.Status));
@@ -173,7 +181,7 @@ public sealed class ExecuteAutomationTests
         var dispatcher = new FakeDispatcher();
         var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), new FakeRunRepository(), dispatcher);
 
-        var refused = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(), "instagram"), default);
+        var refused = await useCase.ExecuteAsync(Request(automation), default);
 
         Assert.Equal(ExecutionStatus.RefusedNotActive, refused.Status);
         Assert.Empty(dispatcher.Dispatches);
@@ -187,12 +195,63 @@ public sealed class ExecuteAutomationTests
         var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), new FakeRunRepository(), dispatcher);
 
         var unknown = await useCase.ExecuteAsync(
-            new ExecutionRequest(Guid.CreateVersion7(), Context(), "instagram"), default);
+            new ExecutionRequest(Guid.CreateVersion7(), Context(), "instagram", automation.ChannelAccountId), default);
         var foreign = await useCase.ExecuteAsync(
-            new ExecutionRequest(automation.Id, Context(), "instagram", Guid.CreateVersion7()), default);
+            new ExecutionRequest(automation.Id, Context(), "instagram", automation.ChannelAccountId, Guid.CreateVersion7()), default);
 
         Assert.Equal(ExecutionStatus.RefusedNotActive, unknown.Status);
         Assert.Equal(ExecutionStatus.RefusedNotActive, foreign.Status);
+        Assert.Empty(dispatcher.Dispatches);
+    }
+
+    [Fact]
+    public async Task MismatchedAccountRefusesWithoutDispatchOrLedgerWrite()
+    {
+        var automation = ActiveAutomation();
+        var runsRepo = new FakeRunRepository();
+        var dispatcher = new FakeDispatcher();
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
+
+        var otherAccount = new ChannelAccountId(Guid.CreateVersion7());
+        var refused = await useCase.ExecuteAsync(
+            new ExecutionRequest(automation.Id, Context(), "instagram", otherAccount), default);
+
+        Assert.Equal(ExecutionStatus.RefusedNotActive, refused.Status);
+        Assert.Empty(dispatcher.Dispatches);
+        Assert.Empty(runsRepo.Runs);
+    }
+
+    [Fact]
+    public async Task LegacyUnboundAutomationNeverMatchesExactAccountRequest()
+    {
+        var actions = new[] { new AutomationAction(ActionKind.SendDirectMessage, "legacy") };
+        var legacy = Automation.Create(
+            Guid.CreateVersion7(), Guid.CreateVersion7(), "legacy",
+            AutomationDefinition.Create(AutomationTrigger.CommentCreated(), actions), Now);
+        legacy.Activate(Now);
+        var runsRepo = new FakeRunRepository();
+        var dispatcher = new FakeDispatcher();
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(legacy), runsRepo, dispatcher);
+
+        var refused = await useCase.ExecuteAsync(
+            new ExecutionRequest(legacy.Id, Context(), "instagram", new ChannelAccountId(Guid.CreateVersion7())), default);
+
+        Assert.Equal(ExecutionStatus.RefusedNotActive, refused.Status);
+        Assert.Empty(dispatcher.Dispatches);
+        Assert.Empty(runsRepo.Runs);
+    }
+
+    [Fact]
+    public async Task UnresolvedRequestAccountRefusesEvenBoundAutomation()
+    {
+        var automation = ActiveAutomation();
+        var dispatcher = new FakeDispatcher();
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), new FakeRunRepository(), dispatcher);
+
+        var refused = await useCase.ExecuteAsync(
+            new ExecutionRequest(automation.Id, Context(), "instagram", null), default);
+
+        Assert.Equal(ExecutionStatus.RefusedNotActive, refused.Status);
         Assert.Empty(dispatcher.Dispatches);
     }
 
@@ -208,7 +267,7 @@ public sealed class ExecuteAutomationTests
         var dispatcher = new FakeDispatcher();
         var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
 
-        var outcome = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Context(text: "just saying hi"), "instagram"), default);
+        var outcome = await useCase.ExecuteAsync(Request(automation, Context(text: "just saying hi")), default);
 
         Assert.Equal(ExecutionStatus.NotMatched, outcome.Status);
         Assert.Empty(runsRepo.Runs);

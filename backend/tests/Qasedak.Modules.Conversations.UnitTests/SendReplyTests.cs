@@ -1,4 +1,5 @@
 using Qasedak.BuildingBlocks.Application;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Conversations.Application.Conversations;
 using Qasedak.Modules.Conversations.Domain.Conversations;
 using Xunit;
@@ -6,17 +7,18 @@ using Xunit;
 namespace Qasedak.Modules.Conversations.UnitTests;
 
 /// <summary>
-/// Reply flow: compliance gates (open thread, 24h window) run before delivery; only an
-/// accepted channel send is appended to the aggregate.
+/// Reply flow: compliance gates (open thread, resolved account, 24h window) run before
+/// delivery; only an accepted channel send is appended to the aggregate.
 /// </summary>
 public sealed class SendReplyTests
 {
     private static readonly DateTimeOffset Now = new(2026, 1, 15, 12, 0, 0, TimeSpan.Zero);
 
-    private static Conversation OpenThread(DateTimeOffset? lastInboundUtc = null)
+    private static Conversation OpenThread(DateTimeOffset? lastInboundUtc = null, ChannelAccountId? account = null)
     {
         var conversation = Conversation.Create(
-            Guid.CreateVersion7(), Guid.CreateVersion7(), "instagram", "customer-9", Now.AddHours(-30));
+            Guid.CreateVersion7(), Guid.CreateVersion7(), "instagram", "customer-9", Now.AddHours(-30),
+            account ?? new ChannelAccountId(Guid.CreateVersion7()));
         conversation.AppendMessage(
             Guid.CreateVersion7(), MessageDirection.Inbound, "mid-9", "customer-9", "hi",
             lastInboundUtc ?? Now.AddMinutes(-10));
@@ -32,7 +34,7 @@ public sealed class SendReplyTests
         public Task<Conversation?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
             Task.FromResult(Threads.FirstOrDefault(t => t.Id == id));
 
-        public Task<Conversation?> FindByParticipantAsync(Guid workspaceId, string channel, string participantId, CancellationToken cancellationToken = default) =>
+        public Task<Conversation?> FindByParticipantAsync(Guid workspaceId, string channel, ChannelAccountId? channelAccountId, string participantId, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task AddAsync(Conversation conversation, CancellationToken cancellationToken = default)
@@ -176,7 +178,7 @@ public sealed class SendReplyTests
     }
 
     [Fact]
-    public async Task GatewayReceivesThreadChannelAndParticipant()
+    public async Task GatewayReceivesThreadChannelAccountAndParticipant()
     {
         var repository = new FakeRepository();
         var gateway = new FakeGateway();
@@ -188,7 +190,26 @@ public sealed class SendReplyTests
 
         Assert.NotNull(gateway.LastRequest);
         Assert.Equal("instagram", gateway.LastRequest!.Channel);
+        Assert.Equal(thread.ChannelAccountId, gateway.LastRequest.ChannelAccountId);
         Assert.Equal("customer-9", gateway.LastRequest.ParticipantId);
         Assert.Equal("hello", gateway.LastRequest.Text);
+    }
+
+    [Fact]
+    public async Task LegacyThreadWithoutAccountIsRefusedBeforeDelivery()
+    {
+        var repository = new FakeRepository();
+        var gateway = new FakeGateway();
+        var legacy = Conversation.Create(
+            Guid.CreateVersion7(), Guid.CreateVersion7(), "instagram", "customer-legacy", Now.AddHours(-1));
+        legacy.AppendMessage(Guid.CreateVersion7(), MessageDirection.Inbound, "mid-legacy", "customer-legacy", "hi", Now.AddMinutes(-5));
+        await repository.AddAsync(legacy);
+        var useCase = new SendReplyUseCase(repository, gateway);
+
+        var result = await useCase.ExecuteAsync(Command(legacy.WorkspaceId, legacy.Id, "hello"), default);
+
+        Assert.Equal(ReplyFailures.AccountUnresolved, result.FailureCode);
+        Assert.Equal(0, gateway.Calls);
+        Assert.False(repository.SaveCalled);
     }
 }

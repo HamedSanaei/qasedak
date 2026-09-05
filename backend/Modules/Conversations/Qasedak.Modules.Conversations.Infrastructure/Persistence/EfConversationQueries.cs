@@ -38,6 +38,7 @@ public sealed class EfConversationQueries(ConversationsDbContext context) : ICon
             .Select(c => new InboxConversationRow(
                 c.Id,
                 c.Channel,
+                c.ChannelAccountId,
                 c.ParticipantId,
                 c.Status.ToString(),
                 c.LastMessageAtUtc,
@@ -59,6 +60,7 @@ public sealed class EfConversationQueries(ConversationsDbContext context) : ICon
             .Select(c => new InboxConversationRow(
                 c.Id,
                 c.Channel,
+                c.ChannelAccountId,
                 c.ParticipantId,
                 c.Status.ToString(),
                 c.LastMessageAtUtc,

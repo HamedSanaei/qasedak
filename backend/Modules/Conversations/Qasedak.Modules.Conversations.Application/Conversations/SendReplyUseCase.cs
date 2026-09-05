@@ -9,6 +9,8 @@ public static class ReplyFailures
 
     public const string ArchivedThread = "reply.archivedThread";
 
+    public const string AccountUnresolved = "reply.accountUnresolved";
+
     public const string MessagingWindowClosed = "reply.messagingWindowClosed";
 
     public const string EmptyText = "reply.emptyText";
@@ -67,6 +69,13 @@ public sealed class SendReplyUseCase(IConversationRepository repository, IConver
             return SendReplyResult.Fail(ReplyFailures.ArchivedThread);
         }
 
+        if (conversation.ChannelAccountId is not { IsResolved: true })
+        {
+            // Legacy pre-M13-002 threads carry no proven account: refusing is the only
+            // safe behavior — routing through a guessed account is a security defect.
+            return SendReplyResult.Fail(ReplyFailures.AccountUnresolved);
+        }
+
         var lastInboundUtc = conversation.Messages
             .Where(m => m.Direction == MessageDirection.Inbound)
             .Select(m => m.OccurredAtUtc)
@@ -78,7 +87,12 @@ public sealed class SendReplyUseCase(IConversationRepository repository, IConver
         }
 
         var delivery = await gateway.DeliverAsync(
-            new ChannelDeliveryRequest(command.WorkspaceId, conversation.Channel, conversation.ParticipantId, command.Text),
+            new ChannelDeliveryRequest(
+                command.WorkspaceId,
+                conversation.Channel,
+                conversation.ChannelAccountId,
+                conversation.ParticipantId,
+                command.Text),
             cancellationToken);
         if (!delivery.Accepted)
         {

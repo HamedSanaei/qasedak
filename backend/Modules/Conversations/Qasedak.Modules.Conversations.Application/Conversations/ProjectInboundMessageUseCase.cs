@@ -1,4 +1,5 @@
 using Qasedak.BuildingBlocks.Application;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Conversations.Domain.Conversations;
 
 namespace Qasedak.Modules.Conversations.Application.Conversations;
@@ -7,6 +8,7 @@ namespace Qasedak.Modules.Conversations.Application.Conversations;
 public sealed record InboundMessageProjection(
     Guid WorkspaceId,
     string Channel,
+    ChannelAccountId? ChannelAccountId,
     string ParticipantId,
     string? ProviderMessageId,
     string SenderId,
@@ -24,11 +26,13 @@ public readonly record struct InboundProjectionResult(Guid ConversationId, bool 
 
 /// <summary>
 /// Projects one inbound message into conversation state idempotently: the thread is
-/// created on first sight (one conversation per workspace/channel/participant) and the
-/// aggregate-level provider-message uniqueness makes duplicate deliveries a no-op rather
-/// than an error — Meta retries and concurrent webhook workers stay safe. The caller
-/// supplies the owning workspace; how workspaces bind to provider accounts is decided
-/// outside this module (composition root).
+/// created on first sight (one conversation per workspace/channel/account/participant)
+/// and the aggregate-level provider-message uniqueness makes duplicate deliveries a
+/// no-op rather than an error — Meta retries and concurrent webhook workers stay safe.
+/// The caller supplies the owning workspace and the exact channel account; how provider
+/// accounts bind to those identities is decided outside this module (composition root).
+/// Legacy (unresolved-account) projections are refused: inbound traffic always names
+/// its account, so a legacy thread is never silently extended.
 /// </summary>
 public sealed class ProjectInboundMessageUseCase(
     IConversationRepository conversations,
@@ -41,8 +45,13 @@ public sealed class ProjectInboundMessageUseCase(
             throw new ConversationsDomainException("conversation.workspaceRequired", "A conversation requires a workspace.");
         }
 
+        if (projection.ChannelAccountId is not { IsResolved: true })
+        {
+            throw new ConversationsDomainException("conversation.accountRequired", "Inbound projection requires the exact channel account.");
+        }
+
         var conversation = await conversations.FindByParticipantAsync(
-            projection.WorkspaceId, projection.Channel, projection.ParticipantId, cancellationToken);
+            projection.WorkspaceId, projection.Channel, projection.ChannelAccountId, projection.ParticipantId, cancellationToken);
         var created = false;
 
         if (conversation is null)
@@ -52,7 +61,8 @@ public sealed class ProjectInboundMessageUseCase(
                 projection.WorkspaceId,
                 projection.Channel,
                 projection.ParticipantId,
-                clock.UtcNow);
+                clock.UtcNow,
+                projection.ChannelAccountId);
             await conversations.AddAsync(conversation, cancellationToken);
             created = true;
         }

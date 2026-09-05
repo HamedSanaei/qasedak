@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Qasedak.BuildingBlocks.Application;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Conversations.Application.Conversations;
 using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Webhooks;
@@ -11,8 +12,10 @@ namespace Qasedak.Api.CrossModule;
 /// Composition-root bridge: routes normalized Instagram integration events into the
 /// Conversations module's inbound projection. This adapter is the explicit cross-module
 /// contract required by the architecture rules — neither module references the other;
-/// both meet here where all modules are already referenced. Unbound accounts and non-
-/// messaging events are logged and skipped.
+/// both meet here where all modules are already referenced. The exact connected
+/// account behind the provider identity is resolved and converted to the opaque
+/// channel-account identity before crossing the boundary; unbound, unknown or
+/// disconnected accounts are logged and skipped — never guessed.
 /// </summary>
 public sealed partial class InstagramConversationBridge(
     IConnectedAccountRepository accounts,
@@ -43,9 +46,17 @@ public sealed partial class InstagramConversationBridge(
             return;
         }
 
+        var account = await accounts.FindByProviderIdentityAsync(workspaceId.Value, message.ProviderUserId, cancellationToken);
+        if (account is null || account.IsDisconnected)
+        {
+            LogUnbound(message.EventId);
+            return;
+        }
+
         var result = await projection.ExecuteAsync(new InboundMessageProjection(
             workspaceId.Value,
             Channel,
+            ChannelAccountId.From(account.Id),
             message.SenderId,
             message.ProviderMessageId,
             message.SenderId,

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -21,6 +22,16 @@ public sealed class EfAutomationRepository(AutomationsDbContext context) : IAuto
         var rows = await context.Automations
             .Include(r => r.Versions.OrderBy(v => v.Number))
             .Where(r => r.WorkspaceId == workspaceId)
+            .OrderByDescending(r => r.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+        return rows.Select(FromRow).ToList();
+    }
+
+    public async Task<IReadOnlyList<Automation>> ListByAccountAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default)
+    {
+        var rows = await context.Automations
+            .Include(r => r.Versions.OrderBy(v => v.Number))
+            .Where(r => r.WorkspaceId == workspaceId && r.ChannelAccountId == channelAccountId)
             .OrderByDescending(r => r.CreatedAtUtc)
             .ToListAsync(cancellationToken);
         return rows.Select(FromRow).ToList();
@@ -75,6 +86,7 @@ public sealed class EfAutomationRepository(AutomationsDbContext context) : IAuto
         row.Id,
         row.WorkspaceId,
         row.Name,
+        row.ChannelAccountId,
         row.Status,
         row.CreatedAtUtc,
         row.ActivatedAtUtc,
@@ -93,6 +105,7 @@ public sealed class EfAutomationRepository(AutomationsDbContext context) : IAuto
         Id = automation.Id,
         WorkspaceId = automation.WorkspaceId,
         Name = automation.Name,
+        ChannelAccountId = automation.ChannelAccountId,
         Status = automation.Status,
         CreatedAtUtc = automation.CreatedAtUtc,
         ActivatedAtUtc = automation.ActivatedAtUtc,

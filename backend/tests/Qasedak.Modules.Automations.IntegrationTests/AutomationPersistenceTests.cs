@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
 using Qasedak.Modules.Automations.Infrastructure.Persistence;
@@ -112,5 +113,40 @@ public sealed class AutomationPersistenceTests(PostgreSqlFixture fixture)
 
         Assert.Equal(["newer", "older"], list.Select(a => a.Name).ToArray());
         Assert.Empty(await repository.ListByWorkspaceAsync(Guid.CreateVersion7()));
+    }
+
+    [Fact]
+    public async Task AccountBindingRoundTripsAndLegacyNullSurvives()
+    {
+        var repository = NewRepository();
+        var workspaceId = Guid.CreateVersion7();
+        var account = new ChannelAccountId(Guid.CreateVersion7());
+        var bound = Automation.Create(Guid.CreateVersion7(), workspaceId, "bound", Definition(), Now, account);
+        var legacy = Automation.Create(Guid.CreateVersion7(), workspaceId, "legacy", Definition(), Now);
+        await repository.SaveChangesAsync(bound);
+        await repository.SaveChangesAsync(legacy);
+
+        var reloadedBound = await repository.FindByIdAsync(bound.Id);
+        var reloadedLegacy = await repository.FindByIdAsync(legacy.Id);
+
+        Assert.Equal(account, reloadedBound!.ChannelAccountId);
+        Assert.Null(reloadedLegacy!.ChannelAccountId);
+    }
+
+    [Fact]
+    public async Task ListByAccountReturnsOnlyBoundAutomations()
+    {
+        var repository = NewRepository();
+        var workspaceId = Guid.CreateVersion7();
+        var accountA = new ChannelAccountId(Guid.CreateVersion7());
+        var accountB = new ChannelAccountId(Guid.CreateVersion7());
+        await repository.SaveChangesAsync(Automation.Create(Guid.CreateVersion7(), workspaceId, "a-flow", Definition(), Now, accountA));
+        await repository.SaveChangesAsync(Automation.Create(Guid.CreateVersion7(), workspaceId, "b-flow", Definition(), Now, accountB));
+        await repository.SaveChangesAsync(Automation.Create(Guid.CreateVersion7(), workspaceId, "legacy-flow", Definition(), Now));
+
+        var forA = await repository.ListByAccountAsync(workspaceId, accountA);
+
+        Assert.Equal(["a-flow"], forA.Select(a => a.Name).ToArray());
+        Assert.Empty(await repository.ListByAccountAsync(Guid.CreateVersion7(), accountA));
     }
 }

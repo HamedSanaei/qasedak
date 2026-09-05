@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
 
 namespace Qasedak.Modules.Automations.Domain;
@@ -23,6 +24,11 @@ public sealed record AutomationVersion(int Number, AutomationDefinition Definiti
 ///
 /// Invariants:
 /// - identity/name/workspace are fixed at creation;
+/// - the channel-account binding is fixed at creation and immutable afterwards: an
+///   automation bound to one connected account can never execute for another, and a
+///   version replayed from history keeps the same account scope (M13-002, ADR-011);
+///   a missing binding marks a legacy pre-M13-002 automation, which never matches
+///   exact-account events — rebinding means creating a new automation;
 /// - definitions live as numbered versions. While a version has never been activated it
 ///   may still be edited in place (a draft was never executed); activation freezes the
 ///   current version permanently so executions stay reproducible; editing afterwards
@@ -39,11 +45,12 @@ public sealed class Automation
 
     private bool _currentVersionFrozen;
 
-    private Automation(Guid id, Guid workspaceId, string name, AutomationDefinition definition, DateTimeOffset createdAtUtc)
+    private Automation(Guid id, Guid workspaceId, string name, AutomationDefinition definition, DateTimeOffset createdAtUtc, ChannelAccountId? channelAccountId)
     {
         Id = id;
         WorkspaceId = workspaceId;
         Name = name;
+        ChannelAccountId = channelAccountId;
         Status = AutomationStatus.Draft;
         CreatedAtUtc = createdAtUtc;
         ActivatedAtUtc = null;
@@ -56,6 +63,13 @@ public sealed class Automation
     public Guid WorkspaceId { get; }
 
     public string Name { get; }
+
+    /// <summary>
+    /// Exact connected account this automation serves (opaque, provider-neutral).
+    /// Null marks a legacy pre-M13-002 automation: preserved, but never eligible for
+    /// exact-account event execution.
+    /// </summary>
+    public ChannelAccountId? ChannelAccountId { get; }
 
     public AutomationStatus Status { get; private set; }
 
@@ -75,7 +89,7 @@ public sealed class Automation
     /// <summary>Whether the current version has been frozen by activation (reproducibility marker).</summary>
     public bool CurrentVersionFrozen => _currentVersionFrozen;
 
-    public static Automation Create(Guid id, Guid workspaceId, string name, AutomationDefinition definition, DateTimeOffset createdAtUtc)
+    public static Automation Create(Guid id, Guid workspaceId, string name, AutomationDefinition definition, DateTimeOffset createdAtUtc, ChannelAccountId? channelAccountId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -88,8 +102,13 @@ public sealed class Automation
             throw new AutomationsDomainException("automation.nameTooLong", $"Automation name exceeds {MaxNameLength} characters.");
         }
 
+        if (channelAccountId is { IsResolved: false })
+        {
+            throw new AutomationsDomainException("automation.accountInvalid", "A channel account binding must name a real account.");
+        }
+
         ArgumentNullException.ThrowIfNull(definition);
-        return new Automation(id, workspaceId, trimmed, definition, createdAtUtc);
+        return new Automation(id, workspaceId, trimmed, definition, createdAtUtc, channelAccountId);
     }
 
     /// <summary>Draft-only edit. An unfrozen draft version is replaced in place; a previously
@@ -173,6 +192,7 @@ public sealed class Automation
         Guid id,
         Guid workspaceId,
         string name,
+        ChannelAccountId? channelAccountId,
         AutomationStatus status,
         DateTimeOffset createdAtUtc,
         DateTimeOffset? activatedAtUtc,
@@ -186,7 +206,7 @@ public sealed class Automation
             throw new AutomationsDomainException("automation.versionRequired", "A persisted automation requires at least one version.");
         }
 
-        var automation = new Automation(id, workspaceId, name, versions[0].Definition, createdAtUtc);
+        var automation = new Automation(id, workspaceId, name, versions[0].Definition, createdAtUtc, channelAccountId);
         automation._versions.Clear();
         automation._versions.AddRange(versions);
         automation.Status = status;

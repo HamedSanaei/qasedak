@@ -1,5 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
 
@@ -9,6 +11,15 @@ namespace Qasedak.Modules.Automations.Infrastructure.Persistence;
 public sealed class AutomationsDbContext(DbContextOptions<AutomationsDbContext> options) : DbContext(options)
 {
     public const string Schema = "automations";
+
+    /// <summary>
+    /// Nullable-struct converter: the opaque account binding persists as a nullable
+    /// uuid. NULL marks legacy pre-M13-002 automations (preserved, never executed
+    /// for exact-account events).
+    /// </summary>
+    internal static readonly ValueConverter<ChannelAccountId?, Guid?> ChannelAccountIdConverter = new(
+        account => account.HasValue ? account.Value.Value : null,
+        value => value.HasValue ? new ChannelAccountId(value.Value) : null);
 
     public DbSet<AutomationRow> Automations => Set<AutomationRow>();
 
@@ -28,8 +39,10 @@ public sealed class AutomationsDbContext(DbContextOptions<AutomationsDbContext> 
             entity.HasKey(r => r.Id);
             entity.Property(r => r.Id).ValueGeneratedNever();
             entity.Property(r => r.Name).HasMaxLength(Automation.MaxNameLength);
+            entity.Property(r => r.ChannelAccountId).HasConversion(ChannelAccountIdConverter);
             entity.Property(r => r.Status).IsRequired();
             entity.HasIndex(r => new { r.WorkspaceId, r.CreatedAtUtc });
+            entity.HasIndex(r => new { r.WorkspaceId, r.ChannelAccountId });
             entity.HasMany(r => r.Versions)
                 .WithOne()
                 .HasForeignKey(v => v.AutomationId)
@@ -74,6 +87,9 @@ public sealed class AutomationRow
     public Guid WorkspaceId { get; init; }
 
     public string Name { get; init; } = string.Empty;
+
+    /// <summary>Exact bound account; null marks a legacy pre-M13-002 automation.</summary>
+    public ChannelAccountId? ChannelAccountId { get; set; }
 
     public AutomationStatus Status { get; set; }
 

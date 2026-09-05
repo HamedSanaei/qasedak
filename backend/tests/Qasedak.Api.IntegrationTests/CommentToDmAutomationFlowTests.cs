@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -156,14 +157,16 @@ public sealed class CommentToDmAutomationFlowTests(ApiPostgreSqlFixture fixture)
         await tokens.StoreAsync(accountId, "test-access-token-" + suffix);
         await instagram.SaveChangesAsync();
 
-        // Persisted through the module's own aggregate-mapping path.
+        // Persisted through the module's own aggregate-mapping path, bound to the
+        // exact seeded account (M13-002: unbound automations never execute).
         var repository = scope.ServiceProvider.GetRequiredService<IAutomationRepository>();
         var definition = AutomationDefinition.Create(
             AutomationTrigger.CommentCreated("price"),
             [],
             [new AutomationAction(ActionKind.SendDirectMessage, "DM: thanks for asking about price!")]);
         var automation = Automation.Create(
-            Guid.CreateVersion7(), workspaceId, "comment welcome " + suffix, definition, CreatedAt);
+            Guid.CreateVersion7(), workspaceId, "comment welcome " + suffix, definition, CreatedAt,
+            ChannelAccountId.From(accountId));
         if (activeAutomation)
         {
             automation.Activate(CreatedAt);

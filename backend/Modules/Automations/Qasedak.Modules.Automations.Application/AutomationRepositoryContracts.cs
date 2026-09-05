@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
 
@@ -11,6 +12,12 @@ public interface IAutomationRepository
 
     /// <summary>Lists a workspace's automations ordered by creation, newest first.</summary>
     Task<IReadOnlyList<Automation>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lists a workspace's automations bound to one exact channel account, newest
+    /// first. Legacy unbound automations are never returned here.
+    /// </summary>
+    Task<IReadOnlyList<Automation>> ListByAccountAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default);
 
     /// <summary>Persists the current aggregate state (insert or full-row upsert).</summary>
     Task SaveChangesAsync(Automation automation, CancellationToken cancellationToken = default);

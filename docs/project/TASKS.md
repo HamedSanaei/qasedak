@@ -810,7 +810,7 @@ no production code changed.
 **Suggested commit:** `docs(instagram): reconcile current meta api contract`
 
 ## M13-002 — Bind conversations and automations to exact connected accounts
-**Status:** TODO
+**Status:** DONE (2026-09-05)
 
 **Outcome:** Introduce a Qasedak-owned opaque channel-account identity so inbound events,
 conversation threads, outbound replies and automations always use the exact connected
@@ -828,6 +828,22 @@ composition-root gateway. Bind Instagram automations to the same opaque account 
 filter webhook execution by it, and keep Automations/Conversations free of Instagram
 domain types. Update Contacts resolution only where needed to prevent account collisions
 without weakening its workspace-owned CRM boundary.
+
+**Completion evidence:** `ChannelAccountId` opaque struct (BuildingBlocks.Domain);
+Conversations key `(WorkspaceId, Channel, ChannelAccountId, ParticipantId)` via
+`IX_conversations_exact_thread` (migration `20260905000206_AddChannelAccountId`,
+nullable uuid, legacy NULL readable/refused); Automations create-time-immutable
+binding (migration `20260905000458_AddChannelAccountBinding`, purely additive);
+bridges resolve exact accounts and drop unknown/disconnected without guessing;
+`InstagramReplyGateway` resolves by ID with ownership/state/path checks (first-
+account fallback deleted); executor refuses binding mismatches pre-ledger.
+ADR-011 records design + legacy/rollback semantics. Tests: 495/495 backend
+(unit incl. 4 ChannelAccountId + binding/evaluator cases; Testcontainers incl.
+pre-migration-row upgrade, coexistence, 23505 duplicate rejection, round-trips;
+API E2E incl. 2-account isolation, exact tokens, foreign/disconnected/missing/
+unknown/legacy refusals with zero fallback sends, automation A/B isolation).
+`verify.py --full` green (incl. Docker image builds). Frontend untouched
+(additive `channelAccountId` payloads; `npm run verify` 64/64 green).
 
 **Completion contract:** Graphify evidence recorded; an ADR records the changed cross-
 module identity/persistence contract; migration and read/write compatibility are tested

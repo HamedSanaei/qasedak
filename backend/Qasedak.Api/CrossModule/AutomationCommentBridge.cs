@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Qasedak.BuildingBlocks.Application;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -10,10 +11,12 @@ namespace Qasedak.Api.CrossModule;
 
 /// <summary>
 /// Composition-root bridge: normalized Instagram comment events drive the Automations
-/// module. For every active automation of the resolved workspace the deterministic
-/// evaluator decides; matched definitions execute through the idempotent use case, whose
-/// ledger makes webhook redelivery and retries at-most-intended-effect. Unbound accounts
-/// and non-comment events are logged and skipped.
+/// module. Only automations bound to the exact connected account behind the event are
+/// candidates — a workspace-wide fan-out would cross-execute sibling accounts. For each
+/// candidate the deterministic evaluator decides; matched definitions execute through
+/// the idempotent use case, whose ledger makes webhook redelivery and retries
+/// at-most-intended-effect. Unbound accounts and non-comment events are logged and
+/// skipped.
 /// </summary>
 public sealed partial class AutomationCommentBridge(
     IConnectedAccountRepository accounts,
@@ -42,7 +45,15 @@ public sealed partial class AutomationCommentBridge(
             return;
         }
 
-        var active = await automations.ListByWorkspaceAsync(workspaceId.Value, cancellationToken);
+        var account = await accounts.FindByProviderIdentityAsync(workspaceId.Value, comment.ProviderUserId, cancellationToken);
+        if (account is null || account.IsDisconnected)
+        {
+            LogUnbound(comment.EventId);
+            return;
+        }
+
+        var channelAccountId = ChannelAccountId.From(account.Id);
+        var active = await automations.ListByAccountAsync(workspaceId.Value, channelAccountId, cancellationToken);
         foreach (var automation in active.Where(a => a.Status == AutomationStatus.Active))
         {
             var trigger = new TriggerContext(
@@ -54,9 +65,10 @@ public sealed partial class AutomationCommentBridge(
                 comment.CreatedAtUtc);
 
             // The workspace hint defends against cross-workspace id collisions; the use
-            // case refuses unknown/foreign automations without dispatching.
+            // case additionally refuses automations whose binding differs from the
+            // event's exact account without dispatching.
             var outcome = await executor.ExecuteAsync(
-                new ExecutionRequest(automation.Id, trigger, InstagramReplyGateway.Channel, workspaceId.Value),
+                new ExecutionRequest(automation.Id, trigger, InstagramReplyGateway.Channel, channelAccountId, workspaceId.Value),
                 cancellationToken);
 
             LogOutcome(comment.CommentId, automation.Id, outcome.Status);

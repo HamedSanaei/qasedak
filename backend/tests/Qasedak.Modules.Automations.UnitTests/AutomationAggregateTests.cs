@@ -1,10 +1,11 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
 using Xunit;
 
 namespace Qasedak.Modules.Automations.UnitTests;
 
-/// <summary>Aggregate invariants: identity, lifecycle, version immutability, edit rules.</summary>
+/// <summary>Aggregate invariants: identity, lifecycle, version immutability, edit rules, account binding.</summary>
 public sealed class AutomationAggregateTests
 {
     private static readonly DateTimeOffset Now = new(2026, 1, 20, 10, 0, 0, TimeSpan.Zero);
@@ -45,6 +46,25 @@ public sealed class AutomationAggregateTests
         var exception = Assert.Throws<AutomationsDomainException>(
             () => Automation.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), new string('x', Automation.MaxNameLength + 1), Definition(), Now));
         Assert.Equal("automation.nameTooLong", exception.RuleCode);
+    }
+
+    [Fact]
+    public void AccountBindingIsFixedAtCreationAndDefaultsToLegacyUnbound()
+    {
+        var account = new ChannelAccountId(Guid.CreateVersion7());
+        var bound = Automation.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "bound", Definition(), Now, account);
+        Assert.Equal(account, bound.ChannelAccountId);
+
+        var legacy = NewAutomation();
+        Assert.Null(legacy.ChannelAccountId);
+    }
+
+    [Fact]
+    public void CreateRejectsUnresolvedAccountSentinel()
+    {
+        var exception = Assert.Throws<AutomationsDomainException>(
+            () => Automation.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "bound", Definition(), Now, default(ChannelAccountId)));
+        Assert.Equal("automation.accountInvalid", exception.RuleCode);
     }
 
     [Fact]

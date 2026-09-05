@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Conversations.Domain.Conversations;
 
 namespace Qasedak.Modules.Conversations.Application.Conversations;
@@ -6,6 +7,7 @@ namespace Qasedak.Modules.Conversations.Application.Conversations;
 public sealed record InboxConversationRow(
     Guid Id,
     string Channel,
+    ChannelAccountId? ChannelAccountId,
     string ParticipantId,
     string Status,
     DateTimeOffset LastMessageAtUtc,

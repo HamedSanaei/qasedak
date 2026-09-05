@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain;
 
 namespace Qasedak.Modules.Automations.Application;
@@ -24,6 +25,7 @@ public interface IAutomationActionDispatcher
 public sealed record ActionDispatch(
     Guid WorkspaceId,
     string Channel,
+    ChannelAccountId? ChannelAccountId,
     string ParticipantId,
     string MessageText,
     Guid AutomationId,

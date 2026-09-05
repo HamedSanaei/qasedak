@@ -40,6 +40,7 @@ public static class ConversationEndpoints
                 {
                     id = row.Id,
                     channel = row.Channel,
+                    channelAccountId = row.ChannelAccountId?.Value,
                     participantId = row.ParticipantId,
                     status = row.Status.ToLowerInvariant(),
                     lastMessageAtUtc = row.LastMessageAtUtc,
@@ -62,6 +63,7 @@ public static class ConversationEndpoints
                 {
                     id = detail.Value.Row.Id,
                     channel = detail.Value.Row.Channel,
+                    channelAccountId = detail.Value.Row.ChannelAccountId?.Value,
                     participantId = detail.Value.Row.ParticipantId,
                     status = detail.Value.Row.Status.ToLowerInvariant(),
                     lastMessageAtUtc = detail.Value.Row.LastMessageAtUtc,
@@ -104,8 +106,10 @@ public static class ConversationEndpoints
         ReplyFailures.NotFound => Results.Json(new { code = failureCode }, statusCode: StatusCodes.Status404NotFound),
         ReplyFailures.EmptyText or ReplyFailures.TooLongText =>
             Results.Json(new { code = failureCode }, statusCode: StatusCodes.Status400BadRequest),
-        ReplyFailures.ArchivedThread or ReplyFailures.MessagingWindowClosed or
-            "channel.unsupported" or "instagram.noConnectedAccount" or "instagram.tokenMissing" =>
+        ReplyFailures.ArchivedThread or ReplyFailures.AccountUnresolved or ReplyFailures.MessagingWindowClosed or
+            "channel.unsupported" or "instagram.noConnectedAccount" or "instagram.tokenMissing" or
+            "instagram.accountUnresolved" or "instagram.unknownAccount" or "instagram.accountWorkspaceMismatch" or
+            "instagram.accountDisconnected" or "instagram.unsupportedAccountPath" =>
             Results.Json(new { code = failureCode }, statusCode: StatusCodes.Status409Conflict),
         _ => Results.Json(new { code = failureCode }, statusCode: StatusCodes.Status502BadGateway),
     };

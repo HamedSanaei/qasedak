@@ -1,6 +1,55 @@
 # Current handoff
 
-## 2026-09-05 — M13-001 follow-status correction DONE (M13-002 not started)
+## 2026-09-05 — M13-002 DONE; M13-003 packet ready (do not start M13-003)
+
+M13-002 shipped exact channel-account binding (production code + 2 migrations +
+tests). `ChannelAccountId` (BuildingBlocks.Domain, opaque struct over Guid)
+flows through Conversations/Automations contracts; Api composition root maps
+`ConnectedAccount.Id` → account at the boundary; first-account fallback deleted
+everywhere; legacy NULL rows preserved readable but refused for outbound/execution.
+ADR-011 is normative. `verify.py --full` green (495/495 backend, frontend 64,
+Docker images). Commit/push/CI/deploy/smoke/evidence-commit follow in this same
+instruction; deployment evidence appended below. Production runtime stays
+`sha-6e5b912e4be7` until the M13-002 deployment switches it.
+
+### M13-003 packet (read-only handoff)
+
+- ChannelAccountId representation: `Qasedak.BuildingBlocks.Domain.ChannelAccountId`
+  readonly record struct (`From` rejects empty; `TryParse`; `IsResolved`); persisted
+  as nullable uuid via per-module EF converters; null = legacy/unresolved.
+- Legacy Conversation semantics: NULL readable (list/detail carry
+  `channelAccountId: null`); replies refuse `reply.accountUnresolved`; exact inbound
+  never adopts legacy rows (separate exact thread); global `mid` uniqueness unchanged.
+- Legacy Automation semantics: NULL binding never matches exact events (filtered in
+  `ListByAccountAsync`, refused pre-ledger in executor); binding create-time immutable
+  (`automation.bindingImmutable` on PUT change); rebind = new automation (M13-014).
+- New Conversation natural key: `(WorkspaceId, Channel, ChannelAccountId,
+  ParticipantId)` unique via `IX_conversations_exact_thread` (NULLs distinct).
+- Inbound path: webhook event provider identity → `FindWorkspaceIdByProviderIdentityAsync`
+  → `FindByProviderIdentityAsync` (drop unknown/disconnected) → `ChannelAccountId.From`
+  → module use cases (projection refuses unresolved).
+- Outbound path: thread/automation account → `ChannelDeliveryRequest/ActionDispatch`
+  → `InstagramReplyGateway`: ID lookup → workspace-ownership → connected-state →
+  InstagramLogin-path → exact protected token → provider adapter. No `ListByWorkspace`
+  / `FirstOrDefault` selection remains.
+- Ownership validation: `instagram.accountWorkspaceMismatch` (cross-workspace),
+  `unknownAccount`, `accountDisconnected`, `tokenMissing`, `accountUnresolved`,
+  `unsupportedAccountPath` — all 409, zero fallback sends (proven by E2E).
+- Removed fallbacks: `InstagramReplyGateway` first-active selection; workspace-wide
+  automation enumeration in `AutomationCommentBridge` (now `ListByAccountAsync`).
+- New tests: `ExactAccountRoutingTests` (7), `AutomationAccountBindingEndpointTests`
+  (2), `ChannelAccountMigrationTests` (2), binding unit cases; fixed a real test bug
+  (v7-Guid 8-char tags collide; full tags + strict-200 webhook asserts now).
+- Migrations: `20260905000206_AddChannelAccountId` (conversations: nullable add +
+  index replace), `20260905000458_AddChannelAccountBinding` (automations: purely
+  additive). Rollback: automations fully safe; conversations safe before
+  multi-account rows exist (duplicate-triple check + `Down()` limitation in ADR-011).
+- Residual outside scope: Contacts keeps person-centric identity (no account split —
+  analyzed, no change); text-limit/rate-limit pinning belongs to M13-010/009.
+- M13-001 reminders for M13-003: IG Login primary; `graph.instagram.com`;
+  configure one Graph version (latest observed v26.0, do not hardcode); replace stale
+  window mapping `490` with official `10 / 2534022` (+ `fbtrace_id`); no token-bearing
+  URLs/logs; do NOT build a giant Graph client (capability ports stay separate).
 
 M13-001 was DONE and deployed, but a post-completion audit found one material
 error: the contract classified per-user follow status as globally unsupported.

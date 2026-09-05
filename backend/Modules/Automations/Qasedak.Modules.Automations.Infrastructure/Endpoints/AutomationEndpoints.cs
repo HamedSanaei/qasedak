@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -32,6 +33,7 @@ public static class AutomationEndpoints
                 {
                     id = a.Id,
                     name = a.Name,
+                    channelAccountId = a.ChannelAccountId?.Value,
                     status = a.Status.ToString(),
                     currentVersionNumber = a.CurrentVersionNumber,
                     triggerKind = a.CurrentDefinition.Trigger.Kind.ToString(),
@@ -66,8 +68,19 @@ public static class AutomationEndpoints
                 return Results.Json(new { code = error }, statusCode: StatusCodes.Status400BadRequest);
             }
 
+            ChannelAccountId? channelAccountId = null;
+            if (request.ChannelAccountId is not null)
+            {
+                if (request.ChannelAccountId == Guid.Empty)
+                {
+                    return Results.Json(new { code = "automation.accountInvalid" }, statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                channelAccountId = new ChannelAccountId(request.ChannelAccountId.Value);
+            }
+
             var automation = Automation.Create(
-                Guid.CreateVersion7(), workspaceId, request.Name ?? string.Empty, definition!, DateTimeOffset.UtcNow);
+                Guid.CreateVersion7(), workspaceId, request.Name ?? string.Empty, definition!, DateTimeOffset.UtcNow, channelAccountId);
             await repository.SaveChangesAsync(automation, cancellationToken);
             return Results.Created(
                 $"/api/v1/workspaces/{workspaceId}/automations/{automation.Id}",
@@ -86,6 +99,15 @@ public static class AutomationEndpoints
             if (automation is null || automation.WorkspaceId != workspaceId)
             {
                 return Results.NotFound(new { code = AutomationFailures.NotFound });
+            }
+
+            // Account binding is create-time immutable: accepting a different binding
+            // here would silently change what historical versions mean. Rebind by
+            // creating a new automation (M13-014 surfaces that flow).
+            if (request.ChannelAccountId is not null
+                && request.ChannelAccountId != automation.ChannelAccountId?.Value)
+            {
+                return Results.Json(new { code = "automation.bindingImmutable" }, statusCode: StatusCodes.Status400BadRequest);
             }
 
             if (!DefinitionMapper.TryMap(request.Definition, out var definition, out var error))
@@ -186,7 +208,7 @@ public static class AutomationEndpoints
         _ => Results.Json(new { code = exception.RuleCode }, statusCode: StatusCodes.Status400BadRequest),
     };
 
-    public sealed record SaveAutomationRequest(string? Name, DefinitionRequest? Definition);
+    public sealed record SaveAutomationRequest(string? Name, DefinitionRequest? Definition, Guid? ChannelAccountId);
 
     public sealed record DefinitionRequest(
         string? TriggerKind,
@@ -211,6 +233,7 @@ public static class AutomationEndpoints
     public sealed record AutomationResponse(
         Guid Id,
         string Name,
+        Guid? ChannelAccountId,
         string Status,
         int CurrentVersionNumber,
         bool CurrentVersionFrozen,
@@ -222,6 +245,7 @@ public static class AutomationEndpoints
         public static AutomationResponse From(Automation automation) => new(
             automation.Id,
             automation.Name,
+            automation.ChannelAccountId?.Value,
             automation.Status.ToString(),
             automation.CurrentVersionNumber,
             automation.CurrentVersionFrozen,

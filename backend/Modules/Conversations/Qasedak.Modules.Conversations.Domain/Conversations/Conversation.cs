@@ -1,10 +1,16 @@
 namespace Qasedak.Modules.Conversations.Domain.Conversations;
 
+using Qasedak.BuildingBlocks.Domain;
+
 /// <summary>
 /// One conversation thread in a workspace inbox. Identity ownership: the workspace owns
 /// the conversation; the external counterpart is an opaque participant id (never a Meta
-/// type). Messages are appended through the aggregate so invariants (unique provider
-/// message identity, monotonic last-activity, unread accounting) hold in one place.
+/// type). Since M13-002 the natural key also carries the exact channel account
+/// (ChannelAccountId): the same participant on two connected accounts yields two
+/// threads. A missing account marks a legacy pre-M13-002 row, which stays readable but
+/// must never route outbound traffic. Messages are appended through the aggregate so
+/// invariants (unique provider message identity, monotonic last-activity, unread
+/// accounting) hold in one place.
 /// Timestamps are always passed in — the Domain owns no clock.
 /// </summary>
 public sealed class Conversation
@@ -21,6 +27,12 @@ public sealed class Conversation
 
     /// <summary>Logical channel, e.g. "instagram"; keeps the model channel-agnostic.</summary>
     public string Channel { get; private init; } = string.Empty;
+
+    /// <summary>
+    /// Exact connected channel account (opaque, provider-neutral). Null marks a legacy
+    /// pre-M13-002 thread: readable, but outbound sends must refuse it explicitly.
+    /// </summary>
+    public ChannelAccountId? ChannelAccountId { get; private init; }
 
     /// <summary>Opaque id of the external counterpart (their provider user id).</summary>
     public string ParticipantId { get; private init; } = string.Empty;
@@ -40,7 +52,8 @@ public sealed class Conversation
         Guid workspaceId,
         string channel,
         string participantId,
-        DateTimeOffset createdAtUtc)
+        DateTimeOffset createdAtUtc,
+        ChannelAccountId? channelAccountId = null)
     {
         if (id == Guid.Empty)
         {
@@ -62,11 +75,17 @@ public sealed class Conversation
             throw new ConversationsDomainException("conversation.participantRequired", "A conversation requires a participant.");
         }
 
+        if (channelAccountId is { IsResolved: false })
+        {
+            throw new ConversationsDomainException("conversation.accountInvalid", "A channel account identity must name a real account.");
+        }
+
         return new Conversation
         {
             Id = id,
             WorkspaceId = workspaceId,
             Channel = channel.Trim(),
+            ChannelAccountId = channelAccountId,
             ParticipantId = participantId.Trim(),
             Status = ConversationStatus.Open,
             CreatedAtUtc = createdAtUtc,
@@ -79,6 +98,7 @@ public sealed class Conversation
         Guid id,
         Guid workspaceId,
         string channel,
+        ChannelAccountId? channelAccountId,
         string participantId,
         ConversationStatus status,
         DateTimeOffset createdAtUtc,
@@ -91,6 +111,7 @@ public sealed class Conversation
             Id = id,
             WorkspaceId = workspaceId,
             Channel = channel,
+            ChannelAccountId = channelAccountId,
             ParticipantId = participantId,
             Status = status,
             CreatedAtUtc = createdAtUtc,

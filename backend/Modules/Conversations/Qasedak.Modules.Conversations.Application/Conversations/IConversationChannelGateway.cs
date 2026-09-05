@@ -1,9 +1,12 @@
 namespace Qasedak.Modules.Conversations.Application.Conversations;
 
+using Qasedak.BuildingBlocks.Domain;
+
 /// <summary>Request to deliver an outbound reply over the thread's channel.</summary>
 public sealed record ChannelDeliveryRequest(
     Guid WorkspaceId,
     string Channel,
+    ChannelAccountId? ChannelAccountId,
     string ParticipantId,
     string Text);
 

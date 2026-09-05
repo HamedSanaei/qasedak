@@ -2,9 +2,39 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-002 — Bind conversations and automations to exact connected accounts (TODO)
-**Last completed:** M13-001 (2026-09-04; follow-status correction 2026-09-05)
-**Product implementation:** Current Meta contract reconciled and corrected; no M13 feature implementation started
+**Current task:** M13-003 — Centralize versioned Meta Graph transport and failure taxonomy (TODO)
+**Last completed:** M13-002 (2026-09-05)
+**Product implementation:** Conversations/automations bound to exact connected accounts; no M13-003 work started
+
+## 2026-09-05 — M13-002 DONE: exact channel-account binding shipped
+
+- `ChannelAccountId` opaque struct (BuildingBlocks.Domain, no provider types);
+  Conversations natural key `(WorkspaceId, Channel, ChannelAccountId,
+  ParticipantId)` enforced by `IX_conversations_exact_thread` (migration
+  `20260905000206_AddChannelAccountId`, nullable uuid, legacy NULL rows
+  readable but refused for outbound with `reply.accountUnresolved`);
+  Automations create-time-immutable binding (migration
+  `20260905000458_AddChannelAccountBinding`, purely additive; legacy unbound
+  automations never execute; rebind = new automation).
+- Inbound bridges resolve the exact `ConnectedAccount` and drop
+  unknown/disconnected accounts without guessing; `InstagramReplyGateway`
+  resolves by ID with workspace/state/path checks against only that account's
+  token — first-active-account fallback deleted; refusals are stable 409s with
+  zero fallback sends. Executor refuses binding mismatches pre-ledger.
+- ADR-011 records design, legacy semantics and rollback analysis (automations
+  migration fully compatible; conversations index replacement safe for rollback
+  before multi-account rows exist — duplicate-triple check documented).
+- Tests: 495/495 backend (incl. pre-migration-row upgrade, coexistence, 23505
+  duplicate rejection, round-trips, 2-account isolation, exact tokens,
+  foreign/disconnected/missing/unknown/legacy refusals, automation A/B
+  isolation). Notable find fixed: v7-Guid 8-char test tags collide suite-wide
+  (~65s window) against the global `mid` unique index — tags made fully unique
+  plus a strict-200 webhook assert against 202-masked deferrals.
+- Gates: `verify.py --full` green (static/restore/Release/format/backend
+  Testcontainers/frontend 64/Docker images); `agent_finalize` pending state
+  flip at this point of the session. Frontend untouched (additive
+  `channelAccountId`). Production runtime still `sha-6e5b912e4be7` until the
+  M13-002 deployment below.
 
 ## 2026-09-05 — M13-001 follow-status correction DONE
 

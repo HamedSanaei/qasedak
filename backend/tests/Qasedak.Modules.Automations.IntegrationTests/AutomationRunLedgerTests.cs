@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -49,7 +50,8 @@ public sealed class AutomationRunLedgerTests(PostgreSqlFixture fixture)
                     new AutomationAction(ActionKind.SendDirectMessage, "dm one"),
                     new AutomationAction(ActionKind.SendDirectMessage, "dm two"),
                 ]),
-            Now);
+            Now,
+            new ChannelAccountId(Guid.CreateVersion7()));
         automation.Activate(Now);
         await repository.SaveChangesAsync(automation);
         return automation;
@@ -69,13 +71,13 @@ public sealed class AutomationRunLedgerTests(PostgreSqlFixture fixture)
         {
             await barrier.Task;
             return await UseCase(NewAutomationRepository(), NewRunRepository())
-                .ExecuteAsync(new ExecutionRequest(automation.Id, Trigger(EventId), "instagram"), default);
+                .ExecuteAsync(new ExecutionRequest(automation.Id, Trigger(EventId), "instagram", automation.ChannelAccountId), default);
         });
         var second = Task.Run(async () =>
         {
             await barrier.Task;
             return await UseCase(NewAutomationRepository(), NewRunRepository())
-                .ExecuteAsync(new ExecutionRequest(automation.Id, Trigger(EventId), "instagram"), default);
+                .ExecuteAsync(new ExecutionRequest(automation.Id, Trigger(EventId), "instagram", automation.ChannelAccountId), default);
         });
 
         barrier.SetResult();
@@ -100,12 +102,12 @@ public sealed class AutomationRunLedgerTests(PostgreSqlFixture fixture)
         var failingDispatcher = new RecordingDispatcher(failTextContaining: "dm one");
         var useCase = new ExecuteAutomationUseCase(automationRepo, NewRunRepository(), failingDispatcher);
 
-        var failed = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Trigger("evt-retry-1"), "instagram"), default);
+        var failed = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Trigger("evt-retry-1"), "instagram", automation.ChannelAccountId), default);
         Assert.Equal(ExecutionStatus.Failed, failed.Status);
 
         // Fresh repositories simulate a new process picking the retry up.
         var retryUseCase = new ExecuteAutomationUseCase(NewAutomationRepository(), NewRunRepository(), new RecordingDispatcher());
-        var retried = await retryUseCase.ExecuteAsync(new ExecutionRequest(automation.Id, Trigger("evt-retry-1"), "instagram"), default);
+        var retried = await retryUseCase.ExecuteAsync(new ExecutionRequest(automation.Id, Trigger("evt-retry-1"), "instagram", automation.ChannelAccountId), default);
 
         Assert.Equal(ExecutionStatus.Executed, retried.Status);
         var finalRun = await NewRunRepository().FindByTriggerEventAsync(automation.Id, "evt-retry-1");
