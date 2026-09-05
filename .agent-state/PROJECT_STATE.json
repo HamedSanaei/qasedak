@@ -128,7 +128,8 @@
     "productionAuthRouting": "passed-Deploy-Production-33311381218-public-web-api-login-smoke-on-sha-7e723229b191; M12-008 local Docker post-login navigation regression fixed but not deployed",
     "m13001ContractReconciliation": "DONE-2026-09-04: fresh official-Meta audit; normative docs/product/meta-instagram-platform-contract.md; ADR-010 accepted, ADR-006 messaging decision superseded; matrix/lifecycle/SRS reconciled; verdict notes on M13-003/008/009/011; zero production-code changes; agent_finalize + verify.py --full pass (Docker daemon started locally for Testcontainers)",
     "m13001Deployment": "deployed-2026-09-04: task SHA 6e5b912e4be735df0aad773dbc8e0d2524d29085; CI 33928409880 success; CodeQL 33928409979 success; Publish 33928610451 success (sha-6e5b912e4be7); Deploy 33928687404 success (backup+migrations+healthy+smoke ~23:14Z); public smoke root 200/system 200/invalid-login 401; production runtime = immutable sha-6e5b912e4be7",
-    "m13002ExactAccount": "DONE-2026-09-05: ChannelAccountId opaque struct; conversations key (Workspace,Channel,Account,Participant) via IX_conversations_exact_thread (migration 20260905000206); automations create-time-immutable binding (migration 20260905000458, additive); exact inbound/outbound routing, first-account fallback deleted; legacy NULL readable/refused; 495/495 backend tests; verify.py --full green"
+    "m13002ExactAccount": "DONE-2026-09-05: ChannelAccountId opaque struct; conversations key (Workspace,Channel,Account,Participant) via IX_conversations_exact_thread (migration 20260905000206); automations create-time-immutable binding (migration 20260905000458, additive); exact inbound/outbound routing, first-account fallback deleted; legacy NULL readable/refused; 495/495 backend tests; verify.py --full green",
+    "m13002Deployment": "deployed-2026-09-05: task SHA 2fd1b3205d87bb10fda70c12789bc9c4168fae68; CI 33933983002 success; CodeQL 33933983007 success; Publish 33934204827 success (sha-2fd1b3205d87); Deploy 33934275735 success (backup+migrations+healthy+smoke ~00:50Z, no rollback); public smoke root 200/system 200/invalid-login 401; live Meta multi-account smoke NOT RUN (no designated test accounts); production runtime = immutable sha-2fd1b3205d87"
   },
   "nextActions": [
     "M13-003 — Centralize versioned Meta Graph transport and failure taxonomy (TODO, next)",
@@ -136,5 +137,5 @@
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-002 DONE 2026-09-05: exact channel-account binding shipped (ADR-011, 2 migrations, 495/495 backend tests, full verify green); first-account fallback deleted; legacy NULL semantics documented. State: lastCompletedTask=M13-002, currentTask=M13-003 TODO. Next: commit/push/deploy, then M13-003."
+  "lastInstruction": "M13-002 DONE + DEPLOYED 2026-09-05: exact account binding live on immutable sha-2fd1b3205d87 (CI/CodeQL/Publish/Deploy green, public smoke 200/200/401, live Meta smoke NOT RUN by design). State: lastCompletedTask=M13-002, currentTask=M13-003 TODO. Next: evidence [skip ci] commit."
 }

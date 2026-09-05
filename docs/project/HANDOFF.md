@@ -12,6 +12,31 @@ Docker images). Commit/push/CI/deploy/smoke/evidence-commit follow in this same
 instruction; deployment evidence appended below. Production runtime stays
 `sha-6e5b912e4be7` until the M13-002 deployment switches it.
 
+### Deployment evidence — M13-002 (2026-09-05, all times UTC)
+
+- Task commit: `2fd1b3205d87bb10fda70c12789bc9c4168fae68`
+  (`refactor(instagram): bind channel activity to connected accounts`), pushed
+  to `origin/master`.
+- CI `33933983002`: success (repository-contracts, backend, frontend, docker).
+- CodeQL `33933983007`: success.
+- Publish Images `33934204827`: success — `ghcr.io/hamedsanaei/qasedak-api` +
+  `qasedak-web` tagged immutable `sha-2fd1b3205d87` (first 12 of the task SHA).
+- Deploy Production `33934275735`: success for exactly the task SHA.
+  Previous tag `sha-6e5b912e4be7` → `sha-2fd1b3205d87`; DB backup
+  `qasedak-20260905T005032Z-sha-2fd1b3205d87.dump`; both M13-002 migrations
+  replayed (`20260905000206_AddChannelAccountId`,
+  `20260905000458_AddChannelAccountBinding`); api/web Healthy; in-workflow
+  health + public auth-routing smoke passed (~00:50:27–00:50:49Z). No rollback.
+- Independent smoke at `https://qasedak.tofanservice.ir`: `/` 200,
+  `/api/v1/system` 200, invalid-login `/web-api/auth/login` 401.
+- Structural DB verification via deployment-workflow evidence (no direct
+  production SSH from this agent): migration run complete with no errors.
+- Live multi-account Meta mutation smoke: NOT RUN — no designated production
+  test Instagram accounts (acceptable per task §42; proof via deterministic +
+  Testcontainers + E2E gates). No customer accounts touched.
+- **HEAD vs production distinction:** the evidence commit below is docs/state-only;
+  production runtime remains the immutable `sha-2fd1b3205d87` images.
+
 ### M13-003 packet (read-only handoff)
 
 - ChannelAccountId representation: `Qasedak.BuildingBlocks.Domain.ChannelAccountId`

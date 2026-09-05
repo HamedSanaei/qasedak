@@ -7,6 +7,29 @@
 **Product implementation:** Conversations/automations bound to exact connected accounts; no M13-003 work started
 
 ## 2026-09-05 — M13-002 DONE: exact channel-account binding shipped
+(see deployment record in the next section)
+
+## 2026-09-05 — M13-002 deployed; production on immutable task image
+
+- Task commit `2fd1b3205d87bb10fda70c12789bc9c4168fae68` pushed to
+  `origin/master`. CI `33933983002` success (4 jobs); CodeQL `33933983007`
+  success; Publish Images `33934204827` success
+  (`ghcr.io/hamedsanaei/qasedak-api|web:sha-2fd1b3205d87`); Deploy Production
+  `33934275735` success for the exact SHA (previous `sha-6e5b912e4be7`, DB
+  backup `qasedak-20260905T005032Z-sha-2fd1b3205d87.dump`, both M13-002
+  migrations replayed, api/web Healthy, in-workflow smoke passed ~00:50Z).
+- Independent public smoke at `https://qasedak.tofanservice.ir`: `/` 200,
+  `/api/v1/system` 200, invalid-login `/web-api/auth/login` 401.
+- Structural DB check via deployment-workflow evidence (migration run complete,
+  no errors; this agent has no direct production SSH): `conversations` gained
+  nullable `ChannelAccountId` + `IX_conversations_exact_thread`;
+  `automations` gained nullable `ChannelAccountId` + workspace/account index.
+- Live multi-account Meta mutation smoke: NOT RUN — no explicitly designated
+  production test Instagram accounts; functional proof rests on deterministic
+  unit, Testcontainers PostgreSQL and API E2E gates (495/495). No customer
+  accounts touched, no DMs sent. Production safety signals available to this
+  agent: deploy health/smoke green, no rollback triggered; server logs not
+  directly accessible.
 
 - `ChannelAccountId` opaque struct (BuildingBlocks.Domain, no provider types);
   Conversations natural key `(WorkspaceId, Channel, ChannelAccountId,
@@ -31,10 +54,9 @@
   (~65s window) against the global `mid` unique index — tags made fully unique
   plus a strict-200 webhook assert against 202-masked deferrals.
 - Gates: `verify.py --full` green (static/restore/Release/format/backend
-  Testcontainers/frontend 64/Docker images); `agent_finalize` pending state
-  flip at this point of the session. Frontend untouched (additive
-  `channelAccountId`). Production runtime still `sha-6e5b912e4be7` until the
-  M13-002 deployment below.
+  Testcontainers/frontend 64/Docker images); `agent_finalize --task M13-002`
+  green. Frontend untouched (additive `channelAccountId`). Deployed as
+  `sha-2fd1b3205d87` — see deployment record above.
 
 ## 2026-09-05 — M13-001 follow-status correction DONE
 
