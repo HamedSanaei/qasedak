@@ -21,7 +21,7 @@ public sealed class MetaPayloadNormalizerTests
 
         var message = Assert.IsType<InstagramMessageReceived>(Assert.Single(outcome.Events));
         Assert.Equal("evt-1", message.EventId);
-        Assert.Equal("17841400000000000", message.ProviderUserId);
+        Assert.Equal("17841400000000000", message.ProviderAccountId);
         Assert.Equal("user-42", message.SenderId);
         Assert.Equal("hello there", message.Text);
         Assert.True(outcome.Unrecognized.Count == 0);

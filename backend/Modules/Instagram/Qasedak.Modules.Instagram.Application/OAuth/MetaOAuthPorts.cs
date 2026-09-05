@@ -3,7 +3,12 @@ namespace Qasedak.Modules.Instagram.Application.OAuth;
 /// <summary>Input for exchanging an authorization code for a short-lived token.</summary>
 public sealed record CodeExchangeRequest(string Code, string RedirectUri);
 
-/// <summary>Successful code exchange: short-lived token plus app-scoped identity.</summary>
+/// <summary>
+/// Successful code exchange: short-lived token plus the canonical provider account
+/// identity. For Instagram Login the returned user_id is the professional account
+/// IG_ID (which doubles as the webhook entry.id routing identity), not a separate
+/// app-scoped user id.
+/// </summary>
 public sealed record CodeExchangeSuccess(
     string AccessToken,
     string InstagramUserId,

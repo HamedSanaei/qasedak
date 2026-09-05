@@ -23,11 +23,11 @@ public sealed partial class LoggingIntegrationEventDispatcher(
         };
 
         metrics.EventsDispatched.Add(1, new KeyValuePair<string, object?>("kind", kind));
-        LogDispatched(kind, integrationEvent.EventId, integrationEvent.ProviderUserId, detail);
+        LogDispatched(kind, integrationEvent.EventId, integrationEvent.ProviderAccountId, detail);
         return Task.CompletedTask;
     }
 
     [LoggerMessage(Level = LogLevel.Information,
-        Message = "Integration event dispatched {Kind} eventId={EventId} providerUserId={ProviderUserId} {Detail}")]
-    private partial void LogDispatched(string kind, string eventId, string? providerUserId, string detail);
+        Message = "Integration event dispatched {Kind} eventId={EventId} providerAccountId={ProviderAccountId} {Detail}")]
+    private partial void LogDispatched(string kind, string eventId, string? providerAccountId, string detail);
 }

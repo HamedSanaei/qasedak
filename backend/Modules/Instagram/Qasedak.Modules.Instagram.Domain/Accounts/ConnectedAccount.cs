@@ -29,7 +29,14 @@ public sealed class ConnectedAccount
     /// <summary>Stable identifier of the owning workspace (no cross-module reference).</summary>
     public Guid WorkspaceId { get; private init; }
 
-    /// <summary>Meta app-scoped identity (Instagram user id, or Page id on the FB path).</summary>
+    /// <summary>
+    /// Canonical provider account routing identity. For Instagram Login this is the
+    /// Instagram professional account ID (IG_ID): Meta guarantees the OAuth
+    /// code-exchange user_id equals the IG_ID carried by webhook entry.id, so the
+    /// value stored at connect time routes webhooks without further mapping
+    /// (meta-instagram-platform-contract.md §2/Outcome A). Never an IGSID, mid or
+    /// comment id.
+    /// </summary>
     public string ProviderUserId { get; private init; }
 
     public ConnectionPath Path { get; private init; }

@@ -64,8 +64,16 @@ public sealed class AccountHealthEvaluationTests
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-        public Task<Guid?> FindWorkspaceIdByProviderIdentityAsync(string providerUserId, CancellationToken cancellationToken = default) =>
-            Task.FromResult(_rows.Values.FirstOrDefault(a => a.ProviderUserId == providerUserId)?.WorkspaceId);
+        public Task<AccountResolution> ResolveActiveAccountAsync(string providerAccountId, CancellationToken cancellationToken = default)
+        {
+            var active = _rows.Values.Where(a => a.ProviderUserId == providerAccountId && !a.IsDisconnected).ToArray();
+            return Task.FromResult(active.Length switch
+            {
+                0 => AccountResolution.NotFound(),
+                1 => AccountResolution.Resolved(active[0]),
+                _ => AccountResolution.Ambiguous(),
+            });
+        }
     }
 
     private static ConnectedAccount NewInstagramAccount(TimeSpan? expiryIn = null) =>

@@ -810,7 +810,7 @@ no production code changed.
 **Suggested commit:** `docs(instagram): reconcile current meta api contract`
 
 ## M13-002 — Bind conversations and automations to exact connected accounts
-**Status:** DONE (2026-09-05)
+**Status:** DONE (2026-09-05; inbound routing correction included)
 
 **Outcome:** Introduce a Qasedak-owned opaque channel-account identity so inbound events,
 conversation threads, outbound replies and automations always use the exact connected
@@ -844,6 +844,20 @@ API E2E incl. 2-account isolation, exact tokens, foreign/disconnected/missing/
 unknown/legacy refusals with zero fallback sends, automation A/B isolation).
 `verify.py --full` green (incl. Docker image builds). Frontend untouched
 (additive `channelAccountId` payloads; `npm run verify` 64/64 green).
+
+**Correction evidence (inbound routing determinism):** post-completion audit found
+the two-step `FindWorkspaceId…` → `FindByProviderIdentity…` first-match chain
+could route webhooks to a disconnected history row or an arbitrary workspace.
+First-party Meta evidence proved Outcome A (OAuth user_id == IG_ID ==
+entry.id), so no second identity column exists; misleading app-scoped labels
+corrected. Fix: one-query `ResolveActiveAccountAsync` (Resolved/NotFound/
+Ambiguous) over active rows only; connect-time single-owner guard
+(`account.alreadyConnectedElsewhere`, 409); entry.id renamed to
+`ProviderAccountId` on integration events; unsafe workspace primitive removed;
+partial routing index (`20260905015456_AddActiveRoutingIdentityIndex`,
+additive). Tests added: reconnect/active E2E, disconnected-only, cross-workspace
+Ambiguous fail-closed, insertion-order independence, connect-guard units —
+reconnect E2E verified failing on the pre-fix implementation.
 
 **Completion contract:** Graphify evidence recorded; an ADR records the changed cross-
 module identity/persistence contract; migration and read/write compatibility are tested

@@ -36,16 +36,17 @@ public sealed class MetaPayloadNormalizer
 
             foreach (var entry in entries)
             {
-                var providerUserId = entry.TryGetProperty("id", out var entryId) ? entryId.GetString() : null;
-                CollectMessaging(events, unrecognized, eventId, providerUserId, entry);
-                CollectChanges(events, unrecognized, eventId, providerUserId, entry);
+                // entry.id is the professional account (IG_ID) routing identity.
+                var providerAccountId = entry.TryGetProperty("id", out var entryId) ? entryId.GetString() : null;
+                CollectMessaging(events, unrecognized, eventId, providerAccountId, entry);
+                CollectChanges(events, unrecognized, eventId, providerAccountId, entry);
             }
 
             return new NormalizationOutcome(events, unrecognized);
         }
     }
 
-    private static void CollectMessaging(List<IIntegrationEvent> events, List<UnrecognizedWebhookFragment> unrecognized, string eventId, string? providerUserId, JsonElement entry)
+    private static void CollectMessaging(List<IIntegrationEvent> events, List<UnrecognizedWebhookFragment> unrecognized, string eventId, string? providerAccountId, JsonElement entry)
     {
         if (!entry.TryEnumerateArray("messaging", out var messaging))
         {
@@ -74,11 +75,11 @@ public sealed class MetaPayloadNormalizer
             var providerMessageId = payload.TryGetProperty("mid", out var midElement) ? midElement.GetString() : null;
             var timestamp = ReadUnixSeconds(message, "timestamp") ?? DateTimeOffset.UtcNow;
             events.Add(new InstagramMessageReceived(
-                eventId, providerUserId, senderId ?? "unknown", text, timestamp, providerMessageId));
+                eventId, providerAccountId, senderId ?? "unknown", text, timestamp, providerMessageId));
         }
     }
 
-    private static void CollectChanges(List<IIntegrationEvent> events, List<UnrecognizedWebhookFragment> unrecognized, string eventId, string? providerUserId, JsonElement entry)
+    private static void CollectChanges(List<IIntegrationEvent> events, List<UnrecognizedWebhookFragment> unrecognized, string eventId, string? providerAccountId, JsonElement entry)
     {
         if (!entry.TryEnumerateArray("changes", out var changes))
         {
@@ -95,7 +96,7 @@ public sealed class MetaPayloadNormalizer
                 case "comments":
                     events.Add(new InstagramCommentCreated(
                         eventId,
-                        providerUserId,
+                        providerAccountId,
                         value.ValueKind == JsonValueKind.Object && value.TryGetProperty("id", out var commentId) ? commentId.GetString() ?? "unknown" : "unknown",
                         value.ValueKind == JsonValueKind.Object && value.TryGetProperty("from", out var from) && from.TryGetProperty("id", out var fromId) ? fromId.GetString() : null,
                         value.ValueKind == JsonValueKind.Object && value.TryGetProperty("text", out var commentText) ? commentText.GetString() : null,
@@ -105,7 +106,7 @@ public sealed class MetaPayloadNormalizer
                 case "mentions":
                     events.Add(new InstagramMentionCreated(
                         eventId,
-                        providerUserId,
+                        providerAccountId,
                         value.ValueKind == JsonValueKind.Object && value.TryGetProperty("comment_id", out var mentionCommentId) ? mentionCommentId.GetString() ?? "unknown" : "unknown",
                         DateTimeOffset.UtcNow));
                     break;

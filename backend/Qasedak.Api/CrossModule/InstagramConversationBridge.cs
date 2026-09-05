@@ -33,28 +33,22 @@ public sealed partial class InstagramConversationBridge(
             return;
         }
 
-        if (message.ProviderUserId is null)
+        if (message.ProviderAccountId is null)
         {
             LogUnbound(message.EventId);
             return;
         }
 
-        var workspaceId = await accounts.FindWorkspaceIdByProviderIdentityAsync(message.ProviderUserId, cancellationToken);
-        if (workspaceId is null)
+        var resolution = await accounts.ResolveActiveAccountAsync(message.ProviderAccountId, cancellationToken);
+        if (resolution.Status != AccountResolutionStatus.Resolved || resolution.Account is null)
         {
-            LogUnbound(message.EventId);
+            LogUnresolved(message.EventId, resolution.Status.ToString());
             return;
         }
 
-        var account = await accounts.FindByProviderIdentityAsync(workspaceId.Value, message.ProviderUserId, cancellationToken);
-        if (account is null || account.IsDisconnected)
-        {
-            LogUnbound(message.EventId);
-            return;
-        }
-
+        var account = resolution.Account;
         var result = await projection.ExecuteAsync(new InboundMessageProjection(
-            workspaceId.Value,
+            account.WorkspaceId,
             Channel,
             ChannelAccountId.From(account.Id),
             message.SenderId,
@@ -78,4 +72,8 @@ public sealed partial class InstagramConversationBridge(
     [LoggerMessage(Level = LogLevel.Warning,
         Message = "Message event dropped: provider account not bound to a workspace eventId={EventId}")]
     private partial void LogUnbound(string eventId);
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "Message event dropped: account resolution {Status} eventId={EventId}")]
+    private partial void LogUnresolved(string eventId, string status);
 }

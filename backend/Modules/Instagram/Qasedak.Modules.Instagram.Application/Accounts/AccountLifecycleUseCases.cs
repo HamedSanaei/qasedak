@@ -53,6 +53,22 @@ public sealed class ConnectInstagramAccountUseCase(
             return ConnectAccountResult.Fail(AccountFailures.AlreadyConnected);
         }
 
+        // Global single-owner enforcement: one professional account has one inbox, so
+        // at most one workspace may actively own its routing identity. Disconnected
+        // history never blocks a (re)connection; duplicate active owners fail closed
+        // here so webhooks can never face an ambiguous choice later.
+        var active = await accounts.ResolveActiveAccountAsync(shortLived.InstagramUserId, cancellationToken);
+        if (active.Status == AccountResolutionStatus.Resolved && active.Account is not null
+            && active.Account.WorkspaceId != command.WorkspaceId)
+        {
+            return ConnectAccountResult.Fail(AccountFailures.AlreadyConnectedElsewhere);
+        }
+
+        if (active.Status == AccountResolutionStatus.Ambiguous)
+        {
+            return ConnectAccountResult.Fail(AccountFailures.AlreadyConnectedElsewhere);
+        }
+
         var token = longLived.Success!;
         var expiresAtUtc = clock.UtcNow.AddSeconds(token.ExpiresInSeconds);
         var account = ConnectedAccount.Create(

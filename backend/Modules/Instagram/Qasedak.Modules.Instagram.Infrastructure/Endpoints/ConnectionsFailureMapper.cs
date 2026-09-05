@@ -11,7 +11,7 @@ public static class ConnectionsFailureMapper
     public static int StatusCodeFor(string failureCode) => failureCode switch
     {
         "account.notFound" or "account.alreadyDisconnected" => StatusCodes.Status404NotFound,
-        "account.alreadyConnected" => StatusCodes.Status409Conflict,
+        "account.alreadyConnected" or "account.alreadyConnectedElsewhere" => StatusCodes.Status409Conflict,
         "account.oauthRejected" => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status503ServiceUnavailable, // account.oauthUnavailable
     };

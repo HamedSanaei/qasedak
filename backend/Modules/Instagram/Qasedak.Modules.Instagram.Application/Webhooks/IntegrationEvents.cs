@@ -10,13 +10,16 @@ public interface IIntegrationEvent
     /// <summary>Inbox event identity this event was derived from.</summary>
     string EventId { get; }
 
-    /// <summary>Provider identity of the connected account the event belongs to, when resolvable.</summary>
-    string? ProviderUserId { get; }
+    /// <summary>
+    /// Canonical professional account routing identity carried by the webhook
+    /// (entry.id / IG_ID). Never a participant IGSID, mid or comment id.
+    /// </summary>
+    string? ProviderAccountId { get; }
 }
 
 public sealed record InstagramMessageReceived(
     string EventId,
-    string? ProviderUserId,
+    string? ProviderAccountId,
     string SenderId,
     string? Text,
     DateTimeOffset SentAtUtc,
@@ -25,7 +28,7 @@ public sealed record InstagramMessageReceived(
 
 public sealed record InstagramCommentCreated(
     string EventId,
-    string? ProviderUserId,
+    string? ProviderAccountId,
     string CommentId,
     /// <summary>Commenter's provider id ("value.from.id") — the DM target; null when Meta omits it.</summary>
     string? FromId,
@@ -34,7 +37,7 @@ public sealed record InstagramCommentCreated(
 
 public sealed record InstagramMentionCreated(
     string EventId,
-    string? ProviderUserId,
+    string? ProviderAccountId,
     string CommentId,
     DateTimeOffset CreatedAtUtc) : IIntegrationEvent;
 

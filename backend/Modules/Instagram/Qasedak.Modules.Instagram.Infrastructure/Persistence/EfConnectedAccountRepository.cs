@@ -17,12 +17,25 @@ public sealed class EfConnectedAccountRepository(InstagramDbContext context) : I
         context.Accounts.AsNoTracking()
             .FirstOrDefaultAsync(a => a.WorkspaceId == workspaceId && a.ProviderUserId == providerUserId, cancellationToken)!;
 
-    /// <summary>Workspace resolution for cross-module event routing; read-only.</summary>
-    public Task<Guid?> FindWorkspaceIdByProviderIdentityAsync(string providerUserId, CancellationToken cancellationToken = default) =>
-        context.Accounts.AsNoTracking()
-            .Where(a => a.ProviderUserId == providerUserId)
-            .Select(a => (Guid?)a.WorkspaceId)
-            .FirstOrDefaultAsync(cancellationToken);
+    /// <summary>
+    /// Single-query deterministic routing resolution over active rows only.
+    /// Disconnected history can never shadow the active account, and duplicate
+    /// active owners surface as Ambiguous instead of an order-dependent pick.
+    /// </summary>
+    public async Task<AccountResolution> ResolveActiveAccountAsync(string providerAccountId, CancellationToken cancellationToken = default)
+    {
+        var active = await context.Accounts.AsNoTracking()
+            .Where(a => a.ProviderUserId == providerAccountId && a.DisconnectedAtUtc == null)
+            .OrderBy(a => a.Id)
+            .ToListAsync(cancellationToken);
+
+        return active.Count switch
+        {
+            0 => AccountResolution.NotFound(),
+            1 => AccountResolution.Resolved(active[0]),
+            _ => AccountResolution.Ambiguous(),
+        };
+    }
 
     public async Task<IReadOnlyList<ConnectedAccount>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default)
     {

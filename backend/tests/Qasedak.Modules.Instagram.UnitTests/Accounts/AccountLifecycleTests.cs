@@ -41,6 +41,17 @@ public sealed class AccountLifecycleTests
         public Task<ConnectedAccount?> FindByProviderIdentityAsync(Guid workspaceId, string providerUserId, CancellationToken cancellationToken = default) =>
             Task.FromResult(Rows.Values.FirstOrDefault(a => a.WorkspaceId == workspaceId && a.ProviderUserId == providerUserId));
 
+        public Task<AccountResolution> ResolveActiveAccountAsync(string providerAccountId, CancellationToken cancellationToken = default)
+        {
+            var active = Rows.Values.Where(a => a.ProviderUserId == providerAccountId && !a.IsDisconnected).ToArray();
+            return Task.FromResult(active.Length switch
+            {
+                0 => AccountResolution.NotFound(),
+                1 => AccountResolution.Resolved(active[0]),
+                _ => AccountResolution.Ambiguous(),
+            });
+        }
+
         public Task<IReadOnlyList<ConnectedAccount>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default)
         {
             IReadOnlyList<ConnectedAccount> list = Rows.Values.Where(a => a.WorkspaceId == workspaceId).ToArray();
@@ -54,9 +65,6 @@ public sealed class AccountLifecycleTests
         }
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-        public Task<Guid?> FindWorkspaceIdByProviderIdentityAsync(string providerUserId, CancellationToken cancellationToken = default) =>
-            Task.FromResult(Rows.Values.FirstOrDefault(a => a.ProviderUserId == providerUserId)?.WorkspaceId);
     }
 
     private sealed class FakeTokenStore : IProtectedTokenStore
@@ -160,6 +168,35 @@ public sealed class AccountLifecycleTests
         Assert.True(first.Success);
         Assert.False(second.Success);
         Assert.Equal(AccountFailures.AlreadyConnected, second.FailureCode);
+    }
+
+    [Fact]
+    public async Task ActiveConnectionInAnotherWorkspaceIsRejectedWithoutNewRow()
+    {
+        var (connect, _, _, repo, _) = NewSut();
+        var otherWorkspace = Guid.CreateVersion7();
+
+        var first = await connect.ExecuteAsync(new(Guid.Parse(WorkspaceId), "code-1", "https://cb.example/"));
+        var second = await connect.ExecuteAsync(new(otherWorkspace, "code-2", "https://cb.example/"));
+
+        Assert.True(first.Success);
+        Assert.False(second.Success);
+        Assert.Equal(AccountFailures.AlreadyConnectedElsewhere, second.FailureCode);
+        Assert.Single(repo.Rows);
+    }
+
+    [Fact]
+    public async Task ReconnectAfterDisconnectIsAllowedInAnotherWorkspace()
+    {
+        var (connect, disconnect, _, repo, _) = NewSut();
+        var otherWorkspace = Guid.CreateVersion7();
+
+        var first = await connect.ExecuteAsync(new(Guid.Parse(WorkspaceId), "code-1", "https://cb.example/"));
+        Assert.True((await disconnect.ExecuteAsync(first.AccountId)).Success);
+        var second = await connect.ExecuteAsync(new(otherWorkspace, "code-2", "https://cb.example/"));
+
+        Assert.True(second.Success, second.FailureCode);
+        Assert.Equal(2, repo.Rows.Count);
     }
 
     [Fact]

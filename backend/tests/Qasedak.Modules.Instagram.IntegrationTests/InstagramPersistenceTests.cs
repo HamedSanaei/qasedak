@@ -21,9 +21,16 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
     /// <summary>Deterministic OAuth stub: the HTTP adapter itself is contract-tested separately.</summary>
     private sealed class StubOAuthClient : IMetaOAuthClient
     {
+        /// <summary>
+        /// Canonical routing identity this stub issues. Unique per instance by default so
+        /// tests sharing the collection database never collide on the global single-owner
+        /// rule; tests needing a fixed identity set it explicitly.
+        /// </summary>
+        public string UserId { get; set; } = "ig-test-" + Guid.NewGuid().ToString("N");
+
         public Task<CodeExchangeResult> ExchangeCodeAsync(CodeExchangeRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(CodeExchangeResult.Ok(new(
-                "SHORT-TOKEN", "ig-777", ["instagram_business_basic", "instagram_business_manage_comments"])));
+                "SHORT-TOKEN", UserId, ["instagram_business_basic", "instagram_business_manage_comments"])));
 
         public Task<LongLivedTokenResult> ExchangeShortLivedForLongLivedAsync(
             string shortLivedAccessToken, CancellationToken cancellationToken = default) =>
@@ -41,7 +48,7 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
             .Options);
 
     private (ConnectInstagramAccountUseCase Connect, DisconnectInstagramAccountUseCase Disconnect,
-        ListWorkspaceConnectionsUseCase List, IProtectedTokenStore Store) NewStack()
+        ListWorkspaceConnectionsUseCase List, IProtectedTokenStore Store) NewStack(StubOAuthClient? oauth = null)
     {
         var context = NewContext();
         var repo = new EfConnectedAccountRepository(context);
@@ -49,7 +56,7 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
             Options.Create(new TokenProtectionOptions { KeyBase64 = Convert.ToBase64String(ProtectionKey) }));
         var store = new ProtectedTokenStore(context, protector);
         return (
-            new ConnectInstagramAccountUseCase(repo, store, new StubOAuthClient(), new FixedClock(Now)),
+            new ConnectInstagramAccountUseCase(repo, store, oauth ?? new StubOAuthClient(), new FixedClock(Now)),
             new DisconnectInstagramAccountUseCase(repo, store, new FixedClock(Now)),
             new ListWorkspaceConnectionsUseCase(repo),
             store);
@@ -58,7 +65,8 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
     [Fact]
     public async Task ConnectPersistsAccountAndEncryptedTokenEndToEnd()
     {
-        var (connect, _, list, store) = NewStack();
+        var oauth = new StubOAuthClient { UserId = "ig-777-persist" };
+        var (connect, _, list, store) = NewStack(oauth);
         var workspaceId = Guid.CreateVersion7();
 
         var result = await connect.ExecuteAsync(new(workspaceId, "auth-code", "https://cb.example/"));
@@ -68,7 +76,7 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
         // Fresh context: state must come from the database.
         var connections = await list.ExecuteAsync(workspaceId);
         var record = Assert.Single(connections);
-        Assert.Equal("ig-777", record.ProviderIdentity);
+        Assert.Equal("ig-777-persist", record.ProviderIdentity);
         Assert.Equal(AccountHealth.Connected.ToString(), record.Health);
 
         // Raw token is retrievable only through the protected store and decrypts exactly.

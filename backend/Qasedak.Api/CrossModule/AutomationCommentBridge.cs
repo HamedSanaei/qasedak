@@ -32,28 +32,22 @@ public sealed partial class AutomationCommentBridge(
             return;
         }
 
-        if (comment.ProviderUserId is null)
+        if (comment.ProviderAccountId is null)
         {
             LogUnbound(comment.EventId);
             return;
         }
 
-        var workspaceId = await accounts.FindWorkspaceIdByProviderIdentityAsync(comment.ProviderUserId, cancellationToken);
-        if (workspaceId is null)
+        var resolution = await accounts.ResolveActiveAccountAsync(comment.ProviderAccountId, cancellationToken);
+        if (resolution.Status != AccountResolutionStatus.Resolved || resolution.Account is null)
         {
-            LogUnbound(comment.EventId);
+            LogUnresolved(comment.EventId, resolution.Status.ToString());
             return;
         }
 
-        var account = await accounts.FindByProviderIdentityAsync(workspaceId.Value, comment.ProviderUserId, cancellationToken);
-        if (account is null || account.IsDisconnected)
-        {
-            LogUnbound(comment.EventId);
-            return;
-        }
-
+        var account = resolution.Account;
         var channelAccountId = ChannelAccountId.From(account.Id);
-        var active = await automations.ListByAccountAsync(workspaceId.Value, channelAccountId, cancellationToken);
+        var active = await automations.ListByAccountAsync(account.WorkspaceId, channelAccountId, cancellationToken);
         foreach (var automation in active.Where(a => a.Status == AutomationStatus.Active))
         {
             var trigger = new TriggerContext(
@@ -68,7 +62,7 @@ public sealed partial class AutomationCommentBridge(
             // case additionally refuses automations whose binding differs from the
             // event's exact account without dispatching.
             var outcome = await executor.ExecuteAsync(
-                new ExecutionRequest(automation.Id, trigger, InstagramReplyGateway.Channel, channelAccountId, workspaceId.Value),
+                new ExecutionRequest(automation.Id, trigger, InstagramReplyGateway.Channel, channelAccountId, account.WorkspaceId),
                 cancellationToken);
 
             LogOutcome(comment.CommentId, automation.Id, outcome.Status);
@@ -86,4 +80,8 @@ public sealed partial class AutomationCommentBridge(
     [LoggerMessage(Level = LogLevel.Warning,
         Message = "Comment event dropped: provider account not bound to a workspace eventId={EventId}")]
     private partial void LogUnbound(string eventId);
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "Comment event dropped: account resolution {Status} eventId={EventId}")]
+    private partial void LogUnresolved(string eventId, string status);
 }

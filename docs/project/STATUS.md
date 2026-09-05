@@ -3,8 +3,26 @@
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
 **Current task:** M13-003 — Centralize versioned Meta Graph transport and failure taxonomy (TODO)
-**Last completed:** M13-002 (2026-09-05)
-**Product implementation:** Conversations/automations bound to exact connected accounts; no M13-003 work started
+**Last completed:** M13-002 (2026-09-05; inbound routing correction included)
+**Product implementation:** Conversations/automations bound to exact connected accounts with deterministic inbound resolution; no M13-003 work started
+
+## 2026-09-05 — M13-002 routing correction DONE
+
+- Post-completion audit found first-match inbound routing over rows including
+  disconnected history. First-party Meta evidence proved Outcome A (OAuth
+  user_id == professional IG_ID == webhook entry.id), so no second identity
+  column was created and misleading app-scoped labels were corrected.
+- Fix: one-query `ResolveActiveAccountAsync` (Resolved/NotFound/Ambiguous,
+  active-only) in all three bridges; connect-time single-owner guard
+  (`account.alreadyConnectedElsewhere`, 409); cross-workspace duplicates fail
+  closed as Ambiguous; `entry.id` renamed to `ProviderAccountId` on integration
+  events; unsafe `FindWorkspaceIdByProviderIdentityAsync` removed; additive
+  partial routing index (`20260905015456_AddActiveRoutingIdentityIndex`).
+- Tests: reconnect E2E verified failing pre-fix (0 threads) and green post-fix;
+  plus disconnected-only, Ambiguous fail-closed, insertion-order independence,
+  connect-guard units, PG resolution/index coverage — 506/506 backend green,
+  `verify.py --full` green. Deployed below; production runtime moves to the
+  correction image.
 
 ## 2026-09-05 — M13-002 DONE: exact channel-account binding shipped
 (see deployment record in the next section)

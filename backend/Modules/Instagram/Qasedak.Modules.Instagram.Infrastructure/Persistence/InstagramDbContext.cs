@@ -44,6 +44,13 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
             account.HasIndex(a => new { a.WorkspaceId, a.ProviderUserId })
                 .IsUnique()
                 .HasFilter("\"DisconnectedAtUtc\" IS NULL");
+            // Routing-identity lookup backing ResolveActiveAccountAsync: every webhook
+            // resolves active owners of one professional account id across workspaces.
+            // Non-unique by design — duplicate active owners surface as Ambiguous and
+            // fail closed instead of an order-dependent pick.
+            account.HasIndex(a => a.ProviderUserId)
+                .HasDatabaseName("IX_connected_accounts_active_routing_identity")
+                .HasFilter("\"DisconnectedAtUtc\" IS NULL");
         });
 
         modelBuilder.Entity<StoredAccountToken>(token =>

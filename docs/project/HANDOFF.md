@@ -1,6 +1,17 @@
 # Current handoff
 
-## 2026-09-05 — M13-002 DONE; M13-003 packet ready (do not start M13-003)
+## 2026-09-05 — M13-002 routing correction DONE; M13-003 not started
+
+Inbound exact-account routing is now deterministic: `ResolveActiveAccountAsync`
+returns Resolved/NotFound/Ambiguous over active rows only; connect enforces one
+active owner globally (`account.alreadyConnectedElsewhere`); Outcome A identity
+proven first-party (OAuth user_id == IG_ID == entry.id, no second column);
+`ProviderAccountId` naming on events; unsafe primitive removed; additive routing
+index. Reconnect E2E failed pre-fix (0 threads) and passes post-fix; 506/506
+backend green; full verify green. Commit/push/CI/deploy/smoke/evidence follow in
+this same instruction. State: M13-002 DONE, currentTask=M13-003 TODO.
+Production runtime moves from `sha-2fd1b3205d87` to the correction image on
+deploy; deployment evidence appended below.
 
 M13-002 shipped exact channel-account binding (production code + 2 migrations +
 tests). `ChannelAccountId` (BuildingBlocks.Domain, opaque struct over Guid)

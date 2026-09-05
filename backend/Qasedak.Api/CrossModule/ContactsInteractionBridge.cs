@@ -24,11 +24,11 @@ public sealed partial class ContactsInteractionBridge(
         switch (integrationEvent)
         {
             case InstagramMessageReceived message:
-                await ProjectAsync(message.ProviderUserId, message.SenderId, null, message.EventId, "message.received", message.SentAtUtc, cancellationToken);
+                await ProjectAsync(message.ProviderAccountId, message.SenderId, null, message.EventId, "message.received", message.SentAtUtc, cancellationToken);
                 break;
 
             case InstagramCommentCreated comment:
-                await ProjectAsync(comment.ProviderUserId, comment.FromId, null, comment.EventId, "comment.created", comment.CreatedAtUtc, cancellationToken);
+                await ProjectAsync(comment.ProviderAccountId, comment.FromId, null, comment.EventId, "comment.created", comment.CreatedAtUtc, cancellationToken);
                 break;
 
             default:
@@ -37,23 +37,25 @@ public sealed partial class ContactsInteractionBridge(
         }
     }
 
-    private async Task ProjectAsync(string? providerUserId, string? participantIdentity, string? displayNameHint, string eventId, string kind, DateTimeOffset occurredAtUtc, CancellationToken cancellationToken)
+    private async Task ProjectAsync(string? providerAccountId, string? participantIdentity, string? displayNameHint, string eventId, string kind, DateTimeOffset occurredAtUtc, CancellationToken cancellationToken)
     {
-        if (providerUserId is null || participantIdentity is null)
+        if (providerAccountId is null || participantIdentity is null)
         {
             LogUnbound(eventId);
             return;
         }
 
-        var workspaceId = await accounts.FindWorkspaceIdByProviderIdentityAsync(providerUserId, cancellationToken);
-        if (workspaceId is null)
+        // Contacts stay person-centric, but the owning workspace must still resolve
+        // through the one deterministic active-account primitive — never first-match.
+        var resolution = await accounts.ResolveActiveAccountAsync(providerAccountId, cancellationToken);
+        if (resolution.Status != AccountResolutionStatus.Resolved || resolution.Account is null)
         {
-            LogUnbound(eventId);
+            LogUnresolved(eventId, resolution.Status.ToString());
             return;
         }
 
         var outcome = await projection.ExecuteAsync(new ContactInteractionProjection(
-            workspaceId.Value,
+            resolution.Account.WorkspaceId,
             Channel,
             participantIdentity,
             displayNameHint,
@@ -75,4 +77,8 @@ public sealed partial class ContactsInteractionBridge(
     [LoggerMessage(Level = LogLevel.Warning,
         Message = "Interaction event dropped: provider account not bound to a workspace eventId={EventId}")]
     private partial void LogUnbound(string eventId);
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "Interaction event dropped: account resolution {Status} eventId={EventId}")]
+    private partial void LogUnresolved(string eventId, string status);
 }
