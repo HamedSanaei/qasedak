@@ -24,6 +24,23 @@
   `verify.py --full` green. Deployed below; production runtime moves to the
   correction image.
 
+## 2026-09-05 — M13-002 routing correction deployed (runtime `sha-3c3c721bfa61`)
+
+- Correction commit `3c3c721bfa61df7de56c1eea6415dceef272e5c8` pushed to
+  `origin/master`. CI `33938422386` success (4 jobs; docker job slow ~9.5m but
+  green); CodeQL `33938422377` success; Publish Images `33938965616` success
+  after one rerun — first attempt failed on a transient Ubuntu archive mirror
+  `Hash Sum mismatch` inside the API image `apt-get` layer (infrastructure
+  flake, unrelated to the change); rerun green, both images tagged
+  `sha-3c3c721bfa61`. Deploy Production `33939832514` success for the exact
+  SHA (previous `sha-2fd1b3205d87`, DB backup
+  `qasedak-20260905T024243Z-sha-3c3c721bfa61.dump`, routing-index migration
+  replayed, api/web Healthy, in-workflow smoke passed ~02:42Z). No rollback.
+- Independent public smoke at `https://qasedak.tofanservice.ir`: `/` 200,
+  `/api/v1/system` 200, invalid-login `/web-api/auth/login` 401.
+- Live Meta identity/reconnect smoke: NOT RUN — no designated production test
+  accounts. Server logs not directly accessible; workflow health/smoke green.
+
 ## 2026-09-05 — M13-002 DONE: exact channel-account binding shipped
 (see deployment record in the next section)
 

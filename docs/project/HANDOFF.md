@@ -13,6 +13,27 @@ this same instruction. State: M13-002 DONE, currentTask=M13-003 TODO.
 Production runtime moves from `sha-2fd1b3205d87` to the correction image on
 deploy; deployment evidence appended below.
 
+### Deployment evidence — M13-002 routing correction (2026-09-05, UTC)
+
+- Correction commit: `3c3c721bfa61df7de56c1eea6415dceef272e5c8`
+  (`fix(instagram): make inbound account resolution deterministic`), pushed
+  to `origin/master`.
+- CI `33938422386`: success (repository-contracts, backend, frontend, docker).
+- CodeQL `33938422377`: success.
+- Publish Images `33938965616`: success after one `--failed` rerun. First
+  attempt failed the API image on a transient Ubuntu archive `Hash Sum
+  mismatch` (infrastructure flake, unrelated); rerun published both images as
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-3c3c721bfa61`.
+- Deploy Production `33939832514`: success for exactly the correction SHA.
+  Previous tag `sha-2fd1b3205d87` → `sha-3c3c721bfa61`; DB backup
+  `qasedak-20260905T024243Z-sha-3c3c721bfa61.dump`; routing-index migration
+  replayed; api/web Healthy; in-workflow smoke passed (~02:42:37–02:42:59Z).
+  No rollback.
+- Independent smoke: `/` 200, `/api/v1/system` 200, invalid-login 401.
+- Live Meta identity/reconnect smoke: NOT RUN (no designated test accounts).
+- **HEAD vs production distinction:** the evidence commit below is docs/state-only;
+  production runtime remains the immutable `sha-3c3c721bfa61` images.
+
 M13-002 shipped exact channel-account binding (production code + 2 migrations +
 tests). `ChannelAccountId` (BuildingBlocks.Domain, opaque struct over Guid)
 flows through Conversations/Automations contracts; Api composition root maps
