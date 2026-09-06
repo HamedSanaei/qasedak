@@ -20,6 +20,29 @@ boundary. Backend suite 838/838 (Instagram unit 325, PG 35, API E2E 110),
 format/architecture clean. State: M13-008 DONE, currentTask=M13-009 TODO.
 Live Meta webhook smoke: NOT RUN — no designated production test account.
 
+### Deployment evidence — M13-008 (2026-09-06, UTC)
+
+- Task SHA `b223862495a346a392898f11fd7bb38010dbe8e0` (final SHA after the
+  manifest-correction `452ef04` and concurrency-race-fix commits) pushed to
+  `origin/master`; production runtime is the immutable image
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-b223862495a3`.
+- CI `34052037934` success; CodeQL `34052037874` success; Publish Images
+  `34052212371` success; Deploy Production `34052272304` success — DB backup
+  `qasedak-20260906T183700Z-sha-b223862495a3.dump`; **no schema change**
+  (all eight schemas already up to date; M13-008 is normalization-only);
+  api Healthy; in-workflow health + public-web-auth-routing smoke passed;
+  no rollback.
+- CI failure history: `34051040335` = stale manifest (generated before the
+  6 new files were staged) → `452ef04` manifest correction; `34051429792` =
+  lock-free `Gates` enumeration race in the M13-007 concurrency test under
+  CI scheduling → fixed in `b223862` (locked snapshots + drain loop,
+  stable ×5, full verify green).
+- Public smoke (independent, https://qasedak.tofanservice.ir): `/` 200,
+  `/api/v1/system` 200, webhook GET challenge with wrong token → 403,
+  unsigned webhook POST → 401 (signature-before-persist proven live, zero
+  inbox/business mutation).
+- Live Meta webhook smoke: NOT RUN — no designated production test account.
+
 ### M13-009 packet (read-only handoff)
 
 M13-009 corrects comment automation to Meta **Private Reply** semantics.

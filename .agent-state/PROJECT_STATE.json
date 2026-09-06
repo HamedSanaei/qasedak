@@ -1,7 +1,7 @@
 {
  "schemaVersion": 1,
  "project": "Qasedak",
- "updatedAt": "2026-09-06T18:09:05Z",
+ "updatedAt": "2026-09-06T18:45:41Z",
  "architecture": "Modular Monolith + Clean Architecture per module",
  "currentMilestone": "M13",
  "currentTask": "M13-009",
@@ -153,5 +153,23 @@
   "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
   "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
  ],
- "lastInstruction": "M13-007 DONE 2026-09-06: insights + follower history complete (786 backend incl. 11 real-PostgreSQL + 10 API E2E, 78 frontend, full gates green). State: lastCompletedTask=M13-007, currentTask=M13-008 TODO."
+ "lastInstruction": "M13-008 DONE 2026-09-06: interactive webhook normalization complete (postbacks, read receipts, enriched comments, filtered messages, exact-account dispatch, ms timestamps; backend 838/838, full verify green, deployed sha-b223862495a3, no schema change). State: lastCompletedTask=M13-008, currentTask=M13-009 TODO.",
+ "m13008Deployment": {
+  "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",
+  "image": "sha-b223862495a3",
+  "ciRun": "34052037934",
+  "codeqlRun": "34052037874",
+  "publishRun": "34052212371",
+  "deployRun": "34052272304",
+  "backup": "qasedak-20260906T183700Z-sha-b223862495a3.dump",
+  "schemaChange": false,
+  "publicSmoke": {
+   "root": 200,
+   "system": 200,
+   "challengeWrongToken": 403,
+   "postNoSignature": 401
+  },
+  "liveMetaWebhookSmoke": "NOT RUN — no designated production test account",
+  "nextTask": "M13-009"
+ }
 }

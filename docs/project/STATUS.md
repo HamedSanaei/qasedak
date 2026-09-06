@@ -44,6 +44,36 @@
   filters, two-account fan-out, unknown+ambiguous fail-closed, SHA-256
   redelivery), format clean, architecture check passed, frontend untouched.
 
+## 2026-09-06 — M13-008 deployed; production on immutable task image
+
+- Task commit `b223862495a3` (`fix(instagram): lock gate list in overview
+  concurrency tests`, the final SHA after the manifest-correction `452ef04`
+  and race-fix commits) pushed to `origin/master`; production runtime is the
+  immutable image `ghcr.io/hamedsanaei/qasedak-api|web:sha-b223862495a3`.
+- CI `34052037934` success; CodeQL `34052037874` success; Publish Images
+  `34052212371` success; Deploy Production `34052272304` success — DB backup
+  `qasedak-20260906T183700Z-sha-b223862495a3.dump`; **no schema change** —
+  all eight schemas already up to date (M13-008 is normalization-only, no
+  migration added); api Healthy; in-workflow health + public-web-auth-routing
+  smoke passed; no rollback.
+- First CI run `34051040335` failed only on the stale `FILE_MANIFEST.txt`
+  gate (manifest generated before the six new M13-008 files were staged —
+  the M13-005 lesson, again); regenerated via `452ef04`. Second run
+  `34051429792` exposed a lock-free enumeration race in the M13-007
+  `BoundedConcurrencyNeverExceedsConfiguredMaximum` test under CI scheduling
+  (`Collection was modified`); fixed with locked gate snapshots + drain
+  loop, stable across 5 repeated runs and full verify — shipped in
+  `b223862`.
+- Webhook route evidence: `GET /api/v1/webhooks/instagram` challenge
+  validation (wrong token → 403) and unsigned `POST` → 401 at the edge
+  (signature-before-persist, zero inbox/business mutation) — both smoked
+  live; `/` 200, `/api/v1/system` 200.
+- Live Meta webhook smoke: NOT RUN — no designated production test account.
+- Scheduler/processor startup: api Healthy with post-ingest processor,
+  dispatcher, `instagram.token-refresh` and `instagram.follower-snapshot`
+  handlers registered (host boots the full API integration suite with the
+  real composition root; no DI/startup exceptions in the deploy log).
+
 ## 2026-09-06 — M13-007 DONE: Instagram insights + follower history
 
 - Fresh first-party verification (developers.facebook.com, retrieved 2026-09-06):
