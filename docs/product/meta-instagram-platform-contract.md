@@ -177,7 +177,37 @@ distinguishable). Basic permission suffices for reads. FB-Login-only fields
 scope. **No content publishing in M13** (permission existence does not expand
 scope). M13-006 builds the picker on this.
 
-Sources: IG Media reference (updated 2026-08-12); IG Login overview.
+**Fresh verification 2026-09-06 (IG User Media edge reference + IG Media
+reference, developers.facebook.com, Instagram Login path):**
+
+- Endpoint: `GET /<IG_ID>/media` on `graph.instagram.com`, API-versioned path,
+  Bearer User token (never in URL); permission `instagram_business_basic`.
+  Read-only; no `POST /media`, `POST /media_publish` or `DELETE` in M13-006.
+- Returns the account's **most recent media, max 10K**; **Stories are not
+  supported on this edge** (separate `/stories` surface) and are excluded from
+  the automation post picker by design (ephemeral, unsuitable for durable
+  post-selection).
+- Pagination: `paging.cursors.after`/`before` + optional time-based params
+  (`until`/`since`); Graph default limit 25, hard max 100 per the Graph API
+  results guide. Qasedak uses forward `after` traversal only; server-default
+  25, hard max 50, recent-N ceiling 200, max 20 provider pages.
+- IG-Login `media_type` values: `IMAGE`, `VIDEO`, `CAROUSEL_ALBUM` (REELS is
+  tolerated as a provider variant; `media_product_type` is **Facebook-Login
+  only** and therefore never requested on this path). Qasedak maps to
+  Image/Video/Reel/Carousel/Unknown; unknown future values never crash
+  deserialization.
+- Field availability: `thumbnail_url` VIDEO-only; `permalink` not provided
+  for carousel album children; `media_url` omitted for copyrighted media
+  (preview availability is explicit, never fabricated); `like_count` /
+  `comments_count` are basic metadata — missing means unknown, not zero.
+- Requested field set (Qasedak-owned single source, `MediaCatalogPolicy`):
+  `id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,
+  like_count,comments_count,children{id,media_type,media_url,thumbnail_url,
+  permalink}`.
+
+Sources: IG User Media reference (retrieved 2026-09-06); IG Media reference
+(updated 2026-08-12); Graph API results guide (retrieved 2026-09-06); IG Login
+overview.
 
 ### 3.8 Insights (Instagram Login — supported with boundaries)
 

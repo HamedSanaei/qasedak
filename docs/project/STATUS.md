@@ -2,9 +2,55 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-006 — Add Instagram media catalog and post-selection APIs (TODO)
-**Last completed:** M13-005 (2026-09-06)
-**Product implementation:** Instagram connection lifecycle complete (state-bound OAuth, profile enrichment, subscriptions, scheduled refresh); media catalog not started
+**Current task:** M13-007 — Add Instagram insights and follower history (TODO)
+**Last completed:** M13-006 (2026-09-06)
+**Product implementation:** Instagram connection lifecycle complete (state-bound OAuth, profile enrichment, subscriptions, scheduled refresh) and media catalog complete (exact-account post/reel catalog + Qasedak cursor contract); insights not started
+
+## 2026-09-06 — M13-006 DONE: media catalog + post-selection APIs
+
+- Fresh first-party verification (developers.facebook.com, 2026-09-06, IG User
+  Media + IG Media references): `GET /<IG_ID>/media` on `graph.instagram.com`
+  (IG Login, `instagram_business_basic`, Bearer User token, versioned path,
+  read-only); returns most recent media max 10K; **Stories are not supported
+  on this edge** (separate `/stories`) → excluded from the post picker;
+  pagination via `paging.cursors.after` (forward only) + time-based params;
+  IG-Login `media_type` IMAGE/VIDEO/CAROUSEL_ALBUM (REELS tolerated;
+  `media_product_type` is **FB-Login only**, never requested); `thumbnail_url`
+  VIDEO-only; `permalink` absent for album children; `media_url` omitted for
+  copyrighted media; `like_count`/`comments_count` are basic metadata
+  (missing = unknown, never zero). Contract §3.7 updated with retrieval date.
+- Media architecture: focused `IMediaCatalogClient` Application port
+  (Qasedak-owned `MediaCatalogItem/Page/Result/MediaKind/Cursor` records) +
+  `GraphMediaCatalogClient` Infrastructure adapter reusing M13-003
+  `MetaGraphUris/Transport/Classifier` (no raw HttpClient, no Graph DTO
+  outside Infrastructure); `MediaCatalogPolicy` single source of bounds
+  (default page 25, hard max 50, recent-N ceiling 200, max 20 provider pages,
+  max 10 carousel children, cursor bounds, verified field set).
+- Cursor: Qasedak-owned opaque base64url envelope v1 bound to
+  `ConnectedAccountId` + provider `after` component; server always rebuilds
+  the provider URL (host/version/path server-owned) — a cursor can never
+  become a Graph URL or bypass exact-account authorization; malformed/
+  oversized/repeated/looping cursors fail stably (no infinite traversal).
+- Exact-account security: `ListMediaPageUseCase` resolves the exact account
+  by `(WorkspaceId, ConnectedAccountId)`, 404 on foreign/unknown, safe local
+  failure on disconnected/missing-token (zero provider call, zero token
+  read — asserted via token-store call counters in E2E), token only read for
+  the validated account; subscription health does not gate media reads
+  (independent capabilities); GET endpoint is read-only toward Meta (no
+  repair, no publishing, no insights, no scheduler use, no media DB — no
+  schema change).
+- API: `GET /api/v1/workspaces/{workspaceId}/instagram/connections/{accountId}/media?limit&cursor`
+  → `{items, nextCursor, hasMore}`; failures mapped via M13-003 taxonomy
+  through `ConnectionsFailureMapper` (401/404/400/409/503 stable codes, no
+  provider body/token).
+- Frontend: post-picker data contract only — `shared/api/media.ts` client +
+  `features/instagram/media.ts` normalization (no UI, no Penpot change).
+- Tests: Instagram unit 226/226 (+36 media contract/pagination/recent-N/
+  cancellation/cursor/policy), API E2E 87/87 (+13 media endpoint auth,
+  bounds, redaction, isolation), frontend 73/73 (+6 contract); full backend
+  705/705 (14 projects); format/architecture/manifest gates green.
+- Live Meta media smoke: NOT RUN — no designated production test account;
+  no customer token touched.
 
 ## 2026-09-06 — M13-005 deployed; production on immutable task image
 

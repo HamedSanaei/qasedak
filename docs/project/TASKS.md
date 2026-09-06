@@ -1015,7 +1015,7 @@ ownership, redaction, degraded→repair, disconnect); backend 656/656, frontend
 **Suggested commit:** `feat(instagram): complete account connection operations`
 
 ## M13-006 — Add Instagram media catalog and post-selection APIs
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Add an exact-account Instagram media catalog and Qasedak cursor contracts so
 the automation builder can select real posts/reels without exposing Meta paging DTOs or

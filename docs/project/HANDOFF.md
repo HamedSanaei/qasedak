@@ -1,92 +1,97 @@
 # Current handoff
 
-## 2026-09-06 — M13-005 DONE; M13-006 packet ready (do not start M13-006)
+## 2026-09-06 — M13-006 DONE; M13-007 packet ready (do not start M13-007)
 
-M13-005 completed the Instagram connection lifecycle: server-owned single-use
-OAuth state, verified profile enrichment with fail-closed identity proof,
-central webhook subscriptions with truthful health + repair, and the first
-production scheduled-work handler (token refresh with generation-guarded
-rotation). Backend 656/656, PG integration 24, API E2E 5, frontend 67/67 +
-verify green, architecture 36 projects, format clean, Graphify 0.9.26 healthy.
-Migration `20260905204310_AddConnectionEnrichment` (additive; M13-004 runtime
-compatible). Commit/push/CI/deploy/smoke/evidence follow in this same
-instruction. State: M13-005 DONE, currentTask=M13-006 TODO. Production runtime
-stays `sha-0a3fbc0ac295` until the M13-005 deployment switches it.
-Live Meta smoke: NOT RUN unless a designated production test account exists.
+M13-006 added the exact-account Instagram media catalog and post-picker data
+contract: focused `IMediaCatalogClient` port, `GraphMediaCatalogClient` adapter
+on the M13-003 transport, Qasedak-owned account-bound cursor envelope, bounded
+page/recent-N traversal with cancellation and loop defense, and a read-only
+workspace-scoped API. Backend 705/705 (14 projects; Instagram unit 226 incl.
++36 media, API E2E 87 incl. +13 media), frontend 73/73 (+6 contract tests),
+format/architecture clean, Graphify 0.9.26 healthy, **no schema change** (no
+media DB). Commit/push/CI/deploy/smoke/evidence follow in this same
+instruction. State: M13-006 DONE, currentTask=M13-007 TODO. Production runtime
+stays `sha-a68762e139f3` until the M13-006 deployment switches it.
+Live Meta media smoke: NOT RUN unless a designated production test account
+exists.
 
-### M13-006 packet (read-only handoff)
+### M13-007 packet (read-only handoff)
 
-- Final profile/account projection: `ConnectionStateRecord` /
-  `GET .../instagram/connections` returns `accountId, providerIdentity`
-  (professional IG_ID = OAuth `user_id` = webhook `entry.id`, never IGSID),
-  `username/displayName/profilePictureUrl` (verified, nullable),
-  `accountType` (reserved null — no verified source),
-  `profileUpdatedAtUtc`, `path, scopes, health, healthDetail`,
-  `tokenExpiresAtUtc`, `subscriptionHealth` (Unknown/Healthy/Partial/
-  NeedsRepair), `subscriptionDetail`, `lastSubscriptionCheckUtc`,
-  `connectedAtUtc/disconnectedAtUtc`. Never any token material.
-- ProviderAccountId semantics: opaque professional IG_ID string; exact-account
-  operations always take `(WorkspaceId, ConnectedAccount.Id)` and verify
-  `account.WorkspaceId == requested WorkspaceId` (404 otherwise, no provider
-  call, no token read). Routing still resolves via
-  `ResolveActiveAccountAsync` (Resolved/NotFound/Ambiguous, active-only).
-- Exact-account authorization pattern: use-case-level ownership check (route
-  policy is not proof); see `DisconnectInstagramAccountUseCase`,
-  `RepairSubscriptionUseCase` + `ConnectionEnrichmentEndpointTests`
-  (foreign-workspace 404s).
-- Meta Graph transport usage: `MetaGraphUris.Versioned(host, version, path)`,
-  `MetaGraphTransport` (timeout/cancel/redaction), `MetaGraphClassifier`
-  (RateLimited/Transient/Transport → retry; PermissionLoss/Rejected →
-  terminal); Bearer User token, never in URLs. See profile/subscription
-  adapters as the copy-pattern for the media adapter.
-- Subscription health representation: `SubscriptionHealth` enum persisted as
-  int (Unknown=1 default for legacy rows); server-owned desired set
-  `InstagramSubscriptionFields.Required`
-  (`comments, live_comments, messages, messaging_postbacks, messaging_seen`).
-- OAuth state architecture: `IOAuthStateStore` (`EfOAuthStateStore`,
-  `instagram.oauth_states`: StateHash PK, WorkspaceId, RedirectUri,
-  CreatedAt/Expires/ConsumedAtUtc), 10-minute lifetime, atomic conditional
-  consume, opportunistic expired purge; authorize-url issues, connect consumes
-  before any Meta call; consumed state never re-armed.
-- Token generation/concurrency primitive: domain-owned `ConnectedAccount`
-  `.Version` (uint, plain EF concurrency token, starts 0) bumped by
-  `ApplyTokenRotation` AND terminal `Disconnect`; single-save atomic rotation
-  of aggregate + staged ciphertext; losers observe `Stale`.
-- Refresh job type/payload: `instagram.token-refresh`
-  (`TokenRefreshPolicy.JobType`); payload `{connectedAccountId}` only
-  (camelCase, versioned); idempotency key
-  `instagram-token-refresh:{accountId}:{expiryTicks}` (per generation);
-  handler `TokenRefreshScheduledHandler` registered in `Program.cs`.
-- Refresh scheduling policy: `NextDueAt` = expiry − 7 days (floor now, and
-  never before issuance + 24h at connect); `NeedsRefresh`,
-  `SatisfiesAgeRule` (≥24h; legacy null = eligible); MaxAttempts 8;
-  Rotated→enqueue-one-next+Succeeded; Skipped/unknown→Permanent;
-  Stale/Retryable→retry with backoff; health only on classified permanent
-  outcomes via live inspection.
-- Account health/failure mapping: `AccountHealth`
-  Connected/ExpiringSoon/Expired/Revoked/Unhealthy; stable codes
-  (`account.*`, `oauth.*`, `profile.*`, `subscription.*`) → HTTP via
-  `ConnectionsFailureMapper` (404/409/400/503); frontend Persian copy in
-  `health.ts` `FAILURE_COPY`.
-- Migrations: `20260905204310_AddConnectionEnrichment` on top of
-  `20260905015456_AddActiveRoutingIdentityIndex`; all additive — old runtime
-  bootable (new columns nullable/defaulted, new table untouched by old code).
-- API endpoints added: `GET authorize-url` (issues state),
-  `POST /connections` (requires state), `DELETE /connections/{id}`
-  (ownership-checked), `POST /connections/{id}/repair-subscription`.
-- Regression tests: `AccountLifecycleTests`, `RefreshInstagramTokenTests`,
-  `RepairSubscriptionTests`, `TokenRefreshScheduledHandlerTests`,
-  `TokenRefreshPolicyTests`, `GraphAccountProfileClientTests`,
-  `GraphSubscriptionClientTests`, `ConnectionsFailureMapperTests`,
-  `OAuthStateStoreTests`, `InstagramPersistenceTests` (CAS/rollback/
-  disconnect-race/legacy), `ConnectionEnrichmentEndpointTests`,
-  `tests/instagram-connections.test.mjs` (state roundtrip/repair/copy).
-- Residual provider/App Review constraints: `comments`/`live_comments`
-  need Advanced Access + Live app + public account; profile media URLs
-  expire (never cache as permanent); account type has no verified source;
-  no subscription-state read endpoint (health from outcomes only);
-  `story_insights`/handover/optins/referral/standby unsubscribed (no M13
-  consumer); FB-Login path preserved only as established by M13-001.
+- Media Application contracts: `Qasedak.Modules.Instagram.Application.Media` —
+  `IMediaCatalogClient` port (`GetPageAsync(accessToken, providerAccountId,
+  accountId, limit, afterCursor, ct)` and `GetRecentAsync(...maxItems, ct)`),
+  `MediaCatalogItem/ChildItem/Page/Result`, `MediaKind`, `MediaCatalogFailures`
+  (stable codes), `MediaCursorContracts` (envelope codec interface), and
+  `MediaCatalogPolicy` (single source of bounds + verified field list).
+- Graph media adapter: `GraphMediaCatalogClient` (Infrastructure/Media) —
+  versioned `MetaGraphUris` path `/{version}/{igId}/media`, Bearer token via
+  `MetaGraphTransport` (never in URL), `MetaGraphClassifier` taxonomy mapping
+  (RateLimited/Transient/Transport → retryable `Failed(Transient:true)`;
+  PermissionLoss/Rejected/Invalid → terminal); no Graph DTO outside
+  Infrastructure; tolerant JSON (unknown fields ignored; unknown `media_type`
+  → `MediaKind.Unknown`, never crashes); `children` parsed as
+  `{data:[...]}`.
+- Exact-account authorization pattern: `ListMediaPageUseCase` takes
+  `(WorkspaceId, ConnectedAccountId)`; resolves the exact account, verifies
+  `account.WorkspaceId == requested WorkspaceId` (404, zero token read, zero
+  provider call — proven by token-store call counters), rejects
+  disconnected/missing-token locally before any Meta call, reads the token
+  only for the validated account, then calls the adapter. Never first-account
+  selection; subscription health does not gate media reads.
+- Verified media fields/types (IG Media reference, retrieved 2026-09-06):
+  `id, caption, media_type, media_url, thumbnail_url, permalink, timestamp,
+  like_count, comments_count, children{id, media_type, media_url,
+  thumbnail_url, permalink}`. `media_product_type` is FB-Login only — never
+  requested; IG-Login `media_type` IMAGE/VIDEO/CAROUSEL_ALBUM (REELS
+  tolerated). ProviderMediaId = opaque provider media id, the durable
+  selection identity `(ConnectedAccountId, ProviderMediaId)`; media_url is
+  temporary provider CDN, never a durable identifier.
+- Cursor contract: opaque base64url envelope v1 (`MediaCatalogCursorCodec`)
+  containing contract version, ConnectedAccountId (account-bound — cursor
+  from Account A is rejected for B before any provider call), and the raw
+  provider `after` component. Server always rebuilds the provider request
+  (server-owned host/version/path, bounded limit); cursor can never carry a
+  URL, token or query injection. Forward `after` traversal only (provider
+  `before` unused). Malformed/oversized (>2048 encoded / >512 decoded)/
+  repeated/looping cursors fail stably; no infinite traversal.
+- Page limits / hard caps (`MediaCatalogPolicy`): DefaultPageSize 25,
+  MaxPageSize 50 (reject `limit<=0` with validation failure, clamp >max),
+  MaxRecentItems 200 (recent-N stops exactly at N — no extra page fetch),
+  MaxPages 20 (loop/empty-page-with-next-cursor defense), MaxCarouselChildren
+  10, CursorVersion 1.
+- Nullable/unavailable field semantics: caption null, media_url missing for
+  copyrighted media, thumbnail VIDEO-only, permalink absent for album
+  children — all nullable; `HasMediaPreview`/`HasThumbnail` explicit booleans;
+  missing counts = unknown (never 0); malformed items without a usable media
+  id are skipped with bounded observability, never fabricated.
+- Like/comment count semantics: basic media metadata only (never `/insights`
+  in M13-006; M13-007 owns insights metrics).
+- API endpoint: `GET /api/v1/workspaces/{workspaceId}/instagram/connections/{accountId}/media?limit&cursor`
+  → `{items, nextCursor, hasMore}` (camelCase; item shape = post-picker DTO:
+  accountId, mediaId, caption, kind, mediaProductType (reserved null),
+  createdAtUtc, permalink, previewUrl, thumbnailUrl, hasMediaPreview,
+  hasThumbnail, likeCount, commentCount). Failure codes via
+  `ConnectionsFailureMapper` (404 account.*, 400 cursor/limit validation,
+  401 auth, 503 retryable provider, 409 conflict).
+- Frontend picker DTO: `src/shared/api/media.ts` (typed client + request
+  helper) and `src/features/instagram/media.ts` (normalization to picker
+  items); contract tests in `tests/media.test.mjs` (URLs/verbs, cursor
+  passthrough, kind mapping, nullable handling, redaction). No UI (M13-014).
+- Tests: `GraphMediaCatalogClientTests` (scripted HTTP: path/auth/fields,
+  all kinds incl. unknown, optional-field degradation, cursor mapping,
+  permission/rate/transient/malformed, recent-N cap/stop-fetch/dedupe/
+  cancellation/loop defense), `MediaCatalogCursorCodecTests` (roundtrip,
+  tamper/oversize/version/account-bound), `MediaCatalogPolicyTests`
+  (bounds/field-set), `MediaCatalogEndpointTests` (E2E: 401/404/foreign-
+  workspace/disconnected/missing-token/isolation counters/limit bounds/
+  malformed cursor/provider failures/redaction).
+- Provider permissions: `instagram_business_basic` suffices for media reads;
+  `comments`/`live_comments` webhook fields remain Advanced Access for later
+  automation tasks.
+- Residual limitations: stories excluded (not on this edge); max 10K recent
+  media; ordering is provider-returned (no server-side sort); carousel
+  children nested/bounded, never independent picker targets; media URLs
+  expire — re-fetch rather than cache permanently.
 
 ### Deployment evidence — M13-005 (2026-09-06, UTC)
 

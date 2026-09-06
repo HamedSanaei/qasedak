@@ -65,6 +65,12 @@ export const FAILURE_COPY: Record<string, string> = {
   "profile.unavailable": "دریافت اطلاعات پیج ممکن نشد؛ بعداً تلاش کنید.",
   "subscription.unavailable": "فعال‌سازی اعلان‌ها ممکن نشد؛ بعداً تعمیر کنید.",
   "subscription.permissionDenied": "مجوز اعلان‌ها داده نشد؛ دسترسی را بازبینی کنید.",
+  "media.invalidCursor": "صفحه‌بندی نامعتبر است؛ دوباره بارگذاری کنید.",
+  "media.invalidLimit": "تعداد درخواستی نامعتبر است.",
+  "media.permissionDenied": "مجوز مشاهده پست‌ها داده نشد؛ دسترسی را بازبینی کنید.",
+  "media.rateLimited": "اینستاگرام موقتاً محدود کرده؛ کمی بعد تلاش کنید.",
+  "media.malformed": "پاسخ پست‌ها نامعتبر بود؛ بعداً تلاش کنید.",
+  "media.unavailable": "دریافت پست‌ها ممکن نشد؛ بعداً تلاش کنید.",
 };
 
 /** Subscription states that the user can recover without a new OAuth flow. */

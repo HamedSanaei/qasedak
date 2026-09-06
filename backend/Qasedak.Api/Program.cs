@@ -132,6 +132,7 @@ app.MapMetaWebhookEndpoints();
 app.MapConversationEndpoints();
 app.MapContactEndpoints();
 app.MapConnectionEndpoints();
+app.MapMediaEndpoints();
 app.MapAutomationEndpoints();
 app.MapBillingEndpoints();
 

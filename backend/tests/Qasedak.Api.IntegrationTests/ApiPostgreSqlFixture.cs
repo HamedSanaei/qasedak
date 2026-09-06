@@ -13,9 +13,11 @@ using Qasedak.Modules.Contacts.Infrastructure.Persistence;
 using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
+using Qasedak.Modules.Instagram.Infrastructure.Media;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -90,6 +92,98 @@ public sealed class ScriptedSubscriptionClient : ISubscriptionClient
     public Task<SubscriptionResult> SubscribeAsync(
         string accessToken, string professionalAccountId, IReadOnlyList<string> fields, CancellationToken cancellationToken = default) =>
         Task.FromResult(Result(fields));
+}
+
+/// <summary>
+/// Deterministic stand-in for the Meta media edge (M13-006): pages are scripted per
+/// provider cursor so cursor pagination can be exercised end to end; every call is
+/// recorded (provider account addressed + token seen) so tests can prove exact-account
+/// routing, zero provider calls on foreign/unknown accounts and zero token fallback.
+/// </summary>
+public sealed class ScriptedMediaCatalogClient : IMediaCatalogClient
+{
+    private readonly IMediaCursorCodec _codec;
+
+    public ScriptedMediaCatalogClient(IMediaCursorCodec codec) => _codec = codec;
+
+    public int CallCount { get; private set; }
+
+    public List<(string ProviderAccountId, string? AfterCursor)> Calls { get; } = [];
+
+    public List<string> SeenTokens { get; } = [];
+
+    /// <summary>Clears per-test recordings; call at the start of each test.</summary>
+    public void Reset()
+    {
+        CallCount = 0;
+        Calls.Clear();
+        SeenTokens.Clear();
+        ResultOverride = null;
+    }
+
+    /// <summary>Scripts the page returned for a provider cursor; null after starts at recent media.</summary>
+    public Func<string?, Guid, MediaCatalogPage> PageFor { get; set; } =
+        (_, _) => new MediaCatalogPage([], null, false);
+
+    /// <summary>When set, every call returns this failure instead of a scripted page.</summary>
+    public MediaCatalogResult? ResultOverride { get; set; }
+
+    public Task<MediaCatalogResult> GetPageAsync(
+        string accessToken, string providerAccountId, Guid accountId, int limit, string? afterCursor, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        Calls.Add((providerAccountId, afterCursor));
+        SeenTokens.Add(accessToken);
+        return Task.FromResult<MediaCatalogResult>(ResultOverride ?? new MediaCatalogResult.Ok(PageFor(afterCursor, accountId)));
+    }
+
+    public Task<MediaCatalogResult> GetRecentAsync(
+        string accessToken, string providerAccountId, Guid accountId, int maxItems, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        Calls.Add((providerAccountId, null));
+        SeenTokens.Add(accessToken);
+        return Task.FromResult<MediaCatalogResult>(ResultOverride ?? new MediaCatalogResult.Ok(PageFor(null, accountId)));
+    }
+
+    /// <summary>Convenience: one image item record.</summary>
+    public static MediaCatalogItem Item(string id, string kind = "Image") =>
+        new(id, null, Enum.Parse<MediaKind>(kind), null, null, null,
+            $"https://media.example/{id}.jpg", null, true, false, null, null, null);
+}
+
+/// <summary>
+/// Shared recorder for protected-token operations. The per-scope decorator
+/// (<see cref="RecordingTokenStoreDecorator"/>) records into this singleton while
+/// delegating to the request-scoped real store, preserving the EF unit of work.
+/// </summary>
+public sealed class RecordingTokenStore
+{
+    public List<Guid> TokenGets { get; } = [];
+
+    public List<Guid> TokenDeletes { get; } = [];
+}
+
+/// <summary>
+/// Records token reads/deletes then delegates to the SAME scoped real store the
+/// request uses, so writes stay in one unit of work with the account repository.
+/// </summary>
+public sealed class RecordingTokenStoreDecorator(RecordingTokenStore recorder, ProtectedTokenStore inner) : IProtectedTokenStore
+{
+    public Task<string?> GetAsync(Guid accountId, CancellationToken cancellationToken = default)
+    {
+        recorder.TokenGets.Add(accountId);
+        return inner.GetAsync(accountId, cancellationToken);
+    }
+
+    public Task StoreAsync(Guid accountId, string accessToken, CancellationToken cancellationToken = default) =>
+        inner.StoreAsync(accountId, accessToken, cancellationToken);
+
+    public Task DeleteAsync(Guid accountId, CancellationToken cancellationToken = default)
+    {
+        recorder.TokenDeletes.Add(accountId);
+        return inner.DeleteAsync(accountId, cancellationToken);
+    }
 }
 
 /// <summary>
@@ -256,6 +350,12 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
     /// <summary>Scripted subscription edge shared with connection endpoint tests.</summary>
     public ScriptedSubscriptionClient Subscriptions { get; } = new();
 
+    /// <summary>Scripted media edge shared with media catalog endpoint tests.</summary>
+    public ScriptedMediaCatalogClient Media { get; } = new(new MediaCatalogCursorCodec());
+
+    /// <summary>Records protected-token reads so tests can prove zero-token-access isolation.</summary>
+    public RecordingTokenStore Tokens { get; } = new();
+
     public RecordingPaymentGateway Payments { get; } = new();
 
     /// <summary>Scripted Mellat SOAP boundary shared with assertions.</summary>
@@ -324,6 +424,15 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.RemoveAll<ISubscriptionClient>();
                 services.AddSingleton(Subscriptions);
                 services.AddSingleton<ISubscriptionClient>(sp => sp.GetRequiredService<ScriptedSubscriptionClient>());
+                // Media catalog (M13-006): scripted pages, recording token reads.
+                services.RemoveAll<IMediaCatalogClient>();
+                services.AddSingleton(Media);
+                services.AddSingleton<IMediaCatalogClient>(sp => sp.GetRequiredService<ScriptedMediaCatalogClient>());
+                services.RemoveAll<IProtectedTokenStore>();
+                services.AddScoped<ProtectedTokenStore>();
+                services.AddSingleton(Tokens);
+                services.AddScoped<IProtectedTokenStore>(sp =>
+                    new RecordingTokenStoreDecorator(sp.GetRequiredService<RecordingTokenStore>(), sp.GetRequiredService<ProtectedTokenStore>()));
                 services.RemoveAll<IPaymentGatewayResolver>();
                 services.AddSingleton(Payments);
                 services.AddSingleton(MellatSoap);

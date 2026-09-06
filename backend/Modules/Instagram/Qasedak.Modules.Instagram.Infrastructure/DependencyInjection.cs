@@ -3,11 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Graph;
+using Qasedak.Modules.Instagram.Infrastructure.Media;
 using Qasedak.Modules.Instagram.Infrastructure.Messaging;
 using Qasedak.Modules.Instagram.Infrastructure.OAuth;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
@@ -96,6 +98,17 @@ public static class DependencyInjection
             sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphSubscriptionClient.HttpClientName),
             sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
         services.AddSingleton<ISubscriptionClient>(sp => sp.GetRequiredService<GraphSubscriptionClient>());
+
+        // Media catalog (M13-006): focused adapter over the shared Graph transport
+        // plus the opaque account-bound cursor codec; no provider DTOs leave here.
+        services.AddSingleton<IMediaCursorCodec, MediaCatalogCursorCodec>();
+        services.AddHttpClient(GraphMediaCatalogClient.HttpClientName);
+        services.AddSingleton(sp => new GraphMediaCatalogClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphMediaCatalogClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>(),
+            sp.GetRequiredService<IMediaCursorCodec>()));
+        services.AddSingleton<IMediaCatalogClient>(sp => sp.GetRequiredService<GraphMediaCatalogClient>());
+        services.AddScoped<ListMediaPageUseCase>();
 
         return services;
     }
