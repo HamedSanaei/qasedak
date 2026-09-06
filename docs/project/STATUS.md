@@ -98,6 +98,39 @@
   no customer token touched.
 - Production runtime is now immutable `sha-55900dcc9373`.
 
+## 2026-09-06 — M13-007 deployed; production on immutable task image
+
+- Task commit `7409dfb9057b` (`feat(instagram): add account and media insights`)
+  pushed to `origin/master`.
+- CI `34013214316` success; CodeQL `34013214397` success; Publish Images
+  `34013373535` success (`ghcr.io/hamedsanaei/qasedak-api|web:sha-7409dfb9057b`);
+  Deploy Production `34013423453` success for the exact SHA (previous
+  `sha-55900dcc9373`; backup
+  `qasedak-20260906T051314Z-sha-7409dfb9057b.dump`; migration
+  `20260906035357_AddFollowerSnapshots` applied to schema `instagram` —
+  `CREATE TABLE instagram.follower_snapshots` + unique
+  `IX_follower_snapshots_ConnectedAccountId_SnapshotDateUtc`; api Healthy;
+  in-workflow health + public-web-auth-routing smoke passed ~05:13Z; no
+  rollback).
+- Manifest gate: first CI run `34013059596` failed on `FILE_MANIFEST.txt`
+  staleness (manifest predated the cancellation-race fix and the 27 new
+  M13-007 files); diagnosed locally, regenerated, `--check` green, corrected
+  via `docs(manifest): include M13-007 files in repository manifest` — no
+  product-code change; final CI/CodeQL green on `7409dfb9057b`.
+- Scheduler startup evidence: no DI/startup exceptions; api Healthy with the
+  dispatcher + `instagram.token-refresh` and new `instagram.follower-snapshot`
+  handlers + `FollowerSnapshotScheduleBootstrap` registered; overview/history
+  dependencies resolve (host boots the full API integration suite with the
+  real composition root; snapshot handler/scheduler unit + PG suites green).
+  No manual snapshot job executed against production accounts (§88).
+- Public smoke (independent): `/` 200, `/api/v1/system` 200;
+  unauthenticated overview + follower-history routes return 401 at the edge
+  (routes registered, auth enforced before any token read/provider call —
+  zero Meta calls possible without a token).
+- Live Meta insights smoke: NOT RUN — no designated production test account;
+  no customer token touched.
+- Production runtime is now immutable `sha-7409dfb9057b`.
+
 ## 2026-09-06 — M13-006 DONE: media catalog + post-selection APIs
 
 - Fresh first-party verification (developers.facebook.com, 2026-09-06, IG User

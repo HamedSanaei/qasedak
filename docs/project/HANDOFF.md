@@ -21,7 +21,25 @@ production test account exists.
 
 ### Deployment evidence — M13-007 (2026-09-06, UTC)
 
-(Deployment evidence recorded in the evidence commit below.)
+- Task SHA `7409dfb9057b383a8444961f92f2b6a9677cf32e` (commit
+  `7409dfb9057b`) pushed to `origin/master`; production runtime is the
+  immutable image `ghcr.io/hamedsanaei/qasedak-api|web:sha-7409dfb9057b`.
+- CI `34013214316` success; CodeQL `34013214397` success; Publish Images
+  `34013373535` success; Deploy Production `34013423453` success — DB backup
+  `qasedak-20260906T051314Z-sha-7409dfb9057b.dump`, migration
+  `20260906035357_AddFollowerSnapshots` applied to schema `instagram`
+  (`instagram.follower_snapshots` + unique
+  `IX_follower_snapshots_ConnectedAccountId_SnapshotDateUtc`), api Healthy,
+  health + public-web-auth-routing smoke passed, no rollback.
+- First CI run `34013059596` failed only on the stale `FILE_MANIFEST.txt`
+  gate (manifest predated the cancellation-race fix and the 27 new files);
+  regenerated and corrected via `docs(manifest): include M13-007 files in
+  repository manifest` — no product-code rerun.
+- Public smoke (independent): `/` 200, `/api/v1/system` 200;
+  unauthenticated overview + follower-history routes 401 at the edge.
+- Live Meta insights smoke: NOT RUN — no designated production test account.
+- M13-008 remains TODO; snapshot handler + bootstrap registration proven by
+  unit/PG/API suites and healthy startup; no manual job executed (§88).
 
 ### M13-008 packet (read-only handoff)
 

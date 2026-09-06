@@ -1078,6 +1078,26 @@ secret-free), API E2E 97 (+10 overview/history auth + degradation + redaction),
 frontend 78 (+5 contract); backend 786/786, format clean, architecture clean,
 Graphify 0.9.26 healthy. Suggested commit used as-is.
 
+**Deployment (2026-09-06):** task commit `7409dfb9057b` (`feat(instagram): add
+account and media insights`) + manifest-fix commit `7409dfb9057b` pushed to
+`origin/master`; CI `34013214316` success; CodeQL `34013214397` success; Publish
+Images `34013373535` success (`ghcr.io/hamedsanaei/qasedak-api|web:sha-7409dfb9057b`);
+Deploy Production `34013423453` success for the exact SHA (previous
+`sha-55900dcc9373`; backup `qasedak-20260906T051314Z-sha-7409dfb9057b.dump`;
+migration `20260906035357_AddFollowerSnapshots` applied to schema `instagram`
+(`CREATE TABLE instagram.follower_snapshots` + unique
+`IX_follower_snapshots_ConnectedAccountId_SnapshotDateUtc`); api Healthy; in-workflow
+health + public-web-auth-routing smoke passed ~05:13Z; no rollback). First CI run
+`34013059596` failed only on the manifest gate (committed manifest predated the
+race-fix and the 27 new files) — diagnosed locally as stale `FILE_MANIFEST.txt`,
+regenerated, verified, corrected via commit `docs(manifest): include M13-007 files
+in repository manifest`; no product-code rerun needed. Public smoke (independent):
+`/` 200, `/api/v1/system` 200; unauthenticated overview and follower-history routes
+return 401 at the edge (routes registered, auth enforced before any token
+read/provider call — zero Meta calls possible without a token). Live Meta insights
+smoke: NOT RUN — no designated production test account; no customer token touched.
+Production runtime is now immutable `sha-7409dfb9057b`; M13-008 remains TODO.
+
 **Depends on:** M13-004, M13-006.
 
 **Implementation scope:** Add a focused insights port/adapter that selects valid metrics
