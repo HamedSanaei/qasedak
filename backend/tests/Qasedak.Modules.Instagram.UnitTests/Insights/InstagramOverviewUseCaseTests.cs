@@ -248,6 +248,42 @@ public sealed class InstagramOverviewUseCaseTests
         }
     }
 
+    /// <summary>
+    /// Releases every gate in <see cref="GatedInsightsClient.Gates"/> until at least
+    /// <paramref name="expectedStarted"/> calls have started and own a released gate.
+    /// Worker threads append gates while calls start, so the live list is never
+    /// enumerated lock-free; the loop re-snapshots until every registered gate is
+    /// completed and no new call can appear.
+    /// </summary>
+    private static async Task ReleaseAllGatesAsync(GatedInsightsClient gated, int expectedStarted)
+    {
+        while (true)
+        {
+            TaskCompletionSource[] snapshot;
+            lock (gated.Gates)
+            {
+                snapshot = gated.Gates.ToArray();
+            }
+
+            foreach (var gate in snapshot)
+            {
+                gate.TrySetResult();
+            }
+
+            lock (gated.Gates)
+            {
+                if (Volatile.Read(ref gated.Started) >= expectedStarted
+                    && gated.Gates.Count >= expectedStarted
+                    && gated.Gates.All(g => g.Task.IsCompleted))
+                {
+                    return;
+                }
+            }
+
+            await Task.Delay(5);
+        }
+    }
+
     [Fact]
     public async Task ForeignWorkspaceAccountIsRefusedWithZeroTokenReadsAndZeroProviderCalls()
     {
@@ -439,24 +475,30 @@ public sealed class InstagramOverviewUseCaseTests
         Assert.Equal(2, Volatile.Read(ref gated.Started));
         Assert.Equal(2, Volatile.Read(ref gated.InFlight));
 
-        // Free one slot: exactly one more call may start (still ≤ 2 in flight).
-        gated.Gates[0].TrySetResult();
+        // Free one slot: exactly one more call may start (still ≤ 2 in flight). The first
+        // call's gate exists by the time both calls are in flight; the list is append-only
+        // from worker threads, so reads go through the lock.
+        await WaitUntilAsync(() =>
+        {
+            lock (gated.Gates)
+            {
+                return gated.Gates.Count >= 1;
+            }
+        });
+        lock (gated.Gates)
+        {
+            gated.Gates[0].TrySetResult();
+        }
+
         await WaitUntilAsync(() => Volatile.Read(ref gated.Started) == 3);
         Assert.Equal(2, Volatile.Read(ref gated.InFlight));
 
-        // Free every gate held so far; calls 4-5 then start and add their own gates,
-        // which are released once they exist. The overview completes with all 5 media
-        // calls at max 2 concurrent.
-        foreach (var gate in gated.Gates)
-        {
-            gate.TrySetResult();
-        }
-
+        // Free every gate; calls 4-5 then start and register their own gates, which the
+        // drain loop releases once they exist. The overview completes with all 5 media
+        // calls at max 2 concurrent. The live list is never enumerated lock-free.
+        await ReleaseAllGatesAsync(gated, expectedStarted: 5);
         await WaitUntilAsync(() => Volatile.Read(ref gated.Started) == 5);
-        foreach (var gate in gated.Gates)
-        {
-            gate.TrySetResult();
-        }
+        await ReleaseAllGatesAsync(gated, expectedStarted: 5);
 
         var result = await execute;
         Assert.IsType<InstagramOverviewResult.Ok>(result);
@@ -485,8 +527,14 @@ public sealed class InstagramOverviewUseCaseTests
 
         await WaitUntilAsync(() => Volatile.Read(ref gated.Started) == 2);
         cts.Cancel();
-        // Release the in-flight calls so they can observe cancellation cleanly.
-        foreach (var gate in gated.Gates)
+        // Release the in-flight calls so they can observe cancellation cleanly. No new
+        // calls start after cancellation, so a locked snapshot of the two gates suffices.
+        TaskCompletionSource[] inFlight;
+        lock (gated.Gates)
+        {
+            inFlight = gated.Gates.ToArray();
+        }
+        foreach (var gate in inFlight)
         {
             gate.SetResult();
         }
