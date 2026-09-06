@@ -39,6 +39,9 @@ public sealed class RefreshInstagramTokenTests
             return Task.FromResult(list);
         }
 
+        public Task<IReadOnlyList<ConnectedAccount>> ListActiveAsync(int limit, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ConnectedAccount>>(Rows.Values.Where(a => !a.IsDisconnected).Take(Math.Max(1, limit)).ToArray());
+
         public Task AddAsync(ConnectedAccount account, CancellationToken cancellationToken = default)
         {
             Rows[account.Id] = account;

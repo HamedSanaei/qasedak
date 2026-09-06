@@ -212,17 +212,61 @@ overview.
 ### 3.8 Insights (Instagram Login — supported with boundaries)
 
 Permission `instagram_business_manage_insights` (introduced 2025-03-24;
-Advanced Access required for third-party accounts). Account:
-`GET /<IG_ID>/insights`; media: `GET /<MEDIA_ID>/insights`; periods
-day/week/days_28/month/lifetime/total_over_range; media-type-dependent metric
-tables; `total_*` aggregated (ads-inclusive) metrics are **FB Login only**;
-`story_insights` webhook + insights webhook are **FB Login only**; media data
-kept 2 years (up to 48h delay), account series 90 days; `follower_count` /
-`online_followers` need 100+ followers; EU/Japan story `replies` excluded.
-M13-007 implements organic metrics + follower snapshots with degradation.
+Advanced Access required for third-party accounts) — on top of
+`instagram_business_basic`. Host `graph.instagram.com`, versioned Graph path,
+Instagram User access token as **Bearer header (never URL)**.
+
+**Fresh M13-007 verification (retrieved 2026-09-06 from developers.facebook.com):**
+
+| Surface | Endpoint | Period | Notes |
+|---|---|---|---|
+| Account insights | `GET /<IG_ID>/insights` | `day` (Qasedak uses `period=day` + `metric_type=total_value` + `since/until` bounding one UTC day) | Account metrics: `reach`, `accounts_engaged`, `likes`, `comments`, `saves`, `shares`, `views`, `total_interactions`, `reposts`, `follows_and_unfollows`; retention 90 days |
+| Media insights | `GET /<MEDIA_ID>/insights` | provider-fixed **lifetime** | Media metrics: `likes`, `comments`, `reach`, `saved` (note: media surface spells it `saved`, account surface `saves`), `shares`, `views`, `total_interactions`, `reposts`; reels add `ig_reels_avg_watch_time`, `ig_reels_video_view_total_time`, `reels_skip_rate`; retention 2 years; carousel **containers** are FEED posts for insights (album children return no insights) |
+| Direct current followers | `GET /<IG_ID>?fields=followers_count` | — | **Verified absolute** current follower total; IG Login Get Started reference (2026-09-06); requires **only** `instagram_business_basic` |
+
+**`follower_count` metric ambiguity — RESOLVED (hard rule §10):** the
+account-insights metric named `follower_count` is **NOT** the current absolute
+follower total. The archived official Account Insights reference (v21.0,
+retrieved 2026-09-06) documents it as **"Total number of new followers each
+day" — a daily delta — with a 30-day maximum**; the current page omits it from
+the metric table entirely (it survives only in the 100+ followers limitation
+note, together with `online_followers`). It is therefore NEVER usable as an
+absolute total and NEVER usable to reconstruct historical totals (§45–§46).
+M13-007's direct daily observation uses the verified absolute `followers_count`
+field instead.
+
+**Backfill verdict (M13-007):** current first-party documentation does not
+provide a verified absolute historical follower series or verifiable daily
+net-change series for Instagram Login, and `follows_and_unfollows` is a
+combined follow+unfollow count, not a net delta. **Historical follower backfill
+is NOT implemented** (§70). Qasedak follower history is durable local
+observation accumulated day by day; it is never labeled as Instagram's
+complete historical series (§48).
+
+**Empty data is not zero (§11):** unavailable metrics return an EMPTY data
+array from the provider (current Meta guidance); missing metric / empty data /
+metric not applicable / permission unavailable must never become `0` —
+Qasedak maps them to explicit availability states
+(Available(0 only for a real provider zero) / NoData / Unsupported /
+PermissionRequired / TemporarilyUnavailable).
+
+**Degradation (§13):** if `instagram_business_manage_insights` is missing or
+revoked, the media catalog (`instagram_business_basic`) and follower data must
+keep working; only analytics degrade. Some account metrics are unavailable for
+accounts below 100 followers (`follower_count`, `online_followers`) — metric
+level NoData, never account-level revocation. Other boundaries: media data
+delayed up to 48h; `total_*` aggregated (ads-inclusive) metrics are **FB Login
+only**; `story_insights` webhook + insights webhook are **FB Login only**;
+`impressions` is deprecated; story-only metrics (`replies`, `link_clicks`,
+`navigation`) and FB-crosspost metrics (`crossposted_views`, `facebook_views`)
+are out of Qasedak scope (stories are not on the media catalog edge; crosspost
+metrics throw when media is not shared to Facebook).
 
 Sources: Insights guide (2025-01-21); Account Insights (2026-06-16); Media
-Insights (2026-06-18); insights-on-IG-Login blog (2025-03-24).
+Insights (2026-06-18); insights-on-IG-Login blog (2025-03-24); IG Login Get
+Started (2026-09-06); IG User node reference (2026-09-06); archived official
+Account Insights v21.0 page (web.archive.org, 2026-09-06); changelog
+(2026-09-06).
 
 ### 3.9 Relationship / follow status — SUPPORTED WITH USER-CONSENT CONSTRAINTS
 

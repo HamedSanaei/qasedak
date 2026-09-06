@@ -3,18 +3,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
+using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Graph;
+using Qasedak.Modules.Instagram.Infrastructure.Insights;
 using Qasedak.Modules.Instagram.Infrastructure.Media;
 using Qasedak.Modules.Instagram.Infrastructure.Messaging;
 using Qasedak.Modules.Instagram.Infrastructure.OAuth;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Infrastructure.Profiles;
 using Qasedak.Modules.Instagram.Infrastructure.Protection;
+using Qasedak.Modules.Instagram.Infrastructure.Snapshots;
 using Qasedak.Modules.Instagram.Infrastructure.Subscriptions;
 using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 
@@ -109,6 +113,31 @@ public static class DependencyInjection
             sp.GetRequiredService<IMediaCursorCodec>()));
         services.AddSingleton<IMediaCatalogClient>(sp => sp.GetRequiredService<GraphMediaCatalogClient>());
         services.AddScoped<ListMediaPageUseCase>();
+
+        // Insights (M13-007): focused adapter over the shared Graph transport, the
+        // verified metric registry, bounded-concurrency policy and observability.
+        // The options object is registered directly (the Application layer has no
+        // Microsoft.Extensions.Options dependency).
+        var insightsOptions = configuration.GetSection(InsightsOptions.SectionName).Get<InsightsOptions>() ?? new InsightsOptions();
+        services.AddSingleton(insightsOptions);
+        var insightsMetrics = new InsightsMetrics();
+        services.AddSingleton(insightsMetrics);
+        services.AddSingleton<IInsightsObservability>(sp => sp.GetRequiredService<InsightsMetrics>());
+        services.AddHttpClient(GraphInstagramInsightsClient.HttpClientName);
+        services.AddSingleton(sp => new GraphInstagramInsightsClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramInsightsClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<IInstagramInsightsClient>(sp => sp.GetRequiredService<GraphInstagramInsightsClient>());
+
+        // Follower snapshots (M13-007): Instagram-owned durable daily history with
+        // PostgreSQL account/day uniqueness + provenance precedence.
+        services.AddScoped<IFollowerSnapshotStore, EfFollowerSnapshotStore>();
+        services.AddScoped<FollowerSnapshotUseCase>();
+        services.AddScoped<GetInstagramOverviewUseCase>();
+        services.AddScoped<GetFollowerHistoryUseCase>();
+        // Production-hardening: existing active accounts acquire today's snapshot job
+        // at each host start (idempotent, DB-only, bounded).
+        services.AddHostedService<FollowerSnapshotScheduleBootstrap>();
 
         return services;
     }

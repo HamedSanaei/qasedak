@@ -27,6 +27,13 @@ public interface IConnectedAccountRepository
     Task<IReadOnlyList<ConnectedAccount>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Lists ACTIVE (non-disconnected) accounts across all workspaces, bounded by
+    /// <paramref name="limit"/>. Used by the M13-007 daily snapshot bootstrap to
+    /// ensure pre-existing accounts acquire a snapshot schedule; never a provider call.
+    /// </summary>
+    Task<IReadOnlyList<ConnectedAccount>> ListActiveAsync(int limit, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Marks the account disconnected with one reload-and-retry on optimistic-
     /// concurrency loss (a concurrent token rotation must not defeat disconnect).
     /// Returns false when the account is already disconnected or absent.

@@ -47,6 +47,18 @@ public sealed class EfConnectedAccountRepository(InstagramDbContext context) : I
         return rows;
     }
 
+    public async Task<IReadOnlyList<ConnectedAccount>> ListActiveAsync(int limit, CancellationToken cancellationToken = default)
+    {
+        var rows = await context.Accounts
+            .AsNoTracking()
+            .Where(a => a.DisconnectedAtUtc == null)
+            .OrderBy(a => a.Id)
+            .Take(Math.Max(1, limit))
+            .ToArrayAsync(cancellationToken);
+
+        return rows;
+    }
+
     public async Task<bool> DisconnectAsync(Guid accountId, DateTimeOffset disconnectedAtUtc, CancellationToken cancellationToken = default)
     {
         for (var attempt = 0; attempt < 2; attempt++)

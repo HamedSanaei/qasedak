@@ -113,6 +113,40 @@ namespace Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations
                     b.ToTable("connected_accounts", "instagram");
                 });
 
+            modelBuilder.Entity("Qasedak.Modules.Instagram.Infrastructure.Persistence.FollowerSnapshotRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ConnectedAccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("FollowerCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("ObservedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Provenance")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("SnapshotDateUtc")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConnectedAccountId", "SnapshotDateUtc")
+                        .IsUnique();
+
+                    b.ToTable("follower_snapshots", "instagram");
+                });
+
             modelBuilder.Entity("Qasedak.Modules.Instagram.Infrastructure.Persistence.OAuthStateRow", b =>
                 {
                     b.Property<string>("StateHash")

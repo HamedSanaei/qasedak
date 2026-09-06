@@ -13,6 +13,7 @@ using Qasedak.Modules.Contacts.Infrastructure.Persistence;
 using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
@@ -150,6 +151,72 @@ public sealed class ScriptedMediaCatalogClient : IMediaCatalogClient
     public static MediaCatalogItem Item(string id, string kind = "Image") =>
         new(id, null, Enum.Parse<MediaKind>(kind), null, null, null,
             $"https://media.example/{id}.jpg", null, true, false, null, null, null);
+}
+
+/// <summary>
+/// Deterministic stand-in for the Meta insights edges (M13-007): account insights,
+/// per-media insights and the direct follower observation are scripted per test and
+/// every call is recorded (provider id addressed + token seen) so tests can prove
+/// exact-account routing, the permission-loss fan-out stop and zero provider calls
+/// on foreign/unknown/disconnected accounts. No live Meta call in CI.
+/// </summary>
+public sealed class ScriptedInstagramInsightsClient : IInstagramInsightsClient
+{
+    public int CallCount { get; private set; }
+
+    public List<(string ProviderAccountId, DateOnly DayUtc)> AccountCalls { get; } = [];
+
+    public List<(string ProviderMediaId, MediaKind Kind)> MediaCalls { get; } = [];
+
+    public List<(string ProviderAccountId, DateOnly? DayUtc)> FollowerCalls { get; } = [];
+
+    public List<string> SeenTokens { get; } = [];
+
+    /// <summary>Clears per-test recordings; call at the start of each test.</summary>
+    public void Reset()
+    {
+        CallCount = 0;
+        AccountCalls.Clear();
+        MediaCalls.Clear();
+        FollowerCalls.Clear();
+        SeenTokens.Clear();
+        AccountResult = () => new AccountInsightsResult.Ok([]);
+        MediaResult = (_, _) => new MediaInsightsResult.Ok([]);
+        FollowerResult = () => new FollowerCountResult.Value(12_345);
+    }
+
+    public Func<AccountInsightsResult> AccountResult { get; set; } = () => new AccountInsightsResult.Ok([]);
+
+    public Func<string, MediaKind, MediaInsightsResult> MediaResult { get; set; } = (_, _) => new MediaInsightsResult.Ok([]);
+
+    public Func<FollowerCountResult> FollowerResult { get; set; } = () => new FollowerCountResult.Value(12_345);
+
+    public Task<AccountInsightsResult> GetAccountInsightsAsync(
+        string accessToken, string providerAccountId, DateOnly dayUtc, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        AccountCalls.Add((providerAccountId, dayUtc));
+        SeenTokens.Add(accessToken);
+        return Task.FromResult(AccountResult());
+    }
+
+    public Task<MediaInsightsResult> GetMediaInsightsAsync(
+        string accessToken, string providerMediaId, MediaKind kind, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        MediaCalls.Add((providerMediaId, kind));
+        SeenTokens.Add(accessToken);
+        return Task.FromResult(MediaResult(providerMediaId, kind));
+    }
+
+    public Task<FollowerCountResult> GetFollowerCountAsync(
+        string accessToken, string providerAccountId, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        FollowerCalls.Add((providerAccountId, null));
+        SeenTokens.Add(accessToken);
+        return Task.FromResult(FollowerResult());
+    }
 }
 
 /// <summary>
@@ -353,6 +420,9 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
     /// <summary>Scripted media edge shared with media catalog endpoint tests.</summary>
     public ScriptedMediaCatalogClient Media { get; } = new(new MediaCatalogCursorCodec());
 
+    /// <summary>Scripted insights edges shared with overview endpoint tests (M13-007).</summary>
+    public ScriptedInstagramInsightsClient Insights { get; } = new();
+
     /// <summary>Records protected-token reads so tests can prove zero-token-access isolation.</summary>
     public RecordingTokenStore Tokens { get; } = new();
 
@@ -428,6 +498,10 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.RemoveAll<IMediaCatalogClient>();
                 services.AddSingleton(Media);
                 services.AddSingleton<IMediaCatalogClient>(sp => sp.GetRequiredService<ScriptedMediaCatalogClient>());
+                // Insights (M13-007): scripted account/media/follower edges, recording reads.
+                services.RemoveAll<IInstagramInsightsClient>();
+                services.AddSingleton(Insights);
+                services.AddSingleton<IInstagramInsightsClient>(sp => sp.GetRequiredService<ScriptedInstagramInsightsClient>());
                 services.RemoveAll<IProtectedTokenStore>();
                 services.AddScoped<ProtectedTokenStore>();
                 services.AddSingleton(Tokens);

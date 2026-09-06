@@ -1,119 +1,168 @@
 # Current handoff
 
-## 2026-09-06 — M13-006 DONE; M13-007 packet ready (do not start M13-007)
+## 2026-09-06 — M13-007 DONE; M13-008 packet ready (do not start M13-008)
 
-M13-006 added the exact-account Instagram media catalog and post-picker data
-contract: focused `IMediaCatalogClient` port, `GraphMediaCatalogClient` adapter
-on the M13-003 transport, Qasedak-owned account-bound cursor envelope, bounded
-page/recent-N traversal with cancellation and loop defense, and a read-only
-workspace-scoped API. Backend 705/705 (14 projects; Instagram unit 226 incl.
-+36 media, API E2E 87 incl. +13 media), frontend 73/73 (+6 contract tests),
-format/architecture clean, Graphify 0.9.26 healthy, **no schema change** (no
-media DB). Commit/push/CI/deploy/smoke/evidence follow in this same
-instruction. State: M13-006 DONE, currentTask=M13-007 TODO. Production runtime
-stays `sha-a68762e139f3` until the M13-006 deployment switches it.
-Live Meta media smoke: NOT RUN unless a designated production test account
-exists.
+M13-007 added Instagram-owned analytics/read models: focused
+`IInstagramInsightsClient` port + `GraphInstagramInsightsClient` adapter on the
+M13-003 transport, central verified metric registry (account + feed/reel sets;
+unknown media kind never triggers a provider request), first-class metric
+availability (real zero vs NoData vs Unsupported vs PermissionRequired vs
+TemporarilyUnavailable), durable follower history
+(`instagram.follower_snapshots` with account/day uniqueness and provenance
+precedence enforced by a PostgreSQL conditional upsert), daily scheduled
+snapshots via M13-004 with startup bootstrap for pre-existing accounts, and an
+exact-account overview + follower-history API with truthful degradation.
+Backend 786/786 (Instagram unit 286, PG 35, API E2E 97), frontend 78/78,
+format/architecture clean, Graphify 0.9.26 healthy. State: M13-007 DONE,
+currentTask=M13-008 TODO. **Backfill is NOT implemented** (no verified
+absolute historical series on Instagram Login) — history is durable direct
+observation only. Live Meta insights smoke: NOT RUN unless a designated
+production test account exists.
 
-### Deployment evidence — M13-006 (2026-09-06, UTC)
+### Deployment evidence — M13-007 (2026-09-06, UTC)
 
-- Task commit: `55900dcc937322f4ed9f2908e7631569195213a8`
-  (`feat(instagram): add media catalog queries`), pushed to `origin/master`.
-- CI `34008906033`: success. CodeQL `34008905991`: success.
-- Publish Images `34009058974`: success — both images tagged immutable
-  `sha-55900dcc9373`.
-- Deploy Production `34009105710`: success for the exact SHA (previous
-  `sha-a68762e139f3`; backup
-  `qasedak-20260906T032923Z-sha-55900dcc9373.dump`; **no schema change** —
-  all schemas already up to date, no migration added; api Healthy;
-  in-workflow health + public-web-auth-routing smoke passed ~03:29Z; no
-  rollback).
-- Scheduler startup evidence: no DI/startup exceptions; api Healthy with
-  dispatcher + `instagram.token-refresh` handler registered; media
-  dependencies resolve.
-- Public smoke (independent): `/` 200, `/api/v1/system` 200; unauthenticated
-  media route 401 at the edge (registered, auth before provider call).
-- Live Meta media smoke: NOT RUN — no designated production test account;
-  no customer token touched.
-- Production runtime is now immutable `sha-55900dcc9373`.
+(Deployment evidence recorded in the evidence commit below.)
 
-### M13-007 packet (read-only handoff)
+### M13-008 packet (read-only handoff)
 
-- Media Application contracts: `Qasedak.Modules.Instagram.Application.Media` —
-  `IMediaCatalogClient` port (`GetPageAsync(accessToken, providerAccountId,
-  accountId, limit, afterCursor, ct)` and `GetRecentAsync(...maxItems, ct)`),
-  `MediaCatalogItem/ChildItem/Page/Result`, `MediaKind`, `MediaCatalogFailures`
-  (stable codes), `MediaCursorContracts` (envelope codec interface), and
-  `MediaCatalogPolicy` (single source of bounds + verified field list).
-- Graph media adapter: `GraphMediaCatalogClient` (Infrastructure/Media) —
-  versioned `MetaGraphUris` path `/{version}/{igId}/media`, Bearer token via
-  `MetaGraphTransport` (never in URL), `MetaGraphClassifier` taxonomy mapping
-  (RateLimited/Transient/Transport → retryable `Failed(Transient:true)`;
-  PermissionLoss/Rejected/Invalid → terminal); no Graph DTO outside
-  Infrastructure; tolerant JSON (unknown fields ignored; unknown `media_type`
-  → `MediaKind.Unknown`, never crashes); `children` parsed as
-  `{data:[...]}`.
-- Exact-account authorization pattern: `ListMediaPageUseCase` takes
-  `(WorkspaceId, ConnectedAccountId)`; resolves the exact account, verifies
-  `account.WorkspaceId == requested WorkspaceId` (404, zero token read, zero
-  provider call — proven by token-store call counters), rejects
-  disconnected/missing-token locally before any Meta call, reads the token
-  only for the validated account, then calls the adapter. Never first-account
-  selection; subscription health does not gate media reads.
-- Verified media fields/types (IG Media reference, retrieved 2026-09-06):
-  `id, caption, media_type, media_url, thumbnail_url, permalink, timestamp,
-  like_count, comments_count, children{id, media_type, media_url,
-  thumbnail_url, permalink}`. `media_product_type` is FB-Login only — never
-  requested; IG-Login `media_type` IMAGE/VIDEO/CAROUSEL_ALBUM (REELS
-  tolerated). ProviderMediaId = opaque provider media id, the durable
-  selection identity `(ConnectedAccountId, ProviderMediaId)`; media_url is
-  temporary provider CDN, never a durable identifier.
-- Cursor contract: opaque base64url envelope v1 (`MediaCatalogCursorCodec`)
-  containing contract version, ConnectedAccountId (account-bound — cursor
-  from Account A is rejected for B before any provider call), and the raw
-  provider `after` component. Server always rebuilds the provider request
-  (server-owned host/version/path, bounded limit); cursor can never carry a
-  URL, token or query injection. Forward `after` traversal only (provider
-  `before` unused). Malformed/oversized (>2048 encoded / >512 decoded)/
-  repeated/looping cursors fail stably; no infinite traversal.
-- Page limits / hard caps (`MediaCatalogPolicy`): DefaultPageSize 25,
-  MaxPageSize 50 (reject `limit<=0` with validation failure, clamp >max),
-  MaxRecentItems 200 (recent-N stops exactly at N — no extra page fetch),
-  MaxPages 20 (loop/empty-page-with-next-cursor defense), MaxCarouselChildren
-  10, CursorVersion 1.
-- Nullable/unavailable field semantics: caption null, media_url missing for
-  copyrighted media, thumbnail VIDEO-only, permalink absent for album
-  children — all nullable; `HasMediaPreview`/`HasThumbnail` explicit booleans;
-  missing counts = unknown (never 0); malformed items without a usable media
-  id are skipped with bounded observability, never fabricated.
-- Like/comment count semantics: basic media metadata only (never `/insights`
-  in M13-006; M13-007 owns insights metrics).
-- API endpoint: `GET /api/v1/workspaces/{workspaceId}/instagram/connections/{accountId}/media?limit&cursor`
-  → `{items, nextCursor, hasMore}` (camelCase; item shape = post-picker DTO:
-  accountId, mediaId, caption, kind, mediaProductType (reserved null),
-  createdAtUtc, permalink, previewUrl, thumbnailUrl, hasMediaPreview,
-  hasThumbnail, likeCount, commentCount). Failure codes via
-  `ConnectionsFailureMapper` (404 account.*, 400 cursor/limit validation,
-  401 auth, 503 retryable provider, 409 conflict).
-- Frontend picker DTO: `src/shared/api/media.ts` (typed client + request
-  helper) and `src/features/instagram/media.ts` (normalization to picker
-  items); contract tests in `tests/media.test.mjs` (URLs/verbs, cursor
-  passthrough, kind mapping, nullable handling, redaction). No UI (M13-014).
-- Tests: `GraphMediaCatalogClientTests` (scripted HTTP: path/auth/fields,
-  all kinds incl. unknown, optional-field degradation, cursor mapping,
-  permission/rate/transient/malformed, recent-N cap/stop-fetch/dedupe/
-  cancellation/loop defense), `MediaCatalogCursorCodecTests` (roundtrip,
-  tamper/oversize/version/account-bound), `MediaCatalogPolicyTests`
-  (bounds/field-set), `MediaCatalogEndpointTests` (E2E: 401/404/foreign-
-  workspace/disconnected/missing-token/isolation counters/limit bounds/
-  malformed cursor/provider failures/redaction).
-- Provider permissions: `instagram_business_basic` suffices for media reads;
-  `comments`/`live_comments` webhook fields remain Advanced Access for later
-  automation tasks.
-- Residual limitations: stories excluded (not on this edge); max 10K recent
-  media; ordering is provider-returned (no server-side sort); carousel
-  children nested/bounded, never independent picker targets; media URLs
-  expire — re-fetch rather than cache permanently.
+- Exact-account analytics authorization pattern (reuse, do not rebuild):
+  every M13-007 operation takes `(WorkspaceId, ConnectedAccountId)`; resolve
+  the exact `ConnectedAccount`, verify `account.WorkspaceId == requested`
+  (404 `account.notFound`, **zero token read + zero provider call** — proven
+  by token-store call counters in `OverviewEndpointTests`), reject
+  disconnected (`account.alreadyDisconnected`) and missing-token
+  (`account.tokenMissing`) locally before any provider interaction, read the
+  protected token only for the validated account, then call the adapter.
+  Never first-account selection; history is queried by exact
+  ConnectedAccountId after ownership validation — never by provider id or
+  workspace alone.
+- Insights Application contracts: `Qasedak.Modules.Instagram.Application.Insights`
+  — `IInstagramInsightsClient` port (`GetAccountInsightsAsync(accessToken,
+  providerAccountId, dayUtc, ct)`, `GetMediaInsightsAsync(accessToken,
+  providerMediaId, kind, ct)`, `GetFollowerCountAsync(accessToken,
+  providerAccountId, ct)`), `InsightMetricKey`, `MetricAvailability`
+  (Available/NoData/Unsupported/PermissionRequired/TemporarilyUnavailable),
+  `MetricObservation`, `InsightsPolicy` (OverviewMediaWindow 25,
+  DefaultHistoryLimit 30, MaxHistoryLimit 90, MaxBootstrapAccountsPerRun 500)
+  and `InsightsOptions` (MaxConcurrentMediaInsights, default 4).
+  `IInsightsObservability.RecordContractDrift(metric, kind)` — low-cardinality
+  drift observability, never account identifiers/provider bodies.
+- Current verified permissions (retrieved 2026-09-06): account + media
+  insights need `instagram_business_basic` + `instagram_business_manage_insights`
+  (Advanced Access for third-party accounts); the direct follower
+  observation (`fields=followers_count`) needs **only**
+  `instagram_business_basic`. Do not reuse FB-Login permission names
+  (`instagram_manage_insights`, `pages_read_engagement`) for this path.
+- Media-type metric registry (single source of truth — never scatter metric
+  strings): account set = reach, accounts_engaged, likes, comments, saves,
+  shares, views, total_interactions, reposts, follows_and_unfollows;
+  feed (Image/Video/Carousel container) = likes, comments, reach, saves,
+  shares, views, total_interactions, reposts (media surface spells it
+  `saved`); reel adds ig_reels_avg_watch_time, ig_reels_video_view_total_time,
+  reels_skip_rate; **Unknown media kind → empty set → no provider request**.
+  Carousel children have no insights — never request them.
+- Metric availability model: provider returns an EMPTY data set (never 0) for
+  unavailable metrics. Real provider 0 = `Available(0)`; missing metric /
+  empty array / not-applicable = `NoData`; missing insights permission =
+  `PermissionRequired` (analytics degrade ONLY — media catalog and follower
+  data keep working); rate limit/5xx/transport = `TemporarilyUnavailable`.
+  Never collapse these states into nullable integers. Accounts under 100
+  followers may lack `follower_count`/`online_followers` — metric-level
+  NoData, never account-level revocation.
+- Account insights semantics: `GET /<IG_ID>/insights` with `period=day`,
+  `metric_type=total_value`, `since/until` bounding ONE UTC day; retention 90
+  days, data delayed up to 48h; account-level permission loss stops the
+  per-media fan-out (no provider amplification) — one account-level failure
+  degrades only analytics, never media/followers. Media insights: lifetime
+  period (provider-fixed), 2-year retention; one media's failure degrades
+  only that media.
+- Follower current-value semantics: the absolute current follower total is
+  the IG User `followers_count` field (IG Login Get Started reference,
+  2026-09-06; `instagram_business_basic` only) — a DIRECT observation. The
+  account-insights metric named `follower_count` is a documented DAILY DELTA
+  (archived official v21.0 reference) — never present it as an absolute
+  total. `follows_and_unfollows` is combined follow+unfollow, never a net
+  delta. Overview exposes currentFollowers as
+  {value, state: Available|Stale|NoData, observedAtUtc, provenance} — a
+  yesterday snapshot is `Stale`, never presented as live.
+- Follower snapshot schema: `instagram.follower_snapshots` (migration
+  `20260906035357_AddFollowerSnapshots`, additive; M13-006 runtime stays
+  bootable): Id, ConnectedAccountId (no FK — history survives disconnect),
+  SnapshotDateUtc (DateOnly UTC calendar day), FollowerCount, Provenance
+  (int enum 0=Backfilled, 1=Derived, 2=Observed), ObservedAtUtc, CreatedAtUtc,
+  UpdatedAtUtc; UNIQUE (ConnectedAccountId, SnapshotDateUtc). Never stores
+  tokens, raw Graph responses or analytics blobs.
+- Provenance/precedence: Observed(2) > Derived(1) > Backfilled(0), enforced
+  by the PostgreSQL conditional upsert in `EfFollowerSnapshotStore.UpsertAsync`
+  (`ON CONFLICT ... DO UPDATE ... WHERE incoming > existing`), never by
+  read-before-write code; same-quality policy: Observed-vs-Observed keeps the
+  freshest ObservedAtUtc, Derived/Backfilled keep first write; tested under
+  real-PostgreSQL concurrency (insert order cannot let a lower-quality write
+  win; concurrent same-day writes produce exactly one logical snapshot).
+- Daily snapshot job: type `instagram.follower-snapshot`, payload
+  identifiers only
+  `{"connectedAccountId":"...","snapshotDateUtc":"yyyy-MM-dd"}` (test-asserted
+  secret-free); occurrence-specific idempotency key
+  `instagram-follower-snapshot:{account}:{yyyy-MM-dd}` (never account-only,
+  which would block future days); MaxAttempts 8; due 01:00 UTC the next day.
+  Handler outcomes: Observed → upsert + chain next day → Succeeded;
+  NoData → settle without a fabricated row, chain next day → Succeeded;
+  Retryable (rate/5xx/transport) → nothing persisted, next-day cadence still
+  chained, occurrence returns Retryable for M13-004 backoff; AccountTerminal
+  (unknown/disconnected/missing token/auth/basic-permission loss) → zero
+  provider retry, no row, no chain — M13-005 health machinery owns the
+  account. Delivery is at-least-once; effects idempotent by key + conditional
+  upsert.
+- Scheduling policy: connect enqueues today's occurrence (+5 min);
+  `FollowerSnapshotScheduleBootstrap` (IHostedService) on every host start
+  ensures pre-existing active accounts acquire today's job — idempotent per
+  account/day key, bounded 500/run, DB-only (no provider call, no token
+  read), restart/multi-instance safe, never fabricates jobs for disconnected
+  accounts; startup never fails on bootstrap errors (next start retries).
+- Backfill verdict and bounds: **NOT IMPLEMENTED** — current first-party
+  contract has no verified absolute historical series and no verified daily
+  net-change series on Instagram Login; reconstruction from unverified
+  deltas is forbidden (§45–§46). Qasedak history is durable direct daily
+  observation; never label it as Instagram's complete historical series.
+  `MaxHistoryLimit` 90 mirrors account-metric retention for reads.
+- Overview endpoint: `GET /api/v1/workspaces/{workspaceId}/instagram/connections/{accountId}/overview`
+  → `{accountId, analyticsAvailability, currentFollowers{value,state,
+  observedAtUtc,provenance}, followerHistory[{date,value,provenance}],
+  media{state,count,likeTotal,commentTotal,likeTotalComplete,
+  commentTotalComplete,items[{mediaId,kind,likeCount,commentCount,
+  insights[{metric,state,value}]}]}, accountInsights[...]}`; media totals
+  are sum-safe (only complete when every counted item reported a value);
+  `GET .../followers/history?limit` (1..90, else 400 `followers.invalidLimit`).
+  Failures via `ConnectionsFailureMapper`; provider DTOs/tokens never
+  exposed (E2E redaction assertions).
+- Migration: `20260906035357_AddFollowerSnapshots` — creates
+  `instagram.follower_snapshots` + unique index only; Down drops the table;
+  additive, no cross-module FK, no modification of platform/automations/
+  conversations/contacts tables; no provider calls in migration (checked at
+  code review, enforced by design).
+- Tests: `GraphInstagramInsightsClientTests` (scripted HTTP: versioned
+  paths, Bearer auth, metric selection by kind, subset/empty/missing
+  responses, real zero, permission loss, rate limit, malformed, redaction,
+  contract-drift mapping), `InsightMetricRegistryTests` (exact sets),
+  `FollowerSnapshotPolicyTests` (UTC day/idempotency key/payload
+  secret-free/parse), `FollowerSnapshotScheduledHandlerTests` (outcome
+  matrix incl. no-fabrication, next-day chain once, disconnected zero-call),
+  `InstagramOverviewUseCaseTests` (13 tests: authorization counters,
+  degradation matrix, deterministic concurrency — configured max never
+  exceeded via barriers — cancellation stops queued calls),
+  `FollowerSnapshotPersistenceTests` (11 real-PostgreSQL: migration
+  survival, uniqueness incl. raw-insert rejection, concurrent same-day
+  writes, provenance races, same-quality policies, account isolation,
+  bounded history, secret-free rows), `OverviewEndpointTests` (10 E2E:
+  401/404/foreign/missing-token/disconnected counters, truthful states,
+  permission-loss fan-out stop, media-catalog survival, partial media
+  degradation, history isolation/limits/redaction).
+- Provider/App Review limitations: `instagram_business_manage_insights`
+  requires Advanced Access for third-party accounts (App Review); insight
+  data is delayed up to 48h; account series 90-day retention; metrics below
+  100 followers unavailable for `follower_count`/`online_followers`;
+  story/crosspost/total_* (ads-inclusive)/demographic metrics excluded by
+  verified contract; do not implement M13-015-scale analytics now.
 
 ### Deployment evidence — M13-005 (2026-09-06, UTC)
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Application.Scheduling;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Domain.Accounts;
@@ -257,7 +258,9 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
         Assert.Equal(0u, account.Version);
         Assert.Equal(Now, account.LastTokenIssuedAtUtc);
 
-        var job = Assert.Single(jobs.Enqueued);
+        // M13-005 refresh occurrence plus the first daily follower snapshot (M13-007):
+        // both identifiers-only, never token material.
+        var job = Assert.Single(jobs.Enqueued, j => j.WorkType == TokenRefreshPolicy.JobType);
         var expectedExpiry = Now.AddSeconds(60 * 24 * 3600L);
         Assert.Equal(TokenRefreshPolicy.JobType, job.WorkType);
         Assert.Equal(result.AccountId, job.ConnectedAccountId);
@@ -265,6 +268,11 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
         Assert.Equal(TokenRefreshPolicy.IdempotencyKey(result.AccountId, expectedExpiry), job.IdempotencyKey);
         Assert.Equal(result.AccountId, TokenRefreshPolicy.ParseRefreshPayload(job.PayloadJson));
         Assert.DoesNotContain("LONG-LIVED-RAW", job.PayloadJson);
+
+        var snapshotJob = Assert.Single(jobs.Enqueued, j => j.WorkType == FollowerSnapshotPolicy.JobType);
+        Assert.Equal(result.AccountId, snapshotJob.ConnectedAccountId);
+        Assert.Equal(FollowerSnapshotPolicy.UtcDay(Now), FollowerSnapshotPolicy.ParsePayload(snapshotJob.PayloadJson)!.Value.SnapshotDateUtc);
+        Assert.DoesNotContain("LONG-LIVED-RAW", snapshotJob.PayloadJson);
     }
 
     [Fact]

@@ -1042,10 +1042,41 @@ are explicit.
 **Suggested commit:** `feat(instagram): add media catalog queries`
 
 ## M13-007 — Add Instagram insights and follower history
-**Status:** TODO
+**Status:** DONE (2026-09-06)
 
 **Outcome:** Add Instagram-owned analytics/read models for media insights, current
 followers and durable follower history with graceful permission/metric degradation.
+
+**Evidence (2026-09-06):** fresh first-party verification (Insights guide, Account
+Insights 2026-06-16, Media Insights 2026-06-18, IG Login Get Started, IG User node,
+archived official Account Insights v21.0, changelog — retrieved 2026-09-06); focused
+`IInstagramInsightsClient` port + `GraphInstagramInsightsClient` adapter on the M13-003
+transport (Bearer, versioned paths, classifier taxonomy); central verified
+`InsightMetricRegistry` (account set + feed/reel media sets by media kind, unknown → no
+request); first-class `MetricAvailability` (Available/NoData/Unsupported/
+PermissionRequired/TemporarilyUnavailable — real zero stays 0, empty never becomes 0);
+`instagram.follower_snapshots` migration 20260906035357 (additive, unique
+ConnectedAccountId+SnapshotDateUtc, provenance enum column, no FK — history survives
+disconnect); PostgreSQL conditional upsert enforcing Observed>Derived>Backfilled
+precedence + observed-freshest policy under concurrency; `instagram.follower-snapshot`
+M13-004 handler (identifier-only payload, occurrence-specific account/day idempotency
+key, next-day chain, retryable vs terminal mapping, zero provider calls for
+disconnected/missing-token) + `FollowerSnapshotScheduleBootstrap` (idempotent
+startup ensure for pre-existing active accounts, DB-only, bounded 500/run, no provider
+storm); exact-account overview + follower-history endpoints (404 foreign with zero
+token read/provider call, truthful per-metric degradation, permission loss stops media
+fan-out and keeps media catalog + followers usable, bounded 25 media / max 4 concurrent
+insights calls, cancellation-aware); **backfill NOT implemented** — current contract
+has no verified absolute historical series (`follower_count` account metric is a daily
+*delta*; `follows_and_unfollows` is combined) so history is durable direct observation
+only; frontend overview/history data contract + normalization (fail-closed states,
+provenance preserved, secret-free) in `src/features/instagram/insights.ts` +
+`src/shared/api/insights.ts`; tests: Instagram unit 286 (+60: adapter contract,
+registry, policy, handler, overview use-case incl. deterministic concurrency/
+cancellation), Instagram PG 35 (+11 real-PostgreSQL provenance/uniqueness/race/isolation/
+secret-free), API E2E 97 (+10 overview/history auth + degradation + redaction),
+frontend 78 (+5 contract); backend 786/786, format clean, architecture clean,
+Graphify 0.9.26 healthy. Suggested commit used as-is.
 
 **Depends on:** M13-004, M13-006.
 

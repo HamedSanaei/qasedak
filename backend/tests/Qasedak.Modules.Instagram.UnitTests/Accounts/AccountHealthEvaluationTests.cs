@@ -56,6 +56,9 @@ public sealed class AccountHealthEvaluationTests
             return Task.FromResult(list);
         }
 
+        public Task<IReadOnlyList<ConnectedAccount>> ListActiveAsync(int limit, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ConnectedAccount>>(_rows.Values.Where(a => !a.IsDisconnected).Take(Math.Max(1, limit)).ToArray());
+
         public Task AddAsync(ConnectedAccount account, CancellationToken cancellationToken = default)
         {
             _rows[account.Id] = account;

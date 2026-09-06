@@ -1,5 +1,6 @@
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Application.Scheduling;
+using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Domain.Accounts;
@@ -161,6 +162,24 @@ public sealed class ConnectInstagramAccountUseCase(
                 WorkspaceId: command.WorkspaceId,
                 DueAtUtc: firstDueAtUtc,
                 MaxAttempts: TokenRefreshPolicy.DefaultMaxAttempts),
+            clock.UtcNow,
+            cancellationToken);
+
+        // First daily follower snapshot occurrence (M13-007): enqueued at connect so
+        // newly connected accounts are scheduled immediately; occurrence-specific
+        // account/day idempotency key; identifiers-only payload. The short delay gives
+        // the connection a moment to settle before the first observation.
+        var snapshotDayUtc = FollowerSnapshotPolicy.UtcDay(clock.UtcNow);
+        await scheduledWork.EnqueueAsync(
+            new ScheduledWorkEnqueue(
+                FollowerSnapshotPolicy.JobType,
+                FollowerSnapshotPolicy.IdempotencyKey(account.Id, snapshotDayUtc),
+                FollowerSnapshotPolicy.Payload(account.Id, snapshotDayUtc),
+                PayloadVersion: 1,
+                ConnectedAccountId: account.Id,
+                WorkspaceId: command.WorkspaceId,
+                DueAtUtc: clock.UtcNow.AddMinutes(5),
+                MaxAttempts: FollowerSnapshotPolicy.DefaultMaxAttempts),
             clock.UtcNow,
             cancellationToken);
 

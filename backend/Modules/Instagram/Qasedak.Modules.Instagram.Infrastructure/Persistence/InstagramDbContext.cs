@@ -21,6 +21,9 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
 
     public DbSet<OAuthStateRow> OAuthStates => Set<OAuthStateRow>();
 
+    /// <summary>Durable daily follower snapshots (M13-007); Instagram-owned analytics history.</summary>
+    public DbSet<FollowerSnapshotRow> FollowerSnapshots => Set<FollowerSnapshotRow>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
@@ -101,6 +104,19 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
             entry.Property(e => e.EventId).HasMaxLength(64);
             entry.Property(e => e.Topic).HasMaxLength(32);
             entry.HasIndex(e => new { e.Status, e.ReceivedAtUtc });
+        });
+
+        modelBuilder.Entity<FollowerSnapshotRow>(snapshot =>
+        {
+            snapshot.ToTable("follower_snapshots");
+            snapshot.HasKey(s => s.Id);
+            snapshot.Property(s => s.Id).ValueGeneratedNever();
+            snapshot.Property(s => s.FollowerCount);
+            snapshot.Property(s => s.Provenance).HasConversion<int>();
+            // PostgreSQL-enforced account/day uniqueness: concurrent daily jobs can never
+            // create duplicate snapshots for the same account/day.
+            snapshot.HasIndex(s => new { s.ConnectedAccountId, s.SnapshotDateUtc }).IsUnique();
+            // History reads by account use the unique index prefix; no extra index needed.
         });
     }
 }

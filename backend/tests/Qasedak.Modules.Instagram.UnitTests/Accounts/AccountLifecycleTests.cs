@@ -1,6 +1,7 @@
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Application.Scheduling;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Domain.Accounts;
@@ -59,6 +60,9 @@ public sealed class AccountLifecycleTests
             IReadOnlyList<ConnectedAccount> list = Rows.Values.Where(a => a.WorkspaceId == workspaceId).ToArray();
             return Task.FromResult(list);
         }
+
+        public Task<IReadOnlyList<ConnectedAccount>> ListActiveAsync(int limit, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ConnectedAccount>>(Rows.Values.Where(a => !a.IsDisconnected).Take(Math.Max(1, limit)).ToArray());
 
         public Task AddAsync(ConnectedAccount account, CancellationToken cancellationToken = default)
         {
@@ -257,11 +261,15 @@ public sealed class AccountLifecycleTests
         Assert.Equal(SubscriptionHealth.Healthy, account.SubscriptionHealth);
         Assert.NotNull(account.ProfileUpdatedAtUtc);
         Assert.NotNull(account.LastSubscriptionCheckUtc);
-        // Exactly one refresh occurrence is scheduled for this token generation.
-        var job = Assert.Single(jobs.Enqueued);
-        Assert.Equal(TokenRefreshPolicy.JobType, job.WorkType);
+        // One refresh occurrence for this token generation plus the first daily
+        // follower snapshot (M13-007): both identifiers-only.
+        var job = Assert.Single(jobs.Enqueued, j => j.WorkType == TokenRefreshPolicy.JobType);
         Assert.Equal(result.AccountId, job.ConnectedAccountId);
         Assert.DoesNotContain("LONG-TOKEN", job.PayloadJson);
+        var snapshotJob = Assert.Single(jobs.Enqueued, j => j.WorkType == FollowerSnapshotPolicy.JobType);
+        Assert.Equal(result.AccountId, snapshotJob.ConnectedAccountId);
+        Assert.Equal(FollowerSnapshotPolicy.UtcDay(Now), FollowerSnapshotPolicy.ParsePayload(snapshotJob.PayloadJson)!.Value.SnapshotDateUtc);
+        Assert.DoesNotContain("LONG-TOKEN", snapshotJob.PayloadJson);
     }
 
     [Fact]

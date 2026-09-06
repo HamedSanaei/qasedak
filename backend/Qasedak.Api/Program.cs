@@ -58,6 +58,7 @@ if (!string.IsNullOrWhiteSpace(platformConnectionString))
 {
     builder.Services.AddQasedakScheduledWork(platformConnectionString, builder.Configuration);
     builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Refresh.TokenRefreshScheduledHandler>();
+    builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Snapshots.FollowerSnapshotScheduledHandler>();
 }
 
 // Workspace-membership policy: every /workspaces/{workspaceId}/... endpoint group requires
@@ -133,6 +134,7 @@ app.MapConversationEndpoints();
 app.MapContactEndpoints();
 app.MapConnectionEndpoints();
 app.MapMediaEndpoints();
+app.MapInsightsEndpoints();
 app.MapAutomationEndpoints();
 app.MapBillingEndpoints();
 

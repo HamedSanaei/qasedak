@@ -33,6 +33,9 @@ public sealed class RepairSubscriptionTests
         public Task<IReadOnlyList<ConnectedAccount>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<ConnectedAccount>>([]);
 
+        public Task<IReadOnlyList<ConnectedAccount>> ListActiveAsync(int limit, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ConnectedAccount>>([]);
+
         public Task AddAsync(ConnectedAccount account, CancellationToken cancellationToken = default)
         {
             Rows[account.Id] = account;

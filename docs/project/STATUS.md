@@ -2,9 +2,78 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-007 — Add Instagram insights and follower history (TODO)
-**Last completed:** M13-006 (2026-09-06)
-**Product implementation:** Instagram connection lifecycle complete (state-bound OAuth, profile enrichment, subscriptions, scheduled refresh) and media catalog complete (exact-account post/reel catalog + Qasedak cursor contract); insights not started
+**Current task:** M13-008 — Expand Instagram webhook normalization for automation parity (TODO)
+**Last completed:** M13-007 (2026-09-06)
+**Product implementation:** Instagram connection lifecycle, media catalog and insights complete (focused insights port/adapter, verified metric registry, first-class metric availability, durable follower history with provenance precedence, daily scheduled snapshots with startup bootstrap); webhook normalization expansion not started
+
+## 2026-09-06 — M13-007 DONE: Instagram insights + follower history
+
+- Fresh first-party verification (developers.facebook.com, retrieved 2026-09-06):
+  Instagram Login insights need `instagram_business_basic` +
+  `instagram_business_manage_insights`; account `GET /<IG_ID>/insights`
+  (period=day, metric_type=total_value, since/until = one UTC day, 90-day
+  retention), media `GET /<MEDIA_ID>/insights` (lifetime period, 2-year
+  retention, `saved` spelling on media vs `saves` on account, carousel
+  containers are feed posts, album children have no insights); the
+  account-insights `follower_count` metric is a **daily delta** (archived
+  official v21.0 reference), never an absolute total — the absolute current
+  follower total is the IG User `followers_count` field (IG Login Get
+  Started, `instagram_business_basic` only). Empty data sets are NoData,
+  never 0. Contract §3.8 updated with retrieval date + metric tables.
+- Insights architecture: focused `IInstagramInsightsClient` Application port
+  + `GraphInstagramInsightsClient` adapter over the shared M13-003 transport
+  (Bearer header, versioned `MetaGraphUris`, `MetaGraphClassifier` taxonomy,
+  central redaction); central verified `InsightMetricRegistry` (account set;
+  feed = Image/Video/Carousel, reel set; unknown media kind → empty set → no
+  provider request); first-class `MetricAvailability` states — a real
+  provider 0 is Available(0), omitted/empty metrics are NoData, permission
+  loss is PermissionRequired, rate limits/5xx are TemporarilyUnavailable.
+- Backfill verdict: **NOT IMPLEMENTED** — no verified absolute historical
+  series on Instagram Login (`follower_count` is a delta,
+  `follows_and_unfollows` is combined, not net); history is durable direct
+  daily observation only, never labeled as Instagram's complete series.
+- Follower persistence: additive migration `20260906035357_AddFollowerSnapshots`
+  → `instagram.follower_snapshots` (ConnectedAccountId + SnapshotDateUtc
+  unique index, provenance enum column Observed/Derived/Backfilled, no FK —
+  history survives disconnect, no token/provider blob); PostgreSQL-native
+  conditional upsert enforces provenance precedence under concurrency
+  (Observed > Derived > Backfilled; observed-vs-observed keeps freshest
+  observation; derived/backfilled keep first write); M13-006 runtime stays
+  bootable (additive schema only, Down reviewed).
+- Daily scheduling (M13-004): `instagram.follower-snapshot` handler with
+  identifier-only payload (ConnectedAccountId + snapshotDateUtc, secret-free
+  — asserted by tests), occurrence-specific idempotency key
+  `instagram-follower-snapshot:{account}:{yyyy-MM-dd}`, exactly one next-day
+  job chained per settled occurrence, retryable vs terminal outcome mapping
+  (no fake rows, no 0 fallback, disconnected/missing-token accounts do zero
+  provider work), `FollowerSnapshotScheduleBootstrap` hosted service ensures
+  pre-existing active accounts get today's job on startup (idempotent per
+  account/day key, bounded 500/run, DB-only, no provider calls, no startup
+  locks over network). Connect-time enqueue covers newly connected accounts.
+- Exact-account API: `GET .../connections/{accountId}/overview` (analytics
+  availability, current followers with value/state/observedAt/provenance,
+  follower history, bounded media section with sum-safe totals + per-metric
+  availability, account insights) and `GET .../followers/history?limit`;
+  foreign/unknown accounts 404 with zero token reads + zero provider calls
+  (asserted via call counters); permission loss degrades only analytics —
+  media catalog and follower data survive; account-level permission failure
+  stops the per-media fan-out (no provider amplification); one media's
+  failure degrades only that media; overview uses bounded recent media (25)
+  with max 4 concurrent insight calls, cancellation-aware, no DB transaction
+  held during provider calls.
+- Frontend: overview/history data contract only — `shared/api/insights.ts`
+  client + `features/instagram/insights.ts` normalization (fail-closed
+  availability/provenance, real-zero preservation, secret-free). No UI, no
+  Penpot change.
+- Tests: Instagram unit 286/286 (+60), Instagram PG 35/35 (+11
+  real-PostgreSQL: migration survival, uniqueness, concurrent same-day
+  writes, provenance races, isolation, retry/restart, secret-free rows),
+  API E2E 97/97 (+10 overview/history auth + degradation + redaction),
+  frontend 78/78 (+5 contract); full backend 786/786 (14 projects,
+  Testcontainers); format/architecture gates green.
+- Live Meta insights smoke: NOT RUN — no designated production test account;
+  no customer token touched. (Deployment evidence follows in the deployment
+  commit below.)
 
 ## 2026-09-06 — M13-006 deployed; production on immutable task image
 
