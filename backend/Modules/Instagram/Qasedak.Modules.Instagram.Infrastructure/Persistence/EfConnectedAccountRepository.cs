@@ -47,9 +47,50 @@ public sealed class EfConnectedAccountRepository(InstagramDbContext context) : I
         return rows;
     }
 
+    public async Task<bool> DisconnectAsync(Guid accountId, DateTimeOffset disconnectedAtUtc, CancellationToken cancellationToken = default)
+    {
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            // Drop caller-tracked copies: the reload below must observe the database,
+            // not a stale aggregate loaded before a concurrent rotation committed.
+            context.ChangeTracker.Clear();
+            var account = await context.Accounts.SingleOrDefaultAsync(a => a.Id == accountId, cancellationToken);
+            if (account is null || account.IsDisconnected)
+            {
+                return false;
+            }
+
+            account.Disconnect(disconnectedAtUtc);
+            try
+            {
+                await context.SaveChangesAsync(cancellationToken);
+                return true;
+            }
+            catch (DbUpdateConcurrencyException) when (attempt == 0)
+            {
+                // Lost to a concurrent rotation: retry once against fresh state.
+            }
+        }
+
+        return false;
+    }
+
     public Task AddAsync(ConnectedAccount account, CancellationToken cancellationToken = default) =>
         context.Accounts.AddAsync(account, cancellationToken).AsTask();
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         context.SaveChangesAsync(cancellationToken);
+
+    public async Task<bool> TrySaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return false;
+        }
+    }
 }

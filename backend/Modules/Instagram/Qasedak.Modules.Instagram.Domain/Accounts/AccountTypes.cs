@@ -28,3 +28,23 @@ public enum AccountHealth
 
     Unhealthy = 5,
 }
+
+/// <summary>
+/// Webhook-subscription health of one connected account. Never faked: Unknown until
+/// the first subscribe/repair attempt reports, Partial when required fields are
+/// missing, NeedsRepair when the last attempt failed.
+/// </summary>
+public enum SubscriptionHealth
+{
+    /// <summary>No subscribe/repair outcome recorded yet (legacy or never attempted).</summary>
+    Unknown = 1,
+
+    /// <summary>Last subscribe/repair confirmed the full desired field set.</summary>
+    Healthy = 2,
+
+    /// <summary>Connected, but required fields are missing — repairable without OAuth.</summary>
+    Partial = 3,
+
+    /// <summary>Last subscribe/repair attempt failed — repairable without OAuth.</summary>
+    NeedsRepair = 4,
+}

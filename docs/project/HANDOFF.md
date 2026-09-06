@@ -1,6 +1,92 @@
 # Current handoff
 
-## 2026-09-05 — M13-004 DONE; M13-005 packet ready (do not start M13-005)
+## 2026-09-06 — M13-005 DONE; M13-006 packet ready (do not start M13-006)
+
+M13-005 completed the Instagram connection lifecycle: server-owned single-use
+OAuth state, verified profile enrichment with fail-closed identity proof,
+central webhook subscriptions with truthful health + repair, and the first
+production scheduled-work handler (token refresh with generation-guarded
+rotation). Backend 656/656, PG integration 24, API E2E 5, frontend 67/67 +
+verify green, architecture 36 projects, format clean, Graphify 0.9.26 healthy.
+Migration `20260905204310_AddConnectionEnrichment` (additive; M13-004 runtime
+compatible). Commit/push/CI/deploy/smoke/evidence follow in this same
+instruction. State: M13-005 DONE, currentTask=M13-006 TODO. Production runtime
+stays `sha-0a3fbc0ac295` until the M13-005 deployment switches it.
+Live Meta smoke: NOT RUN unless a designated production test account exists.
+
+### M13-006 packet (read-only handoff)
+
+- Final profile/account projection: `ConnectionStateRecord` /
+  `GET .../instagram/connections` returns `accountId, providerIdentity`
+  (professional IG_ID = OAuth `user_id` = webhook `entry.id`, never IGSID),
+  `username/displayName/profilePictureUrl` (verified, nullable),
+  `accountType` (reserved null — no verified source),
+  `profileUpdatedAtUtc`, `path, scopes, health, healthDetail`,
+  `tokenExpiresAtUtc`, `subscriptionHealth` (Unknown/Healthy/Partial/
+  NeedsRepair), `subscriptionDetail`, `lastSubscriptionCheckUtc`,
+  `connectedAtUtc/disconnectedAtUtc`. Never any token material.
+- ProviderAccountId semantics: opaque professional IG_ID string; exact-account
+  operations always take `(WorkspaceId, ConnectedAccount.Id)` and verify
+  `account.WorkspaceId == requested WorkspaceId` (404 otherwise, no provider
+  call, no token read). Routing still resolves via
+  `ResolveActiveAccountAsync` (Resolved/NotFound/Ambiguous, active-only).
+- Exact-account authorization pattern: use-case-level ownership check (route
+  policy is not proof); see `DisconnectInstagramAccountUseCase`,
+  `RepairSubscriptionUseCase` + `ConnectionEnrichmentEndpointTests`
+  (foreign-workspace 404s).
+- Meta Graph transport usage: `MetaGraphUris.Versioned(host, version, path)`,
+  `MetaGraphTransport` (timeout/cancel/redaction), `MetaGraphClassifier`
+  (RateLimited/Transient/Transport → retry; PermissionLoss/Rejected →
+  terminal); Bearer User token, never in URLs. See profile/subscription
+  adapters as the copy-pattern for the media adapter.
+- Subscription health representation: `SubscriptionHealth` enum persisted as
+  int (Unknown=1 default for legacy rows); server-owned desired set
+  `InstagramSubscriptionFields.Required`
+  (`comments, live_comments, messages, messaging_postbacks, messaging_seen`).
+- OAuth state architecture: `IOAuthStateStore` (`EfOAuthStateStore`,
+  `instagram.oauth_states`: StateHash PK, WorkspaceId, RedirectUri,
+  CreatedAt/Expires/ConsumedAtUtc), 10-minute lifetime, atomic conditional
+  consume, opportunistic expired purge; authorize-url issues, connect consumes
+  before any Meta call; consumed state never re-armed.
+- Token generation/concurrency primitive: domain-owned `ConnectedAccount`
+  `.Version` (uint, plain EF concurrency token, starts 0) bumped by
+  `ApplyTokenRotation` AND terminal `Disconnect`; single-save atomic rotation
+  of aggregate + staged ciphertext; losers observe `Stale`.
+- Refresh job type/payload: `instagram.token-refresh`
+  (`TokenRefreshPolicy.JobType`); payload `{connectedAccountId}` only
+  (camelCase, versioned); idempotency key
+  `instagram-token-refresh:{accountId}:{expiryTicks}` (per generation);
+  handler `TokenRefreshScheduledHandler` registered in `Program.cs`.
+- Refresh scheduling policy: `NextDueAt` = expiry − 7 days (floor now, and
+  never before issuance + 24h at connect); `NeedsRefresh`,
+  `SatisfiesAgeRule` (≥24h; legacy null = eligible); MaxAttempts 8;
+  Rotated→enqueue-one-next+Succeeded; Skipped/unknown→Permanent;
+  Stale/Retryable→retry with backoff; health only on classified permanent
+  outcomes via live inspection.
+- Account health/failure mapping: `AccountHealth`
+  Connected/ExpiringSoon/Expired/Revoked/Unhealthy; stable codes
+  (`account.*`, `oauth.*`, `profile.*`, `subscription.*`) → HTTP via
+  `ConnectionsFailureMapper` (404/409/400/503); frontend Persian copy in
+  `health.ts` `FAILURE_COPY`.
+- Migrations: `20260905204310_AddConnectionEnrichment` on top of
+  `20260905015456_AddActiveRoutingIdentityIndex`; all additive — old runtime
+  bootable (new columns nullable/defaulted, new table untouched by old code).
+- API endpoints added: `GET authorize-url` (issues state),
+  `POST /connections` (requires state), `DELETE /connections/{id}`
+  (ownership-checked), `POST /connections/{id}/repair-subscription`.
+- Regression tests: `AccountLifecycleTests`, `RefreshInstagramTokenTests`,
+  `RepairSubscriptionTests`, `TokenRefreshScheduledHandlerTests`,
+  `TokenRefreshPolicyTests`, `GraphAccountProfileClientTests`,
+  `GraphSubscriptionClientTests`, `ConnectionsFailureMapperTests`,
+  `OAuthStateStoreTests`, `InstagramPersistenceTests` (CAS/rollback/
+  disconnect-race/legacy), `ConnectionEnrichmentEndpointTests`,
+  `tests/instagram-connections.test.mjs` (state roundtrip/repair/copy).
+- Residual provider/App Review constraints: `comments`/`live_comments`
+  need Advanced Access + Live app + public account; profile media URLs
+  expire (never cache as permanent); account type has no verified source;
+  no subscription-state read endpoint (health from outcomes only);
+  `story_insights`/handover/optins/referral/standby unsubscribed (no M13
+  consumer); FB-Login path preserved only as established by M13-001.
 
 M13-004 shipped the durable scheduled-work mechanism (contracts + PostgreSQL
 store + dispatcher + migration + ADR-012 + tests). 573/573 backend,

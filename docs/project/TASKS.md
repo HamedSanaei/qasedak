@@ -958,7 +958,7 @@ green. No provider handlers yet (M13-005+); at-least-once semantics documented.
 **Suggested commit:** `feat(platform): add durable scheduled work`
 
 ## M13-005 — Complete Instagram connection enrichment, subscriptions and token refresh
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Extend the shipped OAuth, protected-token, account aggregate and health
 primitives with the missing professional-account identity/profile, webhook subscription
@@ -984,6 +984,33 @@ workspace rejection, partial subscription failure and repair, concurrent refresh
 rotation rollback/success, permanent versus transient health, and token/log/browser
 redaction; APIs enforce workspace plus account ownership; architecture/state/handoff/
 manifest and relevant full gates pass with no live Meta call in CI.
+
+**Completion evidence:** Fresh first-party verification 2026-09-06
+(developers.facebook.com): refresh `GET /refresh_access_token`
+(`ig_refresh_token`, ≥24h, unexpired, `instagram_business_basic`,
+`{access_token,token_type,expires_in}`); subscribe
+`POST /{IG_ID}/subscribed_apps` + `subscribed_fields` CSV → `{success:true}`;
+IG User reference (2026-04-22) fields `id/username/name/profile_picture_url`
+(no `user_id`, no `account_type`); webhook field table confirms the required
+`comments/live_comments/messages/messaging_postbacks/messaging_seen` set.
+Implementation: hash-persisted workspace/redirect-bound 10-minute single-use
+OAuth state with atomic conditional consume + opportunistic purge; profile
+proof-before-write with `id` identity check (fail closed, nothing persisted);
+central `InstagramSubscriptionFields.Required`, truthful
+Unknown/Healthy/Partial/NeedsRepair health, exact-account repair endpoint;
+`instagram.token-refresh` handler (identifier-only payload, 7-day pre-expiry +
+24-hour minimum-age policy, per-generation idempotency keys, domain-owned
+`Version` compare-and-swap bumped by rotation AND disconnect, single atomic
+save of aggregate + ciphertext, transient-vs-permanent taxonomy via live
+inspection); ownership-checked endpoints with token-free enriched projection
+and outcome-only logs. Migration `20260905204310_AddConnectionEnrichment`
+(additive; legacy defaults Version 0 / SubscriptionHealth Unknown; Down
+reviewed; M13-004 runtime stays bootable). Tests: Instagram unit 190, PG
+integration 24 (state issue/consume/replay/expiry/tamper/workspace/redirect/
+concurrent-winner/purge, legacy defaults, enrichment roundtrip, CAS rotation,
+disconnect-vs-rotation race, rollback), API E2E 5 (state roundtrip, replay,
+ownership, redaction, degraded→repair, disconnect); backend 656/656, frontend
+67/67 + verify green, architecture 36 projects, format clean, Graphify healthy.
 
 **Suggested commit:** `feat(instagram): complete account connection operations`
 

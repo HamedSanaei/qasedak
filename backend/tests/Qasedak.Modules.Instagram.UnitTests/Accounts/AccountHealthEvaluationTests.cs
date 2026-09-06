@@ -64,6 +64,19 @@ public sealed class AccountHealthEvaluationTests
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
+        public Task<bool> TrySaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(true);
+
+        public Task<bool> DisconnectAsync(Guid accountId, DateTimeOffset disconnectedAtUtc, CancellationToken cancellationToken = default)
+        {
+            if (!_rows.TryGetValue(accountId, out var account) || account.IsDisconnected)
+            {
+                return Task.FromResult(false);
+            }
+
+            account.Disconnect(disconnectedAtUtc);
+            return Task.FromResult(true);
+        }
+
         public Task<AccountResolution> ResolveActiveAccountAsync(string providerAccountId, CancellationToken cancellationToken = default)
         {
             var active = _rows.Values.Where(a => a.ProviderUserId == providerAccountId && !a.IsDisconnected).ToArray();

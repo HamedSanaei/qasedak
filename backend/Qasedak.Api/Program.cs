@@ -57,6 +57,7 @@ var platformConnectionString = builder.Configuration.GetConnectionString("Platfo
 if (!string.IsNullOrWhiteSpace(platformConnectionString))
 {
     builder.Services.AddQasedakScheduledWork(platformConnectionString, builder.Configuration);
+    builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Refresh.TokenRefreshScheduledHandler>();
 }
 
 // Workspace-membership policy: every /workspaces/{workspaceId}/... endpoint group requires

@@ -2,9 +2,49 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-005 — Complete Instagram connection enrichment, subscriptions and token refresh (TODO)
-**Last completed:** M13-004 (2026-09-05)
-**Product implementation:** Durable scheduled-work mechanism live; no M13-005 work started
+**Current task:** M13-006 — Add Instagram media catalog and post-selection APIs (TODO)
+**Last completed:** M13-005 (2026-09-06)
+**Product implementation:** Instagram connection lifecycle complete (state-bound OAuth, profile enrichment, subscriptions, scheduled refresh); media catalog not started
+
+## 2026-09-06 — M13-005 DONE: connection enrichment, subscriptions, token refresh
+
+- Fresh first-party verification (developers.facebook.com, 2026-09-06):
+  refresh `GET /refresh_access_token` (`ig_refresh_token`, ≥24h old,
+  unexpired, `instagram_business_basic`,
+  `{access_token,token_type:bearer,expires_in}`); subscribe
+  `POST /{IG_ID}/subscribed_apps` with `subscribed_fields` CSV →
+  `{success:true}`; IG User reference (2026-04-22) exposes
+  `id/username/name/profile_picture_url` only (no `user_id`, no
+  `account_type` — adapter requests exactly the verified set and proves
+  identity with `id`); webhook field table confirms the required
+  `comments/live_comments/messages/messaging_postbacks/messaging_seen` set.
+- Implementation: SHA-256-persisted, workspace/redirect-bound, 10-minute
+  single-use OAuth state (`instagram.oauth_states`) with atomic conditional
+  consume + opportunistic expired purge; profile proof-before-write (identity
+  mismatch/unavailable persists nothing); central required-field set,
+  truthful Unknown/Healthy/Partial/NeedsRepair health, exact-account
+  `repair-subscription` endpoint; first production scheduled-work handler
+  `instagram.token-refresh` (identifier-only payload, 7-day pre-expiry +
+  24-hour minimum-age policy, per-generation idempotency keys, domain-owned
+  `Version` CAS bumped by rotation AND disconnect, one atomic save of
+  aggregate + ciphertext, transient-retry vs permanent-dead-letter via live
+  inspection); workspace+account ownership on disconnect/repair, token-free
+  enriched projection, outcome-only endpoint logs (no state/code/token).
+- Migration `20260905204310_AddConnectionEnrichment` (additive nullable
+  columns + `oauth_states`; legacy defaults Version 0 / Unknown; `Down`
+  reviewed; M13-004 runtime stays bootable). Known audit fixes during the
+  task: refresh payload camelCase roundtrip, `/me` → documented `/{IG_ID}`
+  subscribe path, `IsRowVersion` → domain-owned concurrency token,
+  disconnect bumps `Version` (stale rotation cannot resurrect tokens),
+  refresh health-writes tolerate lost races as Stale.
+- Tests: Instagram unit 190 (profile/subscription/refresh/repair/handler/
+  policy/mapper), PG integration 24 (state incl. concurrent single winner,
+  legacy defaults, enrichment roundtrip, CAS rotation, disconnect race,
+  rollback), API E2E 5 (state roundtrip/replay/ownership/redaction/
+  degraded→repair/disconnect); backend 656/656, frontend 67/67 + `npm run
+  verify` green, architecture 36 projects, format clean, Graphify 0.9.26
+  healthy. Commit/push/CI/deploy/smoke/evidence follow in this same
+  instruction. State: M13-005 DONE, currentTask=M13-006 TODO.
 
 ## 2026-09-05 — M13-004 DONE: durable scheduled work infrastructure
 

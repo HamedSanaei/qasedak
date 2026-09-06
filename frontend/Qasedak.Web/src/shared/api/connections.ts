@@ -7,13 +7,18 @@ import type { ConnectionState } from "../../features/instagram/health";
 
 export interface ConnectionsApi {
   list(token: string, workspaceId: string, includeDisconnected?: boolean): Promise<{ items: ConnectionState[] }>;
-  authorizeUrl(token: string, workspaceId: string, redirectUri: string): Promise<{ url: string; state?: string }>;
+  authorizeUrl(token: string, workspaceId: string, redirectUri: string): Promise<{ url: string; state: string }>;
   connect(
     token: string,
     workspaceId: string,
-    body: { authorizationCode: string; redirectUri: string },
+    body: { authorizationCode: string; redirectUri: string; state?: string | null },
   ): Promise<{ accountId: string }>;
   disconnect(token: string, workspaceId: string, accountId: string): Promise<void>;
+  repairSubscription(
+    token: string,
+    workspaceId: string,
+    accountId: string,
+  ): Promise<{ subscriptionHealth: string }>;
 }
 
 export function connectionsApi(): ConnectionsApi {
@@ -30,5 +35,10 @@ export function connectionsApi(): ConnectionsApi {
     disconnect: async (token, workspaceId, accountId) => {
       await request(`${base(workspaceId)}/connections/${accountId}`, { method: "DELETE", bearerToken: token });
     },
+    repairSubscription: (token, workspaceId, accountId) =>
+      request(`${base(workspaceId)}/connections/${accountId}/repair-subscription`, {
+        method: "POST",
+        bearerToken: token,
+      }),
   };
 }

@@ -14,7 +14,9 @@ import { connectionsApi, type ConnectionsApi } from "../../../../shared/api/conn
 import { readSession, readWorkspaceId } from "../../../../shared/api/identity";
 import {
   describeConnectionFailure,
+  describeSubscriptionHealth,
   healthPresentation,
+  subscriptionNeedsRepair,
   type ConnectionState,
 } from "../../../../features/instagram/health";
 
@@ -48,11 +50,49 @@ export default function InstagramConnectionPage() {
     }
   }, [client, router]);
 
+  // Completes a Meta OAuth callback landing on this page (?code=&state=).
+  // The state round-trips the server-issued single-use value; the query is
+  // scrubbed before listing so refresh never replays the code.
+  const completeCallback = useCallback(async () => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (!code) return;
+    const scrub = () => window.history.replaceState(null, "", window.location.pathname);
+    const session = readSession();
+    const workspaceId = readWorkspaceId();
+    if (!session || !workspaceId) {
+      router.replace("/login");
+      return;
+    }
+    try {
+      const redirectUri = `${window.location.origin}/dashboard/settings/instagram`;
+      await client.connect(session.accessToken, workspaceId, {
+        authorizationCode: code,
+        redirectUri,
+        state: params.get("state"),
+      });
+      scrub();
+    } catch (error) {
+      scrub();
+      const errorCode = error && typeof error === "object" && "code" in error ? String((error as { code: unknown }).code) : null;
+      setErrorMessage(describeConnectionFailure(errorCode));
+      setState("error");
+    }
+  }, [client, router]);
+
   useEffect(() => {
     // Defer so the first setState happens outside the effect body (react-hooks lint).
-    const timer = window.setTimeout(() => void load(), 0);
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          await completeCallback();
+        } finally {
+          await load();
+        }
+      })();
+    }, 0);
     return () => window.clearTimeout(timer);
-  }, [load]);
+  }, [completeCallback, load]);
 
   async function startConnect() {
     try {
@@ -70,6 +110,30 @@ export default function InstagramConnectionPage() {
       const code = error && typeof error === "object" && "code" in error ? String((error as { code: unknown }).code) : null;
       setErrorMessage(describeConnectionFailure(code));
       setState("error");
+    }
+  }
+
+  async function repair(accountId: string) {
+    setBusyAccountId(accountId);
+    try {
+      const session = readSession();
+      const workspaceId = readWorkspaceId();
+      if (!session || !workspaceId) return;
+      const result = await client.repairSubscription(session.accessToken, workspaceId, accountId);
+      setItems((prev) =>
+        prev
+          ? prev.map((a) =>
+              a.accountId === accountId
+                ? { ...a, subscriptionHealth: result.subscriptionHealth, subscriptionDetail: null }
+                : a,
+            )
+          : prev,
+      );
+    } catch (error) {
+      const code = error && typeof error === "object" && "code" in error ? String((error as { code: unknown }).code) : null;
+      setErrorMessage(describeConnectionFailure(code));
+    } finally {
+      setBusyAccountId(null);
     }
   }
 
@@ -222,7 +286,7 @@ export default function InstagramConnectionPage() {
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
                         <strong style={{ fontSize: 14, fontWeight: 600, color: "#141414" }}>
-                          {account.providerIdentity}
+                          {account.username ? `@${account.username}` : account.providerIdentity}
                         </strong>
                         <StatusPill tone={presentation.tone}>{presentation.label}</StatusPill>
                       </div>
@@ -233,8 +297,22 @@ export default function InstagramConnectionPage() {
                           : ""}
                         {account.healthDetail ? ` · ${account.healthDetail}` : ""}
                       </div>
+                      <div style={{ fontSize: 12, color: "#737373", marginTop: ".25rem" }}>
+                        {describeSubscriptionHealth(account.subscriptionHealth)}
+                        {account.subscriptionDetail ? ` · ${account.subscriptionDetail}` : ""}
+                      </div>
                     </div>
                     <div style={{ display: "flex", gap: ".5rem" }}>
+                      {subscriptionNeedsRepair(account.subscriptionHealth) ? (
+                        <Button
+                          size="small"
+                          variant="secondary"
+                          disabled={busyAccountId === account.accountId}
+                          onClick={() => void repair(account.accountId)}
+                        >
+                          تعمیر اعلان‌ها
+                        </Button>
+                      ) : null}
                       {canReconnect ? (
                         <Button size="small" onClick={() => void startConnect()}>اتصال مجدد</Button>
                       ) : null}

@@ -28,11 +28,19 @@ namespace Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AccountType")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<DateTimeOffset>("ConnectedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("DisconnectedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("Health")
                         .HasColumnType("integer");
@@ -41,8 +49,21 @@ namespace Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<DateTimeOffset?>("LastSubscriptionCheckUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("LastTokenIssuedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Path")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<DateTimeOffset?>("ProfileUpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ProviderUserId")
                         .IsRequired()
@@ -54,8 +75,27 @@ namespace Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)");
 
+                    b.Property<string>("SubscriptionDetail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("SubscriptionHealth")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<DateTimeOffset?>("TokenExpiresAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Username")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
 
                     b.Property<Guid>("WorkspaceId")
                         .HasColumnType("uuid");
@@ -71,6 +111,39 @@ namespace Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations
                         .HasFilter("\"DisconnectedAtUtc\" IS NULL");
 
                     b.ToTable("connected_accounts", "instagram");
+                });
+
+            modelBuilder.Entity("Qasedak.Modules.Instagram.Infrastructure.Persistence.OAuthStateRow", b =>
+                {
+                    b.Property<string>("StateHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("ConsumedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RedirectUri")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("StateHash");
+
+                    b.HasIndex("ExpiresAtUtc");
+
+                    b.HasIndex("StateHash")
+                        .IsUnique();
+
+                    b.ToTable("oauth_states", "instagram");
                 });
 
             modelBuilder.Entity("Qasedak.Modules.Instagram.Infrastructure.Persistence.StoredAccountToken", b =>

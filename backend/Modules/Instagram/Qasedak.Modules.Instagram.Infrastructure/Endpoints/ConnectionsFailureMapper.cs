@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 namespace Qasedak.Modules.Instagram.Infrastructure.Endpoints;
 
@@ -13,7 +12,12 @@ public static class ConnectionsFailureMapper
         "account.notFound" or "account.alreadyDisconnected" => StatusCodes.Status404NotFound,
         "account.alreadyConnected" or "account.alreadyConnectedElsewhere" => StatusCodes.Status409Conflict,
         "account.oauthRejected" => StatusCodes.Status400BadRequest,
-        _ => StatusCodes.Status503ServiceUnavailable, // account.oauthUnavailable
+        "oauth.invalidState" or "oauth.expiredState" or "oauth.replayedState" or
+            "oauth.workspaceMismatch" or "oauth.redirectMismatch" => StatusCodes.Status400BadRequest,
+        "profile.identityMismatch" => StatusCodes.Status409Conflict,
+        "account.tokenMissing" or "account.tokenExpired" or "subscription.permissionDenied" =>
+            StatusCodes.Status409Conflict,
+        _ => StatusCodes.Status503ServiceUnavailable, // account.oauthUnavailable, profile/subscription transient
     };
 
     public static IResult ToResult(string failureCode) =>

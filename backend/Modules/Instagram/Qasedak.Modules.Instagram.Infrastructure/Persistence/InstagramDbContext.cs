@@ -19,6 +19,8 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
 
     public DbSet<WebhookInboxEntry> WebhookInbox => Set<WebhookInboxEntry>();
 
+    public DbSet<OAuthStateRow> OAuthStates => Set<OAuthStateRow>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
@@ -51,6 +53,35 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
             account.HasIndex(a => a.ProviderUserId)
                 .HasDatabaseName("IX_connected_accounts_active_routing_identity")
                 .HasFilter("\"DisconnectedAtUtc\" IS NULL");
+            // Domain-owned optimistic-concurrency counter (compare-and-swap):
+            // rotation and terminal disconnect bump it, so a stale worker's
+            // SaveChanges fails instead of overwriting newer state.
+            // A plain concurrency token (not a rowversion): the aggregate owns the
+            // value; legacy rows start at 0. Plain updates (health, profile,
+            // subscriptions) keep the counter untouched.
+            account.Property(a => a.Version).IsConcurrencyToken().HasDefaultValue(0u);
+            account.Property(a => a.Username).HasMaxLength(128);
+            account.Property(a => a.DisplayName).HasMaxLength(200);
+            account.Property(a => a.ProfilePictureUrl).HasMaxLength(1024);
+            account.Property(a => a.AccountType).HasMaxLength(32);
+            account.Property(a => a.SubscriptionHealth)
+                .HasConversion<int>()
+                // Legacy rows predate subscription tracking: they default to Unknown
+                // (never invent Healthy). New rows always carry the domain value.
+                .HasDefaultValue(SubscriptionHealth.Unknown);
+            account.Property(a => a.SubscriptionDetail).HasMaxLength(256);
+        });
+
+        modelBuilder.Entity<OAuthStateRow>(state =>
+        {
+            state.ToTable("oauth_states");
+            state.HasKey(s => s.StateHash);
+            state.Property(s => s.StateHash).HasMaxLength(64);
+            state.Property(s => s.RedirectUri).HasMaxLength(1024);
+            // One-time consume is enforced by conditional update, not by this index;
+            // the unique hash makes concurrent issuance collisions fail loudly.
+            state.HasIndex(s => s.StateHash).IsUnique();
+            state.HasIndex(s => s.ExpiresAtUtc);
         });
 
         modelBuilder.Entity<StoredAccountToken>(token =>

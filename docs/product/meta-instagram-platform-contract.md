@@ -61,7 +61,7 @@ Qasedak implication · source (verification date 2026-09-04 unless noted).
 | Refresh | IG Login · `graph.instagram.com` | `GET /refresh_access_token?grant_type=ig_refresh_token&access_token`; preconditions: token ≥24h old, still valid, `instagram_business_basic` granted; refreshed token valid 60 days; unrefreshed 60-day tokens expire permanently | Supported · matches lifecycle doc + `EvaluateAccountHealthUseCase` window; M13-004/005 schedule the job |
 | FB User long-lived | FB Login · `graph.facebook.com` | `GET /oauth/access_token?grant_type=fb_exchange_token&client_id&client_secret&fb_exchange_token` (~60 days) | Supported · retained FB-path lifecycle unchanged |
 | FB Page token | FB Login · `graph.facebook.com` | From long-lived User token via `GET /{user-id}/accounts`; no scheduled expiry; invalidation is event-driven (password change, revocation, role loss) | Supported · matches `ConnectedAccount` null-expiry semantics |
-| `/me` identity | IG Login · IG User token · `graph.instagram.com` | `/me` = the app user's Instagram professional account; `/me/conversations`, `/me/messages` aliases for `/<IG_ID>/…` | Supported · M13-005 must persist IG_ID distinctly from the app-scoped `user_id` returned at code exchange |
+| `/me` identity + professional profile | IG Login · IG User token · `graph.instagram.com` | `/me` = the app user's Instagram professional account; `/me/conversations`, `/me/messages` aliases for `/<IG_ID>/…`. Profile enrichment: `GET /me?fields=id,username,name,profile_picture_url` (Bearer IG User token; verified against the official IG User reference, 2026-04-22 — that node exposes no `user_id` and no `account_type`). The profile `id` is the professional IG_ID and equals the OAuth code-exchange `user_id` (M13-002 Outcome A); M13-005 fails closed on any disagreement | Supported · matches `GraphAccountProfileClient`; account type stays unpopulated until a verified source exists |
 | IG professional ID | Either path | Numeric IG-scoped professional account ID (`IG_ID`); distinct from app-scoped user id and from conversation-partner IGSIDs | Supported · M13-002 exact-account key input |
 | IGSID (recipient identity) | IG Login | Instagram-scoped ID of the conversation partner; used as `recipient.id`, `user_id` lookup, webhook `sender.id`/`from.id` | Supported · participant identity for M13-002/008/013 |
 
@@ -139,6 +139,18 @@ IG Comment Replies reference.
 Subscribe: `POST https://graph.instagram.com/v26.0/<IG_ID>/subscribed_apps?subscribed_fields=comments,messages`
 → `{success:true}` (example from the official setup guide, updated 2026-03-03).
 App must be **Live** to receive notifications; testers need app + professional-account roles.
+
+Qasedak implementation (M13-005): the edge keeps the documented
+`POST /{version}/{IG_ID}/subscribed_apps` path with the explicit professional
+account id (never a `/me` alias); the User token travels only as a Bearer
+header (never in the URL) and `subscribed_fields` as the POST form body. Only
+`{success:true}` counts as proof — anything else (including `success:false`) is
+a failure. There is no subscribe-state read endpoint on this path, so health is
+recorded from subscribe/repair outcomes only, never invented. Qasedak's required
+set is exactly `comments, live_comments, messages, messaging_postbacks,
+messaging_seen` (single source of truth:
+`InstagramSubscriptionFields.Required`); handover/optins/referral/standby have
+no M13 consumer and stay unsubscribed.
 
 | Field | IG Login permission | Shape (current) | Qasedak implication |
 |---|---|---|---|

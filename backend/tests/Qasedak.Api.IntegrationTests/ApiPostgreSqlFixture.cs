@@ -12,7 +12,10 @@ using Qasedak.Modules.Billing.Infrastructure.Persistence;
 using Qasedak.Modules.Contacts.Infrastructure.Persistence;
 using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
+using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Messaging;
+using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -41,6 +44,52 @@ public sealed class RecordingInstagramMessagingClient : IInstagramMessagingClien
             ? MessagingSendResult.Fail(MessagingFailureReason.MessagingWindowExpired, "recipient outside the 24h window (simulated 490)")
             : MessagingSendResult.Ok());
     }
+}
+
+/// <summary>
+/// Deterministic stand-ins for Meta's OAuth/profile/subscription edges: the connection
+/// endpoints are exercised end to end without any live Meta call. The profile double
+/// echoes the expected provider identity (always proven); tests needing mismatch
+/// script <see cref="ScriptedProfileClient.Result"/> explicitly.
+/// </summary>
+public sealed class ScriptedOAuthClient : IMetaOAuthClient
+{
+    public Func<CodeExchangeResult> CodeResult { get; set; } = () =>
+        CodeExchangeResult.Ok(new("SHORT-E2E", "ig-e2e-" + Guid.NewGuid().ToString("N"),
+            ["instagram_business_basic", "instagram_business_manage_messages"]));
+
+    public Func<LongLivedTokenResult> LongLivedResult { get; set; } = () =>
+        LongLivedTokenResult.Ok(new("LONG-E2E", 60 * 24 * 3600L));
+
+    public Task<CodeExchangeResult> ExchangeCodeAsync(CodeExchangeRequest request, CancellationToken cancellationToken = default) =>
+        Task.FromResult(CodeResult());
+
+    public Task<LongLivedTokenResult> ExchangeShortLivedForLongLivedAsync(string shortLivedAccessToken, CancellationToken cancellationToken = default) =>
+        Task.FromResult(LongLivedResult());
+
+    public Task<LongLivedTokenResult> RefreshLongLivedAsync(string longLivedAccessToken, CancellationToken cancellationToken = default) =>
+        Task.FromResult(LongLivedResult());
+}
+
+public sealed class ScriptedProfileClient : IAccountProfileClient
+{
+    public Func<string, AccountProfileOutcome> Result { get; set; } = expected =>
+        new AccountProfileOutcome.Ok(new InstagramAccountProfile(
+            expected, "shop-" + expected, "E2E Shop", null, "Business"));
+
+    public Task<AccountProfileOutcome> GetProfileAsync(
+        string accessToken, string expectedProviderAccountId, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Result(expectedProviderAccountId));
+}
+
+public sealed class ScriptedSubscriptionClient : ISubscriptionClient
+{
+    public Func<IReadOnlyList<string>, SubscriptionResult> Result { get; set; } =
+        fields => SubscriptionResult.Subscribed(fields);
+
+    public Task<SubscriptionResult> SubscribeAsync(
+        string accessToken, string professionalAccountId, IReadOnlyList<string> fields, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Result(fields));
 }
 
 /// <summary>
@@ -198,6 +247,15 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
 
     public RecordingInstagramMessagingClient Messaging { get; } = new();
 
+    /// <summary>Scripted Meta connection edges shared with connection endpoint tests.</summary>
+    public ScriptedOAuthClient OAuth { get; } = new();
+
+    /// <summary>Scripted professional-profile edge shared with connection endpoint tests.</summary>
+    public ScriptedProfileClient Profiles { get; } = new();
+
+    /// <summary>Scripted subscription edge shared with connection endpoint tests.</summary>
+    public ScriptedSubscriptionClient Subscriptions { get; } = new();
+
     public RecordingPaymentGateway Payments { get; } = new();
 
     /// <summary>Scripted Mellat SOAP boundary shared with assertions.</summary>
@@ -255,6 +313,17 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.RemoveAll<IInstagramMessagingClient>();
                 services.AddSingleton(Messaging);
                 services.AddSingleton<IInstagramMessagingClient>(sp => sp.GetRequiredService<RecordingInstagramMessagingClient>());
+                // Connection endpoints run against scripted Meta edges: no live
+                // calls in CI. Nothing else in the suite resolves these ports.
+                services.RemoveAll<IMetaOAuthClient>();
+                services.AddSingleton(OAuth);
+                services.AddSingleton<IMetaOAuthClient>(sp => sp.GetRequiredService<ScriptedOAuthClient>());
+                services.RemoveAll<IAccountProfileClient>();
+                services.AddSingleton(Profiles);
+                services.AddSingleton<IAccountProfileClient>(sp => sp.GetRequiredService<ScriptedProfileClient>());
+                services.RemoveAll<ISubscriptionClient>();
+                services.AddSingleton(Subscriptions);
+                services.AddSingleton<ISubscriptionClient>(sp => sp.GetRequiredService<ScriptedSubscriptionClient>());
                 services.RemoveAll<IPaymentGatewayResolver>();
                 services.AddSingleton(Payments);
                 services.AddSingleton(MellatSoap);

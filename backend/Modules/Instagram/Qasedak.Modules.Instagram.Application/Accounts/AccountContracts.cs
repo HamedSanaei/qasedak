@@ -26,9 +26,24 @@ public interface IConnectedAccountRepository
     /// <summary>Lists all accounts of a workspace (any health/disconnect state).</summary>
     Task<IReadOnlyList<ConnectedAccount>> ListByWorkspaceAsync(Guid workspaceId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Marks the account disconnected with one reload-and-retry on optimistic-
+    /// concurrency loss (a concurrent token rotation must not defeat disconnect).
+    /// Returns false when the account is already disconnected or absent.
+    /// </summary>
+    Task<bool> DisconnectAsync(Guid accountId, DateTimeOffset disconnectedAtUtc, CancellationToken cancellationToken = default);
+
     Task AddAsync(ConnectedAccount account, CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Saves pending changes, returning false instead of throwing when optimistic
+    /// concurrency is lost (a concurrent rotation committed first). All other
+    /// failures still throw. Callers must treat false as stale state and reload.
+    /// Token-store writes staged on the same scope commit atomically with this call.
+    /// </summary>
+    Task<bool> TrySaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>Deterministic outcome of routing-identity resolution (never first-match).</summary>
@@ -80,6 +95,15 @@ public static class AccountFailures
     /// <summary>The professional account is actively connected in another workspace.</summary>
     public const string AlreadyConnectedElsewhere = "account.alreadyConnectedElsewhere";
 
+    /// <summary>No protected token material exists for a connected account.</summary>
+    public const string TokenMissing = "account.tokenMissing";
+
+    /// <summary>The stored token expired and cannot be refreshed.</summary>
+    public const string TokenExpired = "account.tokenExpired";
+
+    /// <summary>The account carries a never-expiring token; refresh is not applicable.</summary>
+    public const string RefreshNotRequired = "account.refreshNotRequired";
+
     public const string AlreadyDisconnected = "account.alreadyDisconnected";
 
     public const string OAuthRejected = "account.oauthRejected";
@@ -98,4 +122,12 @@ public readonly record struct ConnectionStateRecord(
     string? HealthDetail,
     DateTimeOffset? ExpiresAtUtc,
     DateTimeOffset ConnectedAtUtc,
-    DateTimeOffset? DisconnectedAtUtc);
+    DateTimeOffset? DisconnectedAtUtc,
+    string? Username,
+    string? DisplayName,
+    string? ProfilePictureUrl,
+    string? AccountType,
+    DateTimeOffset? ProfileUpdatedAtUtc,
+    string SubscriptionHealth,
+    string? SubscriptionDetail,
+    DateTimeOffset? LastSubscriptionCheckUtc);

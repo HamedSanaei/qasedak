@@ -5,12 +5,15 @@ using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Graph;
 using Qasedak.Modules.Instagram.Infrastructure.Messaging;
 using Qasedak.Modules.Instagram.Infrastructure.OAuth;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
+using Qasedak.Modules.Instagram.Infrastructure.Profiles;
 using Qasedak.Modules.Instagram.Infrastructure.Protection;
+using Qasedak.Modules.Instagram.Infrastructure.Subscriptions;
 using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 
 namespace Qasedak.Modules.Instagram.Infrastructure;
@@ -77,6 +80,22 @@ public static class DependencyInjection
         services.AddScoped<DisconnectInstagramAccountUseCase>();
         services.AddScoped<ListWorkspaceConnectionsUseCase>();
         services.AddScoped<EvaluateAccountHealthUseCase>();
+        services.AddScoped<RepairSubscriptionUseCase>();
+        services.AddScoped<RefreshInstagramTokenUseCase>();
+        services.AddScoped<IOAuthStateStore, EfOAuthStateStore>();
+
+        // Professional profile + webhook subscription adapters (M13-005): focused
+        // clients over the shared Graph transport; no raw DTOs leave Infrastructure.
+        services.AddHttpClient(GraphAccountProfileClient.HttpClientName);
+        services.AddSingleton(sp => new GraphAccountProfileClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphAccountProfileClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<IAccountProfileClient>(sp => sp.GetRequiredService<GraphAccountProfileClient>());
+        services.AddHttpClient(GraphSubscriptionClient.HttpClientName);
+        services.AddSingleton(sp => new GraphSubscriptionClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphSubscriptionClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<ISubscriptionClient>(sp => sp.GetRequiredService<GraphSubscriptionClient>());
 
         return services;
     }
