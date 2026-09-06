@@ -15,6 +15,28 @@ stays `sha-a68762e139f3` until the M13-006 deployment switches it.
 Live Meta media smoke: NOT RUN unless a designated production test account
 exists.
 
+### Deployment evidence — M13-006 (2026-09-06, UTC)
+
+- Task commit: `55900dcc937322f4ed9f2908e7631569195213a8`
+  (`feat(instagram): add media catalog queries`), pushed to `origin/master`.
+- CI `34008906033`: success. CodeQL `34008905991`: success.
+- Publish Images `34009058974`: success — both images tagged immutable
+  `sha-55900dcc9373`.
+- Deploy Production `34009105710`: success for the exact SHA (previous
+  `sha-a68762e139f3`; backup
+  `qasedak-20260906T032923Z-sha-55900dcc9373.dump`; **no schema change** —
+  all schemas already up to date, no migration added; api Healthy;
+  in-workflow health + public-web-auth-routing smoke passed ~03:29Z; no
+  rollback).
+- Scheduler startup evidence: no DI/startup exceptions; api Healthy with
+  dispatcher + `instagram.token-refresh` handler registered; media
+  dependencies resolve.
+- Public smoke (independent): `/` 200, `/api/v1/system` 200; unauthenticated
+  media route 401 at the edge (registered, auth before provider call).
+- Live Meta media smoke: NOT RUN — no designated production test account;
+  no customer token touched.
+- Production runtime is now immutable `sha-55900dcc9373`.
+
 ### M13-007 packet (read-only handoff)
 
 - Media Application contracts: `Qasedak.Modules.Instagram.Application.Media` —
