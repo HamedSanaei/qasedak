@@ -46,7 +46,8 @@ public sealed partial class AutomationCommentBridge(
                 comment.CommentId,
                 comment.FromId,
                 comment.Text,
-                comment.CreatedAtUtc);
+                comment.CreatedAtUtc,
+                comment.IsLiveComment);
 
             // The workspace hint defends against cross-workspace id collisions; the use
             // case additionally refuses automations whose binding differs from the

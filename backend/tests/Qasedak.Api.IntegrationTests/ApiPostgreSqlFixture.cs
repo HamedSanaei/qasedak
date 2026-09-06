@@ -13,6 +13,7 @@ using Qasedak.Modules.Contacts.Infrastructure.Persistence;
 using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Effects;
 using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
@@ -47,6 +48,67 @@ public sealed class RecordingInstagramMessagingClient : IInstagramMessagingClien
         return Task.FromResult(RejectRecipientsOutsideWindow.Contains(recipientProviderUserId)
             ? MessagingSendResult.Fail(MessagingFailureReason.MessagingWindowExpired, "recipient outside the 24h window (simulated 490)")
             : MessagingSendResult.Ok());
+    }
+}
+
+/// <summary>
+/// Deterministic recording stand-in for Meta's comment Private Reply edge (M13-009):
+/// outbound Private Reply calls are captured (token, IG_ID, comment_id, text) instead of
+/// leaving CI; the one-reply/7-day/Live rules are enforced by the real policy + ledger
+/// pipeline, so this client only confirms the transport call happened.
+/// </summary>
+public sealed class RecordingCommentPrivateReplyClient : ICommentPrivateReplyClient
+{
+    public List<(string AccessToken, string ProviderAccountId, string CommentId, string Text)> Sends { get; } = [];
+
+    public Task<PrivateReplySendResult> SendPrivateReplyAsync(
+        string accessToken,
+        string providerAccountId,
+        string commentId,
+        string text,
+        CancellationToken cancellationToken = default)
+    {
+        Sends.Add((accessToken, providerAccountId, commentId, text));
+        return Task.FromResult(PrivateReplySendResult.Ok("526-recipient-" + commentId, "mid-" + commentId));
+    }
+}
+
+/// <summary>
+/// Deterministic recording stand-in for the official IG Comment reference read: the
+/// creation timestamp is scripted per test (default: 1 day ago — within the 7-day
+/// window). No live Meta call ever leaves CI.
+/// </summary>
+public sealed class RecordingCommentReferenceReader : ICommentReferenceReader
+{
+    /// <summary>Scripted reference result; tests override to simulate expired/not-found reads.</summary>
+    public Func<CommentReferenceReadResult> Script { get; set; } =
+        () => new CommentReferenceReadResult.Found(DateTimeOffset.UtcNow.AddDays(-1));
+
+    public List<string> CommentIdsRead { get; } = [];
+
+    public Task<CommentReferenceReadResult> ReadCreatedAtUtcAsync(
+        string accessToken,
+        string commentId,
+        CancellationToken cancellationToken = default)
+    {
+        CommentIdsRead.Add(commentId);
+        return Task.FromResult(Script());
+    }
+}
+
+/// <summary>Recording stand-in for the public comment reply edge (no consumer yet in M13-009).</summary>
+public sealed class RecordingCommentPublicReplyClient : ICommentPublicReplyClient
+{
+    public List<(string AccessToken, string CommentId, string Text)> Sends { get; } = [];
+
+    public Task<PublicReplySendResult> SendPublicReplyAsync(
+        string accessToken,
+        string commentId,
+        string text,
+        CancellationToken cancellationToken = default)
+    {
+        Sends.Add((accessToken, commentId, text));
+        return Task.FromResult(PublicReplySendResult.Ok("reply-" + commentId));
     }
 }
 
@@ -425,6 +487,15 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
 
     public RecordingInstagramMessagingClient Messaging { get; } = new();
 
+    /// <summary>Recording comment Private Reply edge (M13-009); the real claim ledger + policy stay on.</summary>
+    public RecordingCommentPrivateReplyClient PrivateReplies { get; } = new();
+
+    /// <summary>Recording public comment reply edge (M13-009 boundary; no consumer yet).</summary>
+    public RecordingCommentPublicReplyClient PublicReplies { get; } = new();
+
+    /// <summary>Scripted IG Comment reference reads (creation timestamp for the 7-day policy).</summary>
+    public RecordingCommentReferenceReader CommentReferences { get; } = new();
+
     /// <summary>Scripted Meta connection edges shared with connection endpoint tests.</summary>
     public ScriptedOAuthClient OAuth { get; } = new();
 
@@ -503,6 +574,17 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.RemoveAll<IInstagramMessagingClient>();
                 services.AddSingleton(Messaging);
                 services.AddSingleton<IInstagramMessagingClient>(sp => sp.GetRequiredService<RecordingInstagramMessagingClient>());
+                // M13-009: scripted comment-effect edges — the real claim ledger, policy
+                // and coordinator stay wired; only provider HTTP is replaced.
+                services.RemoveAll<ICommentPrivateReplyClient>();
+                services.AddSingleton(PrivateReplies);
+                services.AddSingleton<ICommentPrivateReplyClient>(sp => sp.GetRequiredService<RecordingCommentPrivateReplyClient>());
+                services.RemoveAll<ICommentPublicReplyClient>();
+                services.AddSingleton(PublicReplies);
+                services.AddSingleton<ICommentPublicReplyClient>(sp => sp.GetRequiredService<RecordingCommentPublicReplyClient>());
+                services.RemoveAll<ICommentReferenceReader>();
+                services.AddSingleton(CommentReferences);
+                services.AddSingleton<ICommentReferenceReader>(sp => sp.GetRequiredService<RecordingCommentReferenceReader>());
                 // Connection endpoints run against scripted Meta edges: no live
                 // calls in CI. Nothing else in the suite resolves these ports.
                 services.RemoveAll<IMetaOAuthClient>();

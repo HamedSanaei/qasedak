@@ -376,9 +376,15 @@ public sealed class MetaPayloadNormalizer
                     return;
                 }
 
+                // M13-009: the Private Reply policy distinguishes Live comments (live_comments
+                // field or media_product_type == "LIVE") — Live replies are only valid during
+                // the broadcast and must never use the 7-day comment rule.
+                var isLive = string.Equals(field, "live_comments", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(ReadStringFrom(value, "media", "media_product_type"), "LIVE", StringComparison.OrdinalIgnoreCase);
+
                 events.Add(new InstagramCommentCreated(
                     fragmentEventId, null, null, providerAccountId, commentId, fromId, username,
-                    text, mediaId, originalMediaId, commentTimestamp.Value));
+                    text, mediaId, originalMediaId, commentTimestamp.Value, isLive));
                 return;
 
             case "mentions":

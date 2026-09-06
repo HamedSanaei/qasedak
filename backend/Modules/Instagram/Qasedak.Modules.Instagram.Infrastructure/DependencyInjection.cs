@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Effects;
 using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
 using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
@@ -10,6 +11,7 @@ using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
+using Qasedak.Modules.Instagram.Infrastructure.Effects;
 using Qasedak.Modules.Instagram.Infrastructure.Graph;
 using Qasedak.Modules.Instagram.Infrastructure.Insights;
 using Qasedak.Modules.Instagram.Infrastructure.Media;
@@ -144,6 +146,29 @@ public static class DependencyInjection
         // Production-hardening: existing active accounts acquire today's snapshot job
         // at each host start (idempotent, DB-only, bounded).
         services.AddHostedService<FollowerSnapshotScheduleBootstrap>();
+
+        // Comment effects (M13-009): global semantic claim ledger + focused provider
+        // adapters over the shared Graph transport, plus low-cardinality observability.
+        services.AddScoped<ICommentEffectLedger, EfCommentEffectLedger>();
+        services.AddSingleton<CommentEffectMetrics>();
+        services.AddSingleton<ICommentEffectObservability>(sp => sp.GetRequiredService<CommentEffectMetrics>());
+        services.AddHttpClient(GraphCommentPrivateReplyClient.HttpClientName);
+        services.AddSingleton(sp => new GraphCommentPrivateReplyClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphCommentPrivateReplyClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaMessagingOptions>>(),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<ICommentPrivateReplyClient>(sp => sp.GetRequiredService<GraphCommentPrivateReplyClient>());
+        services.AddHttpClient(GraphCommentPublicReplyClient.HttpClientName);
+        services.AddSingleton(sp => new GraphCommentPublicReplyClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphCommentPublicReplyClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<ICommentPublicReplyClient>(sp => sp.GetRequiredService<GraphCommentPublicReplyClient>());
+        services.AddHttpClient(GraphCommentReferenceReader.HttpClientName);
+        services.AddSingleton(sp => new GraphCommentReferenceReader(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphCommentReferenceReader.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<ICommentReferenceReader>(sp => sp.GetRequiredService<GraphCommentReferenceReader>());
+        services.AddScoped<CommentPrivateReplyCoordinator>();
 
         return services;
     }

@@ -273,4 +273,114 @@ public sealed class ExecuteAutomationTests
         Assert.Empty(runsRepo.Runs);
         Assert.Empty(dispatcher.Dispatches);
     }
+
+    // ------------------------------------------------------------------ M13-009 terminal one-shot outcomes
+
+    [Fact]
+    public async Task DispatchCarriesTriggerOriginSemantics()
+    {
+        var automation = ActiveAutomation(actionCount: 1);
+        var runsRepo = new FakeRunRepository();
+        var dispatcher = new FakeDispatcher();
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
+        var context = Context() with { IsLiveComment = true };
+
+        await useCase.ExecuteAsync(Request(automation, context), default);
+
+        var dispatch = Assert.Single(dispatcher.Dispatches);
+        Assert.Equal(TriggerKind.CommentCreated, dispatch.TriggerKind);
+        Assert.Equal("comment-77", dispatch.TriggerEntityId);
+        Assert.Equal(Now, dispatch.TriggerOccurredAtUtc);
+        Assert.True(dispatch.IsLiveComment);
+        Assert.Equal(0, dispatch.ActionIndex);
+        Assert.Equal(ActionKind.SendDirectMessage, dispatch.ActionKind);
+    }
+
+    [Fact]
+    public async Task SuppressedOutcomeRecordsSuppressedSlotAndClosesRunFinished()
+    {
+        var automation = ActiveAutomation(actionCount: 1);
+        var runsRepo = new FakeRunRepository();
+        var dispatcher = new FakeDispatcher(_ => ActionResult.TerminalSuppressed("privateReply.alreadyClaimed"));
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
+
+        var outcome = await useCase.ExecuteAsync(Request(automation), default);
+
+        Assert.Equal(ExecutionStatus.Finished, outcome.Status);
+        var slot = Assert.Single(outcome.Actions);
+        Assert.Equal(Domain.AutomationActionStatus.Suppressed, slot.Status);
+        Assert.Equal("privateReply.alreadyClaimed", slot.FailureCode);
+        Assert.NotEqual(Domain.AutomationActionStatus.Succeeded, slot.Status);
+    }
+
+    [Fact]
+    public async Task UncertainOutcomeRecordsUncertainSlotAndClosesRunFinished()
+    {
+        var automation = ActiveAutomation(actionCount: 1);
+        var runsRepo = new FakeRunRepository();
+        var dispatcher = new FakeDispatcher(_ => ActionResult.TerminalUncertain("privateReply.uncertain"));
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
+
+        var outcome = await useCase.ExecuteAsync(Request(automation), default);
+
+        Assert.Equal(ExecutionStatus.Finished, outcome.Status);
+        var slot = Assert.Single(outcome.Actions);
+        Assert.Equal(Domain.AutomationActionStatus.Uncertain, slot.Status);
+        Assert.Equal("privateReply.uncertain", slot.FailureCode);
+    }
+
+    [Fact]
+    public async Task TerminalProviderFailureRecordsTerminalFailedSlotAndClosesRunFinished()
+    {
+        var automation = ActiveAutomation(actionCount: 1);
+        var runsRepo = new FakeRunRepository();
+        var dispatcher = new FakeDispatcher(_ => ActionResult.TerminalFailed("privateReply.terminalFailed.rejectedByMeta"));
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
+
+        var outcome = await useCase.ExecuteAsync(Request(automation), default);
+
+        Assert.Equal(ExecutionStatus.Finished, outcome.Status);
+        var slot = Assert.Single(outcome.Actions);
+        Assert.Equal(Domain.AutomationActionStatus.TerminalFailed, slot.Status);
+        Assert.Equal("privateReply.terminalFailed.rejectedByMeta", slot.FailureCode);
+    }
+
+    [Fact]
+    public async Task FinishedRunIsNeverRedispatchedOrSaved()
+    {
+        var automation = ActiveAutomation(actionCount: 1);
+        var runsRepo = new FakeRunRepository();
+        var dispatcher = new FakeDispatcher(_ => ActionResult.TerminalSuppressed("privateReply.alreadyClaimed"));
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
+
+        var first = await useCase.ExecuteAsync(Request(automation), default);
+        Assert.Equal(ExecutionStatus.Finished, first.Status);
+        var savesAfterFirst = runsRepo.SaveCount;
+
+        // Webhook redelivery: a Finished run is immutable — no dispatch, no write.
+        var again = await useCase.ExecuteAsync(Request(automation), default);
+
+        Assert.Equal(ExecutionStatus.Finished, again.Status);
+        Assert.Equal(savesAfterFirst, runsRepo.SaveCount);
+        Assert.Single(dispatcher.Dispatches);
+    }
+
+    [Fact]
+    public async Task MixedTerminalAndSucceededSlotsCloseRunFinishedNotCompleted()
+    {
+        var automation = ActiveAutomation(actionCount: 2);
+        var runsRepo = new FakeRunRepository();
+        var responses = new Queue<ActionResult>([
+            ActionResult.TerminalSuppressed("privateReply.alreadyClaimed"),
+            ActionResult.Delivered(),
+        ]);
+        var dispatcher = new FakeDispatcher(_ => responses.Dequeue());
+        var useCase = new ExecuteAutomationUseCase(new FakeAutomationRepository(automation), runsRepo, dispatcher);
+
+        var outcome = await useCase.ExecuteAsync(Request(automation), default);
+
+        Assert.Equal(ExecutionStatus.Finished, outcome.Status);
+        Assert.Equal(Domain.AutomationActionStatus.Suppressed, outcome.Actions[0].Status);
+        Assert.Equal(Domain.AutomationActionStatus.Succeeded, outcome.Actions[1].Status);
+    }
 }

@@ -107,6 +107,7 @@ public static class MetaGraphErrorParser
     private static int? ReadInt(JsonElement element, string property) =>
         element.ValueKind == JsonValueKind.Object
         && element.TryGetProperty(property, out var value)
+        && value.ValueKind == JsonValueKind.Number
         && value.TryGetInt32(out var parsed)
             ? parsed
             : null;

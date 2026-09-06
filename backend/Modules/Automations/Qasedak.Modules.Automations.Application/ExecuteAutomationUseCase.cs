@@ -23,6 +23,7 @@ public sealed record ExecutionOutcome(
         AutomationRunStatus.Completed => ExecutionStatus.Executed,
         AutomationRunStatus.Failed => ExecutionStatus.Failed,
         AutomationRunStatus.Refused => ExecutionStatus.RefusedNotActive,
+        AutomationRunStatus.Finished => ExecutionStatus.Finished,
         _ => ExecutionStatus.Executed,
     };
 }
@@ -40,6 +41,9 @@ public enum ExecutionStatus
     RefusedStaleVersion,
 
     Failed,
+
+    /// <summary>All slots terminal; at least one one-shot effect was not delivered.</summary>
+    Finished,
 }
 
 /// <summary>
@@ -100,13 +104,16 @@ public sealed class ExecuteAutomationUseCase(
                 return new ExecutionOutcome(ExecutionStatus.RefusedStaleVersion, existing.Actions);
             }
 
-            if (existing.Status == AutomationRunStatus.Completed)
+            if (existing.Status is AutomationRunStatus.Completed or AutomationRunStatus.Finished)
             {
-                // Fully executed runs are immutable ledger entries.
-                return new ExecutionOutcome(ExecutionStatus.AlreadyProcessed, existing.Actions);
+                // Fully executed (or terminally closed) runs are immutable ledger entries;
+                // a Finished run's one-shot effects must never be re-dispatched.
+                return new ExecutionOutcome(
+                    existing.Status == AutomationRunStatus.Completed ? ExecutionStatus.AlreadyProcessed : ExecutionStatus.Finished,
+                    existing.Actions);
             }
 
-            // Running or partially failed runs resume at their non-succeeded slots.
+            // Running or partially failed runs resume at their non-terminal slots.
             return await ExecuteSlotsAsync(existing, frozenVersion.Definition, request, cancellationToken);
         }
 
@@ -143,11 +150,23 @@ public sealed class ExecuteAutomationUseCase(
                 action.MessageText,
                 run.AutomationId,
                 run.AutomationVersionNumber,
-                request.Trigger.EventId), cancellationToken);
+                request.Trigger.EventId,
+                request.Trigger.Kind,
+                request.Trigger.CommentId,
+                request.Trigger.OccurredAtUtc,
+                request.Trigger.IsLiveComment,
+                slot.Index,
+                action.Kind), cancellationToken);
 
             if (result.Accepted)
             {
                 run.RecordSuccess(slot.Index, request.Trigger.OccurredAtUtc);
+            }
+            else if (result.Terminal && result.TerminalStatus is { } terminalStatus)
+            {
+                // One-shot effect outcomes are terminal: never re-attempted, never marked
+                // delivered. A Finished run is immutable like a Completed run.
+                run.RecordTerminal(slot.Index, terminalStatus, result.FailureCode ?? "action.terminal", request.Trigger.OccurredAtUtc);
             }
             else
             {

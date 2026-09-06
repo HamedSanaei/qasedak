@@ -14,7 +14,10 @@ public sealed record TriggerContext(
     string CommentId,
     string? SenderId,
     string? CommentText,
-    DateTimeOffset OccurredAtUtc);
+    DateTimeOffset OccurredAtUtc,
+    /// <summary>M13-009: comment came from a live broadcast (provider media_product_type /
+    /// live_comments field); Private Reply eligibility must never use the 7-day rule.</summary>
+    bool IsLiveComment = false);
 
 /// <summary>Result of evaluating a definition against a trigger context.</summary>
 public sealed record RuleEvaluation(

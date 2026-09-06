@@ -24,6 +24,9 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
     /// <summary>Durable daily follower snapshots (M13-007); Instagram-owned analytics history.</summary>
     public DbSet<FollowerSnapshotRow> FollowerSnapshots => Set<FollowerSnapshotRow>();
 
+    /// <summary>Global semantic effect claims (M13-009); one-shot provider effects (Private Reply / Public Reply).</summary>
+    public DbSet<Effects.CommentEffectRow> CommentEffects => Set<Effects.CommentEffectRow>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
@@ -117,6 +120,26 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
             // create duplicate snapshots for the same account/day.
             snapshot.HasIndex(s => new { s.ConnectedAccountId, s.SnapshotDateUtc }).IsUnique();
             // History reads by account use the unique index prefix; no extra index needed.
+        });
+
+        modelBuilder.Entity<Effects.CommentEffectRow>(effect =>
+        {
+            effect.ToTable("comment_effects");
+            effect.HasKey(e => e.Id);
+            effect.Property(e => e.Id).ValueGeneratedNever();
+            effect.Property(e => e.ProviderCommentId).HasMaxLength(128);
+            effect.Property(e => e.OwnerOperationId).HasMaxLength(256);
+            effect.Property(e => e.EffectType).HasConversion<int>();
+            effect.Property(e => e.Status).HasConversion<int>();
+            effect.Property(e => e.ProviderRecipientId).HasMaxLength(128);
+            effect.Property(e => e.ProviderMessageId).HasMaxLength(256);
+            effect.Property(e => e.FailureCode).HasMaxLength(128);
+            // The global semantic claim: PostgreSQL-enforced uniqueness across automations,
+            // redeliveries, restarts and application instances. Private and public effects
+            // are distinct rows on the same comment.
+            effect.HasIndex(e => new { e.ConnectedAccountId, e.ProviderCommentId, e.EffectType }).IsUnique();
+            // Recovery/replay reads by semantic key use the unique index prefix; claim
+            // transitions by Id use the primary key. No extra index needed.
         });
     }
 }

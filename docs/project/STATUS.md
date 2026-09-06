@@ -2,9 +2,49 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-009 — Correct comment automation to Meta Private Reply semantics (TODO)
-**Last completed:** M13-008 (2026-09-06)
-**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history and interactive webhook normalization complete (postbacks, read receipts, enriched comments, filtered messages, exact-account dispatch, ms timestamps); comment Private Reply correction not started
+**Current task:** M13-010 — Add interactive Instagram messaging capabilities (TODO)
+**Last completed:** M13-009 (2026-09-07)
+**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization and comment-automation Private Reply semantics complete (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay); interactive messaging capabilities not started
+
+## 2026-09-07 — M13-009 DONE: comment automation uses Meta Private Reply semantics
+
+- Fresh first-party verification ("Send a Private Reply to a Commenter" and the
+  IG Comment reference, developers.facebook.com, retrieved 2026-09-07): Private Reply
+  is `POST graph.instagram.com/<VER>/<IG_ID>/messages` with `recipient:{comment_id}`
+  + `message:{text}`, Bearer IG User token, `instagram_business_basic` +
+  `instagram_business_manage_comments`, success `{recipient_id, message_id}`, one
+  message per commenter, 7 days from **comment creation time**, Live during broadcast
+  only. The stale `POST /<COMMENT_ID>/private_replies` handoff assumption is disproven
+  and corrected in HANDOFF.md + contract §3.4. The commenter IGSID is NOT required
+  for addressing — `FromId == null` never blocks a Private Reply.
+- Three distinct outbound operations: DirectMessage (`recipient.id`, M05 unchanged),
+  PrivateReply (`recipient.comment_id`), PublicCommentReply (`/{comment_id}/replies`
+  boundary; no automation consumer yet — M13-012). Comment-origin automation actions
+  route to Private Reply in the composition root; the M06-005 `recipient.id` first-
+  contact bug is gone (regression: normal conversation replies still use the DM path).
+- Global semantic claim: PostgreSQL-unique `instagram.comment_effects`
+  (ConnectedAccountId + ProviderCommentId + EffectType; additive migration
+  `20260906232403_AddCommentEffects`; M13-008 runtime stays bootable). Claim acquired
+  before any Meta mutation; irreversible Attempting marker persisted before the call;
+  Reserved → Attempting → Succeeded/TerminalFailed/Uncertain with same-owner resume
+  and zero second provider calls after any attempt (timeouts, 5xx, crashes, redelivery,
+  two matching automations, future reconciliation).
+- Policy: exact 7-day math via the official IG Comment `timestamp` read (focused
+  `ICommentReferenceReader` port, Bearer header only, never in the webhook HTTP path),
+  one-sided notification guard as fallback (documented: `entry.time` is notification
+  time, never comment creation time), Live never uses the 7-day rule (attempt-once,
+  Meta is the broadcast authority).
+- AutomationRun: truthful terminal slot statuses Suppressed / Uncertain /
+  TerminalFailed plus a Finished run state — already-claimed or uncertain outcomes are
+  never re-dispatched; a run whose provider effect succeeded but whose row was lost
+  converges from the ledger replay with zero second Meta calls (E2E-proven).
+- Verification: backend 935/935 — Instagram unit 398 (incl. 69 effect tests: 20
+  private-reply adapter, 9 public-reply adapter, 8 reference reader, 13 policy,
+  19 coordinator), PG 48 (13 claim-ledger: concurrency single-winner, owner resume,
+  restart, secrets), API E2E 117 (11 reworked comment-automation flow: two automations
+  one reply, envelope redelivery, crash-after-success, Live, FromId null, expired,
+  wrong account, zero DM). Shared M13-003 parser fixed for `null` code/subcode
+  envelopes (regression added). Format/architecture clean; frontend untouched.
 
 ## 2026-09-06 — M13-008 DONE: interactive webhook normalization
 

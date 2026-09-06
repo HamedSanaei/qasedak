@@ -172,8 +172,11 @@ public sealed class InboundAccountResolutionTests(ApiPostgreSqlFixture fixture)
         // Only the automation bound to the NEW account executes, through the NEW token.
         Assert.NotNull(await FindRunAsync(newAutomation));
         Assert.Null(await FindRunAsync(oldAutomation));
-        var send = Assert.Single(fixture.Messaging.Sends, s => s.RecipientId == commenter);
-        Assert.Equal("new-token-" + tag, send.AccessToken);
+        // M13-009: the comment action is a comment-ID-addressed Private Reply on the
+        // exact reconnected account — never a DM and never the stale account's token.
+        var reply = Assert.Single(fixture.PrivateReplies.Sends, s => s.CommentId == "comment-" + tag);
+        Assert.Equal("new-token-" + tag, reply.AccessToken);
+        Assert.DoesNotContain(fixture.Messaging.Sends, s => s.RecipientId == commenter);
 
         // The inbox list exposes the new account for the thread.
         using var client = AuthedClient(await TokenAsync("resolution-" + tag + "@example.com", workspaceId));

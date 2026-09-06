@@ -217,6 +217,38 @@ public sealed class MetaPayloadNormalizerTests
     }
 
     [Fact]
+    public void LiveFieldCommentIsMarkedLive()
+    {
+        // M13-009: the live_comments field identifies Live comments; the Private Reply
+        // policy must never apply the 7-day rule to them.
+        var outcome = MetaPayloadNormalizer.Normalize("evt-5d", "instagram",
+            "{\"entry\":[{\"id\":\"" + AccountId + "\",\"time\":1502905976963,\"changes\":[{\"field\":\"live_comments\",\"value\":{\"id\":\"comment-live-1\",\"text\":\"watching\"}}]}]}");
+
+        var comment = Assert.IsType<InstagramCommentCreated>(Assert.Single(EventsOf(outcome)));
+        Assert.True(comment.IsLiveComment);
+    }
+
+    [Fact]
+    public void CommentsFieldWithLiveProductTypeIsMarkedLive()
+    {
+        var outcome = MetaPayloadNormalizer.Normalize("evt-5e", "instagram",
+            "{\"entry\":[{\"id\":\"" + AccountId + "\",\"time\":1502905976963,\"changes\":[{\"field\":\"comments\",\"value\":{\"id\":\"comment-live-2\",\"text\":\"hi\",\"media\":{\"id\":\"media-live\",\"media_product_type\":\"LIVE\"}}}]}]}");
+
+        var comment = Assert.IsType<InstagramCommentCreated>(Assert.Single(EventsOf(outcome)));
+        Assert.True(comment.IsLiveComment);
+    }
+
+    [Fact]
+    public void FeedCommentIsNotMarkedLive()
+    {
+        var outcome = MetaPayloadNormalizer.Normalize("evt-5f", "instagram",
+            "{\"entry\":[{\"id\":\"" + AccountId + "\",\"time\":1502905976963,\"changes\":[{\"field\":\"comments\",\"value\":{\"id\":\"comment-11\",\"text\":\"hello\",\"media\":{\"id\":\"media-1\",\"media_product_type\":\"REELS\"}}}]}]}");
+
+        var comment = Assert.IsType<InstagramCommentCreated>(Assert.Single(EventsOf(outcome)));
+        Assert.False(comment.IsLiveComment);
+    }
+
+    [Fact]
     public void AdCommentPreservesOriginalMediaIdSeparatelyFromMediaId()
     {
         var outcome = MetaPayloadNormalizer.Normalize("evt-5c", "instagram",

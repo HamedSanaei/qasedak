@@ -111,13 +111,34 @@ API for Messenger Platform (2026-02-11); Instagram Messaging overview
 
 **Consequence:** a comment does **not** open the 24h DM window — the normal
 `recipient.id` send fails with 10/2534022; the Private Reply endpoint is the
-only first-contact route. Qasedak's M06-005 normal-DM route is therefore
-incorrect and M13-009 replaces it. No code changes in M13-001.
+only first-contact route. Qasedak's M06-005 normal-DM route was incorrect;
+**M13-009 (2026-09-07) replaced it**: comment-origin automation actions are
+comment-ID-addressed Private Replies (`recipient.comment_id`), never
+`recipient.id` DMs, and the stale `POST /<COMMENT_ID>/private_replies`
+protocol assumption was disproven and removed from the handoff.
+
+**M13-009 fresh verification (2026-09-07, "Send a Private Reply to a
+Commenter" — developers.facebook.com):** endpoint confirmed as
+`POST https://graph.instagram.com/<VER>/<APP_USERS_IG_ID>/messages` with
+`recipient:{comment_id}` + `message:{text}`, Bearer IG User token;
+permissions `instagram_business_basic` + `instagram_business_manage_comments`;
+success `{recipient_id, message_id}`; one message per commenter; 7 days from
+**comment creation time**; Live during broadcast only; follow-ups only after
+recipient response within 24h. The commenter IGSID is NOT part of the request
+— `value.from.id` is not required for Private Reply addressing.
+
+**Comment creation time availability (2026-09-07, IG Comment reference):**
+`GET /{ig-comment-id}?fields=timestamp` returns the ISO 8601 comment creation
+timestamp (Bearer IG User token; comments on live media readable only while
+the broadcast is active). M13-009 uses this focused read for exact 7-day
+policy enforcement; the webhook `entry.time` is only the notification time
+and is never presented as comment creation time.
 
 Sources: Send a Private Reply to a Commenter — Instagram Platform
-(2026-06-30); Private Replies — Instagram Messaging (2026-07-02); community
-field report of 10/2534022 on comment-triggered normal send (2026-02,
-terminology corroboration only).
+(2026-06-30, re-verified 2026-09-07); Private Replies — Instagram Messaging
+(2026-07-02); IG Comment reference (`timestamp` field, re-verified
+2026-09-07); community field report of 10/2534022 on comment-triggered normal
+send (2026-02, terminology corroboration only).
 
 ### 3.5 Public comment replies (both paths — current)
 

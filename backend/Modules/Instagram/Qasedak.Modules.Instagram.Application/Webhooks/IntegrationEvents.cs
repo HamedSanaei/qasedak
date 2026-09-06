@@ -69,8 +69,14 @@ public sealed record InstagramCommentCreated(
     string? MediaId,
     /// <summary>Original media id for ad/boosted comments ("value.media.original_media_id"); preserved separately, never merged into <see cref="MediaId"/>.</summary>
     string? OriginalMediaId,
-    /// <summary>Provider time: webhook entry.time (the only provider time in the current official comments payload).</summary>
-    DateTimeOffset CreatedAtUtc) : IIntegrationEvent;
+    /// <summary>Provider time: webhook entry.time — the time Meta sent the notification, NOT the
+    /// comment creation time (the official Private Reply 7-day window is measured from comment
+    /// creation; M13-009 reads the IG Comment reference for the authoritative timestamp).</summary>
+    DateTimeOffset CreatedAtUtc,
+    /// <summary>True when the comment arrived via the live_comments field or media.media_product_type
+    /// is LIVE (M13-009 Private Reply policy: Live replies are only valid during the broadcast and
+    /// must never fall back to the 7-day comment rule).</summary>
+    bool IsLiveComment = false) : IIntegrationEvent;
 
 public sealed record InstagramMentionCreated(
     string EventId,

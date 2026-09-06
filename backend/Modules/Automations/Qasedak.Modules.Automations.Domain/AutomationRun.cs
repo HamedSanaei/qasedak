@@ -14,6 +14,13 @@ public enum AutomationRunStatus
 
     /// <summary>Evaluation matched but the source automation was stale/disabled mid-run.</summary>
     Refused = 4,
+
+    /// <summary>
+    /// All action slots are terminal but at least one was not delivered (suppressed /
+    /// uncertain / terminal-failed one-shot effect). Immutable like <see cref="Completed"/>;
+    /// resuming a Finished run never re-dispatches anything.
+    /// </summary>
+    Finished = 5,
 }
 
 /// <summary>Outcome of one action within a run.</summary>
@@ -21,7 +28,18 @@ public enum AutomationActionStatus
 {
     Pending = 0,
     Succeeded = 1,
+
+    /// <summary>Retriable failure (channel/temporary).</summary>
     Failed = 2,
+
+    /// <summary>Terminal: the one-shot effect was already claimed by another operation.</summary>
+    Suppressed = 3,
+
+    /// <summary>Terminal: an attempt began but the provider outcome is unknown; never re-attempted.</summary>
+    Uncertain = 4,
+
+    /// <summary>Terminal: the provider/effect failed deterministically; never re-attempted.</summary>
+    TerminalFailed = 5,
 }
 
 /// <summary>One action slot inside a run.</summary>
@@ -135,6 +153,26 @@ public sealed class AutomationRun
         FinishedAtUtc = occurredAtUtc;
     }
 
+    /// <summary>
+    /// Records a terminal (never re-attempted) outcome for a one-shot effect slot:
+    /// <see cref="AutomationActionStatus.Suppressed"/>, <see cref="AutomationActionStatus.Uncertain"/>
+    /// or <see cref="AutomationActionStatus.TerminalFailed"/>. A run whose slots are all
+    /// terminal closes as <see cref="AutomationRunStatus.Finished"/> — immutable, never
+    /// re-dispatched, never marked delivered.
+    /// </summary>
+    public void RecordTerminal(int actionIndex, AutomationActionStatus status, string failureCode, DateTimeOffset occurredAtUtc)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(failureCode);
+        if (status is not (AutomationActionStatus.Suppressed or AutomationActionStatus.Uncertain or AutomationActionStatus.TerminalFailed))
+        {
+            throw new AutomationsDomainException("run.invalidTerminalStatus", $"Status {status} is not a terminal slot outcome.");
+        }
+
+        EnsureMutable(actionIndex);
+        _actions[actionIndex] = _actions[actionIndex] with { Status = status, FailureCode = failureCode };
+        CloseIfTerminal(occurredAtUtc);
+    }
+
     private void EnsureMutable(int actionIndex)
     {
         if (Status is AutomationRunStatus.Completed or AutomationRunStatus.Refused)
@@ -165,6 +203,16 @@ public sealed class AutomationRun
         if (_actions.All(a => a.Status == AutomationActionStatus.Succeeded))
         {
             Status = AutomationRunStatus.Completed;
+            FinishedAtUtc = occurredAtUtc;
+            return;
+        }
+
+        if (_actions.All(a => a.Status is AutomationActionStatus.Succeeded
+            or AutomationActionStatus.Suppressed
+            or AutomationActionStatus.Uncertain
+            or AutomationActionStatus.TerminalFailed))
+        {
+            Status = AutomationRunStatus.Finished;
             FinishedAtUtc = occurredAtUtc;
         }
     }

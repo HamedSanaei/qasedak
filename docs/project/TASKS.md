@@ -1178,7 +1178,29 @@ architecture/state/handoff/manifest and relevant gates pass with no live Meta ca
   full backend suite 838 green; format/architecture clean.
 
 ## M13-009 — Correct comment automation to Meta Private Reply semantics
-**Status:** TODO
+**Status:** DONE (2026-09-07)
+
+**Completion summary:** Fresh first-party verification (2026-09-07) confirmed Private
+Reply = `POST /<IG_ID>/messages` with `recipient.comment_id` (Bearer IG User token,
+basic + manage_comments) and disproved the stale `/<COMMENT_ID>/private_replies` handoff
+assumption (corrected in HANDOFF/contract). Three distinct operations now exist:
+DirectMessage (`recipient.id`, M05 unchanged), PrivateReply (`recipient.comment_id`),
+PublicCommentReply (`/{comment_id}/replies` boundary). Comment-origin automation actions
+route to the Private Reply via the composition-root dispatcher; the commenter IGSID is
+never the addressing identity and `FromId == null` never blocks a reply. A global
+semantic claim (`ConnectedAccountId + CommentId + EffectType`, PostgreSQL-unique
+`instagram.comment_effects`, additive migration `20260906232403_AddCommentEffects`)
+is acquired before any Meta mutation, with a durable irreversible Attempting marker
+before the provider call and a Reserved→Attempting→Succeeded/TerminalFailed/Uncertain
+state machine that replays crash outcomes with ZERO second provider calls. Exact 7-day
+enforcement uses the official IG Comment `timestamp` read (focused port, never in the
+webhook HTTP path) with the one-sided notification guard as fallback; Live comments
+never use the 7-day rule (attempt-once, Meta is the broadcast authority). AutomationRun
+learned truthful terminal slot statuses (Suppressed/Uncertain/TerminalFailed) and a
+Finished run state so already-claimed/uncertain outcomes never re-dispatch. Backend
+935/935 (Instagram unit 398 incl. 69 effect tests; PG 48 incl. 13 claim-ledger tests;
+API E2E 117 incl. 11 reworked private-reply flow tests + exact-account regressions),
+format/architecture clean, frontend untouched.
 
 **Outcome:** Replace M06-005's incorrect first-contact comment → normal DM route with a
 distinct, policy-aware Private Reply keyed by the origin comment, while keeping standard

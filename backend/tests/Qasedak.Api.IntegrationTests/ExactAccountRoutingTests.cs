@@ -128,6 +128,9 @@ public sealed class ExactAccountRoutingTests(ApiPostgreSqlFixture fixture)
     private List<(string AccessToken, string RecipientId, string Text)> SendsTo(string recipientId) =>
         fixture.Messaging.Sends.Where(s => s.RecipientId == recipientId).ToList();
 
+    private List<(string AccessToken, string ProviderAccountId, string CommentId, string Text)> PrivateRepliesTo(string commentId) =>
+        fixture.PrivateReplies.Sends.Where(s => s.CommentId == commentId).ToList();
+
     private static async Task<string?> FailureCodeAsync(HttpResponseMessage response)
     {
         try
@@ -305,16 +308,21 @@ public sealed class ExactAccountRoutingTests(ApiPostgreSqlFixture fixture)
 
         Assert.True((await PostSignedAsync(CommentBody(providerA, "c-" + tag + "-a", commenterA, "what is the price?"))).IsSuccessStatusCode);
 
-        Assert.Single(SendsTo(commenterA));
-        Assert.Empty(SendsTo(commenterB));
+        // M13-009: comment-origin automation actions are comment-ID-addressed Private
+        // Replies on the exact bound account — never a DM to the commenter.
+        var replyA = Assert.Single(PrivateRepliesTo("c-" + tag + "-a"));
+        Assert.Equal("auto-token-A-" + tag, replyA.AccessToken);
+        Assert.Empty(PrivateRepliesTo("c-" + tag + "-b"));
+        Assert.DoesNotContain(fixture.Messaging.Sends, s => s.RecipientId == commenterA);
         Assert.NotNull(await FindRunAsync(automationA));
         Assert.Null(await FindRunAsync(automationB));
 
         Assert.True((await PostSignedAsync(CommentBody(providerB, "c-" + tag + "-b", commenterB, "what is the price?"))).IsSuccessStatusCode);
-        Assert.Single(SendsTo(commenterB));
+        var replyB = Assert.Single(PrivateRepliesTo("c-" + tag + "-b"));
+        Assert.Equal("auto-token-B-" + tag, replyB.AccessToken);
         Assert.NotNull(await FindRunAsync(automationB));
-        // Still exactly one send per commenter: no cross-execution, no redelivery echo.
-        Assert.Single(SendsTo(commenterA));
+        // Still exactly one reply per comment: no cross-execution, no redelivery echo.
+        Assert.Single(PrivateRepliesTo("c-" + tag + "-a"));
     }
 
     [Fact]

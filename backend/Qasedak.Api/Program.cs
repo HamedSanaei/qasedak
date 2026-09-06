@@ -90,7 +90,10 @@ builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IWebho
 builder.Services.AddScoped<Qasedak.Modules.Conversations.Application.Conversations.IConversationChannelGateway,
     Qasedak.Api.CrossModule.InstagramReplyGateway>();
 // Automations: comment events drive the idempotent execution engine; the channel-neutral
-// dispatcher port is filled by the same outbound gateway (24h window enforced there).
+// dispatcher port routes comment-origin actions to the one-shot Private Reply operation
+// (M13-009, global semantic claim enforced) and keeps established conversation replies on
+// the direct-message gateway (recipient.id, 24h window enforced there).
+builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationPrivateReplyBridge>();
 builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IAutomationActionDispatcher,
     Qasedak.Api.CrossModule.AutomationChannelDispatcher>();
 // Entitlement enforcement: automation activation is gated by the workspace's plan limits

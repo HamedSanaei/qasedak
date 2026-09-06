@@ -35,6 +35,22 @@ public sealed class MetaGraphTransportTests
     }
 
     [Fact]
+    public void NullSubcodeAndCodeDoNotThrow()
+    {
+        // M13-009 regression: provider envelopes sometimes carry "code":null / "error_subcode":null;
+        // the parser must yield a null code instead of throwing on the null element.
+        using var document = Envelope(
+            """{"error":{"message":"something went wrong","type":"OAuthException","code":null,"error_subcode":null}}""");
+
+        var error = MetaGraphErrorParser.Parse(500, document);
+
+        Assert.Equal(500, error.HttpStatusCode);
+        Assert.Null(error.Code);
+        Assert.Null(error.Subcode);
+        Assert.Contains("something went wrong", error.Message);
+    }
+
+    [Fact]
     public void FlatOAuthShapeParsesErrorTypeAndMessage()
     {
         using var document = Envelope(
