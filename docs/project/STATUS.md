@@ -6,6 +6,36 @@
 **Last completed:** M13-005 (2026-09-06)
 **Product implementation:** Instagram connection lifecycle complete (state-bound OAuth, profile enrichment, subscriptions, scheduled refresh); media catalog not started
 
+## 2026-09-06 — M13-005 deployed; production on immutable task image
+
+- Task commits pushed to `origin/master`: `13a930ec7d16` (`feat(instagram):
+  complete account connection operations`) + `a68762e139f3` (`docs(manifest):
+  include M13-005 files in repository manifest` — first CI run exposed that
+  `FILE_MANIFEST.txt` had been generated before `git add` staged the 26 new
+  files; process lesson: regenerate the manifest after staging).
+- CI `34002028688` success (4 jobs incl. docker); CodeQL `34002028682`
+  success; Publish Images `34002179444` success
+  (`ghcr.io/hamedsanaei/qasedak-api|web:sha-a68762e139f3`); Deploy Production
+  `34002231420` success for the exact SHA (previous `sha-0a3fbc0ac295`, DB
+  backup `qasedak-20260906T004815Z-sha-a68762e139f3.dump`, instagram migration
+  `20260905204310_AddConnectionEnrichment` applied in production, api
+  Healthy, in-workflow health + public-web-auth-routing smoke passed
+  ~00:48Z). No rollback. (An earlier Deploy run `34001101225` on `13a930e`
+  correctly skipped: CI had failed on the stale manifest.)
+- Independent public smoke at `https://qasedak.tofanservice.ir`: `/` 200,
+  `/api/v1/system` 200, register 201 + valid login 200 (real accounts).
+  Invalid-credential and duplicate-register failure paths return an empty
+  400 at the edge instead of the code/CI-proven 401/409 JSON bodies
+  (`LoginWithWrongPasswordIsUnauthorized` passes in CI on this exact tree),
+  so the alteration happens upstream of the app (proxy/front door), is
+  outside the M13-005 diff (Identity/pipeline untouched), and needs a
+  human/infra follow-up — recorded here, not hidden.
+- Scheduler startup evidence: no DI/startup exceptions in deploy log; api
+  Healthy with the dispatcher hosted and the first production handler
+  (`instagram.token-refresh`) registered; no fake jobs enqueued.
+- Live Meta smoke: NOT RUN — no designated production test account; no
+  customer token touched.
+
 ## 2026-09-06 — M13-005 DONE: connection enrichment, subscriptions, token refresh
 
 - Fresh first-party verification (developers.facebook.com, 2026-09-06):

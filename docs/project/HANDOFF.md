@@ -88,6 +88,40 @@ Live Meta smoke: NOT RUN unless a designated production test account exists.
   `story_insights`/handover/optins/referral/standby unsubscribed (no M13
   consumer); FB-Login path preserved only as established by M13-001.
 
+### Deployment evidence — M13-005 (2026-09-06, UTC)
+
+- Task commits: `13a930ec7d1630b660dc30a14c8381ccab33b29f`
+  (`feat(instagram): complete account connection operations`) and
+  `a68762e139f379ca46605eaf59e68c4496089adf` (`docs(manifest): include
+  M13-005 files in repository manifest`; authoritative — the deployed tree),
+  both pushed to `origin/master`.
+- CI `34002028688`: success (repository-contracts, backend, frontend,
+  docker). First CI run `34000995936` failed only on a stale
+  `FILE_MANIFEST.txt` (generated before `git add` staged the 26 new files);
+  fixed by regenerating after staging — no code change.
+- CodeQL `34002028682`: success.
+- Publish Images `34002179444`: success — both images tagged immutable
+  `sha-a68762e139f3`.
+- Deploy Production `34002231420`: success for the exact SHA (previous
+  `sha-0a3fbc0ac295`; backup
+  `qasedak-20260906T004815Z-sha-a68762e139f3.dump`; instagram migration
+  `20260905204310_AddConnectionEnrichment` applied; api Healthy;
+  in-workflow health + public-web-auth-routing smoke passed ~00:48Z; no
+  rollback). A prior Deploy trigger `34001101225` on `13a930e` correctly
+  skipped after that SHA's CI failed.
+- Scheduler startup evidence: no DI/startup exceptions; api Healthy with
+  the dispatcher + `instagram.token-refresh` handler registered; no jobs
+  fabricated. Handler DI validity is additionally proven by the API
+  integration suite booting the real host.
+- Public smoke (independent): `/` 200, `/api/v1/system` 200, register 201,
+  valid login 200. Invalid-credential/duplicate-register failure paths
+  return empty 400 at the edge instead of the code/CI-proven 401/409 JSON —
+  upstream-of-app behavior, outside the M13-005 diff, flagged for
+  human/infra follow-up (see STATUS).
+- Live Meta smoke: NOT RUN — no designated production test account; no
+  customer token touched.
+- Production runtime is now immutable `sha-a68762e139f3`.
+
 M13-004 shipped the durable scheduled-work mechanism (contracts + PostgreSQL
 store + dispatcher + migration + ADR-012 + tests). 573/573 backend,
 `verify.py --full` green. Commit/push/CI/deploy/smoke/evidence follow in this
