@@ -19,6 +19,8 @@ public sealed partial class LoggingIntegrationEventDispatcher(
             InstagramMessageReceived message => ("message", $"sender={message.SenderId} textLength={message.Text?.Length ?? 0}"),
             InstagramCommentCreated comment => ("comment", $"commentId={comment.CommentId} textLength={comment.Text?.Length ?? 0}"),
             InstagramMentionCreated mention => ("mention", $"commentId={mention.CommentId}"),
+            InstagramPostbackReceived postback => ("postback", $"sender={postback.SenderId} mid={postback.ProviderMessageId}"),
+            InstagramMessageRead read => ("read", $"sender={read.SenderId} mid={read.ProviderMessageId}"),
             _ => ("unknown", string.Empty),
         };
 

@@ -75,10 +75,16 @@ public static class DependencyInjection
         services.AddScoped<IWebhookInboxStore, EfWebhookInboxStore>();
         services.AddSingleton<IIntegrationEventDispatcher, LoggingIntegrationEventDispatcher>();
         services.AddScoped<ProcessPendingWebhookEventsUseCase>();
+        // Exact-account inbound enrichment (M13-008): the deterministic M13-002 resolver
+        // behind a focused port; normalization stays pure, resolution happens once at the
+        // processing boundary before dispatch.
+        services.AddScoped<IInboundAccountResolver, ConnectedAccountInboundResolver>();
 
-        // Webhook observability: shared meter; backlog gauge attached once the host starts.
+        // Webhook observability: shared meter (also implements the Application
+        // normalization-observability port); backlog gauge attached once the host starts.
         var webhookMetrics = new WebhookMetrics();
         services.AddSingleton(webhookMetrics);
+        services.AddSingleton<IWebhookNormalizationObservability>(sp => sp.GetRequiredService<WebhookMetrics>());
         services.AddHostedService<WebhookBacklogGauge>();
 
         // Account lifecycle use cases.

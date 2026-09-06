@@ -39,7 +39,7 @@ public sealed class InboundAccountResolutionTests(ApiPostgreSqlFixture fixture)
 
     private static byte[] MessageBody(string accountProviderId, string participantId, string mid, string text)
     {
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         return Encoding.UTF8.GetBytes(
             "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + accountProviderId + "\",\"messaging\":[" +
             "{\"sender\":{\"id\":\"" + participantId + "\"},\"recipient\":{\"id\":\"" + accountProviderId + "\"}," +
@@ -49,11 +49,10 @@ public sealed class InboundAccountResolutionTests(ApiPostgreSqlFixture fixture)
 
     private static byte[] CommentBody(string accountProviderId, string commentId, string commenterId, string text)
     {
-        var created = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         return Encoding.UTF8.GetBytes(
-            "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + accountProviderId + "\",\"changes\":[" +
+            "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + accountProviderId + "\",\"time\":1502905976963,\"changes\":[" +
             "{\"field\":\"comments\",\"value\":{\"id\":\"" + commentId + "\",\"from\":{\"id\":\"" + commenterId + "\"}," +
-            "\"text\":\"" + text + "\",\"created_time\":" + created + "}}]}]}");
+            "\"text\":\"" + text + "\"}}]}]}");
     }
 
     private async Task<HttpResponseMessage> PostSignedAsync(byte[] body)

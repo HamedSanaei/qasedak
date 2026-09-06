@@ -9,9 +9,10 @@ namespace Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 /// <summary>
 /// Module-owned webhook observability: one meter, tag-consistent counters and a backlog
 /// gauge. Counter identities are stable contracts for dashboards — do not rename without
-/// an ADR note.
+/// an ADR note. Implements the Application normalization-observability port so the use
+/// case records low-cardinality outcome counters without knowing the meter.
 /// </summary>
-public sealed class WebhookMetrics : IDisposable
+public sealed class WebhookMetrics : IDisposable, IWebhookNormalizationObservability
 {
     public const string MeterName = "Qasedak.Instagram.Webhooks";
 
@@ -28,6 +29,15 @@ public sealed class WebhookMetrics : IDisposable
 
     /// <summary>End-to-end ingestion duration in milliseconds.</summary>
     public Histogram<double> IngestionDuration { get; }
+
+    /// <summary>Integration events normalized at the processing boundary, tagged by kind (M13-008).</summary>
+    public Counter<long> FragmentsNormalized { get; }
+
+    /// <summary>Recognized non-triggering fragments skipped with a reason (M13-008).</summary>
+    public Counter<long> FragmentsIgnored { get; }
+
+    /// <summary>Unrecognized/unresolvable fragments recorded with a kind (M13-008).</summary>
+    public Counter<long> FragmentsUnrecognized { get; }
 
     public WebhookMetrics()
     {
@@ -47,7 +57,28 @@ public sealed class WebhookMetrics : IDisposable
             "qasedak.instagram.webhook.ingestion.duration",
             unit: "ms",
             description: "Ingestion pipeline duration per notification");
+        FragmentsNormalized = _meter.CreateCounter<long>(
+            "qasedak.instagram.webhook.normalized",
+            unit: "{fragment}",
+            description: "Integration events normalized at the processing boundary by kind");
+        FragmentsIgnored = _meter.CreateCounter<long>(
+            "qasedak.instagram.webhook.ignored",
+            unit: "{fragment}",
+            description: "Recognized non-triggering fragments skipped by reason");
+        FragmentsUnrecognized = _meter.CreateCounter<long>(
+            "qasedak.instagram.webhook.unrecognized",
+            unit: "{fragment}",
+            description: "Unrecognized or unresolvable fragments by kind");
     }
+
+    void IWebhookNormalizationObservability.RecordNormalized(string kind) =>
+        FragmentsNormalized.Add(1, new KeyValuePair<string, object?>("kind", kind));
+
+    void IWebhookNormalizationObservability.RecordIgnored(string reason) =>
+        FragmentsIgnored.Add(1, new KeyValuePair<string, object?>("reason", reason));
+
+    void IWebhookNormalizationObservability.RecordUnrecognized(string kind) =>
+        FragmentsUnrecognized.Add(1, new KeyValuePair<string, object?>("kind", kind));
 
     /// <summary>
     /// Attaches the inbox-backlog gauge. The observer runs on metric-collection callbacks

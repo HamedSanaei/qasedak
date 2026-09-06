@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Conversations.Application.Conversations;
-using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 
@@ -12,13 +11,13 @@ namespace Qasedak.Api.CrossModule;
 /// Composition-root bridge: routes normalized Instagram integration events into the
 /// Conversations module's inbound projection. This adapter is the explicit cross-module
 /// contract required by the architecture rules — neither module references the other;
-/// both meet here where all modules are already referenced. The exact connected
-/// account behind the provider identity is resolved and converted to the opaque
-/// channel-account identity before crossing the boundary; unbound, unknown or
-/// disconnected accounts are logged and skipped — never guessed.
+/// both meet here where all modules are already referenced. Exact-account resolution
+/// happened upstream (M13-008 processing boundary): the event carries the Qasedak
+/// workspace + connected-account keys and they are converted to the opaque
+/// channel-account identity before crossing the boundary. Events without a resolved
+/// account never reach this bridge; null keys are logged and skipped defensively.
 /// </summary>
 public sealed partial class InstagramConversationBridge(
-    IConnectedAccountRepository accounts,
     ProjectInboundMessageUseCase projection,
     WebhookMetrics metrics,
     ILogger<InstagramConversationBridge> logger) : IIntegrationEventDispatcher
@@ -33,24 +32,16 @@ public sealed partial class InstagramConversationBridge(
             return;
         }
 
-        if (message.ProviderAccountId is null)
+        if (message.WorkspaceId is null || message.ConnectedAccountId is null)
         {
             LogUnbound(message.EventId);
             return;
         }
 
-        var resolution = await accounts.ResolveActiveAccountAsync(message.ProviderAccountId, cancellationToken);
-        if (resolution.Status != AccountResolutionStatus.Resolved || resolution.Account is null)
-        {
-            LogUnresolved(message.EventId, resolution.Status.ToString());
-            return;
-        }
-
-        var account = resolution.Account;
         var result = await projection.ExecuteAsync(new InboundMessageProjection(
-            account.WorkspaceId,
+            message.WorkspaceId.Value,
             Channel,
-            ChannelAccountId.From(account.Id),
+            ChannelAccountId.From(message.ConnectedAccountId.Value),
             message.SenderId,
             message.ProviderMessageId,
             message.SenderId,
@@ -70,10 +61,6 @@ public sealed partial class InstagramConversationBridge(
     private partial void LogSkipped(string eventId, string kind);
 
     [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Message event dropped: provider account not bound to a workspace eventId={EventId}")]
+        Message = "Message event dropped: no exact connected account on event eventId={EventId}")]
     private partial void LogUnbound(string eventId);
-
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Message event dropped: account resolution {Status} eventId={EventId}")]
-    private partial void LogUnresolved(string eventId, string status);
 }

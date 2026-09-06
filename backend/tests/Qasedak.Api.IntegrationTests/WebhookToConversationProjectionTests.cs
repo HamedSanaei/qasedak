@@ -25,7 +25,7 @@ public sealed class WebhookToConversationProjectionTests(ApiPostgreSqlFixture fi
 
     private static readonly Guid SeededWorkspaceId = Guid.Parse("11111111-2222-3333-4444-555555555555");
 
-    private static readonly DateTimeOffset SentAt = DateTimeOffset.FromUnixTimeSeconds(1771900000);
+    private static readonly DateTimeOffset SentAt = DateTimeOffset.FromUnixTimeMilliseconds(1771900000000);
 
     private static string Signed(byte[] body) => "sha256=" + Convert.ToHexString(
         HMACSHA256.HashData(Encoding.UTF8.GetBytes(ApiPostgreSqlFixture.MetaAppSecret), body)).ToLowerInvariant();
@@ -33,7 +33,7 @@ public sealed class WebhookToConversationProjectionTests(ApiPostgreSqlFixture fi
     private static byte[] Body(string mid) => Encoding.UTF8.GetBytes(
         "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + AccountProviderId + "\",\"messaging\":[" +
         "{\"sender\":{\"id\":\"customer-77\"},\"recipient\":{\"id\":\"" + AccountProviderId + "\"}," +
-        "\"timestamp\":" + SentAt.ToUnixTimeSeconds() + "," +
+        "\"timestamp\":" + SentAt.ToUnixTimeMilliseconds() + "," +
         "\"message\":{\"mid\":\"" + mid + "\",\"text\":\"hello from the customer\"}}]}]}");
 
     [Fact]

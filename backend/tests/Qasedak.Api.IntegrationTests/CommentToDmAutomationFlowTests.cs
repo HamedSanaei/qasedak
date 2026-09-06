@@ -32,9 +32,9 @@ public sealed class CommentToDmAutomationFlowTests(ApiPostgreSqlFixture fixture)
         HMACSHA256.HashData(Encoding.UTF8.GetBytes(ApiPostgreSqlFixture.MetaAppSecret), body)).ToLowerInvariant();
 
     private static byte[] Body(string eventId, string accountProviderId, string commenterId, string text = "what is the price?") => Encoding.UTF8.GetBytes(
-        "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + accountProviderId + "\",\"changes\":[" +
+        "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + accountProviderId + "\",\"time\":1502905976963,\"changes\":[" +
         "{\"field\":\"comments\",\"value\":{\"id\":\"comment-" + eventId + "\",\"from\":{\"id\":\"" + commenterId + "\"}," +
-        "\"text\":\"" + text + "\",\"created_time\":" + CreatedAt.ToUnixTimeSeconds() + "}}]}]}");
+        "\"text\":\"" + text + "\"}}]}]}");
 
     [Fact]
     public async Task MatchingCommentSendsExactlyOneDmAndRedeliveryDoesNotRepeat()

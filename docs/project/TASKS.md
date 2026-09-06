@@ -1120,7 +1120,7 @@ live Meta calls in CI.
 **Suggested commit:** `feat(instagram): add account and media insights`
 
 ## M13-008 — Expand Instagram webhook normalization for automation parity
-**Status:** TODO
+**Status:** DONE (2026-09-06)
 
 **Outcome:** Extend the existing raw-HMAC → durable-inbox → normalizer boundary with the
 transport-free fields/events needed for account-aware post, postback and read flows while
@@ -1152,6 +1152,30 @@ account fan-out; existing challenge/HMAC/inbox/metrics regressions stay green;
 architecture/state/handoff/manifest and relevant gates pass with no live Meta calls.
 
 **Suggested commit:** `feat(instagram): normalize interactive webhook events`
+
+**Delivered (2026-09-06):**
+
+- Normalizer restructured by explicit fragment type (message → postback → read →
+  known-unsupported → unrecognized); the message-only-first bug is gone.
+- Timestamp units fixed: `messaging[].timestamp` and `entry.time` are provider
+  **milliseconds** (official 13-digit fixtures); fragment time → entry.time →
+  ignored fragment, never `UtcNow`; wrong units/out-of-range never throw.
+- `InstagramPostbackReceived` (mid/title/payload, bounded) and
+  `InstagramMessageRead` (`read.mid`, never watermark) added; comments enriched
+  with exact `ConnectedAccountId`, media.id, optional original_media_id,
+  nullable from.id/username, provider entry.time.
+- Inbound filters: echo/self/deleted/unsupported/attachment-only are observable
+  non-triggering fragments; oversized text/payloads never truncated; unknown
+  fragments (edits, reactions, referrals, future fields) observable, never inbound text.
+- Exact-account pipeline: pure normalizer (side-effect free) →
+  `ConnectedAccountInboundResolver` (M13-002 contract) → per-entry enrichment in
+  `ProcessPendingWebhookEventsUseCase` → composition-root fan-out. Unknown/
+  ambiguous accounts fail closed with zero dispatch and observability.
+- Deterministic fragment identity `{inboxEventId}:e{entry}:m{item}`;
+  redelivery exactly-once at the SHA-256 raw-body inbox boundary.
+- Tests: Instagram unit 325 (+39, incl. 51 webhook), PG integration 35, API E2E
+  110 (+13 signed interactive-webhook, incl. fan-out/fail-closed/redelivery),
+  full backend suite 838 green; format/architecture clean.
 
 ## M13-009 — Correct comment automation to Meta Private Reply semantics
 **Status:** TODO

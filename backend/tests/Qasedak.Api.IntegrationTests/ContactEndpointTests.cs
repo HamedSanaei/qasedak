@@ -24,7 +24,7 @@ public sealed class ContactEndpointTests(ApiPostgreSqlFixture fixture)
 
     private static readonly Guid SeededWorkspaceId = Guid.Parse("11111111-2222-3333-4444-555555555555");
 
-    private static readonly DateTimeOffset SentAt = DateTimeOffset.FromUnixTimeSeconds(1771901000);
+    private static readonly DateTimeOffset SentAt = DateTimeOffset.FromUnixTimeMilliseconds(1771901000000);
 
     private sealed record LoginResponse([property: JsonPropertyName("accessToken")] string AccessToken);
 
@@ -40,7 +40,7 @@ public sealed class ContactEndpointTests(ApiPostgreSqlFixture fixture)
     private static byte[] Body(string mid, string sender) => Encoding.UTF8.GetBytes(
         "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + AccountProviderId + "\",\"messaging\":[" +
         "{\"sender\":{\"id\":\"" + sender + "\"},\"recipient\":{\"id\":\"" + AccountProviderId + "\"}," +
-        "\"timestamp\":" + SentAt.ToUnixTimeSeconds() + "," +
+        "\"timestamp\":" + SentAt.ToUnixTimeMilliseconds() + "," +
         "\"message\":{\"mid\":\"" + mid + "\",\"text\":\"hi\"}}]}]}");
 
     [Fact]

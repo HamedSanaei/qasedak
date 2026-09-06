@@ -1,23 +1,90 @@
 # Current handoff
 
+## 2026-09-06 — M13-008 DONE; M13-009 packet ready (do not start M13-009)
+
+M13-008 expanded the webhook boundary from
+`raw-HMAC → durable inbox → normalization → integration events` to account-aware
+postbacks, read receipts, enriched comments and filtered inbound messages.
+Fresh first-party verification (developers.facebook.com, retrieved 2026-09-06)
+pinned the current shapes; the normalizer was restructured to explicit
+fragment-type dispatch (message → postback → read → known-unsupported →
+unrecognized), provider timestamps are read as **milliseconds** with a
+fragment → entry.time → ignored-fragment fallback (never `UtcNow` — the
+seconds bug and the message-only-first bug are fixed), and every normalized
+event is enriched with the exact Qasedak ConnectedAccountId/WorkspaceId via
+the M13-002 resolver at a clean pure-normalizer → resolution → dispatch
+boundary. Echo/self/deleted/unsupported/attachment-only messages are
+observable non-triggering fragments; unknown/ambiguous accounts fail closed
+with zero dispatch; redelivery is exactly-once at the SHA-256 raw-body inbox
+boundary. Backend suite 838/838 (Instagram unit 325, PG 35, API E2E 110),
+format/architecture clean. State: M13-008 DONE, currentTask=M13-009 TODO.
+Live Meta webhook smoke: NOT RUN — no designated production test account.
+
+### M13-009 packet (read-only handoff)
+
+M13-009 corrects comment automation to Meta **Private Reply** semantics.
+It is NOT authorized yet — this packet is context only. Everything below is
+already shipped and verified; M13-009 consumes it, never rebuilds it.
+
+- **Final `InstagramCommentCreated` contract** (`Qasedak.Modules.Instagram.Application.Webhooks.IntegrationEvents`):
+  `EventId` (deterministic `{inboxEventId}:e{entryIndex}:c{changeIndex}`),
+  `WorkspaceId` + `ConnectedAccountId` (exact Qasedak keys — enriched at the
+  processing boundary, never null for dispatched events), `ProviderAccountId`
+  (correlation only), `CommentId`, `FromId` (nullable — never fabricated),`CommenterUsername` (nullable display metadata), `Text` (nullable), `MediaId`
+  (opaque provider media id, never resolved), `OriginalMediaId` (nullable;
+  FB-Login ad/boosted shape only, preserved separately from `MediaId`),
+  `CreatedAtUtc` (provider `entry.time`, ms epoch).
+- **Account semantics:** exact connected account resolved per webhook entry via
+  the M13-002 `ResolveActiveAccountAsync` contract (`ConnectedAccountInboundResolver`
+  is a thin port). Unknown/ambiguous/disconnected-only → zero dispatch, fail
+  closed, observable (`unresolved-account`/`ambiguous-account` fragments).
+  The global single-owner invariant stays the resolver's contract — reuse it.
+- **Redelivery/identity:** inbox PK = SHA-256 of exact raw body ⇒ byte-identical
+  redelivery is exactly-once (accepted no-op, `DeliveryAttempts` incremented).
+  Fragment identity is deterministic across redelivery. Automation-side
+  at-most-intended-effect comes from the M13-005 run ledger (proven by
+  `CommentToDmAutomationFlowTests`).
+- **Inbox guarantees:** HMAC over raw bytes → persist → ack → post-ingest
+  normalize/dispatch; processing failure leaves entries pending; cancellation
+  never closes an entry mid-flight; unknown/malformed fragments close with
+  observability only; one malformed sibling never suppresses valid siblings.
+- **Message filtering rules:** `is_echo`/`is_self`/`is_deleted`/
+  `is_unsupported` = ignored fragments (`message-echo/self/deleted/unsupported`),
+  attachment-only = `message-attachment-only`; none ever trigger automations.
+- **Postback contract:** `InstagramPostbackReceived{EventId, WorkspaceId,
+  ConnectedAccountId, ProviderAccountId, SenderId, ProviderMessageId (postback.mid),
+  Title, Payload, OccurredAtUtc}` — bounded (title ≤640, payload ≤1000;
+  oversized → `postback-oversized` unrecognized, never truncated).
+- **Read contract:** `InstagramMessageRead{EventId, WorkspaceId,
+  ConnectedAccountId, ProviderAccountId, SenderId, ProviderMessageId (read.mid),
+  OccurredAtUtc}` — **mid only, never watermark**; `read.watermark` is ignored.
+- **Verified webhook fields (2026-09-06):** comments
+  `changes[]:{field,value:{id,from:{id,username},text,media:{id,media_product_type}}}`
+  + `entry.{id,time}`; messaging `message{mid,text?,is_echo?,is_deleted?,
+  is_unsupported?,is_self?,quick_reply?,attachments?,reply_to?}`; postback
+  `{mid,title,payload}`; read `{mid}`; timestamps are ms epoch everywhere.
+- **Fixtures/tests to extend, not rewrite:** `MetaPayloadNormalizerTests`
+  (51 tests — shape/filter/timestamp/identity matrix), `ProcessPendingWebhookEventsTests`
+  (resolution/fan-out/cancellation), `ConnectedAccountInboundResolverTests`,
+  `InteractiveWebhookEndpointTests` (13 signed E2E incl. fan-out, fail-closed,
+  redelivery), `CommentToDmAutomationFlowTests` (existing comment→DM flow).
+- **Residual Meta/App Review constraints:** commenting/DM automation needs
+  `instagram_business_manage_messages` (already granted in seeded scopes) and
+  Advanced Access where applicable; M13-009 must re-verify the current
+  Private-Reply endpoint shape (`/<COMMENT_ID>/private_replies` POST,
+  `message`/`media` payload) against first-party sources before sending.
+  Never send on `FromId == null` comments. Live Meta smoke requires a
+  designated production test account.
+
 ## 2026-09-06 — M13-007 DONE; M13-008 packet ready (do not start M13-008)
 
-M13-007 added Instagram-owned analytics/read models: focused
-`IInstagramInsightsClient` port + `GraphInstagramInsightsClient` adapter on the
-M13-003 transport, central verified metric registry (account + feed/reel sets;
-unknown media kind never triggers a provider request), first-class metric
-availability (real zero vs NoData vs Unsupported vs PermissionRequired vs
-TemporarilyUnavailable), durable follower history
-(`instagram.follower_snapshots` with account/day uniqueness and provenance
-precedence enforced by a PostgreSQL conditional upsert), daily scheduled
-snapshots via M13-004 with startup bootstrap for pre-existing accounts, and an
-exact-account overview + follower-history API with truthful degradation.
-Backend 786/786 (Instagram unit 286, PG 35, API E2E 97), frontend 78/78,
-format/architecture clean, Graphify 0.9.26 healthy. State: M13-007 DONE,
-currentTask=M13-008 TODO. **Backfill is NOT implemented** (no verified
-absolute historical series on Instagram Login) — history is durable direct
-observation only. Live Meta insights smoke: NOT RUN unless a designated
-production test account exists.
+M13-007 added Instagram-owned analytics/read models (focused insights
+port/adapter, verified metric registry, first-class metric availability,
+durable follower history with provenance-precedence upsert, daily scheduled
+snapshots with startup bootstrap, exact-account overview + history API).
+Backend 786/786, frontend 78/78. **Backfill is NOT implemented** (no verified
+absolute historical series on Instagram Login). Live Meta insights smoke:
+NOT RUN — no designated production test account.
 
 ### Deployment evidence — M13-007 (2026-09-06, UTC)
 

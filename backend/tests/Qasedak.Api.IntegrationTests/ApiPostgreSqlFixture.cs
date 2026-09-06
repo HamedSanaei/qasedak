@@ -18,6 +18,7 @@ using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
+using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Media;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Testcontainers.PostgreSql;
@@ -46,6 +47,22 @@ public sealed class RecordingInstagramMessagingClient : IInstagramMessagingClien
         return Task.FromResult(RejectRecipientsOutsideWindow.Contains(recipientProviderUserId)
             ? MessagingSendResult.Fail(MessagingFailureReason.MessagingWindowExpired, "recipient outside the 24h window (simulated 490)")
             : MessagingSendResult.Ok());
+    }
+}
+
+/// <summary>
+/// Records every normalized integration event the composition-root fan-out receives
+/// (M13-008): lets signed-webhook E2E tests assert exact-account enrichment and
+/// zero-dispatch fail-closed behavior for postbacks/reads that have no business
+/// consumer yet, without weakening the real fan-out to the bridges.
+/// </summary>
+public sealed class RecordingIntegrationEventDispatcher(IIntegrationEventDispatcher inner, List<IIntegrationEvent> sink)
+    : IIntegrationEventDispatcher
+{
+    public Task DispatchAsync(IIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
+    {
+        sink.Add(integrationEvent);
+        return inner.DispatchAsync(integrationEvent, cancellationToken);
     }
 }
 
@@ -426,6 +443,9 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
     /// <summary>Records protected-token reads so tests can prove zero-token-access isolation.</summary>
     public RecordingTokenStore Tokens { get; } = new();
 
+    /// <summary>Captures every dispatched normalized integration event (M13-008).</summary>
+    public List<IIntegrationEvent> Dispatched { get; } = [];
+
     public RecordingPaymentGateway Payments { get; } = new();
 
     /// <summary>Scripted Mellat SOAP boundary shared with assertions.</summary>
@@ -502,6 +522,19 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.RemoveAll<IInstagramInsightsClient>();
                 services.AddSingleton(Insights);
                 services.AddSingleton<IInstagramInsightsClient>(sp => sp.GetRequiredService<ScriptedInstagramInsightsClient>());
+                // M13-008: capture every normalized integration event the fan-out receives
+                // (postbacks/reads have no business consumer yet; exact-account enrichment
+                // is asserted on the recorded events). The real bridges stay in the fan-out.
+                services.RemoveAll<Qasedak.Modules.Instagram.Application.Webhooks.IIntegrationEventDispatcher>();
+                services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IIntegrationEventDispatcher>(sp =>
+                    new RecordingIntegrationEventDispatcher(
+                        new Qasedak.Api.CrossModule.FanOutIntegrationEventDispatcher(
+                        [
+                            sp.GetRequiredService<Qasedak.Api.CrossModule.InstagramConversationBridge>(),
+                            sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationCommentBridge>(),
+                            sp.GetRequiredService<Qasedak.Api.CrossModule.ContactsInteractionBridge>(),
+                        ]),
+                        Dispatched));
                 services.RemoveAll<IProtectedTokenStore>();
                 services.AddScoped<ProtectedTokenStore>();
                 services.AddSingleton(Tokens);

@@ -2,9 +2,47 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-008 — Expand Instagram webhook normalization for automation parity (TODO)
-**Last completed:** M13-007 (2026-09-06)
-**Product implementation:** Instagram connection lifecycle, media catalog and insights complete (focused insights port/adapter, verified metric registry, first-class metric availability, durable follower history with provenance precedence, daily scheduled snapshots with startup bootstrap); webhook normalization expansion not started
+**Current task:** M13-009 — Correct comment automation to Meta Private Reply semantics (TODO)
+**Last completed:** M13-008 (2026-09-06)
+**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history and interactive webhook normalization complete (postbacks, read receipts, enriched comments, filtered messages, exact-account dispatch, ms timestamps); comment Private Reply correction not started
+
+## 2026-09-06 — M13-008 DONE: interactive webhook normalization
+
+- Fresh first-party verification (Webhook Notification Examples — Instagram
+  Platform, developers.facebook.com, retrieved 2026-09-06): comments
+  `changes[]:{field,value:{id,text,media:{id,media_product_type},from:{id,username}}}`;
+  messaging `message{mid,text?,is_echo?,is_deleted?,is_unsupported?,is_self?,quick_reply?,attachments?}`;
+  postback `{mid,title,payload}`; read `{mid}` — never a watermark.
+  `messaging[].timestamp` and `entry.time` are **milliseconds** (official
+  13-digit values); the old seconds-only read (wrong dates / throw for
+  realistic values) is fixed. `original_media_id` is documented on the
+  FB-Login ad/boosted shape only; preserved separately when present, never
+  fabricated. Contract §3.6 updated.
+- Normalization architecture: raw-HMAC → durable inbox (SHA-256 raw-body key)
+  → pure side-effect-free `MetaPayloadNormalizer` (explicit fragment-type
+  dispatch; the message-only-first bug is gone) → per-entry exact-account
+  resolution via the M13-002 `ResolveActiveAccountAsync` contract → enrichment
+  (`ConnectedAccountId`/`WorkspaceId`) in `ProcessPendingWebhookEventsUseCase`
+  → composition-root fan-out. No Graph calls, no module cross-references,
+  no `UtcNow` fallback — provider time only (fragment → entry.time → ignored).
+- Events: `InstagramPostbackReceived` (bounded mid/title/payload) and
+  `InstagramMessageRead` (read.mid, no watermark concept) added;
+  `InstagramCommentCreated` enriched with exact ConnectedAccountId, media.id,
+  optional original_media_id, nullable from.id/username, provider time;
+  deterministic fragment identity `{inboxId}:e{entry}:m{item}`.
+- Inbound safety: echo/self/deleted/unsupported/attachment-only messages are
+  observable non-triggering fragments; edits/reactions/referrals/unknown
+  future fields never become inbound text; oversized text/payloads surface as
+  non-triggering fragments, never truncated; unknown/ambiguous accounts fail
+  closed with zero dispatch; multi-entry fan-out resolves each entry
+  independently; identical redelivery is exactly-once at the inbox boundary.
+- Bridges (Conversations/Contacts/Automations) now consume the enriched event
+  directly — no downstream re-resolution of provider ids.
+- Verification: backend suite 838/838 (Instagram unit 325 incl. 51 webhook;
+  PG integration 35; API E2E 110 incl. 13 signed interactive-webhook tests:
+  postback/read/comment/message, echo/self/deleted/unsupported/attachment
+  filters, two-account fan-out, unknown+ambiguous fail-closed, SHA-256
+  redelivery), format clean, architecture check passed, frontend untouched.
 
 ## 2026-09-06 — M13-007 DONE: Instagram insights + follower history
 

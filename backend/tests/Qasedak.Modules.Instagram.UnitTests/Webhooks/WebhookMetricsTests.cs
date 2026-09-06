@@ -1,4 +1,5 @@
 using System.Diagnostics.Metrics;
+using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
 using Xunit;
 
@@ -57,6 +58,25 @@ public sealed class WebhookMetricsTests : IDisposable
 
         Assert.Equal(1, _counters["qasedak.instagram.webhook.events|kind=message"]);
         Assert.Equal(1, _counters["qasedak.instagram.webhook.events|kind=comment"]);
+    }
+
+    [Fact]
+    public void NormalizationOutcomesAreCountedByFixedCategories()
+    {
+        var observability = (IWebhookNormalizationObservability)_metrics;
+        observability.RecordNormalized("postback");
+        observability.RecordNormalized("read");
+        observability.RecordIgnored("message-echo");
+        observability.RecordIgnored("message-self");
+        observability.RecordUnrecognized("unresolved-account");
+
+        _listener.RecordObservableInstruments();
+
+        Assert.Equal(1, _counters["qasedak.instagram.webhook.normalized|kind=postback"]);
+        Assert.Equal(1, _counters["qasedak.instagram.webhook.normalized|kind=read"]);
+        Assert.Equal(1, _counters["qasedak.instagram.webhook.ignored|reason=message-echo"]);
+        Assert.Equal(1, _counters["qasedak.instagram.webhook.ignored|reason=message-self"]);
+        Assert.Equal(1, _counters["qasedak.instagram.webhook.unrecognized|kind=unresolved-account"]);
     }
 
     public void Dispose()

@@ -104,7 +104,7 @@ public sealed class SecurityGateTests(ApiPostgreSqlFixture fixture)
         var accountId = "1784" + Random.Shared.NextInt64(100000000000, 999999999999);
         await SeedBoundAccountAsync(ownerWorkspace, accountId);
         var sender = $"sec-sender-{Guid.CreateVersion7():N}";
-        var sentAtSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var sentAtMilliseconds = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var payload = new
         {
             @object = "instagram",
@@ -119,7 +119,7 @@ public sealed class SecurityGateTests(ApiPostgreSqlFixture fixture)
                         {
                             sender = new { id = sender },
                             recipient = new { id = accountId },
-                            timestamp = sentAtSeconds,
+                            timestamp = sentAtMilliseconds,
                             message = new
                             {
                                 mid = $"sec-mid-{Guid.CreateVersion7():N}",
@@ -237,7 +237,7 @@ public sealed class LoadGateTests(ApiPostgreSqlFixture fixture)
                             {
                                 sender = new { id = sender },
                                 recipient = new { id = "qasedak-page" },
-                                timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                                 message = new
                                 {
                                     mid = $"load-mid-{Guid.CreateVersion7():N}",

@@ -23,7 +23,7 @@ public sealed class WebhookToContactProjectionTests(ApiPostgreSqlFixture fixture
 
     private static readonly Guid SeededWorkspaceId = Guid.Parse("11111111-2222-3333-4444-555555555555");
 
-    private static readonly DateTimeOffset SentAt = DateTimeOffset.FromUnixTimeSeconds(1771900500);
+    private static readonly DateTimeOffset SentAt = DateTimeOffset.FromUnixTimeMilliseconds(1771900500000);
 
     private static string Signed(byte[] body) => "sha256=" + Convert.ToHexString(
         HMACSHA256.HashData(Encoding.UTF8.GetBytes(ApiPostgreSqlFixture.MetaAppSecret), body)).ToLowerInvariant();
@@ -31,13 +31,13 @@ public sealed class WebhookToContactProjectionTests(ApiPostgreSqlFixture fixture
     private static byte[] MessageBody(string mid) => Encoding.UTF8.GetBytes(
         "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + AccountProviderId + "\",\"messaging\":[" +
         "{\"sender\":{\"id\":\"contact-customer-9\"},\"recipient\":{\"id\":\"" + AccountProviderId + "\"}," +
-        "\"timestamp\":" + SentAt.ToUnixTimeSeconds() + "," +
+        "\"timestamp\":" + SentAt.ToUnixTimeMilliseconds() + "," +
         "\"message\":{\"mid\":\"" + mid + "\",\"text\":\"hello again\"}}]}]}");
 
     private static byte[] CommentBody(string commentId) => Encoding.UTF8.GetBytes(
-        "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + AccountProviderId + "\",\"changes\":[{" +
+        "{\"object\":\"instagram\",\"entry\":[{\"id\":\"" + AccountProviderId + "\",\"time\":1502905976963,\"changes\":[{" +
         "\"field\":\"comments\",\"value\":{\"id\":\"" + commentId + "\",\"from\":{\"id\":\"comment-author-3\",\"username\":\"Ada L.\"}," +
-        "\"media_id\":\"m-1\",\"text\":\"nice post\",\"created_time\":" + SentAt.ToUnixTimeSeconds() + "}}]}]}");
+        "\"media\":{\"id\":\"m-1\",\"media_product_type\":\"FEED\"},\"text\":\"nice post\"}}]}]}");
 
     [Fact]
     public async Task SignedMessageWebhookCreatesContactAndRedeliveryDoesNotDoubleCount()

@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.Modules.Contacts.Application;
-using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 
 namespace Qasedak.Api.CrossModule;
@@ -10,10 +9,13 @@ namespace Qasedak.Api.CrossModule;
 /// Composition-root bridge: normalized Instagram message and comment events maintain the
 /// workspace's contacts. Message senders and comment authors are projected as social
 /// identities; the interaction ledger makes webhook redelivery and retries
-/// at-most-one-interaction. Unbound accounts and other event kinds are logged and skipped.
+/// at-most-one-interaction. Exact-account resolution happened upstream (M13-008), so the
+/// event's Qasedak workspace key is used directly — never a provider-id re-resolution.
+/// Comment usernames (webhook-provided display metadata) upgrade placeholder display
+/// names. Events without a resolved account never reach this bridge; null keys are logged
+/// and skipped defensively.
 /// </summary>
 public sealed partial class ContactsInteractionBridge(
-    IConnectedAccountRepository accounts,
     ProjectContactInteractionUseCase projection,
     ILogger<ContactsInteractionBridge> logger) : IIntegrationEventDispatcher
 {
@@ -24,11 +26,11 @@ public sealed partial class ContactsInteractionBridge(
         switch (integrationEvent)
         {
             case InstagramMessageReceived message:
-                await ProjectAsync(message.ProviderAccountId, message.SenderId, null, message.EventId, "message.received", message.SentAtUtc, cancellationToken);
+                await ProjectAsync(message.WorkspaceId, message.SenderId, null, message.EventId, "message.received", message.SentAtUtc, cancellationToken);
                 break;
 
             case InstagramCommentCreated comment:
-                await ProjectAsync(comment.ProviderAccountId, comment.FromId, null, comment.EventId, "comment.created", comment.CreatedAtUtc, cancellationToken);
+                await ProjectAsync(comment.WorkspaceId, comment.FromId, comment.CommenterUsername, comment.EventId, "comment.created", comment.CreatedAtUtc, cancellationToken);
                 break;
 
             default:
@@ -37,25 +39,16 @@ public sealed partial class ContactsInteractionBridge(
         }
     }
 
-    private async Task ProjectAsync(string? providerAccountId, string? participantIdentity, string? displayNameHint, string eventId, string kind, DateTimeOffset occurredAtUtc, CancellationToken cancellationToken)
+    private async Task ProjectAsync(Guid? workspaceId, string? participantIdentity, string? displayNameHint, string eventId, string kind, DateTimeOffset occurredAtUtc, CancellationToken cancellationToken)
     {
-        if (providerAccountId is null || participantIdentity is null)
+        if (workspaceId is null || participantIdentity is null)
         {
             LogUnbound(eventId);
             return;
         }
 
-        // Contacts stay person-centric, but the owning workspace must still resolve
-        // through the one deterministic active-account primitive — never first-match.
-        var resolution = await accounts.ResolveActiveAccountAsync(providerAccountId, cancellationToken);
-        if (resolution.Status != AccountResolutionStatus.Resolved || resolution.Account is null)
-        {
-            LogUnresolved(eventId, resolution.Status.ToString());
-            return;
-        }
-
         var outcome = await projection.ExecuteAsync(new ContactInteractionProjection(
-            resolution.Account.WorkspaceId,
+            workspaceId.Value,
             Channel,
             participantIdentity,
             displayNameHint,
@@ -75,10 +68,6 @@ public sealed partial class ContactsInteractionBridge(
     private partial void LogSkipped(string eventId, string kind);
 
     [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Interaction event dropped: provider account not bound to a workspace eventId={EventId}")]
+        Message = "Interaction event dropped: no exact connected account on event eventId={EventId}")]
     private partial void LogUnbound(string eventId);
-
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Interaction event dropped: account resolution {Status} eventId={EventId}")]
-    private partial void LogUnresolved(string eventId, string status);
 }

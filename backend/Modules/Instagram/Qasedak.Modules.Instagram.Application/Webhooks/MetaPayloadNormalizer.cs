@@ -3,10 +3,13 @@ using System.Text.Json;
 namespace Qasedak.Modules.Instagram.Application.Webhooks;
 
 /// <summary>
-/// Translates canonical Meta webhook bodies into explicit integration events. Parsing is
-/// an application concern; Domain never sees transport models. Unknown shapes are surfaced
-/// as <see cref="UnrecognizedWebhookFragment"/> instead of being dropped silently, and
-/// malformed JSON yields a single unrecognized fragment so the inbox can still be closed.
+/// Translates canonical Meta webhook bodies into explicit integration events. Parsing is a
+/// pure, side-effect-free application concern: no repository, token store, Graph call or
+/// clock is touched here. Each webhook entry is normalized independently (multi-entry
+/// fan-out never shares state), every fragment receives a deterministic identity derived
+/// from the inbox event id plus entry/item position, and malformed siblings never poison
+/// valid ones. Timestamps are provider milliseconds (current official shapes), with
+/// entry.time as the documented fallback; no local wall-clock time is ever invented.
 /// </summary>
 public sealed class MetaPayloadNormalizer
 {
@@ -26,103 +29,448 @@ public sealed class MetaPayloadNormalizer
 
         using (document)
         {
-            var events = new List<IIntegrationEvent>();
-            var unrecognized = new List<UnrecognizedWebhookFragment>();
-
-            if (!document.RootElement.TryEnumerateArray("entry", out var entries))
+            if (document.RootElement.ValueKind != JsonValueKind.Object
+                || !document.RootElement.TryGetProperty("entry", out var entriesElement)
+                || entriesElement.ValueKind != JsonValueKind.Array)
             {
-                return new NormalizationOutcome(events, unrecognized);
+                return new NormalizationOutcome([], []);
             }
 
-            foreach (var entry in entries)
+            var entries = new List<EntryNormalization>();
+            var entryIndex = 0;
+            foreach (var entry in entriesElement.EnumerateArray())
             {
                 // entry.id is the professional account (IG_ID) routing identity.
-                var providerAccountId = entry.TryGetProperty("id", out var entryId) ? entryId.GetString() : null;
-                CollectMessaging(events, unrecognized, eventId, providerAccountId, entry);
-                CollectChanges(events, unrecognized, eventId, providerAccountId, entry);
+                var providerAccountId = ReadString(entry, "id");
+                var entryEvents = new List<IIntegrationEvent>();
+                var entryUnrecognized = new List<UnrecognizedWebhookFragment>();
+                var entryIgnored = new List<IgnoredWebhookFragment>();
+
+                CollectMessaging(entryEvents, entryUnrecognized, entryIgnored, eventId, providerAccountId, entry, entryIndex);
+                CollectChanges(entryEvents, entryUnrecognized, entryIgnored, eventId, providerAccountId, entry, entryIndex);
+
+                entries.Add(new EntryNormalization(entryIndex, providerAccountId, entryEvents, entryUnrecognized, entryIgnored));
+                entryIndex++;
             }
 
-            return new NormalizationOutcome(events, unrecognized);
+            return new NormalizationOutcome(entries, []);
         }
     }
 
-    private static void CollectMessaging(List<IIntegrationEvent> events, List<UnrecognizedWebhookFragment> unrecognized, string eventId, string? providerAccountId, JsonElement entry)
+    /// <summary>
+    /// Messaging dispatch by explicit fragment type (M13-008 fix): a messaging item without
+    /// a "message" property is no longer treated as "messaging-without-message" — postbacks
+    /// and read receipts have their own shapes. Known-but-unsupported fragments (edits,
+    /// reactions, referrals) are observable non-triggering fragments, never inbound text.
+    /// </summary>
+    private static void CollectMessaging(
+        List<IIntegrationEvent> events,
+        List<UnrecognizedWebhookFragment> unrecognized,
+        List<IgnoredWebhookFragment> ignored,
+        string eventId,
+        string? providerAccountId,
+        JsonElement entry,
+        int entryIndex)
     {
         if (!entry.TryEnumerateArray("messaging", out var messaging))
         {
             return;
         }
 
-        foreach (var message in messaging)
+        var itemIndex = 0;
+        foreach (var item in messaging)
         {
-            if (!message.TryGetProperty("message", out var payload))
-            {
-                unrecognized.Add(new UnrecognizedWebhookFragment(eventId, "messaging-without-message"));
-                continue;
-            }
-
-            var text = payload.TryGetProperty("text", out var textElement) ? textElement.GetString() : null;
-            var isEcho = payload.TryGetProperty("is_echo", out var echoElement) && echoElement.ValueKind == JsonValueKind.True;
-            if (isEcho)
-            {
-                // Echoes mirror our own outbound sends; not inbound conversation material.
-                continue;
-            }
-
-            var senderId = message.TryGetProperty("sender", out var sender) && sender.TryGetProperty("id", out var senderIdElement)
-                ? senderIdElement.GetString()
-                : null;
-            var providerMessageId = payload.TryGetProperty("mid", out var midElement) ? midElement.GetString() : null;
-            var timestamp = ReadUnixSeconds(message, "timestamp") ?? DateTimeOffset.UtcNow;
-            events.Add(new InstagramMessageReceived(
-                eventId, providerAccountId, senderId ?? "unknown", text, timestamp, providerMessageId));
+            CollectMessagingItem(events, unrecognized, ignored, eventId, providerAccountId, entry, entryIndex, itemIndex, item);
+            itemIndex++;
         }
     }
 
-    private static void CollectChanges(List<IIntegrationEvent> events, List<UnrecognizedWebhookFragment> unrecognized, string eventId, string? providerAccountId, JsonElement entry)
+    private static void CollectMessagingItem(
+        List<IIntegrationEvent> events,
+        List<UnrecognizedWebhookFragment> unrecognized,
+        List<IgnoredWebhookFragment> ignored,
+        string eventId,
+        string? providerAccountId,
+        JsonElement entry,
+        int entryIndex,
+        int itemIndex,
+        JsonElement item)
+    {
+        var fragmentEventId = $"{eventId}:e{entryIndex}:m{itemIndex}";
+        if (item.ValueKind != JsonValueKind.Object)
+        {
+            unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "messaging-unknown-shape"));
+            return;
+        }
+
+        var senderId = ReadStringFrom(item, "sender", "id");
+
+        if (item.TryGetProperty("message", out var message))
+        {
+            if (message.ValueKind != JsonValueKind.Object)
+            {
+                unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "message-malformed"));
+                return;
+            }
+
+            // Inbound filters: these must never become automation-triggering text events.
+            // Deleted first: a stale "text" coexisting in a deleted payload must not flow.
+            if (IsTrue(message, "is_deleted"))
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-deleted"));
+                return;
+            }
+
+            if (IsTrue(message, "is_echo"))
+            {
+                // Echoes mirror our own outbound sends; never customer inbound material.
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-echo"));
+                return;
+            }
+
+            if (IsTrue(message, "is_self"))
+            {
+                // Self messages (webhook previews/testing) must not trigger automations.
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-self"));
+                return;
+            }
+
+            if (IsTrue(message, "is_unsupported"))
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-unsupported"));
+                return;
+            }
+
+            if (senderId is null)
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-sender-missing"));
+                return;
+            }
+
+            var text = ReadString(message, "text");
+            if (text is not null && text.Length > WebhookNormalizationPolicy.MaxInboundTextLength)
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-oversized"));
+                return;
+            }
+
+            var quickReplyPayload = ReadStringFrom(message, "quick_reply", "payload");
+            if (quickReplyPayload is not null && quickReplyPayload.Length > WebhookNormalizationPolicy.MaxQuickReplyPayloadLength)
+            {
+                // Quick-reply payload is optional metadata; an oversized one is dropped
+                // without mutating the text (automation semantics unchanged).
+                quickReplyPayload = null;
+            }
+
+            if (text is null && quickReplyPayload is null)
+            {
+                // Attachment-only / story-reply-only / ad-click-only: real content exists but
+                // is unsupported for current text automation semantics — observable, safe.
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-attachment-only"));
+                return;
+            }
+
+            var timestamp = ReadProviderTimeMs(entry, item);
+            if (timestamp is null)
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-timestamp-missing"));
+                return;
+            }
+
+            events.Add(new InstagramMessageReceived(
+                fragmentEventId, null, null, providerAccountId, senderId, text, timestamp.Value,
+                ReadString(message, "mid"), quickReplyPayload));
+            return;
+        }
+
+        if (item.TryGetProperty("postback", out var postback))
+        {
+            if (postback.ValueKind != JsonValueKind.Object)
+            {
+                unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "postback-malformed"));
+                return;
+            }
+
+            if (senderId is null)
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "postback-sender-missing"));
+                return;
+            }
+
+            var mid = ReadString(postback, "mid");
+            var title = ReadString(postback, "title");
+            var payload = ReadString(postback, "payload");
+            if (mid is null || title is null || payload is null)
+            {
+                unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "postback-incomplete"));
+                return;
+            }
+
+            if (title.Length > WebhookNormalizationPolicy.MaxPostbackTitleLength
+                || payload.Length > WebhookNormalizationPolicy.MaxPostbackPayloadLength)
+            {
+                // Never truncate: truncation would change automation semantics.
+                unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "postback-oversized"));
+                return;
+            }
+
+            var timestamp = ReadProviderTimeMs(entry, item);
+            if (timestamp is null)
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "postback-timestamp-missing"));
+                return;
+            }
+
+            events.Add(new InstagramPostbackReceived(
+                fragmentEventId, null, null, providerAccountId, senderId, mid, title, payload, timestamp.Value));
+            return;
+        }
+
+        if (item.TryGetProperty("read", out var read))
+        {
+            if (read.ValueKind != JsonValueKind.Object)
+            {
+                unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "read-malformed"));
+                return;
+            }
+
+            if (senderId is null)
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "read-sender-missing"));
+                return;
+            }
+
+            // Current official shape is read:{mid} — the message id read. A "watermark"
+            // property (legacy Messenger shape) is deliberately never read; read receipts
+            // carry no watermark semantics in the current Instagram contract (ADR-010).
+            var mid = ReadString(read, "mid");
+            if (mid is null)
+            {
+                unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "read-incomplete"));
+                return;
+            }
+
+            var timestamp = ReadProviderTimeMs(entry, item);
+            if (timestamp is null)
+            {
+                ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "read-timestamp-missing"));
+                return;
+            }
+
+            events.Add(new InstagramMessageRead(
+                fragmentEventId, null, null, providerAccountId, senderId, mid, timestamp.Value));
+            return;
+        }
+
+        // Known-but-not-supported messaging fragments: observable, never inbound text.
+        if (item.TryGetProperty("message_edit", out _))
+        {
+            ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-edit"));
+            return;
+        }
+
+        if (item.TryGetProperty("reaction", out _))
+        {
+            ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "message-reaction"));
+            return;
+        }
+
+        if (item.TryGetProperty("referral", out _))
+        {
+            ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "messaging-referral"));
+            return;
+        }
+
+        unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "messaging-unknown-shape"));
+    }
+
+    private static void CollectChanges(
+        List<IIntegrationEvent> events,
+        List<UnrecognizedWebhookFragment> unrecognized,
+        List<IgnoredWebhookFragment> ignored,
+        string eventId,
+        string? providerAccountId,
+        JsonElement entry,
+        int entryIndex)
     {
         if (!entry.TryEnumerateArray("changes", out var changes))
         {
             return;
         }
 
+        var changeIndex = 0;
         foreach (var change in changes)
         {
-            var field = change.TryGetProperty("field", out var fieldElement) ? fieldElement.GetString() : null;
-            var value = change.TryGetProperty("value", out var valueElement) ? valueElement : default;
-
-            switch (field)
-            {
-                case "comments":
-                    events.Add(new InstagramCommentCreated(
-                        eventId,
-                        providerAccountId,
-                        value.ValueKind == JsonValueKind.Object && value.TryGetProperty("id", out var commentId) ? commentId.GetString() ?? "unknown" : "unknown",
-                        value.ValueKind == JsonValueKind.Object && value.TryGetProperty("from", out var from) && from.TryGetProperty("id", out var fromId) ? fromId.GetString() : null,
-                        value.ValueKind == JsonValueKind.Object && value.TryGetProperty("text", out var commentText) ? commentText.GetString() : null,
-                        value.ValueKind == JsonValueKind.Object && ReadUnixSeconds(value, "created_time") is { } created ? created : DateTimeOffset.UtcNow));
-                    break;
-
-                case "mentions":
-                    events.Add(new InstagramMentionCreated(
-                        eventId,
-                        providerAccountId,
-                        value.ValueKind == JsonValueKind.Object && value.TryGetProperty("comment_id", out var mentionCommentId) ? mentionCommentId.GetString() ?? "unknown" : "unknown",
-                        DateTimeOffset.UtcNow));
-                    break;
-
-                default:
-                    unrecognized.Add(new UnrecognizedWebhookFragment(eventId, $"field:{field ?? "none"}"));
-                    break;
-            }
+            CollectChange(events, unrecognized, ignored, eventId, providerAccountId, entry, entryIndex, changeIndex, change);
+            changeIndex++;
         }
     }
 
-    private static DateTimeOffset? ReadUnixSeconds(JsonElement element, string property) =>
-        element.TryGetProperty(property, out var raw)
-        && raw.TryGetInt64(out var seconds)
-            ? DateTimeOffset.FromUnixTimeSeconds(seconds)
-            : null;
+    private static void CollectChange(
+        List<IIntegrationEvent> events,
+        List<UnrecognizedWebhookFragment> unrecognized,
+        List<IgnoredWebhookFragment> ignored,
+        string eventId,
+        string? providerAccountId,
+        JsonElement entry,
+        int entryIndex,
+        int changeIndex,
+        JsonElement change)
+    {
+        var fragmentEventId = $"{eventId}:e{entryIndex}:c{changeIndex}";
+        if (change.ValueKind != JsonValueKind.Object)
+        {
+            unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "malformed-fragment"));
+            return;
+        }
+
+        var field = ReadString(change, "field");
+        var value = change.TryGetProperty("value", out var valueElement) ? valueElement : default;
+
+        switch (field)
+        {
+            case "comments" or "live_comments":
+                // Current official shape: value:{id, from:{id,username}, text,
+                // media:{id, media_product_type[, original_media_id for ad posts]}}.
+                if (value.ValueKind != JsonValueKind.Object)
+                {
+                    unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, $"field:{field}-malformed"));
+                    return;
+                }
+
+                var commentId = ReadString(value, "id");
+                if (commentId is null)
+                {
+                    ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "comment-id-missing"));
+                    return;
+                }
+
+                var text = ReadString(value, "text");
+                if (text is not null && text.Length > WebhookNormalizationPolicy.MaxCommentTextLength)
+                {
+                    ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "comment-oversized"));
+                    return;
+                }
+
+                var fromId = ReadStringFrom(value, "from", "id");
+                var username = ReadStringFrom(value, "from", "username");
+                if (username is not null && username.Length > WebhookNormalizationPolicy.MaxCommenterUsernameLength)
+                {
+                    // Display metadata only; oversized usernames are dropped, never identity.
+                    username = null;
+                }
+
+                // The media id is preserved as an opaque provider id; it is never resolved,
+                // never checked against the media catalog, and never a URL.
+                var mediaId = ReadStringFrom(value, "media", "id");
+                // Ad/boosted comments may carry the original media id separately; it is
+                // preserved apart from media.id (never overwrites it) per the current
+                // official comment shapes (Business Login example has no ad fields; the
+                // FB-Login shape documents media.original_media_id for ad posts).
+                var originalMediaId = ReadStringFrom(value, "media", "original_media_id");
+
+                var commentTimestamp = ReadEntryTimeMs(entry);
+                if (commentTimestamp is null)
+                {
+                    ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "comment-timestamp-missing"));
+                    return;
+                }
+
+                events.Add(new InstagramCommentCreated(
+                    fragmentEventId, null, null, providerAccountId, commentId, fromId, username,
+                    text, mediaId, originalMediaId, commentTimestamp.Value));
+                return;
+
+            case "mentions":
+                // @mentions arrive inside comments on the Instagram-Login path; this legacy
+                // field exists on the retained FB-Login path only.
+                if (value.ValueKind != JsonValueKind.Object)
+                {
+                    unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "field:mentions-malformed"));
+                    return;
+                }
+
+                var mentionCommentId = ReadString(value, "comment_id");
+                if (mentionCommentId is null)
+                {
+                    unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, "field:mentions-malformed"));
+                    return;
+                }
+
+                var mentionTimestamp = ReadEntryTimeMs(entry);
+                if (mentionTimestamp is null)
+                {
+                    ignored.Add(new IgnoredWebhookFragment(fragmentEventId, "mention-timestamp-missing"));
+                    return;
+                }
+
+                events.Add(new InstagramMentionCreated(
+                    fragmentEventId, null, null, providerAccountId, mentionCommentId, mentionTimestamp.Value));
+                return;
+
+            default:
+                unrecognized.Add(new UnrecognizedWebhookFragment(fragmentEventId, $"field:{field ?? "none"}"));
+                return;
+        }
+    }
+
+    /// <summary>
+    /// Provider event time: the fragment's own "timestamp" (messaging events, milliseconds
+    /// per the current official examples) with the entry's "time" (notification-send time,
+    /// also milliseconds) as the documented fallback. Returns null when neither is a valid
+    /// provider time — callers then surface an ignored fragment; UtcNow is never used.
+    /// </summary>
+    private static DateTimeOffset? ReadProviderTimeMs(JsonElement entry, JsonElement fragment) =>
+        ReadUnixMilliseconds(fragment, "timestamp") ?? ReadUnixMilliseconds(entry, "time");
+
+    /// <summary>Comment events have no fragment timestamp in the current official shape; entry.time is the only provider time.</summary>
+    private static DateTimeOffset? ReadEntryTimeMs(JsonElement entry) => ReadUnixMilliseconds(entry, "time");
+
+    private static DateTimeOffset? ReadUnixMilliseconds(JsonElement element, string property)
+    {
+        if (element.ValueKind == JsonValueKind.Object
+            && element.TryGetProperty(property, out var raw)
+            && raw.ValueKind == JsonValueKind.Number
+            && raw.TryGetInt64(out var milliseconds)
+            && milliseconds >= WebhookNormalizationPolicy.MinValidTimestampMilliseconds
+            && milliseconds <= WebhookNormalizationPolicy.MaxValidTimestampMilliseconds)
+        {
+            return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+        }
+
+        return null;
+    }
+
+    private static string? ReadString(JsonElement element, string property)
+    {
+        if (element.ValueKind == JsonValueKind.Object
+            && element.TryGetProperty(property, out var value)
+            && value.ValueKind == JsonValueKind.String)
+        {
+            return value.GetString();
+        }
+
+        return null;
+    }
+
+    private static string? ReadStringFrom(JsonElement element, string container, string property)
+    {
+        if (element.ValueKind == JsonValueKind.Object
+            && element.TryGetProperty(container, out var inner)
+            && inner.ValueKind == JsonValueKind.Object
+            && inner.TryGetProperty(property, out var value)
+            && value.ValueKind == JsonValueKind.String)
+        {
+            return value.GetString();
+        }
+
+        return null;
+    }
+
+    private static bool IsTrue(JsonElement element, string property) =>
+        element.ValueKind == JsonValueKind.Object
+        && element.TryGetProperty(property, out var value)
+        && value.ValueKind == JsonValueKind.True;
 }
 
 internal static class JsonElementExtensions

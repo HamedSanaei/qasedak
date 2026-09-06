@@ -154,19 +154,39 @@ no M13 consumer and stay unsubscribed.
 
 | Field | IG Login permission | Shape (current) | Qasedak implication |
 |---|---|---|---|
-| `comments` / `live_comments` | basic + manage_comments; **Advanced Access** | `changes[]:{field,value:{id,from:{id:IGSID,username},text,media:{id,media_product_type}}}` | Supported · already normalized (`InstagramCommentCreated`); M13-008 adds media/username/timestamp |
-| `messages` | basic + manage_messages | `messaging[]:{sender:{id},recipient:{id},timestamp,message:{mid,text?,is_echo?,is_deleted?,is_unsupported?,is_self?,quick_reply:{payload}?,attachments?…}}`; echoes mirror own sends; reactions/edits exist | Supported · already normalized; M13-008 tightens echo/deletion/unsupported/self filtering |
-| `messaging_postbacks` | basic + manage_messages | `messaging[]:{…,postback:{mid,title,payload[,referral]}}` (mid present since v11.0); icebreaker/CTA taps | Supported · **M13-008 implements** `InstagramPostbackReceived{mid,title,payload}` |
-| `messaging_seen` | basic + manage_messages | `messaging[]:{…,read:{mid}}` — **message ID, not a watermark** | Supported · **M13-008 implements** `InstagramMessageRead{mid}`; any `read.watermark` assumption must not be built |
+| `comments` / `live_comments` | basic + manage_comments; **Advanced Access** | `changes[]:{field,value:{id,from:{id:IGSID,username},text,media:{id,media_product_type[,original_media_id for FB-Login ad posts]}}}` | Supported · normalized (`InstagramCommentCreated`); M13-008 delivered exact ConnectedAccountId, media.id, optional original_media_id, nullable username/from.id, provider entry.time |
+| `messages` | basic + manage_messages | `messaging[]:{sender:{id},recipient:{id},timestamp,message:{mid,text?,is_echo?,is_deleted?,is_unsupported?,is_self?,quick_reply:{payload}?,attachments?…}}`; echoes mirror own sends; reactions/edits exist | Supported · normalized; M13-008 delivered echo/self/deleted/unsupported/attachment-only filtering (non-triggering, observable) + ms timestamps |
+| `messaging_postbacks` | basic + manage_messages | `messaging[]:{…,postback:{mid,title,payload[,referral]}}` (mid present since v11.0); icebreaker/CTA taps | Supported · **M13-008 delivered** `InstagramPostbackReceived{mid,title,payload}` |
+| `messaging_seen` | basic + manage_messages | `messaging[]:{…,read:{mid}}` — **message ID, not a watermark** | Supported · **M13-008 delivered** `InstagramMessageRead{mid}`; `read.watermark` is never read (no watermark semantics) |
 | `messaging_handover`, `messaging_optins`, `messaging_referral`, `standby` | basic + manage_messages | Per official examples | Subscribed as needed; `standby`/handover out of M13 scope unless multi-app arises |
 | `messaging_policy_enforcement`, `response_feedback`, `story_insights`, insights webhooks | n/a (Messenger/FB-Login only) | n/a | **Unavailable on IG Login** · excluded |
 
 Verification (`X-Hub-Signature-256` HMAC-SHA256 over raw bytes; challenge
 handshake) is unchanged and matches ADR-007 + implementation.
 
+**Fresh verification 2026-09-06 (Webhook Notification Examples — Instagram
+Platform, developers.facebook.com):**
+
+- Comments: `changes[]:{field,value:{id,text,media:{id,media_product_type},from:{id,username}}}`;
+  entry carries `id` (professional IG_ID) and `time` (ms epoch).
+- Messaging: `messaging[]:{sender:{id:IGSID},recipient:{id:IG_ID},timestamp,message:{mid,text?,is_echo?,is_deleted?,is_unsupported?,is_self?,quick_reply?,attachments?}}`.
+- Postback: `messaging[]:{…,postback:{mid,title,payload}}`; read: `messaging[]:{…,read:{mid}}`.
+- **Timestamp units:** `messaging[].timestamp` and `entry.time` are
+  **milliseconds** (official examples use 13-digit values such as `1502905976377`).
+  M13-008 fixed the previous seconds-only read: the normalizer now treats both
+  fields as provider milliseconds with a 2001–2100 validity window, falls back
+  `fragment timestamp → entry.time → ignored fragment` (never local wall-clock,
+  never `UtcNow`), and rejects wrong-unit/out-of-range values without throwing.
+- `original_media_id`: documented on the **Facebook-Login** ad/boosted comment
+  shape (`media.original_media_id`); the Instagram-Login Business example has no
+  ad fields. Qasedak preserves it **when present, separately from `media.id`**
+  (never merged, never fabricated; absent ⇒ null).
+- Subscription set unchanged (M13-005 single source of truth):
+  `comments, live_comments, messages, messaging_postbacks, messaging_seen`.
+
 Sources: Setup Webhook Subscriptions — Instagram Platform (2026-03-03);
-Webhook Notification Examples — Instagram Platform (2025-11-24); Webhooks for
-Instagram Messaging (field table).
+Webhook Notification Examples — Instagram Platform (retrieved 2026-09-06);
+Webhooks for Instagram Messaging (field table).
 
 ### 3.7 Media (Instagram Login — supported, catalog only)
 
