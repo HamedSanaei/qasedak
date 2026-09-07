@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-07T04:48:52.923404+00:00",
+  "updatedAt": "2026-09-07T04:57:57.791285+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-013",
@@ -255,6 +255,17 @@
     },
     "liveMetaAutomationSmoke": "NOT RUN — no designated end-to-end test account/comment/DM/automation (never consume a customer's single allowed reply)",
     "nextTask": "M13-013",
-    "notes": " | M13-012 CORRECTION: provider-bound authoring limit alignment — PlainText kinds UTF-8 byte <=1000 (Direct/Private Reply/legacy SendDirectMessage/reveal opening/final RevealText/follow-up), GatePromptText <=640 chars, button titles <=20 chars, FollowUrl <=2000 chars + Uri.TryCreate absolute http/https + control-char rejection, SendPublicReply keeps distinct 1000-char product cap; cross-boundary parity tests (Automations authoring -> M13-010 MessageValidationPolicy); v1 and already-persisted v2 rows remain readable (no revalidation on deserialize, no migration); Graphify A-F evidence completed"
+    "notes": " | M13-012 CORRECTION: provider-bound authoring limit alignment — PlainText kinds UTF-8 byte <=1000 (Direct/Private Reply/legacy SendDirectMessage/reveal opening/final RevealText/follow-up), GatePromptText <=640 chars, button titles <=20 chars, FollowUrl <=2000 chars + Uri.TryCreate absolute http/https + control-char rejection, SendPublicReply keeps distinct 1000-char product cap; cross-boundary parity tests (Automations authoring -> M13-010 MessageValidationPolicy); v1 and already-persisted v2 rows remain readable (no revalidation on deserialize, no migration); Graphify A-F evidence completed",
+    "correctionSha": "03d820416f118c9655f1c64fb0fd87f63fc9cf9e",
+    "correctionRuns": {
+      "ci": "34084562287",
+      "codeql": "34084562327",
+      "publish": "34084806270",
+      "deploy": "34084889439"
+    },
+    "correctionImage": "sha-03d820416f11",
+    "correctionBackup": "qasedak-20260907T045543Z-sha-03d820416f11.dump",
+    "correctionSchemaChange": "none (all schemas already up to date; zero migrations)",
+    "correctionSmoke": "200/200/403/401; containers Healthy; live Meta correction smoke NOT RUN (no designated test account)"
   }
 }

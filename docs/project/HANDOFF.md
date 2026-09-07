@@ -52,10 +52,13 @@ synchronization) — not authorized here.
   `dotnet format --verify-no-changes` clean; `check_architecture.py` PASSED;
   frontend `npm run verify` green; `verify.py --full` PASSED with the handbook parked
   and restored byte-identical (`9e15231d…`).
-- **Deployment:** correction SHA `M13_012_CORRECTION_SHA`, CI/CodeQL/Publish/Deploy
-  run IDs recorded in the correction evidence commit; production image
-  `sha-<correction>`; DB backup taken; zero schema change (all existing migrations
-  already applied); health + public smoke 200/200/403/401; live Meta correction
+- **Deployment:** correction SHA `03d820416f118c9655f1c64fb0fd87f63fc9cf9e`;
+  CI `34084562287`, CodeQL `34084562327`, Publish Images `34084806270`, Deploy
+  Production `34084889439` all success; production image `sha-03d820416f11` (was
+  `sha-a26af311bb68`); DB backup
+  `qasedak-20260907T045543Z-sha-03d820416f11.dump`; zero schema change (all
+  schemas already up to date — no migration); containers Healthy, health + smoke
+  passed ~04:56Z, no rollback; public smoke 200/200/403/401; live Meta correction
   smoke NOT RUN — no designated test account.
 
 ## 2026-09-07 — M13-012 DONE; M13-013 packet ready (do not start M13-013)

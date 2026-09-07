@@ -8,9 +8,16 @@
 
 ## 2026-09-07 — M13-012 authoring-limits correction deployed (provider-bound parity)
 
-- Correction commit `M13_012_CORRECTION_SHA` pushed to `origin/master` (authoring
-  validation now mirrors the shipped M13-010 provider message contract; no schema
-  change, no migration).
+- Correction commit `03d820416f118c9655f1c64fb0fd87f63fc9cf9e` pushed to
+  `origin/master` (authoring validation now mirrors the shipped M13-010 provider
+  message contract; no schema change, no migration). CI `34084562287` success;
+  CodeQL `34084562327` success; Publish Images `34084806270` success
+  (`sha-03d820416f11`); Deploy Production `34084889439` success — backup
+  `qasedak-20260907T045543Z-sha-03d820416f11.dump`, all schemas reported already up
+  to date (zero migration added), containers Healthy, health + smoke passed ~04:56Z,
+  no rollback, exact immutable correction image `sha-03d820416f11` now production.
+  Public smoke `/` 200, `/api/v1/system` 200, wrong verify token 403, unsigned
+  webhook POST 401.
 - **Reproduced defects:** authoring accepted definitions that would fail M13-010 local
   validation before Meta was contacted — message text bounded by characters instead of
   UTF-8 bytes, GatePromptText 1000 instead of 640 chars, button titles 40 instead of 20

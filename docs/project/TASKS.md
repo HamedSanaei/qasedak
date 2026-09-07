@@ -1428,7 +1428,7 @@ containers Healthy, health + smoke passed, no rollback; public smoke 200/200/403
 live Meta automation smoke NOT RUN (no designated test account); evidence commit
 `[skip ci]` recorded zero CI/CodeQL/Publish/Deploy runs.
 
-**Correction (2026-09-07, `M13_012_CORRECTION_SHA`):** provider-bound authoring limit
+**Correction (2026-09-07, `03d820416f118c9655f1c64fb0fd87f63fc9cf9e`):** provider-bound authoring limit
 alignment — PlainText-mapped kinds (Direct / Private Reply / legacy comment
 SendDirectMessage / reveal opening / final RevealText / follow-up text) enforce
 `Encoding.UTF8.GetByteCount <= 1000` (Persian/emoji boundary-proven); GatePromptText
@@ -1449,6 +1449,13 @@ full suite 1145/1145 green; `dotnet format --verify-no-changes` clean; architect
 check passed; frontend `npm run verify` green; `verify.py --full` PASSED (handbook
 parked per M13 precedent, restored byte-identical). State unchanged: M13-012 DONE,
 M13-013 TODO.
+
+**Correction deployment (2026-09-07):** CI `34084562287`, CodeQL `34084562327`,
+Publish Images `34084806270` (`sha-03d820416f11`), Deploy Production `34084889439` —
+backup `qasedak-20260907T045543Z-sha-03d820416f11.dump`, zero schema change (all
+schemas already up to date), containers Healthy, health + smoke passed ~04:56Z,
+public smoke 200/200/403/401, live Meta correction smoke NOT RUN (no designated test
+account); evidence commit `[skip ci]` verified to trigger zero second pipeline.
 
 **Suggested commit:** `feat(automations): complete instagram trigger and action parity`
 
