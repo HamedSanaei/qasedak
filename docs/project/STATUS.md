@@ -2,9 +2,54 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-011 — Add follow gate, opening DM and postback reveal flow (TODO)
-**Last completed:** M13-010 (2026-09-07)
-**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay) and interactive messaging adapters (typed plain-text/button-template content with verified limits, typed provider success, safe zero-call rejection of unverified Private Reply interactive variants) complete; follow gate / opening DM / postback reveal flow not started
+**Current task:** M13-012 — Extend automations with post scope, DM triggers, public replies and follow-ups (TODO)
+**Last completed:** M13-011 (2026-09-07)
+**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters (typed plain-text/button-template content with verified limits, typed provider success, safe zero-call rejection of unverified Private Reply interactive variants) and the durable reveal-flow capability (PlainText opening Private Reply → user-response correlation → Direct gate prompt → validated postback → optional follow gate → single Direct reveal) complete; M13-012 automation configuration mapping not started
+
+## 2026-09-07 — M13-011 DONE: follow gate, opening DM and postback reveal flow
+
+- Fresh first-party verification (retrieved 2026-09-07 — Instagram Messaging webhooks,
+  "Send a Private Reply to a Commenter", "Send Messages with IG Login", User Profile
+  with IG Login): the provider-correct sequence is comment → PlainText Private Reply →
+  the user replies → consent + 24h Direct window proven → Direct button-template gate
+  prompt → validated postback → optional follow check → ONE Direct reveal. A comment
+  alone does NOT open the normal messaging window; the historical comment→postback→
+  reveal assumption was corrected in TASKS/HANDOFF/contract. The current messaging
+  webhook exposes `reply_to:{mid}` — the smallest official correlation field — which is
+  now normalized (`RepliedToProviderMessageId`) and used to correlate the user's reply
+  to the exact opening message; without it, the deterministic single-pending rule
+  applies and ambiguity fails closed with ZERO provider calls.
+- Durable `instagram.reveal_flows` (additive migration `20260907012837_AddRevealFlows`):
+  state machine Starting → OpeningAttempted → AwaitingUserResponse → PreparingGatePrompt
+  → AwaitingPostback → Revealing → Revealed / Expired / TerminalFailed / Uncertain;
+  PostgreSQL-enforced one-flow-per-origin (ConnectedAccountId+CommentId), globally
+  unique correlation-token hashes (raw rv1 token never persists — SHA-256 only), and
+  atomic compare-and-swap transitions; the Revealing CAS is the single-reveal authority.
+  Bounded invocation-owned content is persisted for deterministic restart continuation;
+  no tokens, no raw webhook/provider bodies. M13-009's one-reply key is untouched and
+  the opening reuses `CommentPrivateReplyCoordinator` (AlreadyClaimed adopts the stored
+  provider identity — still exactly one opening message).
+- Provider identity: the participant IGSID is adopted from the provider-confirmed
+  Private Reply `recipient_id` when the comment carried no FromId (never fabricated).
+  Consent/window anchor = latest qualifying inbound user message (monotonic; a postback
+  does NOT refresh it; a new user message while awaiting postback refreshes it).
+- Follow gate: focused `IInstagramRelationshipClient` port
+  (`GET /{IGSID}?fields=is_user_follow_business`, Bearer-only, tri-state
+  Follows/DoesNotFollow/UnknownUnavailable — errors never collapse into false) called
+  ONLY after a proven user message; `FollowGateMode.Disabled` (default) keeps the
+  provider-independent core working, `EnabledWhenSupported` holds on blocked/unknown
+  and reuses the existing prompt (no polling, no fabrication, no scraping).
+- Read-receipt fallback NOT implemented: `read.mid` proves read only (no click/follow/
+  reveal signal) — recorded as the tracker's truthful "not implemented" verdict.
+- Crash safety: every provider mutation is preceded by a durable Attempting-style
+  marker; after it, NO automatic second call — timeouts/crashes/redeliveries replay
+  or fail closed; a valid postback is the ONLY rescue for an ambiguous gate attempt
+  (the tap itself proves delivery). Postback tamper/wrong-account/wrong-sender fail
+  closed with zero provider calls.
+- Tests: 51 new (39 deterministic unit incl. correlation/policy/coordinator state
+  machine, 7 real-PostgreSQL store tests incl. concurrent single-reveal authority and
+  restart/crash windows, 5 signed-webhook E2E incl. full flow, redelivery, tamper,
+  follow-gate block→reveal, default no-op). Full backend 1031/1031 green.
 
 ## 2026-09-07 — M13-010 DONE: interactive messaging adapters
 

@@ -1,5 +1,124 @@
 # Current handoff
 
+## 2026-09-07 — M13-011 DONE; M13-012 packet ready (do not start M13-012)
+
+M13-011 added the durable Instagram reveal-flow capability (follow gate, opening DM,
+postback reveal) behind the provider-correct sequence verified 2026-09-07.
+
+### M13-011 delivery
+
+- **Provider-correct sequence (normative, contract §3.12):** comment → PlainText Private
+  Reply (M13-009 one-shot effect) → the user replies → consent + 24h Direct window proven
+  → Direct button-template gate prompt (rv1 postback correlation token) → validated
+  postback → optional tri-state follow check → ONE Direct reveal. The historical
+  comment→postback→reveal assumption is corrected everywhere (TASKS/HANDOFF/contract):
+  a comment alone does NOT open the normal messaging window.
+- **User-response correlation:** the current messaging webhook documents `reply_to:{mid}`;
+  `InstagramMessageReceived` now carries `RepliedToProviderMessageId` (smallest focused
+  field; bounded 256; oversized dropped, never truncated). Exact correlation wins; without
+  it the deterministic single-pending candidate applies; multiple pending candidates with
+  no reply_to fail closed (`reveal.participantAmbiguous`, ZERO provider calls — never an
+  arbitrary pick).
+- **Durable state machine** (`instagram.reveal_flows`, additive migration
+  `20260907012837_AddRevealFlows`; old M13-010 runtime stays bootable; Down() drops only
+  the new table): Starting → OpeningAttempted → AwaitingUserResponse →
+  PreparingGatePrompt → AwaitingPostback → Revealing → Revealed / Expired /
+  TerminalFailed / Uncertain. PostgreSQL enforces one flow per
+  (ConnectedAccountId, ProviderCommentId), globally unique correlation-token hashes, and
+  every transition is an atomic CAS (`EfRevealFlowStore`); the Revealing CAS is the
+  single-reveal authority. Bounded invocation-owned content (opening/gate/reveal text,
+  button title, optional follow URL) is persisted ONLY for deterministic restart
+  continuation; raw tokens never persist (SHA-256 hash + purpose `rv1` only).
+- **Opening Private Reply:** reuses `CommentPrivateReplyCoordinator` with deterministic
+  owner `reveal|{flowId}` (flowId = `RevealFlowId.For(account, comment)`, stable across
+  redelivery/restart). AlreadyClaimed → adopt the stored provider identity (recipient_id +
+  message_id) with ZERO new calls. Participant IGSID is adopted from the provider-confirmed
+  recipient_id when the comment carried no FromId (never fabricated).
+- **Gate prompt:** ONE Direct button-template (M13-010 typed content, postback button
+  `payload = rv1.<token>` + optional web_url follow button), persisted Attempting marker +
+  token hash BEFORE the call; success → AwaitingPostback; ambiguous (timeout/5xx/
+  malformed) → Uncertain, zero resend. A valid postback tap is the ONLY rescue for an
+  ambiguous gate attempt (the tap itself proves delivery).
+- **Reveal:** ONE Direct PlainText after atomic Revealing authority; outcome persisted in
+  a single update (Revealed + provider message id). Crash before outcome → replay
+  `reveal.reveal.uncertain`, ZERO second call; postback redelivery → replay, zero calls.
+- **Follow gate:** `IInstagramRelationshipClient` (GET `/{IGSID}?fields=is_user_follow_business`,
+  Bearer-only; tri-state Follows/DoesNotFollow/UnknownUnavailable with bounded reason;
+  errors never become false) called ONLY after a proven inbound user message — never on a
+  raw comment and never on a bare postback (official consent list: sent message /
+  icebreaker / persistent menu). `FollowGateMode.Disabled` (default; provider-independent
+  core always works) / `EnabledWhenSupported` (Blocked → hold + reuse the existing prompt,
+  same button may be tapped again; UnknownUnavailable → hold; no polling, no scraping).
+- **Read receipt:** `messaging_seen`/`read:{mid}` proves read ONLY — read→reveal fallback
+  NOT implemented (tracker's truthful verdict).
+- **24h anchor:** latest qualifying inbound user message (monotonic GREATEST); a postback
+  does NOT refresh it; a new user message while AwaitingPostback/PreparingGatePrompt
+  refreshes it (and never re-sends the prompt). Meta remains final authority.
+- **Security:** postback validation order = bounds → rv1 parse → hash lookup → exact
+  ConnectedAccount → exact sender → expected state → window → follow check → reveal CAS.
+  Tampered/foreign payloads, wrong account and wrong sender → `correlation.invalid` /
+  `correlation.bindingMismatch`, zero provider calls. Observability is low-cardinality
+  (operation/outcome only — never ids, tokens, content).
+- **Composition root:** `RevealFlowStartBridge` (content-provider seam
+  `IRevealFlowStartContentProvider`; production default `NoRevealFlowStartProvider` =
+  flows not auto-started until M13-012 maps configuration) + `RevealFlowContinuationBridge`
+  (user message / postback continuations) in the fan-out.
+- **Tests:** 51 new. Deterministic unit (39): correlation token bounds/entropy/tamper,
+  follow-gate tri-state policy, coordinator state machine (happy path 1+1+1 sends, reply_to
+  wins over pending ambiguity, participant adoption, already-succeeded adoption, tamper/
+  wrong-account/wrong-sender zero calls, 24h expiry, anchor refresh, gate ambiguity no
+  resend, crash-after-reveal no resend, follow block→reveal, local validation zero rows,
+  second start suppressed, disconnected account). Real PostgreSQL (7): concurrent one-row
+  origin, concurrent single-reveal authority, crash window never yields second authority,
+  success replay across restart, token-hash uniqueness backstop, durable reply_to scans,
+  terminal irreversibility. Signed-webhook E2E (5): full flow through the real pipeline
+  (comment → opening → reply_to response → gate → postback → reveal, exact account/token
+  assertions, zero relationship reads when Disabled), postback redelivery, tamper + wrong
+  sender, follow block→reveal, default no-op regression. Full backend 1031/1031 green.
+- **Limitations recorded:** Live comments follow M13-009 attempt-once (no special reveal
+  path); no scheduled follow-ups; no generic DM/postback triggers (M13-012); postback
+  does not refresh the 24h anchor (no first-party statement); ordinary-postback consent
+  for User Profile reads remains unverified (fail closed); read→reveal fallback absent.
+
+### M13-012 handoff (read-only — do NOT implement)
+
+- **Provider-correct reveal sequence:** comment → PlainText Private Reply → explicit user
+  response (the consent/window hinge) → Direct gate prompt → validated postback →
+  optional follow check → single Direct reveal. An explicit user response is REQUIRED
+  before any Direct message; a comment/read/postback alone never opens the window.
+- **Flow initiation contract:** `StartRevealFlowCommand` (WorkspaceId, ConnectedAccountId,
+  ProviderCommentId, ParticipantIGSID?, IsLiveComment, NotificationOccurredAtUtc,
+  RevealFlowContent {OpeningPrivateReplyText, GatePromptText, PostbackButtonTitle,
+  FollowUrl?, FollowButtonTitle?, RevealText}, FollowGateMode, optional automation owner
+  metadata). Start via `RevealFlowCoordinator.StartFromCommentAsync` or the
+  `IRevealFlowStartContentProvider` seam (M13-012 maps automation config into it). Do NOT
+  add content to AutomationDefinition — persist config in M13-012's own model and pass
+  invocation-owned values.
+- **Schema/state machine:** `instagram.reveal_flows` (migration
+  `20260907012837_AddRevealFlows`); states + status columns as above; unique
+  (ConnectedAccountId, ProviderCommentId); unique CorrelationTokenHash; indexes on
+  OpeningPrivateReplyMessageId and (ConnectedAccountId, ParticipantIGSID, State).
+- **Correlation format/version:** `rv1.` + base64url(36 bytes) = 51 chars ≤ 64 bound;
+  purpose-bound (reject other prefixes); only SHA-256 hash persisted; ≥128-bit entropy
+  enforced on parse; bind to exact ConnectedAccount + sender; tamper → zero calls.
+- **Gate/reveal safety:** durable Attempting markers before every provider call; after a
+  marker NO automatic second call (timeout/5xx/rate-limit/crash → Uncertain/terminal,
+  zero traffic); a valid postback rescues ONLY the ambiguous gate-prompt state.
+- **24h anchor:** LastUserMessageAtUtc (monotonic; postback never refreshes; a new user
+  message refreshes even while awaiting postback); local expiry is a guard, Meta is final.
+- **Read-receipt verdict:** NOT implemented — `read.mid` proves read only.
+- **Relationship port:** `IInstagramRelationshipClient` tri-state +
+  `FollowGatePolicy` (Disabled / EnabledWhenSupported); `is_user_follow_business`
+  verified 2026-09-07; consent rule enforced (only after proven user message).
+- **Exact-account security:** continuations resolve account/token from the flow row's
+  ConnectedAccountId (never workspace-first); wrong account/sender → zero calls.
+- **Direct content contracts:** M13-010 `InstagramMessageContent` (PlainText /
+  ButtonTemplate + Postback/WebUrl; limits in `MessageValidationPolicy`); reveal is
+  PlainText only; gate prompt is a ButtonTemplate with ONE postback + optional web_url.
+- **Residual provider/App Review:** ordinary-postback consent for User Profile reads
+  unverified (fail closed); no numeric URL max on current pages (2000-char Qasedak cap);
+  no live Meta calls in CI; production test account required for live smoke.
+
 ## 2026-09-07 — M13-010 DONE; M13-011 packet ready (do not start M13-011)
 
 M13-010 added interactive messaging capabilities. Fresh first-party verification

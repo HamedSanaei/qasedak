@@ -27,6 +27,9 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
     /// <summary>Global semantic effect claims (M13-009); one-shot provider effects (Private Reply / Public Reply).</summary>
     public DbSet<Effects.CommentEffectRow> CommentEffects => Set<Effects.CommentEffectRow>();
 
+    /// <summary>Durable reveal-flow continuations (M13-011); one flow per logical origin, single-reveal CAS.</summary>
+    public DbSet<RevealFlowRow> RevealFlows => Set<RevealFlowRow>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
@@ -140,6 +143,46 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
             effect.HasIndex(e => new { e.ConnectedAccountId, e.ProviderCommentId, e.EffectType }).IsUnique();
             // Recovery/replay reads by semantic key use the unique index prefix; claim
             // transitions by Id use the primary key. No extra index needed.
+        });
+
+        modelBuilder.Entity<RevealFlowRow>(flow =>
+        {
+            flow.ToTable("reveal_flows");
+            flow.HasKey(f => f.Id);
+            flow.Property(f => f.Id).ValueGeneratedNever();
+            flow.Property(f => f.ProviderCommentId).HasMaxLength(128);
+            flow.Property(f => f.ParticipantIGSID).HasMaxLength(64);
+            flow.Property(f => f.TriggerEventId).HasMaxLength(256);
+            flow.Property(f => f.OpeningPrivateReplyText).HasMaxLength(1000);
+            flow.Property(f => f.GatePromptText).HasMaxLength(640);
+            flow.Property(f => f.PostbackButtonTitle).HasMaxLength(20);
+            flow.Property(f => f.FollowUrl).HasMaxLength(2000);
+            flow.Property(f => f.FollowButtonTitle).HasMaxLength(20);
+            flow.Property(f => f.RevealText).HasMaxLength(1000);
+            flow.Property(f => f.OpeningPrivateReplyMessageId).HasMaxLength(256);
+            flow.Property(f => f.OpeningPrivateReplyRecipientId).HasMaxLength(128);
+            flow.Property(f => f.GatePromptProviderMessageId).HasMaxLength(256);
+            flow.Property(f => f.GatePromptFailureCode).HasMaxLength(128);
+            flow.Property(f => f.CorrelationTokenHash).HasMaxLength(64);
+            flow.Property(f => f.CorrelationTokenPurpose).HasMaxLength(8);
+            flow.Property(f => f.RevealProviderMessageId).HasMaxLength(256);
+            flow.Property(f => f.RevealFailureCode).HasMaxLength(128);
+            flow.Property(f => f.FailureCode).HasMaxLength(128);
+            flow.Property(f => f.FollowGateMode).HasConversion<int>();
+            flow.Property(f => f.State).HasConversion<int>();
+            flow.Property(f => f.GatePromptStatus).HasConversion<int>();
+            flow.Property(f => f.RevealStatus).HasConversion<int>();
+            flow.Property(f => f.LastFollowState).HasConversion<int>();
+            flow.Property(f => f.LastFollowUnavailableReason).HasConversion<int>();
+            // One reveal flow per logical origin — the durable continuation identity.
+            flow.HasIndex(f => new { f.ConnectedAccountId, f.ProviderCommentId }).IsUnique();
+            // Correlation-token lookups: the raw token never persists, only its hash;
+            // NULL hashes (flows without a gate prompt yet) stay non-unique by design.
+            flow.HasIndex(f => f.CorrelationTokenHash).IsUnique();
+            // Exact reply_to.mid correlation lookups for user-response continuations.
+            flow.HasIndex(f => f.OpeningPrivateReplyMessageId);
+            // Pending-continuation scans for the no-reply_to fallback path.
+            flow.HasIndex(f => new { f.ConnectedAccountId, f.ParticipantIGSID, f.State });
         });
     }
 }

@@ -1297,12 +1297,31 @@ gates pass with no live Meta calls.
 **Suggested commit:** `feat(instagram): add interactive messaging adapters`
 
 ## M13-011 — Add follow gate, opening DM and postback reveal flow
-**Status:** TODO
+**Status:** DONE (2026-09-07) — deployed `sha-`M13_011_SHA``, evidence commit `M13_011_EVIDENCE`.
 
 **Outcome:** Implement the officially supported durable comment → opening Private Reply
 → postback → direct-message reveal flow, with relationship/follow gating added only when
 the current Meta contract supports the intended scenario. Provider-dependent follow
 status must not erase or block the provider-independent flow.
+
+**M13-011 completion record:** The provider-correct flow (freshly verified 2026-09-07) is
+`comment → PlainText Private Reply → user reply (reply_to.mid correlation) → consent +
+24h window proven → Direct button-template gate prompt (rv1 postback token, SHA-256
+hash persisted) → validated postback (exact account + sender + purpose-bound token) →
+optional tri-state `is_user_follow_business` gate (EnabledWhenSupported; blocked/unknown
+hold, never fabricate false) → ONE Direct reveal`. Durable `instagram.reveal_flows`
+state machine (Starting → OpeningAttempted → AwaitingUserResponse → PreparingGatePrompt
+→ AwaitingPostback → Revealing → Revealed / Expired / TerminalFailed / Uncertain) with
+PostgreSQL-enforced uniqueness (one flow per ConnectedAccountId+CommentId, unique token
+hashes) and atomic CAS transitions; single-reveal authority via the Revealing
+compare-and-swap; no second mutation after any Attempting marker (timeout/crash/
+redelivery → replay/uncertain, zero calls). The read-receipt fallback was NOT implemented
+(`read.mid` proves read only — no first-party signal for click/follow/reveal). Follow-gate
+capability = configuration (`Disabled` default; `EnabledWhenSupported`), never probed.
+Additive migration `20260907012837_AddRevealFlows`; no AutomationDefinition changes;
+no M13-012 trigger semantics. Full verification green; M13-011 completion is valid under
+tracker clause (2) for follow status: the field is officially supported and implemented
+behind the capability switch with the consent rule (never on raw comments/postbacks).
 
 **Depends on:** M13-004, M13-008, M13-009, M13-010.
 

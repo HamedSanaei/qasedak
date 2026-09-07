@@ -162,6 +162,16 @@ public sealed class MetaPayloadNormalizer
                 quickReplyPayload = null;
             }
 
+            // Official inline-reply correlation (verified 2026-09-07): "reply_to.mid" is
+            // the provider message id the user was replying to — the smallest field needed
+            // for M13-011 continuation correlation. Bounded like every mid; an oversized
+            // one is dropped (never truncated) without blocking the message itself.
+            var repliedToMid = ReadStringFrom(message, "reply_to", "mid");
+            if (repliedToMid is not null && repliedToMid.Length > WebhookNormalizationPolicy.MaxProviderMessageIdLength)
+            {
+                repliedToMid = null;
+            }
+
             if (text is null && quickReplyPayload is null)
             {
                 // Attachment-only / story-reply-only / ad-click-only: real content exists but
@@ -179,7 +189,7 @@ public sealed class MetaPayloadNormalizer
 
             events.Add(new InstagramMessageReceived(
                 fragmentEventId, null, null, providerAccountId, senderId, text, timestamp.Value,
-                ReadString(message, "mid"), quickReplyPayload));
+                ReadString(message, "mid"), repliedToMid, quickReplyPayload));
             return;
         }
 

@@ -31,6 +31,9 @@ public static class WebhookNormalizationPolicy
     /// <summary>Quick-reply payload bound (defensive). Oversized payloads are dropped from the event as metadata only.</summary>
     public const int MaxQuickReplyPayloadLength = 1_000;
 
+    /// <summary>Provider message ids ("mid") including reply_to.mid correlation (M13-011).</summary>
+    public const int MaxProviderMessageIdLength = 256;
+
     /// <summary>Commenter username bound; usernames are display metadata (verified ≤30 in practice).</summary>
     public const int MaxCommenterUsernameLength = 256;
 

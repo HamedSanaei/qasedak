@@ -102,6 +102,29 @@ public sealed class MetaPayloadNormalizerTests
     }
 
     [Fact]
+    public void InlineReplyCarriesReplyToMidCorrelation()
+    {
+        var outcome = MetaPayloadNormalizer.Normalize("evt-2r", "instagram",
+            MessagingBody(MessagingItem("\"message\":{\"mid\":\"m-2r\",\"text\":\"yes\",\"reply_to\":{\"mid\":\"mid-opening-1\"}}")));
+
+        var message = Assert.IsType<InstagramMessageReceived>(Assert.Single(EventsOf(outcome)));
+        Assert.Equal("m-2r", message.ProviderMessageId);
+        // The official reply_to.mid is the message the user was replying to — never the sender's own mid.
+        Assert.Equal("mid-opening-1", message.RepliedToProviderMessageId);
+        Assert.Null(message.QuickReplyPayload);
+    }
+
+    [Fact]
+    public void PlainMessageHasNoReplyToCorrelation()
+    {
+        var outcome = MetaPayloadNormalizer.Normalize("evt-2s", "instagram",
+            MessagingBody(MessagingItem("\"message\":{\"mid\":\"m-2s\",\"text\":\"first contact\"}")));
+
+        var message = Assert.IsType<InstagramMessageReceived>(Assert.Single(EventsOf(outcome)));
+        Assert.Null(message.RepliedToProviderMessageId);
+    }
+
+    [Fact]
     public void QuickReplyTapBecomesEventWithBoundedPayload()
     {
         var outcome = MetaPayloadNormalizer.Normalize("evt-2f", "instagram",

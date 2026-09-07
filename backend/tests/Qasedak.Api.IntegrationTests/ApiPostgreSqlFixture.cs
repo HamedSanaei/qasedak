@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Qasedak.Api.CrossModule;
 using Qasedak.BuildingBlocks.Application.Auditing;
 using Qasedak.BuildingBlocks.Infrastructure.Auditing;
 using Qasedak.BuildingBlocks.Infrastructure.Scheduling;
@@ -18,6 +19,7 @@ using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Application.RevealFlow;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Media;
@@ -83,6 +85,59 @@ public sealed class RecordingCommentPrivateReplyClient : ICommentPrivateReplyCli
     {
         Sends.Add((accessToken, providerAccountId, commentId, text));
         return Task.FromResult(PrivateReplySendResult.Ok("526-recipient-" + commentId, "mid-" + commentId));
+    }
+}
+
+/// <summary>
+/// Deterministic recording stand-in for the official User Profile relationship read
+/// (M13-011): is_user_follow_business is scripted per test; every call is recorded so
+/// tests can prove the follow check only happens with a proven consent basis. No live
+/// Meta call ever leaves CI.
+/// </summary>
+public sealed class RecordingInstagramRelationshipClient : Qasedak.Modules.Instagram.Application.RevealFlow.IInstagramRelationshipClient
+{
+    /// <summary>Scripted tri-state result; tests override to simulate blocked/unavailable.</summary>
+    public Func<FollowStateResult> Script { get; set; } = () => FollowStateResult.Follows();
+
+    public List<(string AccessToken, string ParticipantIGSId)> Calls { get; } = [];
+
+    public void Clear()
+    {
+        Calls.Clear();
+        Script = () => FollowStateResult.Follows();
+    }
+
+    public Task<FollowStateResult> GetFollowStateAsync(
+        string accessToken,
+        string participantIGSId,
+        CancellationToken cancellationToken = default)
+    {
+        Calls.Add((accessToken, participantIGSId));
+        return Task.FromResult(Script());
+    }
+}
+
+/// <summary>
+/// Scriptable reveal-flow start provider (M13-011): per-test request mapping from the
+/// normalized comment event to invocation-owned content; the default returns null (no
+/// flow), so every pre-existing comment test is unaffected.
+/// </summary>
+public sealed class ScriptableRevealFlowStartProvider : Qasedak.Api.CrossModule.IRevealFlowStartContentProvider
+{
+    public Func<InstagramCommentCreated, RevealFlowStartRequest?>? Script { get; set; }
+
+    public List<string> CommentsRequested { get; } = [];
+
+    public RevealFlowStartRequest? RequestFor(InstagramCommentCreated comment)
+    {
+        CommentsRequested.Add(comment.CommentId);
+        return Script?.Invoke(comment);
+    }
+
+    public void Clear()
+    {
+        Script = null;
+        CommentsRequested.Clear();
     }
 }
 
@@ -506,6 +561,12 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
     /// <summary>Recording public comment reply edge (M13-009 boundary; no consumer yet).</summary>
     public RecordingCommentPublicReplyClient PublicReplies { get; } = new();
 
+    /// <summary>Recording User Profile relationship edge (M13-011); tri-state scripted per test.</summary>
+    public RecordingInstagramRelationshipClient Relationships { get; } = new();
+
+    /// <summary>Scriptable reveal-flow start provider (M13-011); default: no flows start.</summary>
+    public ScriptableRevealFlowStartProvider RevealFlowStarts { get; } = new();
+
     /// <summary>Scripted IG Comment reference reads (creation timestamp for the 7-day policy).</summary>
     public RecordingCommentReferenceReader CommentReferences { get; } = new();
 
@@ -598,6 +659,14 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.RemoveAll<ICommentReferenceReader>();
                 services.AddSingleton(CommentReferences);
                 services.AddSingleton<ICommentReferenceReader>(sp => sp.GetRequiredService<RecordingCommentReferenceReader>());
+                // M13-011: scripted relationship edge + start-provider seam; the real
+                // reveal store, coordinator and continuation bridges stay wired.
+                services.RemoveAll<Qasedak.Modules.Instagram.Application.RevealFlow.IInstagramRelationshipClient>();
+                services.AddSingleton(Relationships);
+                services.AddSingleton<Qasedak.Modules.Instagram.Application.RevealFlow.IInstagramRelationshipClient>(sp => sp.GetRequiredService<RecordingInstagramRelationshipClient>());
+                services.RemoveAll<Qasedak.Api.CrossModule.IRevealFlowStartContentProvider>();
+                services.AddSingleton(RevealFlowStarts);
+                services.AddSingleton<Qasedak.Api.CrossModule.IRevealFlowStartContentProvider>(sp => sp.GetRequiredService<ScriptableRevealFlowStartProvider>());
                 // Connection endpoints run against scripted Meta edges: no live
                 // calls in CI. Nothing else in the suite resolves these ports.
                 services.RemoveAll<IMetaOAuthClient>();
@@ -628,6 +697,8 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                             sp.GetRequiredService<Qasedak.Api.CrossModule.InstagramConversationBridge>(),
                             sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationCommentBridge>(),
                             sp.GetRequiredService<Qasedak.Api.CrossModule.ContactsInteractionBridge>(),
+                            sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowContinuationBridge>(),
+                            sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowStartBridge>(),
                         ]),
                         Dispatched));
                 services.RemoveAll<IProtectedTokenStore>();

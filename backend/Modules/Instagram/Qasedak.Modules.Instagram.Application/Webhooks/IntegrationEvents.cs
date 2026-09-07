@@ -51,6 +51,13 @@ public sealed record InstagramMessageReceived(
     DateTimeOffset SentAtUtc,
     /// <summary>Meta's per-message id ("mid"); the stable key for downstream deduplication.</summary>
     string? ProviderMessageId,
+    /// <summary>
+    /// Official inline-reply correlation: "reply_to.mid" — the provider message id the
+    /// user was replying to (current messaging webhook docs, verified 2026-09-07). Lets
+    /// a continuation correlate a user's response to the exact opening message; null when
+    /// Meta omits it. Never the sender's own mid.
+    /// </summary>
+    string? RepliedToProviderMessageId,
     /// <summary>Bounded quick-reply payload when the user tapped a quick reply (optional).</summary>
     string? QuickReplyPayload) : IIntegrationEvent;
 

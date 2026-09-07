@@ -9,6 +9,7 @@ using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Application.RevealFlow;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Effects;
@@ -20,6 +21,7 @@ using Qasedak.Modules.Instagram.Infrastructure.OAuth;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Infrastructure.Profiles;
 using Qasedak.Modules.Instagram.Infrastructure.Protection;
+using Qasedak.Modules.Instagram.Infrastructure.RevealFlow;
 using Qasedak.Modules.Instagram.Infrastructure.Snapshots;
 using Qasedak.Modules.Instagram.Infrastructure.Subscriptions;
 using Qasedak.Modules.Instagram.Infrastructure.Webhooks;
@@ -173,6 +175,19 @@ public static class DependencyInjection
             sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
         services.AddSingleton<ICommentReferenceReader>(sp => sp.GetRequiredService<GraphCommentReferenceReader>());
         services.AddScoped<CommentPrivateReplyCoordinator>();
+
+        // Reveal flows (M13-011): durable continuation store + relationship adapter + the
+        // one-reveal coordinator over the M13-010 messaging client. No startup provider
+        // calls; follow capability is decided by configuration, never by probing.
+        services.AddScoped<IRevealFlowStore, EfRevealFlowStore>();
+        services.AddSingleton<RevealFlowMetrics>();
+        services.AddSingleton<IRevealFlowObservability>(sp => sp.GetRequiredService<RevealFlowMetrics>());
+        services.AddHttpClient(GraphInstagramRelationshipClient.HttpClientName);
+        services.AddSingleton(sp => new GraphInstagramRelationshipClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramRelationshipClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<IInstagramRelationshipClient>(sp => sp.GetRequiredService<GraphInstagramRelationshipClient>());
+        services.AddScoped<RevealFlowCoordinator>();
 
         return services;
     }

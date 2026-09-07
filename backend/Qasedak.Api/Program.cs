@@ -77,12 +77,18 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<Qasedak.Api.CrossModule.InstagramConversationBridge>();
 builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationCommentBridge>();
 builder.Services.AddScoped<Qasedak.Api.CrossModule.ContactsInteractionBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.RevealFlowContinuationBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.RevealFlowStartBridge>();
+builder.Services.AddSingleton<Qasedak.Api.CrossModule.IRevealFlowStartContentProvider,
+    Qasedak.Api.CrossModule.NoRevealFlowStartProvider>();
 builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IIntegrationEventDispatcher>(sp =>
     new Qasedak.Api.CrossModule.FanOutIntegrationEventDispatcher(
     [
         sp.GetRequiredService<Qasedak.Api.CrossModule.InstagramConversationBridge>(),
         sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationCommentBridge>(),
         sp.GetRequiredService<Qasedak.Api.CrossModule.ContactsInteractionBridge>(),
+        sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowContinuationBridge>(),
+        sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowStartBridge>(),
     ]));
 builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IWebhookPostIngestProcessor,
     Qasedak.Api.CrossModule.ConversationsPostIngestAdapter>();

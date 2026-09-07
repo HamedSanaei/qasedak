@@ -179,6 +179,63 @@ variant: `{recipient_id, message_id}`. Webhook subscriptions for templates:
 Qasedak never truncates payloads/URLs/titles — over-limit content is rejected
 locally with zero provider calls (`MessageValidationPolicy`, M13-010).
 
+### 3.12 Reveal-flow continuation contract (M13-011, retrieved 2026-09-07)
+
+The provider-correct first-contact sequence — fresh first-party verification
+supersedes the historical "comment → postback → reveal" assumption:
+
+```text
+Comment
+→ PlainText Private Reply (recipient.comment_id; M13-009 one-shot effect)
+→ the user replies to the business in the conversation
+→ consent proven + 24h Direct window open
+→ Direct button-template gate prompt (recipient.id; postback button carries the
+  rv1 correlation token; optional web_url follow link)
+→ user taps the postback (messaging_postbacks)
+→ exact-account/sender/token validation → optional is_user_follow_business check
+→ ONE Direct reveal message (recipient.id, PlainText)
+```
+
+Verified points:
+
+- **A comment alone does NOT open the normal messaging window.** The opening
+  Private Reply is a one-shot comment edge; a follow-up Direct message is only
+  possible after the recipient responds (`Send a Private Reply to a Commenter`
+  guide; `Send Messages with IG Login` overview).
+- **User-response correlation:** the current messaging webhook documents
+  `reply_to:{mid}` for inline replies — the provider message id the user was
+  replying to. M13-011 normalizes the smallest field (`RepliedToProviderMessageId`)
+  and correlates the response to the exact opening message. When Meta omits it,
+  the deterministic single-pending-candidate rule applies; multiple pending
+  candidates with no reply_to fail closed with ZERO provider calls (never an
+  arbitrary pick).
+- **Consent for User Profile reads** (`is_user_follow_business`, §3.9): the
+  official consent list is *user sends a message*, *icebreaker*, *persistent
+  menu*. An ordinary button-template postback tap is NOT independently listed —
+  M13-011 therefore performs the relationship read only after a proven inbound
+  user message, never on a raw comment and never on a bare postback (§3.9
+  consequence).
+- **Read receipts** (`messaging_seen` / `read:{mid}`) prove only that a message
+  was read — not a button click, not follow status, not reveal authorization.
+  read→reveal fallback NOT implemented.
+- **24h window anchor:** the latest qualifying inbound user message time
+  (monotonic). A postback tap does NOT refresh the anchor (no current first-party
+  statement that it does); Meta remains final authority for actual delivery.
+- **Follow-gate capability** is decided by configuration, never by probing:
+  `Disabled` (provider-independent core always works) or
+  `EnabledWhenSupported` (tri-state read; `Follows` → reveal proceeds,
+  `DoesNotFollow` → hold and reuse the existing prompt (the same button may be
+  tapped again later), `UnknownUnavailable` → hold; no polling, no
+  fabrication of false).
+- **Postback payload bound:** the rv1 correlation token is ≤ 64 characters
+  (well inside the 1000-char postback payload limit); only its SHA-256 hash is
+  persisted.
+
+Sources: Instagram Messaging webhooks (messaging + messaging_postbacks +
+messaging_seen shapes, retrieved 2026-09-07); Send a Private Reply to a
+Commenter; Send Messages with IG Login; User Profile with IG Login (consent
+list, §3.9); Button Template with IG Login (M13-010 matrix).
+
 ### 3.6 Webhooks (Instagram Login — subscription fields + payload shapes)
 
 Subscribe: `POST https://graph.instagram.com/v26.0/<IG_ID>/subscribed_apps?subscribed_fields=comments,messages`
