@@ -1,7 +1,7 @@
 {
  "schemaVersion": 1,
  "project": "Qasedak",
- "updatedAt": "2026-09-06T23:48:23Z",
+ "updatedAt": "2026-09-07T00:02:25Z",
  "architecture": "Modular Monolith + Clean Architecture per module",
  "currentMilestone": "M13",
  "currentTask": "M13-010",
@@ -149,12 +149,13 @@
   "m13007Deployment": "deployed-2026-09-06: task SHA 7409dfb9057b383a8444961f92f2b6a9677cf32e; CI 34013214316 success; CodeQL 34013214397 success; Publish 34013373535 success (sha-7409dfb9057b); Deploy 34013423453 success (backup qasedak-20260906T051314Z-sha-7409dfb9057b.dump + migration 20260906035357_AddFollowerSnapshots applied + healthy + smoke ~05:13Z, no rollback); first CI 34013059596 failed only on stale FILE_MANIFEST (predated race-fix + 27 new files) and corrected via docs(manifest) commit — no code rerun; public smoke root 200/system 200/overview-unauth 401/history-unauth 401; live Meta insights smoke NOT RUN (no designated test account); production runtime = immutable sha-7409dfb9057b"
  },
  "nextActions": [
-  "M13-008 — Expand Instagram webhook normalization for automation parity (TODO, next)",
-  "Then execute M13-008 through M13-015 in dependency order; keep every task scoped to one session and preserve completed foundations",
+  "M13-010 — Add interactive Instagram messaging capabilities (TODO, next)",
+  "Then execute M13-010 through M13-015 in dependency order; keep every task scoped to one session and preserve completed foundations",
   "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
   "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
  ],
- "lastInstruction": "M13-008 DONE 2026-09-06: interactive webhook normalization complete (postbacks, read receipts, enriched comments, filtered messages, exact-account dispatch, ms timestamps; backend 838/838, full verify green, deployed sha-b223862495a3, no schema change). State: lastCompletedTask=M13-008, currentTask=M13-009 TODO.",
+ "lastInstruction": "M13-009 DONE 2026-09-07: comment automation corrected to Meta Private Reply semantics (recipient.comment_id, global ConnectedAccountId+CommentId+EffectType claim in instagram.comment_effects, exact 7-day policy via official IG Comment timestamp read, Live attempt-once, three distinct outbound operations, AutomationRun terminal slot statuses; backend 935/935, full verify green, deployed sha-801096f2dea6, migration 20260906232403_AddCommentEffects applied, CI 34068123904/CodeQL 34068123934/Publish 34068295393/Deploy 34068396870 success, public smoke 200/200/403/401, live Meta Private Reply smoke NOT RUN). State: lastCompletedTask=M13-009, currentTask=M13-010 TODO.",
+ "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
  "m13008Deployment": {
   "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",
   "image": "sha-b223862495a3",
@@ -172,5 +173,24 @@
   },
   "liveMetaWebhookSmoke": "NOT RUN — no designated production test account",
   "nextTask": "M13-009"
+ },
+ "m13009Deployment": {
+  "sha": "801096f2dea636ad10baf5f06189e2bc6b906c3c",
+  "image": "sha-801096f2dea6",
+  "ciRun": "34068123904",
+  "codeqlRun": "34068123934",
+  "publishRun": "34068295393",
+  "deployRun": "34068396870",
+  "backup": "qasedak-20260906T235949Z-sha-801096f2dea6.dump",
+  "migration": "20260906232403_AddCommentEffects (schema instagram, additive, applied before image switch; M13-008 runtime bootable; Down() drops only the new table)",
+  "health": "api Healthy; in-workflow health + public-web-auth-routing smoke passed ~2026-09-07T00:00Z; no rollback",
+  "publicSmoke": {
+   "root": 200,
+   "system": 200,
+   "challengeWrongToken": 403,
+   "postNoSignature": 401
+  },
+  "liveMetaPrivateReplySmoke": "NOT RUN — no designated production test account/comment (never consume a customer's single allowed reply)",
+  "nextTask": "M13-010"
  }
 }

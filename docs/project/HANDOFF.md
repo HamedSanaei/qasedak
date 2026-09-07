@@ -67,14 +67,21 @@ M13-009 TASKS entry.
 
 ### Deployment evidence — M13-009 (2026-09-07, UTC)
 
-- Task SHA `M13_009_SHA_PENDING` pushed to `origin/master`; production runtime
-  is the immutable image `ghcr.io/hamedsanaei/qasedak-api|web:sha-M13_009_SHA_PENDING`.
-- CI/CodeQL/Publish/Deploy run IDs `PENDING`; DB backup `PENDING`;
-  migration `20260906232403_AddCommentEffects` (schema `instagram`, additive,
-  applied by the official workflow before image switch).
-- Safe public smoke `PENDING`; live Meta Private Reply smoke:
-  NOT RUN — no designated production test account/comment (never consume a
-  customer's single allowed reply).
+- Task SHA `801096f2dea636ad10baf5f06189e2bc6b906c3c` pushed to
+  `origin/master`; production runtime is the immutable image
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-801096f2dea6` (no rollback).
+- CI `34068123904` success; CodeQL `34068123934` success; Publish Images
+  `34068295393` success; Deploy Production `34068396870` success — DB backup
+  `qasedak-20260906T235949Z-sha-801096f2dea6.dump`; migration
+  `20260906232403_AddCommentEffects` applied to schema `instagram` before the
+  image switch (additive — M13-008 runtime stays bootable; `Down()` drops only
+  the new table); api container Healthy; in-workflow health + public-web-auth-
+  routing smoke passed ~00:00Z.
+- Independent public smoke (2026-09-07): `/` 200, `/api/v1/system` 200;
+  webhook edge negatives — wrong verify token → 403, unsigned `POST` → 401
+  (signature-before-persist, zero inbox/business effects).
+- Live Meta Private Reply smoke: NOT RUN — no designated production test
+  account/comment (never consume a customer's single allowed reply).
 
 ### M13-010 packet (read-only handoff)
 

@@ -46,6 +46,25 @@
   wrong account, zero DM). Shared M13-003 parser fixed for `null` code/subcode
   envelopes (regression added). Format/architecture clean; frontend untouched.
 
+## 2026-09-07 — M13-009 deployed; production on immutable task image
+
+- Task commit `801096f2dea6` (`fix(instagram): use private replies for comment
+  automations`) pushed to `origin/master`; production runtime is the immutable
+  image `ghcr.io/hamedsanaei/qasedak-api|web:sha-801096f2dea6`.
+- CI `34068123904` success; CodeQL `34068123934` success; Publish Images
+  `34068295393` success; Deploy Production `34068396870` success — DB backup
+  `qasedak-20260906T235949Z-sha-801096f2dea6.dump`; migration
+  `20260906232403_AddCommentEffects` applied to schema `instagram` before the
+  image switch (additive; M13-008 binary remains bootable; `Down()` drops only
+  the new table); api Healthy; in-workflow health + public-web-auth-routing
+  smoke passed ~00:00Z; no rollback.
+- Independent public smoke (2026-09-07): `/` 200, `/api/v1/system` 200;
+  webhook edge negatives — wrong verify token → 403, unsigned `POST` → 401
+  (signature-before-persist, zero inbox/business mutation).
+- Live Meta Private Reply smoke: NOT RUN — no designated production test
+  account/comment; no customer account or comment touched; the one-reply rule
+  means no disposable test comment existed for this deployment.
+
 ## 2026-09-06 — M13-008 DONE: interactive webhook normalization
 
 - Fresh first-party verification (Webhook Notification Examples — Instagram
