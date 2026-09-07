@@ -50,7 +50,8 @@
 
 - Task commit `801096f2dea6` (`fix(instagram): use private replies for comment
   automations`) pushed to `origin/master`; production runtime is the immutable
-  image `ghcr.io/hamedsanaei/qasedak-api|web:sha-801096f2dea6`.
+  image `ghcr.io/hamedsanaei/qasedak-api|web:sha-1bb9e18d2465` following the
+  manifest-correction redeploy below (code-identical tree).
 - CI `34068123904` success; CodeQL `34068123934` success; Publish Images
   `34068295393` success; Deploy Production `34068396870` success — DB backup
   `qasedak-20260906T235949Z-sha-801096f2dea6.dump`; migration
@@ -64,6 +65,12 @@
 - Live Meta Private Reply smoke: NOT RUN — no designated production test
   account/comment; no customer account or comment touched; the one-reply rule
   means no disposable test comment existed for this deployment.
+- Manifest-correction redeploy `1bb9e18` (FILE_MANIFEST.txt only): CI
+  `34068667176`, CodeQL `34068667162`, Publish `34068881350`, Deploy
+  `34068955677` all success — backup
+  `qasedak-20260907T001046Z-sha-1bb9e18d2465.dump`, all eight schemas already
+  up to date (zero migrations applied), api Healthy, health + public-web
+  smoke passed ~00:11Z, no rollback.
 
 ## 2026-09-06 — M13-008 DONE: interactive webhook normalization
 

@@ -68,8 +68,7 @@ M13-009 TASKS entry.
 ### Deployment evidence — M13-009 (2026-09-07, UTC)
 
 - Task SHA `801096f2dea636ad10baf5f06189e2bc6b906c3c` pushed to
-  `origin/master`; production runtime is the immutable image
-  `ghcr.io/hamedsanaei/qasedak-api|web:sha-801096f2dea6` (no rollback).
+  `origin/master` (no rollback).
 - CI `34068123904` success; CodeQL `34068123934` success; Publish Images
   `34068295393` success; Deploy Production `34068396870` success — DB backup
   `qasedak-20260906T235949Z-sha-801096f2dea6.dump`; migration
@@ -77,6 +76,16 @@ M13-009 TASKS entry.
   image switch (additive — M13-008 runtime stays bootable; `Down()` drops only
   the new table); api container Healthy; in-workflow health + public-web-auth-
   routing smoke passed ~00:00Z.
+- Manifest-correction redeploy: `1bb9e18d24657d8451e5850ee9ac1df9d6adf`
+  (`docs(manifest): include M13-009 deployment evidence files in repository
+  manifest` — FILE_MANIFEST.txt only, code-identical tree) went through the
+  full chain green — CI `34068667176`, CodeQL `34068667162`, Publish Images
+  `34068881350`, Deploy Production `34068955677` (backup
+  `qasedak-20260907T001046Z-sha-1bb9e18d2465.dump`; all eight schemas
+  already up to date, zero migrations applied; api Healthy; health +
+  public-web-auth-routing smoke passed ~00:11Z; no rollback). Production
+  runtime is therefore the immutable image
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-1bb9e18d2465`.
 - Independent public smoke (2026-09-07): `/` 200, `/api/v1/system` 200;
   webhook edge negatives — wrong verify token → 403, unsigned `POST` → 401
   (signature-before-persist, zero inbox/business effects).
