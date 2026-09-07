@@ -6,6 +6,43 @@
 **Last completed:** M13-012 (2026-09-07, deployed)
 **Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters, the durable reveal-flow capability and full automation trigger/action parity (comment + inbound-DM triggers with exact-account binding, post/original-post scope, every-event/keyword/whole-word matching, Private Reply / Direct / Public Reply / reveal / durable crash-safe follow-up actions on a schema-v2 versioned definition) complete; M13-013 comment reconciliation/history sync not started
 
+## 2026-09-07 — M13-012 authoring-limits correction deployed (provider-bound parity)
+
+- Correction commit `M13_012_CORRECTION_SHA` pushed to `origin/master` (authoring
+  validation now mirrors the shipped M13-010 provider message contract; no schema
+  change, no migration).
+- **Reproduced defects:** authoring accepted definitions that would fail M13-010 local
+  validation before Meta was contacted — message text bounded by characters instead of
+  UTF-8 bytes, GatePromptText 1000 instead of 640 chars, button titles 40 instead of 20
+  chars, FollowUrl 2048 with prefix-only `StartsWith` instead of 2000 chars +
+  `Uri.TryCreate`, and the original session had run only 1 of the 6 required Graphify
+  queries.
+- **Validation corrections (Automations Domain, channel-neutral):** PlainText-mapped
+  kinds (Direct, Private Reply, legacy comment SendDirectMessage, reveal opening,
+  final RevealText, follow-up text) enforce `Encoding.UTF8.GetByteCount <= 1000`;
+  GatePromptText `<=640` chars; Postback/Follow button titles `<=20` chars; FollowUrl
+  `<=2000` chars, no control characters, `Uri.TryCreate` absolute with scheme exactly
+  http/https. SendPublicReply intentionally keeps its distinct 1000-character product
+  cap (different provider operation — never inherits Direct-template bounds).
+- **Backward compatibility:** deserialization never re-runs authoring validation, so
+  frozen v1 rows and already-persisted v2 rows exceeding the new bounds remain
+  readable (regression-proven); no destructive rewrite, no migration; execution of old
+  invalid config still fails closed through the existing downstream M13-010 local
+  validation.
+- **Cross-boundary parity:** new test-only reference from Automations unit tests to
+  Instagram Application proves every v2 authoring-accepted Direct / Private Reply /
+  legacy SendDirectMessage / follow-up / maximum reveal configuration passes
+  `MessageValidationPolicy.Validate` after the composition-root mapping; each
+  downstream constraint (over-byte text, >640 gate, >20 title, >2000/malformed/
+  control-char/unsupported-scheme URL) is rejected at authoring before persistence.
+- **Graphify evidence corrected:** all six originally-required M13-012 queries A–F
+  (definition persistence; trigger execution; action dispatch; scheduled follow-up;
+  execution persistence; source/window bridges) executed at budget 1200 each;
+  evidence appended as `M13-012-correction` (original one-query row preserved;
+  `graphify.lastEvidence` updated truthfully).
+- Full verification green; state unchanged: M13-012 DONE, currentTask M13-013 (TODO).
+  Live Meta correction smoke NOT RUN — no designated test account.
+
 ## 2026-09-07 — M13-012 deployed; production on immutable task image
 
 - Task commit `a26af311bb68b3a7706660c8f938b338d42b395c` pushed to `origin/master`.

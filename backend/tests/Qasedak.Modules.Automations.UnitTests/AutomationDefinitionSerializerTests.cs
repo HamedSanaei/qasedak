@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Qasedak.Modules.Automations.Application;
+using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
 using Qasedak.Modules.Automations.Infrastructure.Persistence;
 using Xunit;
@@ -138,6 +139,66 @@ public sealed class AutomationDefinitionSerializerTests
         Assert.Equal(TextMatchMode.Keywords, definition.Trigger.TextMatch);
         Assert.Equal(ConditionField.CommentText, definition.Conditions[0].Field);
         Assert.Equal(ActionKind.SendDirectMessage, definition.Actions[0].Kind);
+    }
+
+    [Fact]
+    public void HistoricalV1RowExceedingNewAuthoringBoundsStaysReadable()
+    {
+        // Frozen pre-M13-012 rows must remain readable even when their content exceeds
+        // today's UTF-8 byte authoring bound (M13-012 correction §14): deserialization
+        // materializes history — it never re-runs authoring validation.
+        var overByteText = new string('گ', 1000); // 1000 chars = 2000 UTF-8 bytes
+        var json = "{\"Trigger\":{\"Kind\":\"CommentCreated\",\"KeywordFilters\":[]}," +
+                   "\"Conditions\":[],\"Actions\":[{\"Kind\":\"SendDirectMessage\",\"MessageText\":\"" +
+                   overByteText + "\"}]}";
+
+        var definition = AutomationDefinitionSerializer.Deserialize(json);
+
+        Assert.Equal(1, definition.SchemaVersion);
+        Assert.Equal(overByteText, definition.Actions[0].MessageText);
+        // The same content is no longer authorable as new v2 — and that is exactly right.
+        Assert.Throws<AutomationsDomainException>(() => AutomationDefinition.Create(
+            AutomationTrigger.CommentCreated(), [new AutomationAction(ActionKind.SendDirectMessage, overByteText)]));
+    }
+
+    [Fact]
+    public void HistoricalV2RowExceedingNewAuthoringBoundsStaysReadable()
+    {
+        // The deployed M13-012 API could have persisted v2 rows at the old limits
+        // (21-40 char titles, 2001-2048 URLs, 641-1000 gate prompts, char-not-byte
+        // plain text). Those rows are history: readable, never rewritten, and their
+        // execution fails closed through the existing downstream local provider
+        // validation (M13-012 correction §15). No destructive migration.
+        var longGate = new string('g', 641);
+        var longTitle = new string('p', 21);
+        var overByteText = new string('گ', 1000); // 2000 UTF-8 bytes
+        var longUrl = "https://example.com/" + new string('a', 1981); // 2001 chars
+        var json = "{\"SchemaVersion\":2," +
+                   "\"Trigger\":{\"Kind\":\"CommentCreated\",\"KeywordFilters\":[],\"TextMatch\":\"EveryEvent\",\"WholeWord\":false,\"Source\":\"AnySource\"}," +
+                   "\"Conditions\":[]," +
+                   "\"Actions\":[{\"Kind\":\"StartRevealFlow\",\"MessageText\":\"opening\",\"Extras\":{\"Reveal\":{" +
+                   "\"GatePromptText\":\"" + longGate + "\",\"PostbackButtonTitle\":\"" + longTitle + "\"," +
+                   "\"RevealText\":\"" + overByteText + "\",\"FollowUrl\":\"" + longUrl + "\"," +
+                   "\"FollowButtonTitle\":\"follow\",\"FollowGateMode\":\"Disabled\"}}}]}";
+
+        var definition = AutomationDefinitionSerializer.Deserialize(json);
+
+        Assert.Equal(2, definition.SchemaVersion);
+        var reveal = definition.Actions[0].Extras!.Reveal!;
+        Assert.Equal(longGate, reveal.GatePromptText);
+        Assert.Equal(longTitle, reveal.PostbackButtonTitle);
+        Assert.Equal(overByteText, reveal.RevealText);
+        Assert.Equal(longUrl, reveal.FollowUrl);
+
+        // The corrected authoring boundary rejects the same content as NEW v2.
+        Assert.Throws<AutomationsDomainException>(() => AutomationDefinition.Create(
+            AutomationTrigger.CommentCreated(),
+            [
+                new AutomationAction(
+                    ActionKind.StartRevealFlow,
+                    "opening",
+                    new ActionExtras(Reveal: new RevealActionContent(longGate, longTitle, overByteText, longUrl, "follow"))),
+            ]));
     }
 
     private static TriggerContext Context(string text) =>

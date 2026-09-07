@@ -1428,6 +1428,28 @@ containers Healthy, health + smoke passed, no rollback; public smoke 200/200/403
 live Meta automation smoke NOT RUN (no designated test account); evidence commit
 `[skip ci]` recorded zero CI/CodeQL/Publish/Deploy runs.
 
+**Correction (2026-09-07, `M13_012_CORRECTION_SHA`):** provider-bound authoring limit
+alignment — PlainText-mapped kinds (Direct / Private Reply / legacy comment
+SendDirectMessage / reveal opening / final RevealText / follow-up text) enforce
+`Encoding.UTF8.GetByteCount <= 1000` (Persian/emoji boundary-proven); GatePromptText
+`<=640` chars; Postback/Follow button titles `<=20` chars; FollowUrl `<=2000` chars +
+no control characters + `Uri.TryCreate` absolute with scheme exactly http/https
+(prefix-only `StartsWith` removed); SendPublicReply keeps its distinct 1000-char
+product cap (different provider operation, never Direct-template bounds).
+Deserialization never re-runs authoring validation — frozen v1 and already-persisted
+v2 rows exceeding new bounds stay readable, never rewritten, no migration.
+Cross-boundary parity regressions (test-only Automations→Instagram.Application
+reference) prove every v2 authoring-accepted Instagram-backed message passes M13-010
+`MessageValidationPolicy.Validate` after the composition-root mapping, and every
+downstream constraint rejects at authoring before persistence. Graphify: all six
+originally-required M13-012 queries A–F executed (budget 1200 each), evidence appended
+as `M13-012-correction` (original one-query row preserved). Verification: backend
+181 Automations unit (incl. UTF-8/template/URL matrices, parity, read-preservation) +
+full suite 1145/1145 green; `dotnet format --verify-no-changes` clean; architecture
+check passed; frontend `npm run verify` green; `verify.py --full` PASSED (handbook
+parked per M13 precedent, restored byte-identical). State unchanged: M13-012 DONE,
+M13-013 TODO.
+
 **Suggested commit:** `feat(automations): complete instagram trigger and action parity`
 
 ## M13-013 — Add comment reconciliation and provider history synchronization

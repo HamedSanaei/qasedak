@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Qasedak.Modules.Automations.Domain.Definitions;
 
 /// <summary>
@@ -158,17 +160,35 @@ public sealed record ActionExtras(
     RevealActionContent? Reveal = null);
 
 /// <summary>
-/// Single outbound action. The text template is plain content (≤1000 chars); template
-/// substitution is deterministic and evaluator-owned. For StartRevealFlow the text is the
-/// opening Private Reply content; the remaining reveal content lives in <see cref="Extras"/>.
+/// Single outbound action. The text template is plain content; template substitution is
+/// deterministic and evaluator-owned. For StartRevealFlow the text is the opening Private
+/// Reply content; the remaining reveal content lives in <see cref="Extras"/>.
+///
+/// Authoring bounds mirror the shipped M13-010 provider message contract (channel-neutral
+/// product mirror — the Automations module never references Instagram projects):
+/// - PlainText-mapped kinds (Direct / Private Reply / reveal opening and final text /
+///   follow-up) are bounded in UTF-8 BYTES;
+/// - SendPublicReply is a distinct public-comment operation with its own product cap in
+///   characters (no M13-010 ButtonTemplate/Direct bounds apply);
+/// - reveal GatePromptText maps to ButtonTemplate.Text (≤640 chars), button titles ≤20
+///   chars, web-URL follow URL ≤2000 chars and syntactically absolute http/https.
 /// </summary>
 public sealed record AutomationAction(ActionKind Kind, string MessageText, ActionExtras? Extras = null)
 {
+    /// <summary>Public comment reply text: product-owned character cap (distinct provider operation).</summary>
     public const int MaxMessageLength = 1000;
 
-    public const int MaxButtonTitleLength = 40;
+    /// <summary>M13-010 PlainText: UTF-8 bytes, ≤ 1000. Verified first-party Meta limit (2026-09-07).</summary>
+    public const int MaxPlainTextBytes = 1000;
 
-    public const int MaxFollowUrlLength = 2048;
+    /// <summary>M13-010 ButtonTemplate.Text: characters, ≤ 640.</summary>
+    public const int MaxGatePromptTextLength = 640;
+
+    /// <summary>M13-010 template button titles: characters, ≤ 20.</summary>
+    public const int MaxButtonTitleLength = 20;
+
+    /// <summary>M13-010 web-URL safety cap: characters, ≤ 2000.</summary>
+    public const int MaxFollowUrlLength = 2000;
 
     /// <summary>Product-owned scheduling bounds — not an inferred Meta limit.</summary>
     public static readonly TimeSpan FollowUpDelayMin = TimeSpan.FromMinutes(1);
@@ -283,9 +303,26 @@ public sealed record AutomationDefinition(
             throw new AutomationsDomainException("automation.actionTextRequired", "Action message text is required.");
         }
 
-        if (action.MessageText.Length > AutomationAction.MaxMessageLength)
+        if (action.Kind == ActionKind.SendPublicReply)
         {
-            throw new AutomationsDomainException("automation.actionTextTooLong", $"Action message text exceeds {AutomationAction.MaxMessageLength} characters.");
+            // Public comment reply is a different provider operation (comment text, not a
+            // Direct-message send): keep the product-owned character cap, never the M13-010
+            // messaging PlainText byte bound.
+            if (action.MessageText.Length > AutomationAction.MaxMessageLength)
+            {
+                throw new AutomationsDomainException(
+                    "automation.actionTextTooLong",
+                    $"Public comment reply text exceeds {AutomationAction.MaxMessageLength} characters.");
+            }
+        }
+        else if (Encoding.UTF8.GetByteCount(action.MessageText) > AutomationAction.MaxPlainTextBytes)
+        {
+            // Every other kind maps to an M13-010 PlainText message (Direct, Private Reply,
+            // legacy SendDirectMessage, follow-up text, reveal opening): UTF-8 bytes, not
+            // characters — 1000 Persian characters can exceed 1000 UTF-8 bytes.
+            throw new AutomationsDomainException(
+                "automation.actionTextTooLong",
+                $"Message text exceeds {AutomationAction.MaxPlainTextBytes} UTF-8 bytes.");
         }
 
         IReadOnlyList<ActionKind> allowed = triggerKind switch
@@ -347,8 +384,8 @@ public sealed record AutomationDefinition(
                         throw new AutomationsDomainException("automation.actionExtrasNotApplicable", "A delay is not applicable to a reveal action.");
                     }
 
-                    ValidateRevealText(nameof(reveal.GatePromptText), reveal.GatePromptText);
-                    ValidateRevealText(nameof(reveal.RevealText), reveal.RevealText);
+                    ValidateGatePromptText(reveal.GatePromptText);
+                    ValidateRevealText(reveal.RevealText);
                     ValidateButtonTitle(nameof(reveal.PostbackButtonTitle), reveal.PostbackButtonTitle);
                     ValidateButtonTitle(nameof(reveal.FollowButtonTitle), reveal.FollowButtonTitle);
                     ValidateFollowUrl(reveal.FollowUrl);
@@ -365,16 +402,40 @@ public sealed record AutomationDefinition(
         }
     }
 
-    private static void ValidateRevealText(string field, string value)
+    /// <summary>
+    /// GatePromptText maps to the M13-010 ButtonTemplate.Text (≤640 characters) — the
+    /// template prompt, not a PlainText message.
+    /// </summary>
+    private static void ValidateGatePromptText(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new AutomationsDomainException("automation.revealTextRequired", $"Reveal content field {field} is required.");
+            throw new AutomationsDomainException("automation.revealTextRequired", "Reveal content field GatePromptText is required.");
         }
 
-        if (value.Length > AutomationAction.MaxMessageLength)
+        if (value.Length > AutomationAction.MaxGatePromptTextLength)
         {
-            throw new AutomationsDomainException("automation.revealTextTooLong", $"Reveal content field {field} exceeds {AutomationAction.MaxMessageLength} characters.");
+            throw new AutomationsDomainException(
+                "automation.gatePromptTooLong",
+                $"Reveal content field GatePromptText exceeds {AutomationAction.MaxGatePromptTextLength} characters.");
+        }
+    }
+
+    /// <summary>
+    /// RevealText maps to a Direct PlainText message: UTF-8 byte bound, not characters.
+    /// </summary>
+    private static void ValidateRevealText(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new AutomationsDomainException("automation.revealTextRequired", "Reveal content field RevealText is required.");
+        }
+
+        if (Encoding.UTF8.GetByteCount(value) > AutomationAction.MaxPlainTextBytes)
+        {
+            throw new AutomationsDomainException(
+                "automation.revealTextTooLong",
+                $"Reveal content field RevealText exceeds {AutomationAction.MaxPlainTextBytes} UTF-8 bytes.");
         }
     }
 
@@ -391,6 +452,13 @@ public sealed record AutomationDefinition(
         }
     }
 
+    /// <summary>
+    /// Follow URL maps to the M13-010 web-URL button: ≤2000 characters, no control
+    /// characters, deterministic absolute-URI syntax with scheme exactly http/https.
+    /// Mirrors <c>MessageValidationPolicy</c> (Instagram Application) — the two can never
+    /// drift because a cross-module parity test maps accepted definitions onto the policy.
+    /// No DNS, HEAD or fetch: validation is syntactic and bounded only.
+    /// </summary>
     private static void ValidateFollowUrl(string? value)
     {
         if (value is null)
@@ -403,10 +471,11 @@ public sealed record AutomationDefinition(
             throw new AutomationsDomainException("automation.revealFollowUrlTooLong", $"Follow url exceeds {AutomationAction.MaxFollowUrlLength} characters.");
         }
 
-        if (!(value.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-            || value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)))
+        if (value.Any(char.IsControl)
+            || !Uri.TryCreate(value, UriKind.Absolute, out var uri)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
         {
-            throw new AutomationsDomainException("automation.revealFollowUrlScheme", "Follow url must be an absolute http(s) url.");
+            throw new AutomationsDomainException("automation.revealFollowUrlScheme", "Follow url must be an absolute http(s) url without control characters.");
         }
     }
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-07T03:32:56Z",
+  "updatedAt": "2026-09-07T04:48:52.923404+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-013",
@@ -81,7 +81,7 @@
     "required": true,
     "status": "healthy",
     "version": "0.9.26",
-    "lastEvidence": "M13-012 recorded: healthy, graphify 0.9.26, refresh graphify . --update --no-viz --code-only + graphify cluster-only ., 1 query (trigger->evaluator->dispatch/ledger, budget 1200)",
+    "lastEvidence": "M13-012-correction recorded: healthy, graphify 0.9.26, refresh graphify . --update --no-viz --code-only + graphify cluster-only . (516 communities). The original M13-012 session ran only ONE broad query; the M13-012 correction pass executed ALL SIX originally-required queries A-F (definition persistence; trigger execution; action dispatch; scheduled follow-up; execution persistence; source/window bridges), each budget 1200, code-only fallback. Original single-query evidence row preserved; correction evidence appended.",
     "sourceCommit": null,
     "mode": "code-only (local AST; no LLM API key available for doc semantic extraction)",
     "outputs": [
@@ -254,6 +254,7 @@
       "unsignedPost": 401
     },
     "liveMetaAutomationSmoke": "NOT RUN — no designated end-to-end test account/comment/DM/automation (never consume a customer's single allowed reply)",
-    "nextTask": "M13-013"
+    "nextTask": "M13-013",
+    "notes": " | M13-012 CORRECTION: provider-bound authoring limit alignment — PlainText kinds UTF-8 byte <=1000 (Direct/Private Reply/legacy SendDirectMessage/reveal opening/final RevealText/follow-up), GatePromptText <=640 chars, button titles <=20 chars, FollowUrl <=2000 chars + Uri.TryCreate absolute http/https + control-char rejection, SendPublicReply keeps distinct 1000-char product cap; cross-boundary parity tests (Automations authoring -> M13-010 MessageValidationPolicy); v1 and already-persisted v2 rows remain readable (no revalidation on deserialize, no migration); Graphify A-F evidence completed"
   }
 }

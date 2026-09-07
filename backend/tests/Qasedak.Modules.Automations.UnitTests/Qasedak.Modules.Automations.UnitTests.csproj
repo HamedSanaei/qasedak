@@ -7,5 +7,9 @@
     <ProjectReference Include="..\..\Modules\Automations\Qasedak.Modules.Automations.Application\Qasedak.Modules.Automations.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Automations\Qasedak.Modules.Automations.Domain\Qasedak.Modules.Automations.Domain.csproj" />
     <ProjectReference Include="..\..\Modules\Automations\Qasedak.Modules.Automations.Infrastructure\Qasedak.Modules.Automations.Infrastructure.csproj" />
+    <!-- Test-only cross-module contract reference (M13-012 correction §4/§17): proves
+         every v2 authoring-accepted Instagram-backed message also passes the M13-010
+         local MessageValidationPolicy. Never a production module reference. -->
+    <ProjectReference Include="..\..\Modules\Instagram\Qasedak.Modules.Instagram.Application\Qasedak.Modules.Instagram.Application.csproj" />
   </ItemGroup>
 </Project>

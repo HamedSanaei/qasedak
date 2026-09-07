@@ -1,5 +1,63 @@
 # Current handoff
 
+## 2026-09-07 — M13-012 CORRECTION deployed; M13-013 still TODO (do not start M13-013)
+
+M13-012 received its surgical correction: automation authoring validation now mirrors the
+shipped M13-010 provider message contract, and all six originally-required Graphify
+queries A–F are executed and recorded. M13-012 remains DONE; the task pointer was NOT
+advanced. The next task remains M13-013 (comment reconciliation / provider history
+synchronization) — not authorized here.
+
+### M13-012 correction evidence (2026-09-07)
+
+- **Provider-bound authoring limits (channel-neutral Automations Domain):**
+  - PlainText-mapped kinds (DirectMessage, SendPrivateReply, legacy comment
+    SendDirectMessage, StartRevealFlow opening, RevealText, ScheduleFollowUp text):
+    `Encoding.UTF8.GetByteCount(text) <= 1000` — NOT character count. Boundary
+    matrices for ASCII (1000/1001), Persian (500 chars = 1000 bytes valid; 1000 chars
+    = 2000 bytes rejected) and emoji (250 = 1000 bytes valid; 251 rejected).
+  - `GatePromptText <= 640` characters (maps to M13-010 ButtonTemplate.Text);
+    640 valid / 641 rejected (`automation.gatePromptTooLong`).
+  - Postback + Follow button titles `<= 20` characters (was 40); 20/21 boundary.
+  - `FollowUrl <= 2000` characters (was 2048), no control characters,
+    `Uri.TryCreate(value, UriKind.Absolute)` with scheme exactly http/https — the
+    prefix-only `StartsWith` validator is gone. `https://`, `https://[`,
+    `https:// example.com`, `javascript:`, `file:`, relative paths and
+    control-character URLs all rejected at authoring. 2000-char URL valid.
+  - `SendPublicReply` deliberately keeps its distinct 1000-character product cap —
+    public comment reply is a different provider operation and must never inherit
+    Direct-template/byte bounds (regression-proven both ways).
+- **Backward compatibility:** the JSON converter materializes stored rows without
+  re-running authoring validation — frozen v1 and already-persisted v2 rows that
+  exceed the tightened bounds stay readable (`HistoricalV1RowExceedingNewAuthoringBoundsStaysReadable`,
+  `HistoricalV2RowExceedingNewAuthoringBoundsStaysReadable`). No destructive rewrite,
+  NO MIGRATION. Execution of such old rows still fails closed through the existing
+  downstream M13-010 local validation before any provider call.
+- **Cross-boundary parity regressions** (`AuthoringProviderParityTests`, test-only
+  Automations→Instagram.Application reference): maximum Direct / Private Reply /
+  legacy comment SendDirectMessage / delayed follow-up / full reveal configuration
+  (opening + gate template with Postback+WebUrl + final text, incl. 2000-char URL)
+  all map to `InstagramMessageContent` exactly as the composition root does and pass
+  `MessageValidationPolicy.Validate`; every downstream constraint (over-byte text,
+  >640 gate, >20 title, >2000 URL, malformed/control-char/unsupported-scheme URL)
+  is rejected at authoring BEFORE persistence. No production module references
+  Instagram from Automations — architecture check passes.
+- **Graphify correction:** all six originally-required M13-012 queries A–F executed
+  (budget 1200 each, code-only fallback, graph 516 communities) and appended as
+  `M13-012-correction` evidence; the original one-query row is preserved untouched;
+  `PROJECT_STATE.graphify.lastEvidence` updated truthfully (correction noted, not
+  back-dated).
+- **Verification:** backend full suite 1145/1145 green (Automations unit 181 incl.
+  boundary/parity/read-preservation; API E2E 134 incl. M13-009/10/11/12 regressions);
+  `dotnet format --verify-no-changes` clean; `check_architecture.py` PASSED;
+  frontend `npm run verify` green; `verify.py --full` PASSED with the handbook parked
+  and restored byte-identical (`9e15231d…`).
+- **Deployment:** correction SHA `M13_012_CORRECTION_SHA`, CI/CodeQL/Publish/Deploy
+  run IDs recorded in the correction evidence commit; production image
+  `sha-<correction>`; DB backup taken; zero schema change (all existing migrations
+  already applied); health + public smoke 200/200/403/401; live Meta correction
+  smoke NOT RUN — no designated test account.
+
 ## 2026-09-07 — M13-012 DONE; M13-013 packet ready (do not start M13-013)
 
 M13-012 completed automation parity: comment + inbound-DM triggers, post/original-post
