@@ -1532,7 +1532,13 @@ Conversations 33; PG 65 incl. operation coalescing/restart/concurrency races and
 recurrence jobs; Api E2E 145 incl. reconciliation/history flows), `dotnet format`
 clean, architecture check passed (36 projects), frontend `npm run verify` green,
 `verify.py --full` PASSED. Graphify: refresh + all six M13-013 queries recorded
-healthy 0.9.26. M13-014 remains TODO.
+healthy 0.9.26. **Deployment (2026-09-07):** task `c7b4045` + manifest `aa12175`
+(final `M13_013_SHA aa12175adda2469a38ade036eb20cd28a6d4d210`); CI `34137461683`,
+CodeQL `34137461538`, Publish `34137823073` (`sha-aa12175adda2`), Deploy
+`34137925515` success — backup `qasedak-20260907T152224Z-sha-aa12175adda2.dump`,
+both additive migrations applied, containers Healthy, health/smoke passed, no
+rollback; public smoke 200/200/403/401; live Meta reconciliation/history smoke NOT
+RUN (no designated production test account). M13-014 remains TODO.
 
 **Suggested commit:** `feat(instagram): reconcile comments and conversation history`
 

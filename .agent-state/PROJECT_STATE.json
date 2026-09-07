@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-07T15:10:58.749465+00:00",
+  "updatedAt": "2026-09-07T15:23:45.058013+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-014",
@@ -159,7 +159,7 @@
     "Then M13-015 per tracker; keep every task scoped to one session",
     "Operational go-live prerequisites (human, not CI): Mellat real terminal creds; designated production test Instagram account for live Meta smoke"
   ],
-  "lastInstruction": "M13-012 DONE + deployed 2026-09-07: image sha-a26af311bb68, migration 20260907023218_AddAutomationActionAttemptColumns applied, CI 34079389171/CodeQL 34079389141/Publish 34079619338/Deploy 34079679915 success, backup qasedak-20260907T032739Z-sha-a26af311bb68.dump, public smoke 200/200/403/401, live Meta automation smoke NOT RUN. State: lastCompletedTask=M13-012, currentTask=M13-013 TODO; completedTasks contains M13-010/M13-011/M13-012 exactly once; graphify.lastEvidence = M13-012.",
+  "lastInstruction": "M13-013 DONE + deployed 2026-09-07: task c7b4045 + manifest aa12175 (final deployable M13_013_SHA aa12175adda2469a38ade036eb20cd28a6d4d210); CI 34137461683/CodeQL 34137461538/Publish 34137823073 (sha-aa12175adda2)/Deploy 34137925515 success; additive migrations 20260907053310_AddProviderSyncOperations + 20260907053239_AddHistoryImportAndScopedProviderMessageId applied; containers Healthy, host health+smoke passed; public smoke 200/200/403/401; live Meta M13-013 smoke NOT RUN (no designated test account); M13-014 TODO.",
   "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
   "m13008Deployment": {
     "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",
@@ -268,5 +268,28 @@
     "correctionBackup": "qasedak-20260907T045543Z-sha-03d820416f11.dump",
     "correctionSchemaChange": "none (all schemas already up to date; zero migrations)",
     "correctionSmoke": "200/200/403/401; containers Healthy; live Meta correction smoke NOT RUN (no designated test account)"
+  },
+  "m13013Deployment": {
+    "sha": "aa12175adda2469a38ade036eb20cd28a6d4d210",
+    "codeSha": "c7b4045725b055c7085ab057097433307c989d2e",
+    "image": "sha-aa12175adda2",
+    "ciRun": "34137461683",
+    "codeqlRun": "34137461538",
+    "publishRun": "34137823073",
+    "deployRun": "34137925515",
+    "backup": "qasedak-20260907T152224Z-sha-aa12175adda2.dump",
+    "schemaChange": true,
+    "migrations": [
+      "20260907053310_AddProviderSyncOperations (instagram)",
+      "20260907053239_AddHistoryImportAndScopedProviderMessageId (conversations)"
+    ],
+    "previousImage": "sha-03d820416f11",
+    "publicSmoke": {
+      "root": 200,
+      "system": 200,
+      "wrongVerifyToken": 403,
+      "unsignedWebhook": 401
+    },
+    "liveMeta": "NOT RUN - no designated production test Instagram account for reconciliation/history smoke"
   }
 }

@@ -43,6 +43,20 @@
   drops the global provider-MID uniqueness) and Instagram migration
   `20260907053310_AddProviderSyncOperations`.
 
+### M13-013 deployment (2026-09-07)
+
+Task commit `c7b4045725b055c7085ab057097433307c989d2e` + manifest refresh `aa12175`
+(final deployable `M13_013_SHA aa12175adda2469a38ade036eb20cd28a6d4d210`). CI
+`34137461683` success; CodeQL `34137461538` success; Publish Images `34137823073`
+success (`sha-aa12175adda2`); Deploy Production `34137925515` success from previous
+image `sha-03d820416f11` — backup `qasedak-20260907T152224Z-sha-aa12175adda2.dump`,
+both additive migrations applied (`instagram` `20260907053310_AddProviderSyncOperations`;
+`conversations` `20260907053239_AddHistoryImportAndScopedProviderMessageId`), API / Web /
+PostgreSQL containers Healthy, host health + smoke passed, no rollback. Public smoke
+`/` 200, `/api/v1/system` 200, wrong verify token 403, unsigned webhook POST 401.
+Live Meta reconciliation/history smoke NOT RUN — no designated production test
+Instagram account (never customer accounts). M13-014 TODO.
+
 ## 2026-09-07 — M13-012 authoring-limits correction deployed (provider-bound parity)
 
 - Correction commit `03d820416f118c9655f1c64fb0fd87f63fc9cf9e` pushed to
