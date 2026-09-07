@@ -47,6 +47,28 @@
   restore, Release 0 warnings, format, Testcontainers, frontend `npm run verify`,
   both Docker image builds); no schema change; frontend untouched.
 
+## 2026-09-07 — M13-010 deployed; production on immutable task image
+
+- Task commit `3c6cc0098d47` (`feat(instagram): add interactive messaging adapters`)
+  pushed to `origin/master`; production runtime is the immutable image
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-3c6cc0098d47`.
+- CI `34071181578` success; CodeQL `34071181608` success; Publish Images
+  `34071382037` success; Deploy Production `34071445443` success — DB backup
+  `qasedak-20260907T005752Z-sha-3c6cc0098d47.dump`; **no schema change** (all eight
+  schemas already up to date; M13-010 adds no migration — the M13-009
+  `instagram.comment_effects` ledger is sufficient); api Healthy; in-workflow health +
+  public-web-auth-routing smoke passed ~00:58Z; no rollback.
+- DI/startup evidence: api Healthy on the full composition root with the new
+  `MessageSendMetrics`/typed messaging client registered (host boots the real API
+  integration suite); token-refresh/follower-snapshot/webhook handlers unchanged and
+  healthy.
+- Independent public smoke (2026-09-07): `/` 200, `/api/v1/system` 200; webhook edge
+  negatives — wrong verify token → 403, unsigned `POST` → 401 (zero inbox/business
+  effects).
+- Live Meta interactive messaging smoke: NOT RUN — no designated production test
+  conversation/comment; no customer account touched; no Direct template or Private
+  Reply issued merely to prove deployment.
+
 ## 2026-09-07 — M13-009 DONE: comment automation uses Meta Private Reply semantics
 
 - Fresh first-party verification ("Send a Private Reply to a Commenter" and the

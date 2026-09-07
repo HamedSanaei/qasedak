@@ -53,6 +53,23 @@ M13-010 added interactive messaging capabilities. Fresh first-party verification
   117; `verify.py --full` green (incl. frontend + both Docker image builds); no schema
   change; frontend untouched. State: M13-010 DONE, currentTask=M13-011 TODO.
 
+### Deployment evidence — M13-010 (2026-09-07, UTC)
+
+- Task SHA `3c6cc0098d47dfd10a185b7848a269f799d59bfa` pushed to `origin/master`;
+  production runtime is the immutable image
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-3c6cc0098d47` (no rollback).
+- CI `34071181578` success; CodeQL `34071181608` success; Publish Images
+  `34071382037` success; Deploy Production `34071445443` success — DB backup
+  `qasedak-20260907T005752Z-sha-3c6cc0098d47.dump`; **no schema change** (zero
+  migrations applied; M13-010 adds no migration); api Healthy; in-workflow health +
+  public-web-auth-routing smoke passed ~00:58Z.
+- Independent public smoke (2026-09-07): `/` 200, `/api/v1/system` 200; webhook edge
+  negatives — wrong verify token → 403, unsigned `POST` → 401 (zero inbox/business
+  effects).
+- Live Meta interactive messaging smoke: NOT RUN — no designated production test
+  conversation/comment (never consume a customer's single allowed Private Reply or
+  send a Direct template without a designated test thread).
+
 ### M13-011 packet (read-only handoff)
 
 M13-011 adds the follow gate, opening DM and postback reveal flow. NOT authorized yet.

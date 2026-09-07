@@ -174,6 +174,26 @@
   "liveMetaWebhookSmoke": "NOT RUN — no designated production test account",
   "nextTask": "M13-009"
  },
+ "m13010InteractiveMessaging": "DONE-2026-09-07: fresh first-party verification (Send Messages + Button Template + Generic Template with IG Login, Send a Private Reply to a Commenter, Messenger Buttons reference linked by IG template docs; retrieved 2026-09-07) — Direct button templates Supported (template_type:button, text ≤640, buttons 1-3 postback/web_url, title ≤20, payload ≤1000, http(s) URL), Private Reply interactive variants NOT verified (guide documents text only) so unsupported with zero provider calls; discriminated InstagramMessageContent.PlainText/ButtonTemplate + closed Postback/WebUrl; IInstagramMessagingClient.SendDirectAsync typed content (SendTextAsync delegates, M05 unchanged); typed recipient_id+message_id success (malformed if missing); central MessageValidationPolicy (text 1000 UTF-8 bytes, template 640 chars, buttons 1-3, title 20, payload 1000, URL http/https ≤2000 cap; LocalValidation with zero provider calls; never truncates); CommentPrivateReplyCoordinator PlainText-only gate BEFORE the claim (unsupportedContent, zero claim/calls); one-reply key never partitioned by content; no fallback after Attempting; postback round-trip through M13-008 normalizer proven; MessageSendMetrics low-cardinality; no schema change; frontend untouched; backend 980/980 (Instagram unit 441, PG 93, API E2E 117); verify.py --full green",
+ "m13010Deployment": {
+  "sha": "3c6cc0098d47dfd10a185b7848a269f799d59bfa",
+  "image": "sha-3c6cc0098d47",
+  "ciRun": "34071181578",
+  "codeqlRun": "34071181608",
+  "publishRun": "34071382037",
+  "deployRun": "34071445443",
+  "backup": "qasedak-20260907T005752Z-sha-3c6cc0098d47.dump",
+  "schemaChange": false,
+  "health": "api Healthy; in-workflow health + public-web-auth-routing smoke passed ~2026-09-07T00:58Z; no rollback",
+  "publicSmoke": {
+   "root": 200,
+   "system": 200,
+   "challengeWrongToken": 403,
+   "postNoSignature": 401
+  },
+  "liveMetaInteractiveSmoke": "NOT RUN — no designated production test conversation/comment",
+  "nextTask": "M13-011"
+ },
  "m13009Deployment": {
   "sha": "801096f2dea636ad10baf5f06189e2bc6b906c3c",
   "image": "sha-801096f2dea6",
