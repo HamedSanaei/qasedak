@@ -1,5 +1,6 @@
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Domain.Accounts;
 
 namespace Qasedak.Modules.Instagram.Application.Effects;
@@ -21,6 +22,13 @@ public static class PrivateReplyOutcomeCodes
 
     /// <summary>Deterministic local policy rejection before any claim.</summary>
     public const string PolicyRejected = "privateReply.policyRejected";
+
+    /// <summary>
+    /// The content kind is not supported on the Private Reply path (M13-010 provider
+    /// gating): the current first-party Private Reply guide documents only message text;
+    /// interactive variants are not independently verified and never reach Meta.
+    /// </summary>
+    public const string UnsupportedContent = "privateReply.policyRejected.unsupportedContent";
 }
 
 public sealed record CommentPrivateReplyCommand(
@@ -28,7 +36,7 @@ public sealed record CommentPrivateReplyCommand(
     Guid ConnectedAccountId,
     string? ProviderCommentId,
     bool IsLiveComment,
-    string MessageText,
+    InstagramMessageContent MessageContent,
     string OwnerOperationId,
     DateTimeOffset NotificationOccurredAtUtc);
 
@@ -93,10 +101,27 @@ public sealed class CommentPrivateReplyCoordinator(
             return CommentPrivateReplyResult.Terminal(PrivateReplyOutcomeCodes.PolicyRejected + ".missingOrigin");
         }
 
-        if (string.IsNullOrWhiteSpace(command.MessageText))
+        // M13-010 provider gating: the current first-party Private Reply guide documents
+        // only message:{text}; button templates on recipient.comment_id are NOT verified.
+        // Unsupported content is rejected here deterministically — BEFORE the claim and
+        // with ZERO provider calls — and never falls back to a second mutation.
+        if (command.MessageContent is not InstagramMessageContent.PlainText { Text: not null and not "" } plainText)
         {
-            observability.PolicyRejected(InstagramEffectType.PrivateReply, "missingText");
-            return CommentPrivateReplyResult.Terminal(PrivateReplyOutcomeCodes.PolicyRejected + ".missingText");
+            if (command.MessageContent is null)
+            {
+                observability.PolicyRejected(InstagramEffectType.PrivateReply, "missingContent");
+                return CommentPrivateReplyResult.Terminal(PrivateReplyOutcomeCodes.PolicyRejected + ".missingContent");
+            }
+
+            observability.PolicyRejected(InstagramEffectType.PrivateReply, "unsupportedContent");
+            return CommentPrivateReplyResult.Terminal(PrivateReplyOutcomeCodes.UnsupportedContent);
+        }
+
+        var contentValidation = MessageValidationPolicy.Validate(plainText);
+        if (!contentValidation.IsValid)
+        {
+            observability.PolicyRejected(InstagramEffectType.PrivateReply, contentValidation.Code.ToString());
+            return CommentPrivateReplyResult.Terminal(PrivateReplyOutcomeCodes.PolicyRejected + "." + contentValidation.Code);
         }
 
         // 2. Deterministic policy. The comment-creation-time read is a focused non-mutating
@@ -167,7 +192,7 @@ public sealed class CommentPrivateReplyCoordinator(
             accessToken,
             account.ProviderUserId,
             command.ProviderCommentId,
-            command.MessageText,
+            plainText.Text,
             cancellationToken);
 
         if (result.Succeeded)

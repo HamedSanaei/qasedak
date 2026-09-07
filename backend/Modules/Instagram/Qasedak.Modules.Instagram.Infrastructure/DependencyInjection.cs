@@ -56,10 +56,14 @@ public static class DependencyInjection
         // Messaging send API (M05-004): typed client + structured failure taxonomy.
         services.Configure<MetaMessagingOptions>(configuration.GetSection(MetaMessagingOptions.SectionName));
         services.AddHttpClient(GraphInstagramMessagingClient.HttpClientName);
+        var messageSendMetrics = new MessageSendMetrics();
+        services.AddSingleton(messageSendMetrics);
+        services.AddSingleton<IMessageSendObservability>(sp => sp.GetRequiredService<MessageSendMetrics>());
         services.AddSingleton(sp => new GraphInstagramMessagingClient(
             sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramMessagingClient.HttpClientName),
             sp.GetRequiredService<IOptions<MetaMessagingOptions>>(),
-            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>(),
+            sp.GetRequiredService<MessageSendMetrics>()));
         services.AddSingleton<IInstagramMessagingClient>(sp => sp.GetRequiredService<GraphInstagramMessagingClient>());
 
         // Module-owned persistence under the "instagram" schema.

@@ -1,5 +1,6 @@
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Instagram.Application.Effects;
+using Qasedak.Modules.Instagram.Application.Messaging;
 
 namespace Qasedak.Api.CrossModule;
 
@@ -31,7 +32,7 @@ public sealed class AutomationPrivateReplyBridge(CommentPrivateReplyCoordinator 
             dispatch.ChannelAccountId.Value.Value,
             dispatch.TriggerEntityId,
             dispatch.IsLiveComment,
-            dispatch.MessageText,
+            new InstagramMessageContent.PlainText(dispatch.MessageText),
             ownerOperationId,
             dispatch.TriggerOccurredAtUtc.Value), cancellationToken);
 

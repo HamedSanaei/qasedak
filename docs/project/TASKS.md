@@ -1235,7 +1235,39 @@ gates pass without live Meta calls.
 **Suggested commit:** `fix(instagram): use private replies for comment automations`
 
 ## M13-010 — Add interactive Instagram messaging capabilities
-**Status:** TODO
+**Status:** DONE (2026-09-07)
+
+**Completion summary:** Fresh first-party verification (2026-09-07 — "Send Messages",
+"Button Template" and "Send a Generic Template" with IG Login, "Send a Private Reply to
+a Commenter", Messenger Buttons reference linked by the IG template docs) confirmed
+Direct Message button templates (`recipient.id`, `template_type:button`, text ≤ 640,
+1–3 buttons, postback ≤ 1000-char payload / web_url http(s) URL, title ≤ 20) with
+`{recipient_id, message_id}` success, but the Private Reply guide documents text ONLY —
+interactive variants on `recipient.comment_id` are NOT independently verified, so they
+are modeled as unsupported with ZERO provider calls (no inference from Direct support;
+per-task §10/§12 deviation recorded in HANDOFF + contract §3.11).
+
+- Qasedak-owned discriminated contracts: `InstagramMessageContent.PlainText` /
+  `.ButtonTemplate` with closed `Postback`/`WebUrl` buttons; `IInstagramMessagingClient`
+  gains typed `SendDirectAsync` (M05 `SendTextAsync` delegates — conversation replies
+  stay text/recipient.id); typed success identity (recipient_id + message_id, malformed
+  if missing); central `MessageValidationPolicy` (text 1000 UTF-8 bytes, template text
+  640 chars, buttons 1–3, title 20, payload 1000, URL http/https ≤ 2000 safety cap;
+  invalid content → LocalValidation with zero provider calls; never truncates
+  payloads/URLs/titles).
+- Private Reply: `CommentPrivateReplyCoordinator` now takes typed content, enforces
+  PlainText-only BEFORE the claim (unsupported content →
+  `privateReply.policyRejected.unsupportedContent`, zero claim/provider calls); the
+  one-reply claim key (ConnectedAccountId+CommentId+PrivateReply) is untouched — content
+  never partitions it (replay tests prove different text reuses the stored identity with
+  zero calls); timeout/5xx/rate-limit/malformed after Attempting still never fall back.
+- Direct templates preserve the 24h window classifier (10/2534022), Bearer-only token,
+  token-echo redaction, low-cardinality `MessageSendMetrics` (content/button/outcome/
+  category only); postback round-trip test proves an outbound opaque payload survives
+  the M13-008 `messaging_postbacks` normalizer unchanged (M13-011 correlation boundary).
+- Verification: backend 980/980 — Instagram unit 441 (incl. 20 policy + 13 new
+  adapter/limit/cancellation/redaction + 1 round-trip), API E2E 117, all PG suites 93;
+  format/architecture clean; frontend untouched; no schema change.
 
 **Outcome:** Add validated Qasedak-owned text and interactive message capabilities for
 direct messages and comment Private Replies, returning provider message identity without
@@ -1244,13 +1276,17 @@ exposing Meta transport shapes.
 **Depends on:** M13-003, M13-009.
 
 **Implementation scope:** Model discriminated Application contracts for plain text,
-postback-button and web-URL-button templates; implement focused adapters for direct text,
-Private Reply text, direct/Private Reply postback templates and direct/Private Reply link
-templates. Centralize current Meta text/button/count/URL/payload limits and return a typed
-success with provider recipient/message IDs. Classify template-specific failures and
-allow plain-text/link fallback only where M13-001's current contract proves it semantically
-safe; never issue a second Private Reply for used/expired/permission/token/rate-limit or
-otherwise unsafe failures, and preserve the original failure evidence.
+postback-button and web-URL-button templates; implement focused adapters for direct text
+and direct postback/web-URL button templates, plus Private Reply text. Private Reply
+interactive variants are **not verified** by the current first-party guide (text only) and
+are therefore implemented as unsupported — local rejection with zero provider calls,
+never inferred from Direct support (§10/§12 provider-conditioned subset; recorded in
+HANDOFF and contract §3.11). Centralize current Meta text/button/count/URL/payload limits
+and return a typed success with provider recipient/message IDs. Classify template-specific
+failures and never issue a second Private Reply for used/expired/permission/token/rate-
+limit or otherwise unsafe failures; the only fallback allowed is a deterministic local
+plain-text selection BEFORE the claim, and no such automatic fallback is shipped in
+M13-010 (content selection belongs to M13-011/M13-012).
 
 **Completion contract:** Graphify evidence recorded; deterministic HTTP tests pin every
 payload/addressing variant, limit boundary, typed success, error taxonomy, safe/unsafe

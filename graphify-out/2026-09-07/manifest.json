@@ -1,8 +1,8 @@
 {
   ".agent-state/PROJECT_STATE.json": {
-    "mtime": 1788671775.4877603,
-    "ast_hash": "54c614bb181bb91cb3fadf7fe8ca5798",
-    "semantic_hash": "54c614bb181bb91cb3fadf7fe8ca5798"
+    "mtime": 1788740235.3089395,
+    "ast_hash": "d8a60f59459f940d4b2ddcdb7d4eb4f1",
+    "semantic_hash": "d8a60f59459f940d4b2ddcdb7d4eb4f1"
   },
   "backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/IClock.cs": {
     "mtime": 1787434829.0,
@@ -215,9 +215,9 @@
     "semantic_hash": "056aa723b21cd4b67ef4ff83be922fd8"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/DependencyInjection.cs": {
-    "mtime": 1788666702.52963,
-    "ast_hash": "992313feb38c8ba0ae4627d7fde34e4d",
-    "semantic_hash": "992313feb38c8ba0ae4627d7fde34e4d"
+    "mtime": 1788736948.0627873,
+    "ast_hash": "927034411808e4ef7f5ddcd9254e8c9b",
+    "semantic_hash": "927034411808e4ef7f5ddcd9254e8c9b"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Qasedak.Modules.Instagram.Infrastructure.csproj": {
     "mtime": 1787506455.7416515,
@@ -225,9 +225,9 @@
     "semantic_hash": "f52bf3dce2ff62198b141240d68bf7d5"
   },
   "backend/Qasedak.Api/Program.cs": {
-    "mtime": 1788666661.8190353,
-    "ast_hash": "1e4548e58d46641de7a84bd9bf0c69a1",
-    "semantic_hash": "1e4548e58d46641de7a84bd9bf0c69a1"
+    "mtime": 1788736961.400741,
+    "ast_hash": "8d5e5d7eef48ba3f8cf72865e9a2aab0",
+    "semantic_hash": "8d5e5d7eef48ba3f8cf72865e9a2aab0"
   },
   "backend/Qasedak.Api/Properties/launchSettings.json": {
     "mtime": 1787434849.0,
@@ -510,9 +510,9 @@
     "semantic_hash": "33e17af7270412821c4b8c76a12db994"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/ApiPostgreSqlFixture.cs": {
-    "mtime": 1788669162.6930473,
-    "ast_hash": "2572269b4b549b00e853a28497545074",
-    "semantic_hash": "2572269b4b549b00e853a28497545074"
+    "mtime": 1788737895.3998227,
+    "ast_hash": "d7e3e377269c36e43ea3253dfd467ca3",
+    "semantic_hash": "d7e3e377269c36e43ea3253dfd467ca3"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/IdentityAuthorizationTests.cs": {
     "mtime": 1787484417.2442822,
@@ -675,9 +675,9 @@
     "semantic_hash": "2d91c4d601c3b7b1009e71c47ccc8370"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/InstagramDbContext.cs": {
-    "mtime": 1788666615.7404125,
-    "ast_hash": "bcc4d280d800df191d42cd41f3ef73c4",
-    "semantic_hash": "bcc4d280d800df191d42cd41f3ef73c4"
+    "mtime": 1788736933.855101,
+    "ast_hash": "fb62e9af6b05198347eab07eae258edf",
+    "semantic_hash": "fb62e9af6b05198347eab07eae258edf"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/InstagramDbContextFactory.cs": {
     "mtime": 1787506396.4283733,
@@ -695,9 +695,9 @@
     "semantic_hash": "92af8b775911d6a8b9ce3ff94268a06e"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/Migrations/InstagramDbContextModelSnapshot.cs": {
-    "mtime": 1788666837.8954308,
-    "ast_hash": "42ee7a7cf91f9140004ae0f374d5ec89",
-    "semantic_hash": "42ee7a7cf91f9140004ae0f374d5ec89"
+    "mtime": 1788737043.703569,
+    "ast_hash": "c777a00e23843b02f2883b64c3ce9a71",
+    "semantic_hash": "c777a00e23843b02f2883b64c3ce9a71"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/ProtectedTokenStore.cs": {
     "mtime": 1787506381.449631,
@@ -760,14 +760,14 @@
     "semantic_hash": "5dba6faab74d5bd6d414bf30af2ca4e7"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Webhooks/IntegrationEvents.cs": {
-    "mtime": 1788572959.001316,
-    "ast_hash": "11273e114b3f3c7e2fb335ecf06cf7c2",
-    "semantic_hash": "11273e114b3f3c7e2fb335ecf06cf7c2"
+    "mtime": 1788736819.5724933,
+    "ast_hash": "36b472306d24b11f7bf68ca34c420ebe",
+    "semantic_hash": "36b472306d24b11f7bf68ca34c420ebe"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Webhooks/MetaPayloadNormalizer.cs": {
-    "mtime": 1788573057.3013887,
-    "ast_hash": "6f3b3c6ed29907380b8c8553b4259624",
-    "semantic_hash": "6f3b3c6ed29907380b8c8553b4259624"
+    "mtime": 1788736819.6037097,
+    "ast_hash": "dc5e4a37d94e9e3d09403e3301364812",
+    "semantic_hash": "dc5e4a37d94e9e3d09403e3301364812"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Webhooks/MetaWebhookNotification.cs": {
     "mtime": 1787509833.773758,
@@ -775,9 +775,9 @@
     "semantic_hash": "5257579da1abe302490fb7f371f2ce60"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Webhooks/ProcessPendingWebhookEventsUseCase.cs": {
-    "mtime": 1787509268.8374395,
-    "ast_hash": "805048e1033c567e55f81f3f88d34d4e",
-    "semantic_hash": "805048e1033c567e55f81f3f88d34d4e"
+    "mtime": 1788717882.8315609,
+    "ast_hash": "d316d32446e72c0643425c2c1053faae",
+    "semantic_hash": "d316d32446e72c0643425c2c1053faae"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/EfWebhookInboxStore.cs": {
     "mtime": 1787509815.1433973,
@@ -805,9 +805,9 @@
     "semantic_hash": "e95cd6fc741d4371e06ed66d371920bd"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Webhooks/LoggingIntegrationEventDispatcher.cs": {
-    "mtime": 1788573188.9990065,
-    "ast_hash": "f37adc5547ddb04efc782293dd0c7263",
-    "semantic_hash": "f37adc5547ddb04efc782293dd0c7263"
+    "mtime": 1788684290.8998997,
+    "ast_hash": "98b1a049b959947cc33b6def06b8cea4",
+    "semantic_hash": "98b1a049b959947cc33b6def06b8cea4"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Webhooks/MetaWebhookEndpoints.cs": {
     "mtime": 1787518380.3518648,
@@ -820,9 +820,9 @@
     "semantic_hash": "984c46d401441ba02e36e89f34869153"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Webhooks/WebhookMetrics.cs": {
-    "mtime": 1787510157.295393,
-    "ast_hash": "e56328a531ed017509c3926d3a845673",
-    "semantic_hash": "e56328a531ed017509c3926d3a845673"
+    "mtime": 1788684284.7191951,
+    "ast_hash": "8612fb5db8d4070cfa42203195cedde0",
+    "semantic_hash": "8612fb5db8d4070cfa42203195cedde0"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/MetaWebhookEndpointTests.cs": {
     "mtime": 1787510535.0012264,
@@ -835,19 +835,19 @@
     "semantic_hash": "e18e3c552e4c7a40df39ecbead2b2c43"
   },
   "backend/tests/Qasedak.Modules.Instagram.UnitTests/Webhooks/MetaPayloadNormalizerTests.cs": {
-    "mtime": 1788573069.162359,
-    "ast_hash": "9342464dbe73b0befeea1d70115ec309",
-    "semantic_hash": "9342464dbe73b0befeea1d70115ec309"
+    "mtime": 1788737715.8159134,
+    "ast_hash": "e58329499bec93e3b9e818567d07983a",
+    "semantic_hash": "e58329499bec93e3b9e818567d07983a"
   },
   "backend/tests/Qasedak.Modules.Instagram.UnitTests/Webhooks/ProcessPendingWebhookEventsTests.cs": {
-    "mtime": 1787510380.7252598,
-    "ast_hash": "71a75045023ec1ecb7953facfd2fe311",
-    "semantic_hash": "71a75045023ec1ecb7953facfd2fe311"
+    "mtime": 1788717882.8406007,
+    "ast_hash": "9e7f6fa0de308ff35d64316d16d59319",
+    "semantic_hash": "9e7f6fa0de308ff35d64316d16d59319"
   },
   "backend/tests/Qasedak.Modules.Instagram.UnitTests/Webhooks/WebhookMetricsTests.cs": {
-    "mtime": 1787510753.715242,
-    "ast_hash": "e43359feef6610ee03cdbfac6f6f33e5",
-    "semantic_hash": "e43359feef6610ee03cdbfac6f6f33e5"
+    "mtime": 1788684530.898615,
+    "ast_hash": "d99abb11a95d0c13726ffffe6a52e2be",
+    "semantic_hash": "d99abb11a95d0c13726ffffe6a52e2be"
   },
   "backend/Modules/Conversations/Qasedak.Modules.Conversations.Application/Conversations/IConversationChannelGateway.cs": {
     "mtime": 1788566086.3402898,
@@ -960,9 +960,9 @@
     "semantic_hash": "fb5f40d1c876fd2f62900dadcd0b597e"
   },
   "backend/Qasedak.Api/CrossModule/InstagramConversationBridge.cs": {
-    "mtime": 1788573079.5633004,
-    "ast_hash": "3bbe22654107f61428a92b23f6d3352b",
-    "semantic_hash": "3bbe22654107f61428a92b23f6d3352b"
+    "mtime": 1788717882.8360977,
+    "ast_hash": "f1185b7eb23f50dfb13a80e5c2218094",
+    "semantic_hash": "f1185b7eb23f50dfb13a80e5c2218094"
   },
   "backend/Qasedak.Api/CrossModule/InstagramReplyGateway.cs": {
     "mtime": 1788566305.0353732,
@@ -975,9 +975,9 @@
     "semantic_hash": "7c36edffcb444ac8913e6b48e0a99260"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/WebhookToConversationProjectionTests.cs": {
-    "mtime": 1787518309.9092019,
-    "ast_hash": "410abe0db74da95ededf6d4a83820028",
-    "semantic_hash": "410abe0db74da95ededf6d4a83820028"
+    "mtime": 1788717006.0145237,
+    "ast_hash": "6f61deacaf185eef7f14008854ba6b93",
+    "semantic_hash": "6f61deacaf185eef7f14008854ba6b93"
   },
   "backend/tests/Qasedak.Modules.Conversations.UnitTests/ConversationTests.cs": {
     "mtime": 1788567041.8858397,
@@ -1000,9 +1000,9 @@
     "semantic_hash": "d88ed4e95687fa63269830693a943f0a"
   },
   "backend/Modules/Automations/Qasedak.Modules.Automations.Application/AutomationEvaluator.cs": {
-    "mtime": 1787523420.0158644,
-    "ast_hash": "f803441e019efc26acacbba37d9a412e",
-    "semantic_hash": "f803441e019efc26acacbba37d9a412e"
+    "mtime": 1788736856.5054307,
+    "ast_hash": "8cdaaaf9ef0762cb6a229a59c709b045",
+    "semantic_hash": "8cdaaaf9ef0762cb6a229a59c709b045"
   },
   "backend/Modules/Automations/Qasedak.Modules.Automations.Application/AutomationRepositoryContracts.cs": {
     "mtime": 1788566228.8918161,
@@ -1010,14 +1010,14 @@
     "semantic_hash": "e36467993de1b3588d12b3e8c2d27c58"
   },
   "backend/Modules/Automations/Qasedak.Modules.Automations.Application/AutomationRunContracts.cs": {
-    "mtime": 1788566228.8912332,
-    "ast_hash": "84ceb310b80c885e2dc47576d2fcd718",
-    "semantic_hash": "84ceb310b80c885e2dc47576d2fcd718"
+    "mtime": 1788736844.0721574,
+    "ast_hash": "13c779c34521c339503f48f49a7fc20b",
+    "semantic_hash": "13c779c34521c339503f48f49a7fc20b"
   },
   "backend/Modules/Automations/Qasedak.Modules.Automations.Application/ExecuteAutomationUseCase.cs": {
-    "mtime": 1788566234.769485,
-    "ast_hash": "cabac7db2d6c66d3b11b244a668cf9a7",
-    "semantic_hash": "cabac7db2d6c66d3b11b244a668cf9a7"
+    "mtime": 1788736863.990676,
+    "ast_hash": "522be9d3032a7f82d82644f22c19a85d",
+    "semantic_hash": "522be9d3032a7f82d82644f22c19a85d"
   },
   "backend/Modules/Automations/Qasedak.Modules.Automations.Domain/Automation.cs": {
     "mtime": 1788566206.4588728,
@@ -1025,9 +1025,9 @@
     "semantic_hash": "45c32a3507cfb6cefc2846d3e1381244"
   },
   "backend/Modules/Automations/Qasedak.Modules.Automations.Domain/AutomationRun.cs": {
-    "mtime": 1787523351.676291,
-    "ast_hash": "6ae137dc9d94cbe49595e9ce5ebf8720",
-    "semantic_hash": "6ae137dc9d94cbe49595e9ce5ebf8720"
+    "mtime": 1788736850.4489002,
+    "ast_hash": "2c646e0bb76196f066f2b023a8944cc3",
+    "semantic_hash": "2c646e0bb76196f066f2b023a8944cc3"
   },
   "backend/Modules/Automations/Qasedak.Modules.Automations.Domain/AutomationsDomainException.cs": {
     "mtime": 1787522318.528854,
@@ -1085,24 +1085,19 @@
     "semantic_hash": "62427a69aef2bdb795ea1d8335b5f13b"
   },
   "backend/Qasedak.Api/CrossModule/AutomationChannelDispatcher.cs": {
-    "mtime": 1788566314.2285955,
-    "ast_hash": "26649e040f3b9d4e467d5c5475b47fe7",
-    "semantic_hash": "26649e040f3b9d4e467d5c5475b47fe7"
+    "mtime": 1788738371.740244,
+    "ast_hash": "12dd317ac65630dabc3780d0de688ad1",
+    "semantic_hash": "12dd317ac65630dabc3780d0de688ad1"
   },
   "backend/Qasedak.Api/CrossModule/AutomationCommentBridge.cs": {
-    "mtime": 1788573116.532194,
-    "ast_hash": "6abb01e74583a28fd90abfdf67c13f87",
-    "semantic_hash": "6abb01e74583a28fd90abfdf67c13f87"
+    "mtime": 1788736961.3737836,
+    "ast_hash": "9a2e27f5d318b05221a767e1cccc4204",
+    "semantic_hash": "9a2e27f5d318b05221a767e1cccc4204"
   },
   "backend/Qasedak.Api/CrossModule/FanOutIntegrationEventDispatcher.cs": {
     "mtime": 1787524994.8951144,
     "ast_hash": "a78d664dc1d5d721bce30fad28601ab1",
     "semantic_hash": "a78d664dc1d5d721bce30fad28601ab1"
-  },
-  "backend/tests/Qasedak.Api.IntegrationTests/CommentToDmAutomationFlowTests.cs": {
-    "mtime": 1788567159.5335333,
-    "ast_hash": "1bee684fd58e23fc88e9bf848c4984a3",
-    "semantic_hash": "1bee684fd58e23fc88e9bf848c4984a3"
   },
   "backend/tests/Qasedak.Modules.Automations.IntegrationTests/AutomationPersistenceTests.cs": {
     "mtime": 1788567084.6346693,
@@ -1135,9 +1130,9 @@
     "semantic_hash": "44a06469a296a2689c90a93a7e308a0c"
   },
   "backend/tests/Qasedak.Modules.Automations.UnitTests/ExecuteAutomationTests.cs": {
-    "mtime": 1788566987.2222543,
-    "ast_hash": "48e20e255d62962e35f53810235b2083",
-    "semantic_hash": "48e20e255d62962e35f53810235b2083"
+    "mtime": 1788737774.7451482,
+    "ast_hash": "541963069b4c6404defd8d699bf4f545",
+    "semantic_hash": "541963069b4c6404defd8d699bf4f545"
   },
   "backend/tests/Qasedak.Modules.Automations.UnitTests/Qasedak.Modules.Automations.UnitTests.csproj": {
     "mtime": 1787565349.0361495,
@@ -1415,9 +1410,9 @@
     "semantic_hash": "f2c4f0786b6d7a50ae7447566d489d08"
   },
   "backend/Qasedak.Api/CrossModule/ContactsInteractionBridge.cs": {
-    "mtime": 1788573136.1864572,
-    "ast_hash": "b211378bf16f112301e21cb475358d0b",
-    "semantic_hash": "b211378bf16f112301e21cb475358d0b"
+    "mtime": 1788717882.835107,
+    "ast_hash": "157ac3e07e6873cef3d270cfa29c2e4b",
+    "semantic_hash": "157ac3e07e6873cef3d270cfa29c2e4b"
   },
   "backend/Qasedak.Api/CrossModule/WorkspaceMembershipAuthorization.cs": {
     "mtime": 1787532698.0900438,
@@ -1430,9 +1425,9 @@
     "semantic_hash": "099ef016a543c546ee1507de8872fdf0"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/ContactEndpointTests.cs": {
-    "mtime": 1788026083.0764005,
-    "ast_hash": "19636e19ec04a0cda533f4a966fd65c8",
-    "semantic_hash": "19636e19ec04a0cda533f4a966fd65c8"
+    "mtime": 1788717006.0646513,
+    "ast_hash": "56affbfe7dac514a9a8aa1ac85310eff",
+    "semantic_hash": "56affbfe7dac514a9a8aa1ac85310eff"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/CorrelationEndpointTests.cs": {
     "mtime": 1787530445.2239983,
@@ -1445,14 +1440,14 @@
     "semantic_hash": "e3dd2b379f65ba32cccd0aa4c318986a"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/SecurityLoadGateTests.cs": {
-    "mtime": 1787533024.920528,
-    "ast_hash": "748d2e7e53bf94bf22769e7ceb5ff7b8",
-    "semantic_hash": "748d2e7e53bf94bf22769e7ceb5ff7b8"
+    "mtime": 1788717012.5046227,
+    "ast_hash": "5087d9b36b96f12437d786c6ff8f01fe",
+    "semantic_hash": "5087d9b36b96f12437d786c6ff8f01fe"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/WebhookToContactProjectionTests.cs": {
-    "mtime": 1787528822.2836993,
-    "ast_hash": "f638220d6215d84ace7787c2ee88cf0b",
-    "semantic_hash": "f638220d6215d84ace7787c2ee88cf0b"
+    "mtime": 1788717006.0395892,
+    "ast_hash": "039b1298191c95cfcbbea099a34c06e4",
+    "semantic_hash": "039b1298191c95cfcbbea099a34c06e4"
   },
   "backend/tests/Qasedak.BuildingBlocks.UnitTests/DiagnosticsTests.cs": {
     "mtime": 1787530562.636727,
@@ -2280,9 +2275,9 @@
     "semantic_hash": "38b6015e69e499b70c86486dc38b6a17"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/ExactAccountRoutingTests.cs": {
-    "mtime": 1788568591.245861,
-    "ast_hash": "747bafe29dfce3903175727aa7ea2dd4",
-    "semantic_hash": "747bafe29dfce3903175727aa7ea2dd4"
+    "mtime": 1788738282.261612,
+    "ast_hash": "44e7380e6a634c6fcf3bc8f2cb923357",
+    "semantic_hash": "44e7380e6a634c6fcf3bc8f2cb923357"
   },
   "backend/tests/Qasedak.BuildingBlocks.UnitTests/ChannelAccountIdTests.cs": {
     "mtime": 1788567059.295537,
@@ -2300,9 +2295,9 @@
     "semantic_hash": "4b2b609b2fab722bf23b058c80315a1b"
   },
   "backend/tests/Qasedak.Api.IntegrationTests/InboundAccountResolutionTests.cs": {
-    "mtime": 1788572758.0258434,
-    "ast_hash": "3731c97a6762d6152932d588c243d217",
-    "semantic_hash": "3731c97a6762d6152932d588c243d217"
+    "mtime": 1788738282.300863,
+    "ast_hash": "03710732dabf440c6e06639d204e6401",
+    "semantic_hash": "03710732dabf440c6e06639d204e6401"
   },
   "backend/tests/Qasedak.Modules.Instagram.IntegrationTests/AccountResolutionTests.cs": {
     "mtime": 1788573545.7338667,
@@ -2310,9 +2305,9 @@
     "semantic_hash": "8772ff6d7b4b2181ec9bdbd09744febb"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Graph/MetaGraphErrors.cs": {
-    "mtime": 1788583817.5704286,
-    "ast_hash": "968b90f96e425f348fd9652417981a54",
-    "semantic_hash": "968b90f96e425f348fd9652417981a54"
+    "mtime": 1788737403.3819404,
+    "ast_hash": "3174adc4e7e6f07048d42703d1ca6050",
+    "semantic_hash": "3174adc4e7e6f07048d42703d1ca6050"
   },
   "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Graph/MetaGraphOptions.cs": {
     "mtime": 1788579756.2944684,
@@ -2330,9 +2325,9 @@
     "semantic_hash": "d5ae9e2f5d1b040376290e648d1b7a39"
   },
   "backend/tests/Qasedak.Modules.Instagram.UnitTests/Graph/MetaGraphTransportTests.cs": {
-    "mtime": 1788584525.2432687,
-    "ast_hash": "acf9465d15b5db47a865073cd6ff5751",
-    "semantic_hash": "acf9465d15b5db47a865073cd6ff5751"
+    "mtime": 1788737694.5558572,
+    "ast_hash": "8d87754ade5c27463875f6e4baca3616",
+    "semantic_hash": "8d87754ade5c27463875f6e4baca3616"
   },
   "backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/Scheduling/ScheduledWork.cs": {
     "mtime": 1788622621.250806,
@@ -2705,9 +2700,9 @@
     "semantic_hash": "5e4ee4b594edfc246272ec19306d8c5e"
   },
   "backend/tests/Qasedak.Modules.Instagram.UnitTests/Insights/InstagramOverviewUseCaseTests.cs": {
-    "mtime": 1788669450.3042142,
-    "ast_hash": "8d4c81696fef82d4ed75f0b5d5a8e721",
-    "semantic_hash": "8d4c81696fef82d4ed75f0b5d5a8e721"
+    "mtime": 1788719334.4997249,
+    "ast_hash": "6e410593e019ab1594b8d7f592a08e77",
+    "semantic_hash": "6e410593e019ab1594b8d7f592a08e77"
   },
   "frontend/Qasedak.Web/src/features/instagram/insights.ts": {
     "mtime": 1788669321.6935003,
@@ -2723,5 +2718,150 @@
     "mtime": 1788669300.038284,
     "ast_hash": "e6c9223a227050a97526446fdab60bf8",
     "semantic_hash": "e6c9223a227050a97526446fdab60bf8"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Webhooks/IInboundAccountResolver.cs": {
+    "mtime": 1788717882.8244023,
+    "ast_hash": "3cb433568dfd24727ab7c50990f7de93",
+    "semantic_hash": "3cb433568dfd24727ab7c50990f7de93"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Webhooks/IWebhookNormalizationObservability.cs": {
+    "mtime": 1788717882.8294058,
+    "ast_hash": "0d48b5bf615fbf1804ef8617cbe45f44",
+    "semantic_hash": "0d48b5bf615fbf1804ef8617cbe45f44"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Webhooks/WebhookNormalizationPolicy.cs": {
+    "mtime": 1788717882.8320892,
+    "ast_hash": "c78a0ee016275599d0012bc65101c5b4",
+    "semantic_hash": "c78a0ee016275599d0012bc65101c5b4"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Webhooks/ConnectedAccountInboundResolver.cs": {
+    "mtime": 1788717882.8341074,
+    "ast_hash": "8a071a618e2d4b61a6577c03ab30298f",
+    "semantic_hash": "8a071a618e2d4b61a6577c03ab30298f"
+  },
+  "backend/tests/Qasedak.Api.IntegrationTests/InteractiveWebhookEndpointTests.cs": {
+    "mtime": 1788717882.8375876,
+    "ast_hash": "da61fe3a2f0e7c491cfb40ec3f53163e",
+    "semantic_hash": "da61fe3a2f0e7c491cfb40ec3f53163e"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.UnitTests/Webhooks/ConnectedAccountInboundResolverTests.cs": {
+    "mtime": 1788717882.8386,
+    "ast_hash": "665960799f117370a2aed09385610cc1",
+    "semantic_hash": "665960799f117370a2aed09385610cc1"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Effects/CommentPrivateReplyCoordinator.cs": {
+    "mtime": 1788738395.2079961,
+    "ast_hash": "66d90883286658890fe94d3630fedf85",
+    "semantic_hash": "66d90883286658890fe94d3630fedf85"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Effects/CommentReferenceContracts.cs": {
+    "mtime": 1788738371.7336607,
+    "ast_hash": "2d3e35c816e35f1092801b02af21e102",
+    "semantic_hash": "2d3e35c816e35f1092801b02af21e102"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Effects/EffectContracts.cs": {
+    "mtime": 1788738371.7346473,
+    "ast_hash": "835699098f639cef7ad7a185fbdee6bd",
+    "semantic_hash": "835699098f639cef7ad7a185fbdee6bd"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Effects/ICommentEffectObservability.cs": {
+    "mtime": 1788738371.735236,
+    "ast_hash": "f5bdf0fd404512b3f720d46301976f0e",
+    "semantic_hash": "f5bdf0fd404512b3f720d46301976f0e"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Effects/PrivateReplyClientContracts.cs": {
+    "mtime": 1788738371.735236,
+    "ast_hash": "9b82fbee6569eb000900751670f50212",
+    "semantic_hash": "9b82fbee6569eb000900751670f50212"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Effects/PrivateReplyPolicy.cs": {
+    "mtime": 1788738371.7362454,
+    "ast_hash": "a22fe1db16f252b2774b841160a47390",
+    "semantic_hash": "a22fe1db16f252b2774b841160a47390"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Application/Effects/PublicReplyClientContracts.cs": {
+    "mtime": 1788738371.7362454,
+    "ast_hash": "5b0b4b80998d8167b96923a4d1099b0c",
+    "semantic_hash": "5b0b4b80998d8167b96923a4d1099b0c"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Effects/CommentEffectMetrics.cs": {
+    "mtime": 1788738371.737244,
+    "ast_hash": "20507efe0268be638696eaf885bf2628",
+    "semantic_hash": "20507efe0268be638696eaf885bf2628"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Effects/CommentEffectRow.cs": {
+    "mtime": 1788738371.7382457,
+    "ast_hash": "10a1d8d591048f21e48db6db90fc5ed3",
+    "semantic_hash": "10a1d8d591048f21e48db6db90fc5ed3"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Effects/EfCommentEffectLedger.cs": {
+    "mtime": 1788738371.7382457,
+    "ast_hash": "61d77979973555571d28a4ab5eb88411",
+    "semantic_hash": "61d77979973555571d28a4ab5eb88411"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Effects/GraphCommentPrivateReplyClient.cs": {
+    "mtime": 1788738371.7392457,
+    "ast_hash": "0442ad1729b6c2315f6e300b1648e9e4",
+    "semantic_hash": "0442ad1729b6c2315f6e300b1648e9e4"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Effects/GraphCommentPublicReplyClient.cs": {
+    "mtime": 1788738371.7392457,
+    "ast_hash": "a234e6fccc34195365ba852a0aa8a090",
+    "semantic_hash": "a234e6fccc34195365ba852a0aa8a090"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Effects/GraphCommentReferenceReader.cs": {
+    "mtime": 1788738371.740244,
+    "ast_hash": "a1866ea313d8bd6edec092bd0acced28",
+    "semantic_hash": "a1866ea313d8bd6edec092bd0acced28"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/Migrations/20260906232403_AddCommentEffects.Designer.cs": {
+    "mtime": 1788737043.703569,
+    "ast_hash": "88948a584b4695618cca8c5b17b1c5c5",
+    "semantic_hash": "88948a584b4695618cca8c5b17b1c5c5"
+  },
+  "backend/Modules/Instagram/Qasedak.Modules.Instagram.Infrastructure/Persistence/Migrations/20260906232403_AddCommentEffects.cs": {
+    "mtime": 1788737043.703569,
+    "ast_hash": "2d85d1f5af398a22eea35e84a5eb5406",
+    "semantic_hash": "2d85d1f5af398a22eea35e84a5eb5406"
+  },
+  "backend/Qasedak.Api/CrossModule/AutomationPrivateReplyBridge.cs": {
+    "mtime": 1788738371.7412438,
+    "ast_hash": "05789295d8f10bd9d002fff67c50c751",
+    "semantic_hash": "05789295d8f10bd9d002fff67c50c751"
+  },
+  "backend/tests/Qasedak.Api.IntegrationTests/CommentToPrivateReplyAutomationFlowTests.cs": {
+    "mtime": 1788738371.7412438,
+    "ast_hash": "32e42200bb26b3c84ece55ffc0fc180e",
+    "semantic_hash": "32e42200bb26b3c84ece55ffc0fc180e"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.IntegrationTests/CommentEffectLedgerTests.cs": {
+    "mtime": 1788738371.742247,
+    "ast_hash": "a038765f33270bddcffbdbda32aa550c",
+    "semantic_hash": "a038765f33270bddcffbdbda32aa550c"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.UnitTests/Effects/CommentPrivateReplyCoordinatorTests.cs": {
+    "mtime": 1788738371.742247,
+    "ast_hash": "29b6c70beb99c88c89208774c57191e9",
+    "semantic_hash": "29b6c70beb99c88c89208774c57191e9"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.UnitTests/Effects/GraphCommentPrivateReplyClientTests.cs": {
+    "mtime": 1788738371.742247,
+    "ast_hash": "ae6bd7b424e24803b0e8bd8f93408a6d",
+    "semantic_hash": "ae6bd7b424e24803b0e8bd8f93408a6d"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.UnitTests/Effects/GraphCommentPublicReplyClientTests.cs": {
+    "mtime": 1788738371.7437723,
+    "ast_hash": "07da708c5303f71d4d1d4c3dece308e8",
+    "semantic_hash": "07da708c5303f71d4d1d4c3dece308e8"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.UnitTests/Effects/GraphCommentReferenceReaderTests.cs": {
+    "mtime": 1788738371.7437723,
+    "ast_hash": "77a39ccf878208331739d870db979ef6",
+    "semantic_hash": "77a39ccf878208331739d870db979ef6"
+  },
+  "backend/tests/Qasedak.Modules.Instagram.UnitTests/Effects/PrivateReplyPolicyTests.cs": {
+    "mtime": 1788738371.7447858,
+    "ast_hash": "1f62345d3e23206b9bcc6537c3287a5c",
+    "semantic_hash": "1f62345d3e23206b9bcc6537c3287a5c"
   }
 }

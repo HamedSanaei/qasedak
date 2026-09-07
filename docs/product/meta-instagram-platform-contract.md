@@ -155,6 +155,30 @@ M13-009/M13-012 implement this as the operation distinct from Private Reply.
 Sources: Comment Moderation guide (2025-06-02); IG Comment reference;
 IG Comment Replies reference.
 
+### 3.11 Messaging content support matrix (M13-010, retrieved 2026-09-07)
+
+Verified against current first-party pages: "Send Messages" and "Button Template"
+(Instagram API with Instagram Login), "Send a Private Reply to a Commenter", and
+"Send a Generic Template" (IG Login) whose button-object specification links the
+Messenger Platform "Buttons" reference. No cell below is inferred from another row.
+
+| Operation | Plain text | Postback button template | Web-URL button template |
+|---|---|---|---|
+| Direct Message (`recipient.id`, IG Login messaging edge) | **Supported** — UTF-8 ≤ 1000 bytes | **Supported** — `attachment:{type:template,payload:{template_type:button}}`, text ≤ 640 chars, 1–3 buttons, `type:postback` + `title` (≤ 20 chars) + `payload` (≤ 1000 chars) | **Supported** — same template; `type:web_url` + `title` (≤ 20 chars) + `url` (http/https; no official numeric maximum on current pages — Qasedak enforces a bounded 2000-char safety cap, never truncates) |
+| Private Reply (`recipient.comment_id`, IG Login) | **Supported** — `message:{text}` per the Private Reply guide | **Not verified / not implemented** — the current Private Reply guide documents text only; button templates on `comment_id` are NOT independently proven by any first-party page. Qasedak models them as unsupported: local rejection with ZERO provider calls; no inference from Direct support (§10 rule) | **Not verified / not implemented** — same verdict as postback |
+| Public Comment Reply (`/replies` edge) | **Supported** — `message={text}` | **Not applicable** — the comment-replies edge is text-reply semantics; no template shape is documented for it | **Not applicable** |
+
+Verified limits (button template): prompt text ≤ 640 characters; buttons 1–3 per
+template; button types `postback` and `web_url` only (no call/account-link/login/
+game-play); postback button title ≤ 20 characters and payload ≤ 1000 characters
+(Messenger Buttons reference, explicitly linked by the IG Login Generic Template
+page as the button-object specification); web_url title ≤ 20 characters and URL
+http/https (Qasedak bounded 2000-char cap). Success identity for every supported
+variant: `{recipient_id, message_id}`. Webhook subscriptions for templates:
+`messages` + `messaging_postbacks` (M13-008 already normalizes the postback event).
+Qasedak never truncates payloads/URLs/titles — over-limit content is rejected
+locally with zero provider calls (`MessageValidationPolicy`, M13-010).
+
 ### 3.6 Webhooks (Instagram Login — subscription fields + payload shapes)
 
 Subscribe: `POST https://graph.instagram.com/v26.0/<IG_ID>/subscribed_apps?subscribed_fields=comments,messages`

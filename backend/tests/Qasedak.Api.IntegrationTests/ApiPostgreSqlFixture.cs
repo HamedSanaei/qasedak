@@ -36,6 +36,9 @@ public sealed class RecordingInstagramMessagingClient : IInstagramMessagingClien
 {
     public List<(string AccessToken, string RecipientId, string Text)> Sends { get; } = [];
 
+    /// <summary>Typed sends (M13-010) with the exact content kind for template assertions.</summary>
+    public List<(string AccessToken, string RecipientId, InstagramMessageContent Content)> TypedSends { get; } = [];
+
     public HashSet<string> RejectRecipientsOutsideWindow { get; } = [];
 
     public Task<MessagingSendResult> SendTextAsync(
@@ -45,9 +48,19 @@ public sealed class RecordingInstagramMessagingClient : IInstagramMessagingClien
         CancellationToken cancellationToken = default)
     {
         Sends.Add((accessToken, recipientProviderUserId, text));
+        return SendDirectAsync(accessToken, recipientProviderUserId, new InstagramMessageContent.PlainText(text), cancellationToken);
+    }
+
+    public Task<MessagingSendResult> SendDirectAsync(
+        string accessToken,
+        string recipientProviderUserId,
+        InstagramMessageContent content,
+        CancellationToken cancellationToken = default)
+    {
+        TypedSends.Add((accessToken, recipientProviderUserId, content));
         return Task.FromResult(RejectRecipientsOutsideWindow.Contains(recipientProviderUserId)
-            ? MessagingSendResult.Fail(MessagingFailureReason.MessagingWindowExpired, "recipient outside the 24h window (simulated 490)")
-            : MessagingSendResult.Ok());
+            ? MessagingSendResult.Fail(MessagingFailureReason.MessagingWindowExpired, "recipient outside the 24h window")
+            : MessagingSendResult.Ok(recipientProviderUserId, "mid-" + recipientProviderUserId));
     }
 }
 

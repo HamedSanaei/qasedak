@@ -2,9 +2,50 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-010 — Add interactive Instagram messaging capabilities (TODO)
-**Last completed:** M13-009 (2026-09-07)
-**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization and comment-automation Private Reply semantics complete (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay); interactive messaging capabilities not started
+**Current task:** M13-011 — Add follow gate, opening DM and postback reveal flow (TODO)
+**Last completed:** M13-010 (2026-09-07)
+**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay) and interactive messaging adapters (typed plain-text/button-template content with verified limits, typed provider success, safe zero-call rejection of unverified Private Reply interactive variants) complete; follow gate / opening DM / postback reveal flow not started
+
+## 2026-09-07 — M13-010 DONE: interactive messaging adapters
+
+- Fresh first-party verification (retrieved 2026-09-07 — "Send Messages" and "Button
+  Template" with IG Login, "Send a Generic Template" IG Login, "Send a Private Reply to
+  a Commenter", Messenger Buttons reference linked by the IG template docs): Direct
+  Message button templates ARE supported (`POST /<IG_ID>/messages`, `recipient.id`,
+  `attachment:{type:template,payload:{template_type:button}}`, text ≤ 640 UTF-8 chars,
+  1–3 buttons, types `postback`/`web_url`, postback payload ≤ 1000 chars, title ≤ 20
+  chars, success `{recipient_id, message_id}`); the Private Reply guide documents text
+  ONLY — interactive variants on `recipient.comment_id` are **NOT independently
+  verified** and are implemented as unsupported with ZERO provider calls (never inferred
+  from Direct support; per-task §10/§12 deviation recorded in HANDOFF + contract §3.11
+  matrix).
+- Qasedak-owned discriminated contracts: `InstagramMessageContent.PlainText` /
+  `.ButtonTemplate` + closed `Postback`/`WebUrl` buttons (no raw Meta DTOs, no
+  stringly-typed payloads); `IInstagramMessagingClient` gains typed `SendDirectAsync`
+  (M05 `SendTextAsync` delegates — conversation replies stay text + recipient.id + 24h
+  classifier); typed success identity required on every 2xx (`recipient_id` +
+  `message_id`, missing = MalformedResponse, never fabricated).
+- Central `MessageValidationPolicy`: plain text 1000 UTF-8 bytes; template text 640
+  chars; buttons 1–3; title 20; postback payload 1000; URL http/https via real URI
+  parsing with a bounded 2000-char safety cap (current IG pages state no numeric URL
+  max). Over-limit/unsupported content → `LocalValidation` failure with ZERO provider
+  calls; payloads/URLs/titles are never silently truncated.
+- Private Reply integration: `CommentPrivateReplyCoordinator` takes typed content,
+  enforces PlainText-only BEFORE the global claim (`privateReply.policyRejected.
+  unsupportedContent`, zero claim/provider calls); the one-reply key
+  (ConnectedAccountId+CommentId+PrivateReply) is untouched — content never partitions
+  it; after the Attempting marker there is NO fallback of any kind (timeout/5xx/rate
+  limit/malformed/crash all replay with zero second calls, M13-009 semantics intact).
+- Direct templates preserve the 24h window classifier (10/2534022), Bearer-only token
+  (never URL), token-echo redaction, cancellation propagation, declaration-order
+  preservation, and low-cardinality `MessageSendMetrics` (content/button/outcome/
+  category only). Postback round trip proven: an outbound opaque payload survives the
+  M13-008 `messaging_postbacks` normalizer unchanged (M13-011 correlation boundary).
+- Verification: backend 980/980 — Instagram unit 441 (+43: 20 policy, 13 adapter
+  limit/typed-success/cancellation/redaction, 1 round-trip, coordinator content-gating),
+  PG integration 93, API E2E 117; `verify.py --full` green (docs/state/arch/env/Penpot,
+  restore, Release 0 warnings, format, Testcontainers, frontend `npm run verify`,
+  both Docker image builds); no schema change; frontend untouched.
 
 ## 2026-09-07 — M13-009 DONE: comment automation uses Meta Private Reply semantics
 

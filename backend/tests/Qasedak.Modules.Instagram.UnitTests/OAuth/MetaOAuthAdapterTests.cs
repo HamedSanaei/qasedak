@@ -70,8 +70,12 @@ internal sealed class ScriptedHttpHandler(Func<HttpRequestMessage, HttpResponseM
 
     public string? LastBody { get; private set; }
 
+    /// <summary>Number of provider requests executed (zero-call assertions).</summary>
+    public int Calls { get; private set; }
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        Calls++;
         LastRequest = request;
         if (request.Content is not null)
         {

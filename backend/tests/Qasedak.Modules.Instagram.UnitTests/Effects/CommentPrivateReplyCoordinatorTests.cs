@@ -1,6 +1,7 @@
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Effects;
+using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Domain.Accounts;
 using Qasedak.Modules.Instagram.UnitTests.TestSupport;
 using Xunit;
@@ -190,8 +191,89 @@ public sealed class CommentPrivateReplyCoordinatorTests
     }
 
     private CommentPrivateReplyCommand Command(string commentId = "comment-1", bool isLive = false) => new(
-        _workspaceId, _accountId, commentId, isLive, "DM: thanks for asking about price!",
+        _workspaceId, _accountId, commentId, isLive,
+        new InstagramMessageContent.PlainText("DM: thanks for asking about price!"),
         "automation-1|1|event-1|0", Now.AddMinutes(-2));
+
+    [Fact]
+    public async Task ButtonTemplateForPrivateReplyIsRejectedLocallyWithZeroProviderCalls()
+    {
+        // M13-010 provider gating: the current first-party Private Reply guide documents
+        // only message:{text}. An interactive variant must fail locally — zero claim,
+        // zero provider calls — and never fall back to a second mutation.
+        var h = CreateHarness();
+        var interactive = Command() with
+        {
+            MessageContent = new InstagramMessageContent.ButtonTemplate(
+                "What next?",
+                [new InstagramMessageButton.Postback("More", "more")]),
+        };
+
+        var result = await h.Coordinator.ExecuteAsync(interactive, default);
+
+        Assert.False(result.Delivered);
+        Assert.Equal(PrivateReplyOutcomeCodes.UnsupportedContent, result.FailureCode);
+        Assert.Empty(h.Client.Calls);
+        Assert.Null(await h.Ledger.FindAsync(new CommentEffectClaimKey(_accountId, "comment-1", InstagramEffectType.PrivateReply), default));
+        Assert.Equal(["policyRejected:unsupportedContent"], h.Observability.Events);
+    }
+
+    [Fact]
+    public async Task OversizedPlainTextIsRejectedBeforeClaimWithZeroProviderCalls()
+    {
+        var h = CreateHarness();
+        // 1001 UTF-8 bytes via multi-byte Persian characters — the verified byte limit.
+        var oversized = Command() with { MessageContent = new InstagramMessageContent.PlainText(new string('گ', 501)) };
+
+        var result = await h.Coordinator.ExecuteAsync(oversized, default);
+
+        Assert.False(result.Delivered);
+        Assert.Equal(PrivateReplyOutcomeCodes.PolicyRejected + ".TextTooLong", result.FailureCode);
+        Assert.Empty(h.Client.Calls);
+        Assert.Null(await h.Ledger.FindAsync(new CommentEffectClaimKey(_accountId, "comment-1", InstagramEffectType.PrivateReply), default));
+    }
+
+    [Fact]
+    public async Task SucceededReplayIgnoresRequestedTextValue()
+    {
+        // The semantic claim key is (account, comment, effect) — the requested content
+        // value never partitions it. A replay with DIFFERENT text must reuse the stored
+        // success identity with zero provider calls (the allowance is already consumed;
+        // the stored message is never re-sent and never duplicated).
+        var h = CreateHarness();
+        h.Ledger.Seed(_accountId, "comment-1", InstagramEffectType.PrivateReply, "automation-1|1|event-1|0", InstagramEffectStatus.Succeeded, "r-kept", "m-kept");
+
+        var differentText = Command() with { MessageContent = new InstagramMessageContent.PlainText("totally different text") };
+
+        var result = await h.Coordinator.ExecuteAsync(differentText, default);
+
+        Assert.True(result.Delivered);
+        Assert.Equal("r-kept", result.ProviderRecipientId);
+        Assert.Equal("m-kept", result.ProviderMessageId);
+        Assert.Empty(h.Client.Calls);
+    }
+
+    [Fact]
+    public async Task TemplateAgainstSucceededEffectIsRejectedLocallyWithZeroCalls()
+    {
+        // Content gating precedes the claim (a local rejection must never consume or
+        // replay the provider effect). An unsupported interactive variant against an
+        // already-succeeded effect is still zero provider calls — never a second reply.
+        var h = CreateHarness();
+        h.Ledger.Seed(_accountId, "comment-1", InstagramEffectType.PrivateReply, "automation-1|1|event-1|0", InstagramEffectStatus.Succeeded, "r-kept", "m-kept");
+
+        var interactive = Command() with
+        {
+            MessageContent = new InstagramMessageContent.ButtonTemplate(
+                "What next?",
+                [new InstagramMessageButton.WebUrl("Visit", "https://example.com")]),
+        };
+
+        var result = await h.Coordinator.ExecuteAsync(interactive, default);
+
+        Assert.Equal(PrivateReplyOutcomeCodes.UnsupportedContent, result.FailureCode);
+        Assert.Empty(h.Client.Calls);
+    }
 
     [Fact]
     public async Task DeliversByCommentIdAndRecordsSuccessIdentity()

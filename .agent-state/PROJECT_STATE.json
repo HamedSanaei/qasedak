@@ -1,11 +1,11 @@
 {
  "schemaVersion": 1,
  "project": "Qasedak",
- "updatedAt": "2026-09-07T00:02:25Z",
+ "updatedAt": "2026-09-07T02:10:00Z",
  "architecture": "Modular Monolith + Clean Architecture per module",
  "currentMilestone": "M13",
- "currentTask": "M13-010",
- "lastCompletedTask": "M13-009",
+ "currentTask": "M13-011",
+ "lastCompletedTask": "M13-010",
  "completedTasks": [
   "M00-001",
   "M00-002",
@@ -149,12 +149,12 @@
   "m13007Deployment": "deployed-2026-09-06: task SHA 7409dfb9057b383a8444961f92f2b6a9677cf32e; CI 34013214316 success; CodeQL 34013214397 success; Publish 34013373535 success (sha-7409dfb9057b); Deploy 34013423453 success (backup qasedak-20260906T051314Z-sha-7409dfb9057b.dump + migration 20260906035357_AddFollowerSnapshots applied + healthy + smoke ~05:13Z, no rollback); first CI 34013059596 failed only on stale FILE_MANIFEST (predated race-fix + 27 new files) and corrected via docs(manifest) commit — no code rerun; public smoke root 200/system 200/overview-unauth 401/history-unauth 401; live Meta insights smoke NOT RUN (no designated test account); production runtime = immutable sha-7409dfb9057b"
  },
  "nextActions": [
-  "M13-010 — Add interactive Instagram messaging capabilities (TODO, next)",
-  "Then execute M13-010 through M13-015 in dependency order; keep every task scoped to one session and preserve completed foundations",
+  "M13-011 — Add follow gate, opening DM and postback reveal flow (TODO, next)",
+  "Then execute M13-011 through M13-015 in dependency order; keep every task scoped to one session and preserve completed foundations",
   "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
   "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
  ],
-  "lastInstruction": "M13-009 DONE 2026-09-07: comment automation corrected to Meta Private Reply semantics (recipient.comment_id, global ConnectedAccountId+CommentId+EffectType claim in instagram.comment_effects, exact 7-day policy via official IG Comment timestamp read, Live attempt-once, three distinct outbound operations, AutomationRun terminal slot statuses; backend 935/935, full verify green, deployed sha-801096f2dea6, migration 20260906232403_AddCommentEffects applied, CI 34068123904/CodeQL 34068123934/Publish 34068295393/Deploy 34068396870 success, public smoke 200/200/403/401, live Meta Private Reply smoke NOT RUN) + manifest-correction redeploy 1bb9e18d2465 (CI 34068667176/CodeQL 34068667162/Publish 34068881350/Deploy 34068955677 success, zero migrations applied, smoke green; production runtime = immutable sha-1bb9e18d2465, code-identical tree). State: lastCompletedTask=M13-009, currentTask=M13-010 TODO.",
+  "lastInstruction": "M13-010 DONE 2026-09-07: interactive messaging adapters complete — discriminated PlainText/ButtonTemplate content, central MessageValidationPolicy (text 1000 UTF-8 bytes, template text 640 chars, buttons 1-3, title 20, payload 1000, URL http/https bounded), typed SendDirectAsync with recipient_id+message_id success, direct postback/web_url button templates, Private Reply interactive variants NOT verified by the first-party guide (text only) so unsupported with ZERO provider calls via the M13-009 claim path, no fallback after attempt, postback round-trip through M13-008 normalizer proven, MessageSendMetrics low-cardinality; backend 980/980 (Instagram unit 441, PG 93, API E2E 117), format/architecture clean, no schema change, frontend untouched. State: lastCompletedTask=M13-010, currentTask=M13-011 TODO.",
  "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
  "m13008Deployment": {
   "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",

@@ -1,5 +1,119 @@
 # Current handoff
 
+## 2026-09-07 — M13-010 DONE; M13-011 packet ready (do not start M13-011)
+
+M13-010 added interactive messaging capabilities. Fresh first-party verification
+(retrieved 2026-09-07) and the provider-conditioned subset are recorded below.
+
+### M13-010 delivery
+
+- **Provider support matrix (normative, contract §3.11):**
+
+  | Operation | Plain text | Postback button | Web-URL button |
+  |---|---|---|---|
+  | Direct Message (`recipient.id`) | Supported (≤ 1000 UTF-8 bytes) | Supported (template, ≤ 640 chars, 1–3 buttons) | Supported (http/https URL) |
+  | Private Reply (`recipient.comment_id`) | Supported | **Not verified / not implemented** | **Not verified / not implemented** |
+  | Public Comment Reply (`/replies`) | Supported (`message=` text) | Not applicable | Not applicable |
+
+  The current first-party Private Reply guide documents `message:{text}` ONLY — button
+  templates on the comment-ID path are NOT independently proven, so they are modeled as
+  unsupported and never reach Meta (zero provider calls; never inferred from Direct
+  support). This is the truthful §10/§12 provider-conditioned subset.
+- **Qasedak-owned message model** (`Application/Messaging/MessageContentContracts.cs`):
+  `InstagramMessageContent.PlainText` / `.ButtonTemplate` with closed
+  `InstagramMessageButton.Postback` / `.WebUrl` — no raw Meta DTOs, no stringly-typed
+  payloads; button declaration order is preserved by serialization.
+- **Central limits** (`MessageValidationPolicy`): text 1000 UTF-8 bytes; template text
+  640 chars; buttons 1–3; button title ≤ 20 chars; postback payload ≤ 1000 chars; URL
+  http/https via `Uri.TryCreate` (no `StartsWith("http")`), bounded 2000-char safety
+  cap (no official numeric URL max on current pages). Over-limit/unsupported content →
+  `LocalValidation` failure with ZERO provider calls; never truncates payloads/URLs/
+  titles (truncation changes correlation/behavior).
+- **Direct Message:** `IInstagramMessagingClient.SendDirectAsync` (typed content,
+  `recipient.id`, `POST me/messages`, Bearer; 24h window classifier 10/2534022
+  preserved); `SendTextAsync` delegates (M05 conversation replies unchanged); typed
+  success `{recipient_id, message_id}` required (missing → MalformedResponse);
+  token-echo redaction; cancellation propagates as `OperationCanceledException`
+  (never TransportFailure).
+- **Private Reply:** `CommentPrivateReplyCoordinator` now takes typed content and
+  enforces PlainText-only BEFORE the claim (unsupported →
+  `privateReply.policyRejected.unsupportedContent`, zero claim + zero provider calls);
+  the global claim key stays (ConnectedAccountId + CommentId + PrivateReply) — content
+  never partitions it; after the Attempting marker NO fallback/second call ever
+  (timeouts, 5xx, rate limits, malformed, crashes all replay terminal states with zero
+  traffic). Safe local fallback (choosing plain text before the claim) is possible
+  semantically but M13-010 ships no automatic fallback — M13-011/M13-012 own content
+  selection.
+- **Postback round trip:** outbound opaque postback payload survives the M13-008
+  `messaging_postbacks` normalizer unchanged (`InstagramPostbackReceived.Payload` ==
+  outbound payload, mid/account routing preserved) — the M13-011 correlation boundary.
+- **Observability:** `MessageSendMetrics` low-cardinality counters
+  (`content`/`button`/`outcome`/`category` only — never ids, payloads, URLs, text).
+- **Verification:** backend 980/980 — Instagram unit 441, PG integration 93, API E2E
+  117; `verify.py --full` green (incl. frontend + both Docker image builds); no schema
+  change; frontend untouched. State: M13-010 DONE, currentTask=M13-011 TODO.
+
+### M13-011 packet (read-only handoff)
+
+M13-011 adds the follow gate, opening DM and postback reveal flow. NOT authorized yet.
+Everything below is shipped and verified; M13-011 consumes it, never rebuilds it.
+
+- **Final Direct Message contracts:** `IInstagramMessagingClient.SendDirectAsync(token,
+  recipientProviderUserId, InstagramMessageContent, ct)` (+ `SendTextAsync`
+  convenience); content = `PlainText` | `ButtonTemplate(Text ≤ 640, Buttons 1–3)`;
+  buttons = `Postback(Title ≤ 20, Payload ≤ 1000)` | `WebUrl(Title ≤ 20, Url
+  http/https ≤ 2000)`; success requires `recipient_id` + `message_id`.
+- **Final Private Reply contracts:** `CommentPrivateReplyCommand.MessageContent` — only
+  `PlainText` is supported (interactive variants unsupported, zero calls);
+  `ICommentPrivateReplyClient.SendPrivateReplyAsync(token, igId, commentId, text, ct)`
+  unchanged.
+- **Provider support matrix:** see table above (contract §3.11, retrieved 2026-09-07).
+- **Verified Direct button-template shape:** `POST {graph}/{ver}/me/messages` with
+  `{"recipient":{"id":IGSID},"message":{"attachment":{"type":"template",
+  "payload":{"template_type":"button","text":T,"buttons":[{"type":"postback"|
+  "web_url","title":...,"payload":...|"url":...}]}}}}`; Bearer IG User token;
+  `instagram_business_basic` + `instagram_business_manage_messages`; webhooks
+  `messages` + `messaging_postbacks`.
+- **Postback button limits:** title ≤ 20 chars; payload ≤ 1000 chars (Messenger
+  Buttons reference, linked by IG template docs); payload is opaque application data.
+- **Web-URL button limits:** title ≤ 20 chars; http/https only; no webview/extension
+  fields (not in the IG spec).
+- **Private interactive support verdict:** NOT VERIFIED — first-party Private Reply
+  guide is text only; do not implement interactive Private Replies until a current
+  first-party page proves them; until then use the text opening reply for M13-011.
+- **Typed provider success:** `MessagingSendResult`/`PrivateReplySendResult` carry
+  `ProviderRecipientId` + `ProviderMessageId` from the provider response only — never
+  fabricated; malformed 2xx is a failure.
+- **Safe/unsafe fallback rules:** safe = deterministic local content selection BEFORE
+  the Private Reply claim / before a Direct provider call (one provider request);
+  unsafe = ANY second provider call after an attempt began (timeout/5xx/rate
+  limit/malformed/crash) — forbidden for Private Reply under all circumstances.
+- **M13-009 effect-ledger invariant:** `instagram.comment_effects` UNIQUE
+  (ConnectedAccountId, ProviderCommentId, EffectType) with Reserved → Attempting
+  (irreversible, pre-send) → Succeeded/TerminalFailed/Uncertain; same-owner Reserved
+  resume; every other state replays with zero provider calls. Interactive content must
+  never bypass or partition this key.
+- **One-provider-call rule:** Private Reply semantic operation ⇒ provider request count
+  ≤ 1 under every failure branch (proven by coordinator tests + E2E two-automation
+  flow).
+- **Postback webhook round trip:** outbound payload → M13-008 normalizer →
+  `InstagramPostbackReceived.Payload` unchanged (tested). M13-011 signs/correlates
+  payloads it defines; the messaging layer stays opaque.
+- **24h Direct window semantics:** Direct messages (text or template) require an open
+  customer-service window; Graph 10/2534022 maps to `MessagingWindowExpired`; a
+  comment alone never opens it.
+- **Private Reply timing/live semantics:** 7 days from comment CREATION time (exact via
+  `ICommentReferenceReader`; one-sided notification guard otherwise); Live during
+  broadcast only, attempt-once, never the 7-day rule; Meta is final authority.
+- **Tests to extend, not rewrite:** `MessageValidationPolicyTests` (20),
+  `GraphInstagramMessagingClientTests` (+13 template/limit/typed-success/cancel/
+  redaction), `PostbackRoundTripTests` (1), `CommentPrivateReplyCoordinatorTests`
+  (+3 content gating), API E2E 117 (M13-009 flows intact).
+- **Residual Meta/App Review constraints:** Advanced Access for third-party accounts;
+  live interactive Private Reply smoke requires a designated test account + disposable
+  test comment; no live Meta calls in CI; the one-reply rule means no second automatic
+  send under any ambiguity.
+
 ## 2026-09-07 — M13-009 DONE; M13-010 packet ready (do not start M13-010)
 
 M13-009 corrected comment automation to Meta **Private Reply** semantics.
