@@ -1419,6 +1419,15 @@ both Docker image builds) with the single local-only deviation of `check_docs.py
 the human-owned untracked `docs/fa/qasedak_m13_production_handbook_fa.html` (preserved
 byte-identically, never staged, absent in CI); no live Meta calls.
 
+**Deployment (2026-09-07):** task SHA `a26af311bb68b3a7706660c8f938b338d42b395c`
+pushed; CI `34079389171`, CodeQL `34079389141`, Publish Images `34079619338`
+(`sha-a26af311bb68`), Deploy Production `34079679915` all success; backup
+`qasedak-20260907T032739Z-sha-a26af311bb68.dump`; additive migration
+`20260907023218_AddAutomationActionAttemptColumns` applied before image switch;
+containers Healthy, health + smoke passed, no rollback; public smoke 200/200/403/401;
+live Meta automation smoke NOT RUN (no designated test account); evidence commit
+`[skip ci]` recorded zero CI/CodeQL/Publish/Deploy runs.
+
 **Suggested commit:** `feat(automations): complete instagram trigger and action parity`
 
 ## M13-013 — Add comment reconciliation and provider history synchronization

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-07T03:17:02Z",
+  "updatedAt": "2026-09-07T03:32:56Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-013",
@@ -158,7 +158,7 @@
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-012 DONE 2026-09-07 (implementation commit pending deployment evidence): schema v2 definition, DM/comment exact-account triggers, whole-word/source-scope matching, public reply, reveal mapping, durable crash-safe follow-ups via M13-004 with PG CAS attempt markers; 1128/1128 backend + frontend verify green; Graphify 0.9.26 healthy recorded; state: lastCompletedTask=M13-012, currentTask=M13-013 TODO; completedTasks contains M13-010/M13-011/M13-012 exactly once.",
+  "lastInstruction": "M13-012 DONE + deployed 2026-09-07: image sha-a26af311bb68, migration 20260907023218_AddAutomationActionAttemptColumns applied, CI 34079389171/CodeQL 34079389141/Publish 34079619338/Deploy 34079679915 success, backup qasedak-20260907T032739Z-sha-a26af311bb68.dump, public smoke 200/200/403/401, live Meta automation smoke NOT RUN. State: lastCompletedTask=M13-012, currentTask=M13-013 TODO; completedTasks contains M13-010/M13-011/M13-012 exactly once; graphify.lastEvidence = M13-012.",
   "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
   "m13008Deployment": {
     "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",
@@ -235,5 +235,25 @@
       "unsignedPost": 401
     },
     "liveMetaRevealFollowSmoke": "NOT RUN - no designated production test account/participant"
+  },
+  "m13012Deployment": {
+    "sha": "a26af311bb68b3a7706660c8f938b338d42b395c",
+    "image": "sha-a26af311bb68",
+    "ciRun": "34079389171",
+    "codeqlRun": "34079389141",
+    "publishRun": "34079619338",
+    "deployRun": "34079679915",
+    "backup": "qasedak-20260907T032739Z-sha-a26af311bb68.dump",
+    "schemaChange": true,
+    "migration": "20260907023218_AddAutomationActionAttemptColumns (automations schema, additive, applied before image switch; Down drops only the new columns)",
+    "health": "api Healthy; postgres Healthy; web recreated; health + smoke checks passed ~2026-09-07T03:27Z; no rollback; exact immutable image sha-a26af311bb68",
+    "publicSmoke": {
+      "root": 200,
+      "system": 200,
+      "wrongVerifyToken": 403,
+      "unsignedPost": 401
+    },
+    "liveMetaAutomationSmoke": "NOT RUN — no designated end-to-end test account/comment/DM/automation (never consume a customer's single allowed reply)",
+    "nextTask": "M13-013"
   }
 }

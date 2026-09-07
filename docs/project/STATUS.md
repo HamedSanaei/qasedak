@@ -3,8 +3,27 @@
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
 **Current task:** M13-013 — Add comment reconciliation and provider history synchronization (TODO)
-**Last completed:** M13-012 (2026-09-07)
+**Last completed:** M13-012 (2026-09-07, deployed)
 **Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters, the durable reveal-flow capability and full automation trigger/action parity (comment + inbound-DM triggers with exact-account binding, post/original-post scope, every-event/keyword/whole-word matching, Private Reply / Direct / Public Reply / reveal / durable crash-safe follow-up actions on a schema-v2 versioned definition) complete; M13-013 comment reconciliation/history sync not started
+
+## 2026-09-07 — M13-012 deployed; production on immutable task image
+
+- Task commit `a26af311bb68b3a7706660c8f938b338d42b395c` pushed to `origin/master`.
+  CI `34079389171` success; CodeQL `34079389141` success; Publish Images
+  `34079619338` success (`ghcr.io/hamedsanaei/qasedak-api|web:sha-a26af311bb68`);
+  Deploy Production `34079679915` success for the exact SHA (previous
+  `sha-7a67e327939b`, DB backup `qasedak-20260907T032739Z-sha-a26af311bb68.dump`,
+  additive migration `20260907023218_AddAutomationActionAttemptColumns` applied
+  before the switch, containers Healthy, health + smoke passed ~03:27Z, no rollback;
+  exact immutable image `sha-a26af311bb68`).
+- Independent public smoke at `https://qasedak.tofanservice.ir`: `/` 200,
+  `/api/v1/system` 200, wrong webhook verify token 403, unsigned webhook POST 401.
+- Live Meta automation smoke NOT RUN — no designated end-to-end test
+  account/comment/DM/automation (never consume a customer's single allowed reply).
+- Evidence commit `[skip ci]` verified to trigger zero CI/CodeQL/Publish/Deploy runs.
+- State: M13-012 DONE, lastCompletedTask=M13-012, currentTask=M13-013 (TODO),
+  completedTasks contains M13-010/M13-011/M13-012 exactly once,
+  graphify.lastEvidence = M13-012. Next: M13-013 per its own instruction.
 
 ## 2026-09-07 — M13-012 DONE: comment + DM triggers, public replies, reveal mapping, durable follow-ups
 

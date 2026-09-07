@@ -95,6 +95,14 @@ Public Reply, reveal, durable follow-up) on a backward-compatible schema-v2 defi
   `verify.py --full` green except the known local-only `check_docs.py` deviation from
   the human-owned untracked handbook (preserved byte-identically, never staged, absent
   in CI). No live Meta calls; no production effects.
+- **Deployment (2026-09-07):** task SHA `a26af311bb68b3a7706660c8f938b338d42b395c`;
+  CI `34079389171` / CodeQL `34079389141` / Publish `34079619338`
+  (`sha-a26af311bb68`) / Deploy `34079679915` success; backup
+  `qasedak-20260907T032739Z-sha-a26af311bb68.dump`; migration
+  `20260907023218_AddAutomationActionAttemptColumns` applied; api Healthy + health/
+  smoke passed ~03:27Z, no rollback; public smoke 200/200/403/401; live Meta
+  automation smoke NOT RUN (no designated test account). Evidence commit `[skip ci]`
+  triggered zero runs. Next: M13-013 only.
 
 ## 2026-09-07 — M13-011 DONE; M13-012 packet ready (do not start M13-012)
 
