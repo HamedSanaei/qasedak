@@ -119,6 +119,25 @@ postback reveal) behind the provider-correct sequence verified 2026-09-07.
   unverified (fail closed); no numeric URL max on current pages (2000-char Qasedak cap);
   no live Meta calls in CI; production test account required for live smoke.
 
+### Deployment evidence — M13-011 (2026-09-07, UTC)
+
+- Task SHA `7a67e327939ba983f90ed6f548644b5332144624` pushed to `origin/master`;
+  production runtime is the immutable image
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-7a67e327939b` (no rollback).
+- CI `34074401388` success; CodeQL `34074401451` success; Publish Images
+  `34074619302` success; Deploy Production `34074684388` success — DB backup
+  `qasedak-20260907T015758Z-sha-7a67e327939b.dump`; additive schema change:
+  migration `20260907012837_AddRevealFlows` applied pre-image-switch (old M13-010
+  runtime booted through the migration); api Healthy; in-workflow health +
+  public-web-auth-routing smoke passed ~01:58Z.
+- Independent public smoke (2026-09-07): `/` 200, `/api/v1/system` 200; webhook edge
+  negatives — wrong verify token → 403, unsigned `POST` → 401 (zero inbox/business
+  effects). Reveal-flow services DI-resolve through the healthy API; no startup
+  provider calls, no follow polling.
+- Live Meta reveal/follow smoke: NOT RUN — no designated production test account /
+  disposable test comment / test participant (never consume a customer's Private Reply,
+  gate prompt, postback or reveal to prove deployment).
+
 ## 2026-09-07 — M13-010 DONE; M13-011 packet ready (do not start M13-011)
 
 M13-010 added interactive messaging capabilities. Fresh first-party verification

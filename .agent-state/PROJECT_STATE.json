@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-07T01:48:30Z",
+  "updatedAt": "2026-09-07T01:59:59Z",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-012",
@@ -156,7 +156,7 @@
     "Operational go-live prerequisites (human, not CI): Mellat real terminal credentials + Shaparak registration of the deployment public host + staging smoke per docs/08 §6",
     "Optional: staging Zarinpal smoke test with real merchant credentials (never in CI)"
   ],
-  "lastInstruction": "M13-011 DONE 2026-09-07: durable Instagram reveal-flow capability (PlainText opening Private Reply reusing M13-009 one-shot effect, reply_to.mid user-response correlation, Direct button-template gate prompt with rv1 postback token (SHA-256 hash persisted), exact-account/sender validation, optional tri-state is_user_follow_business gate, single Direct reveal with Revealing CAS authority; instagram.reveal_flows additive migration 20260907012837; read->reveal fallback NOT implemented; follow capability config-driven, never probed; backend 1031/1031, full verify green). State: lastCompletedTask=M13-011, currentTask=M13-012 TODO.",
+  "lastInstruction": "M13-011 DONE + deployed 2026-09-07: image sha-7a67e327939b, migration 20260907012837_AddRevealFlows applied, CI 34074401388/CodeQL 34074401451/Publish 34074619302/Deploy 34074684388 success, backup qasedak-20260907T015758Z-sha-7a67e327939b.dump, public smoke 200/200/403/401, live Meta reveal/follow smoke NOT RUN. State: lastCompletedTask=M13-011, currentTask=M13-012 TODO; completedTasks contains M13-010 and M13-011 exactly once.",
   "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
   "m13008Deployment": {
     "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",
@@ -214,5 +214,24 @@
     },
     "liveMetaPrivateReplySmoke": "NOT RUN — no designated production test account/comment (never consume a customer's single allowed reply)",
     "nextTask": "M13-010"
+  },
+  "m13011Deployment": {
+    "sha": "7a67e327939ba983f90ed6f548644b5332144624",
+    "image": "sha-7a67e327939b",
+    "ciRun": "34074401388",
+    "codeqlRun": "34074401451",
+    "publishRun": "34074619302",
+    "deployRun": "34074684388",
+    "backup": "qasedak-20260907T015758Z-sha-7a67e327939b.dump",
+    "schemaChange": true,
+    "migration": "20260907012837_AddRevealFlows",
+    "health": "api Healthy; in-workflow health + public-web-auth-routing smoke passed ~2026-09-07T01:58Z; no rollback",
+    "publicSmoke": {
+      "root": 200,
+      "system": 200,
+      "wrongVerifyToken": 403,
+      "unsignedPost": 401
+    },
+    "liveMetaRevealFollowSmoke": "NOT RUN - no designated production test account/participant"
   }
 }

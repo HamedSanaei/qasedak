@@ -51,6 +51,20 @@
   restart/crash windows, 5 signed-webhook E2E incl. full flow, redelivery, tamper,
   follow-gate block→reveal, default no-op). Full backend 1031/1031 green.
 
+## 2026-09-07 — M13-011 deployed; production on immutable task image
+
+- Pushed task SHA `7a67e327939ba983f90ed6f548644b5332144624`; production runs
+  `ghcr.io/hamedsanaei/qasedak-api|web:sha-7a67e327939b` (no rollback). CI
+  `34074401388`, CodeQL `34074401451`, Publish Images `34074619302`, Deploy
+  Production `34074684388` all success.
+- DB backup `qasedak-20260907T015758Z-sha-7a67e327939b.dump`; additive migration
+  `20260907012837_AddRevealFlows` (instagram.reveal_flows) applied pre-image-switch;
+  old M13-010 runtime booted through the migration; api Healthy; in-workflow health +
+  public-web-auth-routing smoke passed ~01:58Z.
+- Independent public smoke: `/` 200, `/api/v1/system` 200; wrong verify token → 403;
+  unsigned webhook POST → 401 (zero effects). Live Meta reveal/follow smoke NOT RUN
+  (no designated test account/participant). Evidence commit follows [skip ci].
+
 ## 2026-09-07 — M13-010 DONE: interactive messaging adapters
 
 - Fresh first-party verification (retrieved 2026-09-07 — "Send Messages" and "Button

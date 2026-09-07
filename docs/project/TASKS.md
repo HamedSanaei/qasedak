@@ -1297,7 +1297,7 @@ gates pass with no live Meta calls.
 **Suggested commit:** `feat(instagram): add interactive messaging adapters`
 
 ## M13-011 — Add follow gate, opening DM and postback reveal flow
-**Status:** DONE (2026-09-07) — deployed `sha-`M13_011_SHA``, evidence commit `M13_011_EVIDENCE`.
+**Status:** DONE (2026-09-07) — deployed `sha-7a67e327939b` (task SHA `7a67e327939ba983f90ed6f548644b5332144624`; migration `20260907012837_AddRevealFlows`; CI `34074401388` / CodeQL `34074401451` / Publish `34074619302` / Deploy `34074684388`; evidence commit `[skip ci]` recorded in HANDOFF/STATUS).
 
 **Outcome:** Implement the officially supported durable comment → opening Private Reply
 → postback → direct-message reveal flow, with relationship/follow gating added only when
