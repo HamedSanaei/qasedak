@@ -169,6 +169,82 @@ namespace Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations
                     b.ToTable("comment_effects", "instagram");
                 });
 
+            modelBuilder.Entity("Qasedak.Modules.Instagram.Infrastructure.HistorySync.ProviderSyncOperationRow", b =>
+                {
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ConnectedAccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ConversationsObserved")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DetailsFetched")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Duplicates")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FailureCategory")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int>("HistoryWindowLimited")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MessageIdsObserved")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MessagesImported")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NextProviderCursor")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<int>("RateLimited")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Unsupported")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("OperationId");
+
+                    b.HasIndex("ConnectedAccountId", "CreatedAtUtc");
+
+                    b.HasIndex("ConnectedAccountId", "Kind")
+                        .IsUnique()
+                        .HasDatabaseName("IX_provider_sync_operations_one_active_per_account_kind")
+                        .HasFilter("\"Status\" IN (1, 2)");
+
+                    b.ToTable("provider_sync_operations", "instagram");
+                });
+
             modelBuilder.Entity("Qasedak.Modules.Instagram.Infrastructure.Persistence.FollowerSnapshotRow", b =>
                 {
                     b.Property<Guid>("Id")

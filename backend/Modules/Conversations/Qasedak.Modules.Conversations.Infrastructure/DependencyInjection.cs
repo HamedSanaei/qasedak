@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped<IConversationRepository, EfConversationRepository>();
         services.AddScoped<IConversationQueries, EfConversationQueries>();
         services.AddScoped<ProjectInboundMessageUseCase>();
+        services.AddScoped<ImportProviderHistoryUseCase>();
         services.AddScoped<SendReplyUseCase>();
 
         return services;

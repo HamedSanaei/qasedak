@@ -26,6 +26,34 @@ public sealed class EfConversationRepository(ConversationsDbContext context) : I
         await context.Conversations.AddAsync(conversation, cancellationToken);
     }
 
-    public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
-        context.SaveChangesAsync(cancellationToken);
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (IsUniqueViolation(exception))
+        {
+            // Concurrent history/webhook projections race on the exact-thread unique
+            // index or the scoped provider-message index; application use cases retry
+            // or treat the collision as an idempotent no-op (M13-013 §60/§64).
+            throw new UniqueConstraintViolationException("A unique constraint was violated.", exception);
+        }
+    }
+
+    private static bool IsUniqueViolation(DbUpdateException exception)
+    {
+        var current = (Exception?)exception;
+        while (current is not null)
+        {
+            if (current is Npgsql.PostgresException { SqlState: "23505" })
+            {
+                return true;
+            }
+
+            current = current.InnerException;
+        }
+
+        return exception.Message.Contains("23505", StringComparison.Ordinal);
+    }
 }

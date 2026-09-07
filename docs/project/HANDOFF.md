@@ -1,5 +1,105 @@
 # Current handoff
 
+## 2026-09-07 — M13-013 DONE; M13-014 packet ready (do not implement M13-014 UI)
+
+M13-013 (comment reconciliation + provider history synchronization) is complete and
+verified locally (1255/1255 tests, `verify.py --full` PASSED). M13-014 — expose the
+complete frontend Instagram application surface — is the next task and remains TODO.
+M13-013 added two additive migrations; deploy evidence is recorded when the exact-SHA
+train completes.
+
+### M13-014 read-only packet
+
+- **Comment reconciliation supported surfaces:** exact-account active-automation media
+  (`SpecificSource` ids + `AnySource` bounded recent media via the M13-006 traversal),
+  top-level organic comments, newest-first cursor traversal with hard per-sweep caps
+  (30 media / 3 pages per media / 500 comments), 14-day horizon, owner/self skipped,
+  unknown-author fail-closed, 15-minute recurring M13-004 chain per eligible account.
+- **Unsupported/unverified surfaces:** replies-to-comments are NOT enumerated (reconciled
+  only when the parent surfaces as a top-level comment of a scanned media); non-organic
+  (ad/boosted) comments and post-broadcast Live comments are NOT available through
+  Instagram Login; no timestamp filter exists — traversal is bounded by caps + horizon
+  checks, never by provider timestamps.
+- **Sweep bounds/cadence:** `CommentReconciliationPolicy` is the single source of truth
+  (JobType, 15-min Cadence, DefaultMaxAttempts 5, MaxMediaPerSweep 30, MaxCommentPages
+  PerMedia 3, MaxCommentsPerSweep 500, PageSize 25, MaxProviderCursorLength 512,
+  14-day MaxCommentAge); occurrence-scoped idempotency keys; permanent outcomes stop the
+  chain (DB-only bootstrap re-establishes at next host start); rate-limited outcomes
+  chain and return Retryable.
+- **Active-automation media scope model:** composition root `AutomationCommentScopeAdapter`
+  implements the Instagram port `ICommentReconciliationScopeQuery` by querying the
+  Automations module (`GetCommentReconciliationScopeAsync`: active comment-triggered
+  automations for the exact account → AnySource flag + specific media id set). No module
+  references another module.
+- **Comment recovery semantic id:** `recon:{connectedAccountId:N}:{providerCommentId}`
+  event ids; semantic run/effect identity is the provider `CommentId` — the SAME key the
+  webhook path uses, so webhook↔reconciliation converges on one run/effect (E2E proven
+  in both orders).
+- **Self-comment policy:** `FromId == ProviderAccountId` ⇒ skipped; missing `FromId` ⇒
+  fail-closed skip; comment text/media map 1:1; `OriginalMediaId` always null on
+  Instagram Login (non-organic originals unverifiable).
+- **Webhook/reconciliation race guarantees:** the comment ledger keys
+  `(ConnectedAccountId, ProviderCommentId, EffectType)` and the run ledger keys the
+  provider comment id; whichever delivery wins first reserves, the loser observes the
+  existing reservation and never double-sends (single logical trigger/run/effect).
+- **Current comment-history limitations:** Instagram Login cannot enumerate reply-only
+  or ad/boosted comment trees; Live-video comments are only readable during broadcast;
+  reconciling is bounded per sweep — long tail coverage accrues over successive sweeps.
+- **Conversation-history supported surfaces:** focused Conversations API adapter
+  (`platform=instagram`): conversation list (ids + updated_time, cursor pages), message
+  ids per conversation (newest-first), message detail (from/to/message/created_time/
+  is_unsupported/share link) via Bearer IG User token with basic + manage_messages.
+- **20-message-detail hard provider limit:** detail is only retrievable for the newest
+  20 messages per conversation; older ids return the documented "deleted" shape which is
+  classified `HistoryUnavailableOutsideRecentWindow` — NEVER a deletion signal, never
+  retried, never account-unhealthy; the sync only ever CALLS the newest 20 (no
+  error-baiting).
+- **Requests 30-day omission:** provider omits the Requests folder after 30 days and
+  omits outbound-only/unsupported content — sync never fabricates it and never claims
+  full provider history.
+- **Share/unsupported representation:** `share` yields only a bounded URL
+  (`Share` kind); `is_unsupported` messages count as `Unsupported` and are never
+  detailed; empty body ⇒ `NoText`.
+- **Initial/manual/incremental sync semantics:** every stage starts from the newest page
+  (never resumes a stale cursor); bounded per-operation pages/conversations; exhausted
+  budgets checkpoint (`Stage` + cursor) and chain a continuation job; settled terminal
+  operations replay as no-ops (at-least-once delivery).
+- **Operation status model:** `provider_sync_operations` per account — Queued/Running/
+  CompletedWithinProviderLimits/Failed/RateLimitedRetrying; one ACTIVE (Queued+Running)
+  operation per (account, kind) via partial unique index; stale Running stages are
+  reclaimable by any worker (`TryStartAsync`); counters persist truthfully at every
+  transition.
+- **Exact-account contracts:** operations, sweeps and jobs are bound to the exact
+  ConnectedAccount; tokens are resolved at execution from the protected store;
+  payloads carry identifiers only.
+- **Conversations import contract:** `ProviderHistoryMessageImport` →
+  `ImportProviderHistoryUseCase` (Conversations Application): upsert-or-ignore by
+  `(conversation, providerMessageId)`, one external participant rule, exact-identity
+  direction, provenance `History`, `WebhookObserved=false`, `UnreadCount` unchanged.
+- **Unread policy:** webhook deliveries set `WebhookObserved=true` and increment unread;
+  history imports never change unread; redelivered webhooks never double-increment;
+  repeat history imports are idempotent (duplicates counted, not re-created).
+- **ProviderMessageId uniqueness scope:** `UNIQUE (ConversationId, ProviderMessageId)
+  WHERE ProviderMessageId IS NOT NULL` (Conversations schema) — the same MID may exist
+  under different accounts/threads.
+- **History/webhook precedence:** one message row per provider MID per thread regardless
+  of arrival order (webhook-first or history-first both yield one row + one unread).
+- **History-never-triggers-Automations invariant:** the sync path has NO dispatcher
+  port — its only exit is the import gateway; E2E proves DM-shaped history creates ZERO
+  AutomationRuns.
+- **Status/read APIs:** out of scope for M13-013 (no unread/read APIs added); manual
+  resync endpoint exists (`POST /api/v1/workspaces/{ws}/instagram/connections/{id}/history-sync`,
+  enqueue-only, coalescing, foreign account 404).
+- **Migrations:** Conversations `20260907053239_AddHistoryImportAndScopedProviderMessageId`;
+  Instagram `20260907053310_AddProviderSyncOperations` — both additive.
+- **Tests:** Instagram unit 533 (client contract/cursor/cap/sweep matrices), Conversations
+  unit 33, real-PG 65 (operation coalescing/restart/concurrency, recurrence jobs),
+  API E2E 145 (reconciliation↔webhook convergence, history-never-triggers,
+  same-MID-two-accounts coexistence, unread precedence, manual resync auth).
+- **Provider/App Review limitations:** Advanced Access applies where DM/comment
+  automation requires it; no live Meta smoke was run (no designated production test
+  account); full-history claims are never made.
+
 ## 2026-09-07 — M13-012 CORRECTION deployed; M13-013 still TODO (do not start M13-013)
 
 M13-012 received its surgical correction: automation authoring validation now mirrors the

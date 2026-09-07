@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.HistorySync;
 using Qasedak.Modules.Instagram.Domain.Accounts;
+using Qasedak.Modules.Instagram.Infrastructure.HistorySync;
 
 namespace Qasedak.Modules.Instagram.Infrastructure.Persistence;
 
@@ -29,6 +31,8 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
 
     /// <summary>Durable reveal-flow continuations (M13-011); one flow per logical origin, single-reveal CAS.</summary>
     public DbSet<RevealFlowRow> RevealFlows => Set<RevealFlowRow>();
+
+    public DbSet<ProviderSyncOperationRow> ProviderSyncOperations => Set<ProviderSyncOperationRow>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -183,6 +187,24 @@ public sealed class InstagramDbContext(DbContextOptions<InstagramDbContext> opti
             flow.HasIndex(f => f.OpeningPrivateReplyMessageId);
             // Pending-continuation scans for the no-reply_to fallback path.
             flow.HasIndex(f => new { f.ConnectedAccountId, f.ParticipantIGSID, f.State });
+        });
+
+        modelBuilder.Entity<ProviderSyncOperationRow>(operation =>
+        {
+            operation.ToTable("provider_sync_operations");
+            operation.HasKey(o => o.OperationId);
+            operation.Property(o => o.OperationId).ValueGeneratedNever();
+            operation.Property(o => o.FailureCategory).HasMaxLength(128);
+            operation.Property(o => o.NextProviderCursor).HasMaxLength(512);
+            operation.Property(o => o.Kind).HasConversion<int>();
+            operation.Property(o => o.Status).HasConversion<int>();
+            // One active (Queued/Running) operation per exact account + kind: concurrent
+            // manual/initial requests coalesce at the database instead of racing.
+            operation.HasIndex(o => new { o.ConnectedAccountId, o.Kind })
+                .IsUnique()
+                .HasFilter("\"Status\" IN (1, 2)")
+                .HasDatabaseName("IX_provider_sync_operations_one_active_per_account_kind");
+            operation.HasIndex(o => new { o.ConnectedAccountId, o.CreatedAtUtc });
         });
     }
 }

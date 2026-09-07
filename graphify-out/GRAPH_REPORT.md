@@ -4,315 +4,315 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 6909 nodes · 15679 edges · 516 communities (307 shown, 209 thin omitted)
+- 6910 nodes · 15641 edges · 512 communities (314 shown, 198 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 497 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c3966cd2`
+- Built from commit: `e8ce839d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- MetaPayloadNormalizerTests
-- GraphMediaCatalogClientTests
 - Task
-- .ReserveAsync
 - Task
 - ZarinpalGatewayContractTests
-- Qasedak.Modules.Automations.Application
-- Task
-- Qasedak.Modules.Identity.Application.Authentication
-- AutomationCapabilityWebhookFlowTests
-- .SendPrivateReplyAsync
-- BillingEndpointTests
-- Qasedak.slnx
-- FollowerSnapshotPersistenceTests
-- index.tsx
-- Task
-- BillingDbContext.cs
-- WorkspaceTests
-- Task
-- .InvokeAsync
-- Migration
-- RevealFlowSnapshot
-- Task
-- .Create
-- CancellationToken
-- Qasedak.Modules.Contacts.Application
-- Qasedak.Modules.Instagram.Application.Webhooks
-- RevealFlowCoordinatorTests
-- WebhookInboxTests
-- MetaWebhookVerificationTests
-- Task
-- Qasedak.BuildingBlocks.Domain
-- .Create
-- ExactAccountRoutingTests
-- FeatureScreens.tsx
-- Qasedak.Modules.Billing.Application.Payments
-- CancellationToken
-- BehpardakhtTransactionRequest
 - Qasedak.BuildingBlocks.Application
 - Task
-- Qasedak.Modules.Instagram.Infrastructure.Persistence
-- .ReadCreatedAtUtcAsync
-- MetaGraphTransportTests
+- .IssueAsync
+- CancellationToken
+- AutomationCapabilityWebhookFlowTests
+- .SendPrivateReplyAsync
 - Task
+- Task
+- BehpardakhtTransactionRequest
+- .OnPostbackAsync
+- Qasedak.Modules.Instagram.Infrastructure.Persistence
+- MetaPayloadNormalizerTests
+- Qasedak.slnx
+- index.tsx
+- WorkspaceTests
+- Qasedak.Modules.Instagram.Application.Webhooks
+- RevealFlowSnapshot
+- Qasedak.BuildingBlocks.Domain
+- .InvokeAsync
+- Task
+- BillingDbContext
+- Qasedak.Modules.Identity.Application.Authentication
+- Task
+- .Create
+- CancellationToken
+- Migration
+- WebhookInboxTests
+- MetaWebhookVerificationTests
+- ExactAccountRoutingTests
+- Task
+- FeatureScreens.tsx
+- Qasedak.Modules.Automations.Infrastructure.Persistence.Migrations
+- IdentityDbContext
+- Task
+- Qasedak.Modules.Contacts.Application
+- RevealFlowCoordinatorTests
+- Task
+- .HandleAsync
+- IConnectedAccountRepository
 - Task
 - Automation
-- Subscription
-- ContactEndpoints
 - CommentToPrivateReplyAutomationFlowTests
-- IdentityAuthorizationTests
 - scripts
-- Qasedak.Modules.Automations.Infrastructure.Persistence.Migrations
+- ContactEndpoints
+- .ExecuteAsync
 - .GetDetailAsync
-- User
+- .ExecuteAsync
+- IdentityAuthorizationTests
 - Task
+- GraphMediaCatalogClientTests
 - instagram/insights.ts
+- .Create
 - .ParsePayload
-- Task
-- CancellationToken
-- ScheduledWork.cs
 - .Evaluate
-- .Create
+- .Classify
+- FollowStateResult
 - .SendDirectAsync
-- ApiPostgreSqlFixture
-- AutomationEndpoints
+- AuthoringMessageBoundaryTests
+- ScheduledWork.cs
 - .ExecuteAsync
-- .Create
-- .ExecuteAsync
+- RecordingInstagramMessagingClient
+- BillingEndpointTests
 - Task
 - .ConnectedAccountAsync
-- AutomationDefinition
 - .NewSut
-- .ExecuteAsync
-- .OnPostbackAsync
-- 20260823181140_AddWebhookInbox.Designer.cs
+- InlineData
+- .Classify
+- Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations
+- .NewClient
+- HmacSecurityTokenIssuer
 - Qasedak.Modules.Identity.Application.Workspaces
-- .ActivateAsync
+- .Create
 - Contact
 - Qasedak.Modules.Contacts.Infrastructure.Persistence.Migrations
-- .ExecuteAsync
+- OverviewEndpointTests
 - GraphInstagramMessagingClient
-- FollowStateResult
-- AuthoringMessageBoundaryTests
 - Task
+- HttpResponseMessage
+- .NewClient
 - colorExtended
 - billing/presentation.ts
 - Feedback.tsx
 - compilerOptions
+- AutomationEndpoints
 - GraphInstagramOAuthClient
-- AutomationFollowUpLedgerTests
-- PaymentAttempt
-- OverviewEndpointTests
-- Task
 - session.ts
-- Conversation
-- .Classify
+- RevealFlowMetrics
+- .ExecuteSlotsAsync
+- ConversationsDbContext
+- BillingDbContext.cs
 - .ExecuteAsync
-- .Evaluate
-- GraphSubscriptionClient
+- .HandleAsync
+- .ExecuteAsync
+- .UserAndCredentialRoundTripThroughRepository
+- FollowerSnapshotRecord
+- .ReadCreatedAtUtcAsync
 - InteractiveWebhookEndpointTests
-- AutomationsDbContext
-- Qasedak.BuildingBlocks.Infrastructure.Scheduling
-- BehpardakhtMellatPaymentGateway
-- IConnectedAccountRepository
+- LoggerMessage
+- GraphSubscriptionClient
+- MetaGraphTransportTests
 - InboundAccountResolutionTests
-- ZarinpalPaymentGateway
-- IdentityDbContext
+- EfContactRepository
 - .NewSut
 - .Validate
-- .Classify
+- IAsyncLifetime
 - AutomationAggregateTests
-- Qasedak.Modules.Billing.Infrastructure.Persistence.Migrations
-- EfContactRepository
-- IRevealFlowStore
+- Exception
+- .Create
+- .CheckCountLimitAsync
+- Subscription
+- .Activate
+- Conversation
 - IWebhookInboxStore
 - Task
-- RevealFlowMetrics
+- ApiPostgreSqlFixture
 - FakeRunRepository
+- Qasedak.Modules.Billing.Infrastructure.Persistence.Migrations
 - AccountResolution
 - GraphAccountProfileClient
+- .MapFailureAsync
+- EfCommentEffectLedger
+- .ReserveAsync
 - IIntegrationEventDispatcher
 - RevealFlowWebhookFlowTests
-- Task
+- RecordingMessagingClient
 - rehearse_deployment.py
+- Qasedak.BuildingBlocks.Infrastructure.Scheduling
 - EfScheduledWorkStore
-- AutomationRun
 - .ContainsWholeWord
-- ProtectedTokenStore
+- IEndpointRouteBuilder
 - InstagramEffectType
 - ProcessPendingWebhookEventsTests
-- Qasedak.Modules.Instagram.Application.Effects
 - .SendPublicReplyAsync
-- .Decode
-- Qasedak.BuildingBlocks.Application.Scheduling
-- InlineData
-- ModelSnapshot
-- InsightMetricKey
 - GraphInstagramInsightsClient
+- .Decode
+- Task
+- MetaPayloadNormalizer
+- ModelSnapshot
+- .ScheduledRun
+- AutomationRun
+- JsonElement
+- MediaCatalogResult
+- FollowerSnapshotPersistenceTests
 - ConnectionEnrichmentEndpointTests
 - ContactEndpointTests
 - ScheduledWorkStoreTests
 - RefreshInstagramTokenTests
-- TokenRefreshScheduledHandlerTests
-- RecordingMessagingClient
 - Button.tsx
 - ConnectedAccount
+- AutomationsDbContext
 - .Create
 - Qasedak.Modules.Conversations.Infrastructure.Persistence.Migrations
-- InsightContracts.cs
+- .ExecuteAsync
+- .ForMedia
 - InstagramMessageContent
 - MetaOAuthPorts.cs
 - MetaGraphCallResult
+- AuthoringProviderParityTests
 - health.ts
-- .ExecuteAsync
-- .MapFailureAsync
-- .Create
-- InstagramDbContext
+- Task
+- AutomationFollowUpLedgerTests
+- AutomationDefinition
 - ConversationInboxEndpointTests
-- ActivateAutomationUseCase.cs
-- ActionResult
+- .Evaluate
+- TokenRefreshScheduledHandlerTests
+- Qasedak.Modules.Automations.Infrastructure/DependencyInjection.cs
 - .EvaluateAsync
-- ConversationsDbContext
+- .ExecuteAsync
 - .ExecuteAsync
 - GraphCommentPublicReplyClient
+- PaymentAttempt
 - .ProcessPendingAsync
-- .MapMediaEndpoints
+- InstagramDbContext
 - WebhookToContactProjectionTests
 - CancellationToken
-- .HandleAsync
+- ActionResult
 - .DispatchAsync
 - ContactsDbContext
 - Qasedak.Modules.Instagram.Application.Media
-- RevealFlowContracts.cs
+- RevealCorrelation
 - .ResolveAsync
+- IWebhookPostIngestProcessor
+- Qasedak.Modules.Instagram.Application.Effects
 - WebhookToConversationProjectionTests
-- IAsyncLifetime
 - AccountResolutionTests
 - identity.ts
 - FakeRunRepository
-- .ExecuteSlotsAsync
-- .CheckCountLimitAsync
+- Qasedak.BuildingBlocks.Infrastructure/DependencyInjection.cs
 - .Create
-- MediaCatalogResult
-- LoggerMessage
 - .HandleAsync
 - WebhookMetrics
-- .NewClient
+- CancellationToken
 - AccountsScreen.tsx
 - instagram/media.ts
-- .RecordAsync
-- Exception
+- .ActivateAsync
+- .FindByWorkspaceAsync
+- ZarinpalPaymentGateway
+- ConversationTests
 - TokenRefreshPolicy
 - GraphMediaCatalogClient
+- IIntegrationEvent
+- ScriptableRevealFlowStartProvider
 - .HandleAsync
 - .MigrateAsync
 - DatabaseMigratorTests
 - MetaWebhookEndpointTests
 - AutomationRunLedgerTests
-- PaymentAttemptTests
+- .NewClient
 - LandingPage.tsx
 - ScriptedInstagramInsightsClient
 - capture.mjs
-- Qasedak.BuildingBlocks.Application.Auditing
-- ILogger
-- ConversationTests
-- adHocFeaturesFile
 - Qasedak.BuildingBlocks.Infrastructure.Auditing
 - EfAutomationRunRepository
-- .TryRecordAsync
+- ILogger
+- GraphAccountProfileClientTests
+- adHocFeaturesFile
+- ChannelAccountId
 - IContactRepository
-- HmacSecurityTokenIssuer
+- ContactsInteractionBridge
 - AutomationAccountBindingEndpointTests
 - AutomationPersistenceTests
 - AutomationDefinitionSerializerTests
 - AutomationEvaluatorV2Tests
-- .NewScope
 - source
 - Sidebar.tsx
 - IAutomationRunRepository
-- .CompleteAsync
+- .NewScope
 - ChannelDeliveryResult
 - .MapConversationEndpoints
 - .Build
 - .ExecuteAsync
+- ICommentEffectLedger
 - .DispatchAsync
-- .DispatchAsync
-- .ScheduledRun
 - remote-deploy.sh
 - typography
 - ConversationsApi
-- InitialIdentityCreation
-- .ExecuteAsync
+- .ReadAuditEntriesAsync
+- 20260905132336_InitialScheduledWorkCreation.Designer.cs
+- .DispatchAsync
+- 20260823110059_InitialIdentityCreation.Designer.cs
 - .ExecuteAsync
 - .ExecuteAsync
 - .MapConnectionEndpoints
 - http
-- ScriptedSubscriptionClient
 - ContactPersistenceTests
 - TokenRefreshPolicyTests
 - NullHandlerLogger
 - color
 - frontend-experience.test.mjs
-- ChannelAccountIdTests
-- AuditDbContext
 - IAutomationRepository
-- Message
-- .ExecuteAsync
+- CommentReferenceReadResult
 - .ValidateButton
-- .InspectAsync
 - .DispatchAsync
 - .DispatchAsync
-- RecordingInstagramMessagingClient
+- ChannelAccountMigrationTests
 - IClock
-- .NewScope
 - ContactTagNoteTests
-- Pbkdf2PasswordHasher
 - NullHandlerLogger
 - tokens
 - automations/presentation.ts
 - ContactsApi
 - rehearse_backup_restore.py
-- .AuditRecordsAreAppendOnly
-- .ExecuteAsync
+- .MapIdentityEndpoints
+- EfConversationRepository
+- .Evaluate
 - InsightsEndpoints.cs
 - WebhookBacklogGauge
-- InstagramAuthorizationUrlBuilderTests
+- PostgreSqlFixture
+- PostgreSqlFixture
+- FakeWorkStore
 - HelpScreen.tsx
 - DashboardOverview.tsx
 - inbox/presentation.ts
 - penpot-sync.test.mjs
 - generate_manifest.py
-- IClock
 - AuthorizationUrlBuilderPort.cs
 - RecordingPaymentGateway
-- .GetProfileAsync
 - FakeOAuthClient
 - .SendAsync
 - FakeOAuthClient
 - m12CustomerFrontendPrimary
 - validation.ts
 - conversations/api/server.ts
-- 20260905132336_InitialScheduledWorkCreation.Designer.cs
 - .GetPageAsync
-- ApiSmokeTests
 - CorrelationEndpointTests
 - .OutboundPostbackPayloadSurvivesWebhookNormalizationRoundTrip
-- spacing
+- radius
 - InsightsPolicy.cs
-- MediaCursorDecodeResult
 - AddRevealFlows
 - .PublicEndpointsThrottlePerSourceWith429AndRetryAfter
+- FakeProfileClient
 - MediaCatalogPolicyTests
-- ScriptedHttpHandler
 - [conversationId]/page.tsx
 - contacts/presentation.ts
 - check_architecture.py
-- 20260907023218_AddAutomationActionAttemptColumns.Designer.cs
-- AccountTypes.cs
-- FixedOptionsMonitor
+- Qasedak.Modules.Billing.Domain
 - app/layout.tsx
 - SidebarIcon.tsx
 - auth.test.mjs
@@ -348,7 +348,6 @@
 - AutomationAction
 - AutomationActionStatus
 - AutomationCondition
-- AutomationDefinition
 - AutomationsDbContext
 - Duplicate
 - IReadOnlyList
@@ -508,11 +507,8 @@
 - Subscription
 - Text
 - Tokens
-- 20260905015456_AddActiveRoutingIdentityIndex.Designer.cs
-- 20260905204310_AddConnectionEnrichment.Designer.cs
-- 20260906035357_AddFollowerSnapshots.Designer.cs
-- 20260906232403_AddCommentEffects.Designer.cs
-- 20260907012837_AddRevealFlows.Designer.cs
+- Message
+- .StartAsync
 
 ## God Nodes (most connected - your core abstractions)
 1. `MetaPayloadNormalizerTests` - 47 edges
@@ -527,12 +523,12 @@
 10. `Automation` - 35 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `ScheduledWorkRow` --references--> `ScheduledWorkStatus`  [EXTRACTED]
-  backend/BuildingBlocks/Qasedak.BuildingBlocks.Infrastructure/Scheduling/ScheduledWorkDbContext.cs → backend/BuildingBlocks/Qasedak.BuildingBlocks.Application/Scheduling/ScheduledWork.cs
 - `EfUserRepository` --implements--> `IUserRepository`  [EXTRACTED]
   backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure/Persistence/EfRepositories.cs → backend/Modules/Identity/Qasedak.Modules.Identity.Application/Authentication/AuthenticationContracts.cs
 - `InMemoryUserRepository` --implements--> `IUserRepository`  [EXTRACTED]
   backend/tests/Qasedak.Modules.Identity.UnitTests/TestSupport/InMemoryUserRepository.cs → backend/Modules/Identity/Qasedak.Modules.Identity.Application/Authentication/AuthenticationContracts.cs
+- `Pbkdf2PasswordHasher` --implements--> `IPasswordHasher`  [EXTRACTED]
+  backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure/Authentication/AuthenticationAdapters.cs → backend/Modules/Identity/Qasedak.Modules.Identity.Application/Authentication/SecurityPorts.cs
 - `EfWorkspaceRepository` --implements--> `IWorkspaceRepository`  [EXTRACTED]
   backend/Modules/Identity/Qasedak.Modules.Identity.Infrastructure/Persistence/EfRepositories.cs → backend/Modules/Identity/Qasedak.Modules.Identity.Application/Workspaces/IWorkspaceRepository.cs
 - `IdentityDbContext` --references--> `User`  [EXTRACTED]
@@ -541,1187 +537,1215 @@
 ## Import Cycles
 - None detected.
 
-## Communities (516 total, 209 thin omitted)
+## Communities (512 total, 198 thin omitted)
 
-### Community 0 - "MetaPayloadNormalizerTests"
+### Community 0 - "Task"
 Cohesion: 0.06
-Nodes (40): ArrayEnumerator, CancellationToken, Task, IIntegrationEventDispatcher, Guid, EntryNormalization, IgnoredWebhookFragment, IIntegrationEvent (+32 more)
+Nodes (43): AccountResolution, HttpContext, IConfiguration, RateLimitPolicies, RiskClass, ActionDispatch, ActionResult, CancellationToken (+35 more)
 
-### Community 1 - "GraphMediaCatalogClientTests"
-Cohesion: 0.05
-Nodes (44): InsightsFailureKind, CancellationToken, Client, DateOnly, Fact, Func, InlineData, int (+36 more)
-
-### Community 2 - "Task"
-Cohesion: 0.06
-Nodes (42): AccountResolution, HttpContext, IConfiguration, RateLimitPolicies, RiskClass, ActionDispatch, ActionResult, CancellationToken (+34 more)
-
-### Community 3 - ".ReserveAsync"
-Cohesion: 0.06
-Nodes (44): CancellationToken, DateTimeOffset, Guid, int, string, Task, TimeSpan, IOAuthStateStore (+36 more)
-
-### Community 4 - "Task"
+### Community 1 - "Task"
 Cohesion: 0.07
 Nodes (39): AccountInsightsResult, AccountResolution, CancellationToken, ConnectedAccount, DateOnly, DateTimeOffset, Dictionary, Fact (+31 more)
 
-### Community 5 - "ZarinpalGatewayContractTests"
-Cohesion: 0.05
-Nodes (39): CancellationToken, Guid, IScheduledWorkStore, ScheduledWorkItem, Task, TimeSpan, ScheduledWorkDispatcher, ScheduledWorkMetrics (+31 more)
-
-### Community 6 - "Qasedak.Modules.Automations.Application"
-Cohesion: 0.09
-Nodes (18): AssemblyMarker, string, AutomationFailures, string, ExecutionFailures, AssemblyMarker, AutomationsDomainException, string (+10 more)
-
-### Community 7 - "Task"
-Cohesion: 0.12
-Nodes (15): CancellationToken, CommentEffectClaim, ConnectedAccount, DateTimeOffset, Dictionary, Guid, InstagramEffectStatus, IReadOnlyList (+7 more)
-
-### Community 8 - "Qasedak.Modules.Identity.Application.Authentication"
-Cohesion: 0.10
-Nodes (14): RegisterUserUseCase, AssemblyMarker, DomainRuleViolationException, CreateWorkspaceRequest, LoginRequest, RegisterUserRequest, FixedClock, Qasedak.Modules.Identity.Infrastructure.Authentication (+6 more)
-
-### Community 9 - "AutomationCapabilityWebhookFlowTests"
-Cohesion: 0.11
-Nodes (18): AutomationRunRow, DateTimeOffset, Fact, Guid, ScheduledWorkItem, string, Task, WorkOutcome (+10 more)
-
-### Community 10 - ".SendPrivateReplyAsync"
-Cohesion: 0.10
-Nodes (25): CancellationToken, Task, ICommentPrivateReplyClient, PrivateReplyFailure, PrivateReplyFailureReason, PrivateReplySendResult, CancellationToken, JsonDocument (+17 more)
-
-### Community 11 - "BillingEndpointTests"
-Cohesion: 0.14
-Nodes (13): List, AutomationDefinitionJsonConverter, Fact, Guid, HttpClient, Task, BillingEndpointTests, JsonConverter (+5 more)
-
-### Community 12 - "Qasedak.slnx"
-Cohesion: 0.05
-Nodes (40): ActionDispatch, ActionResult, CancellationToken, Task, AutomationPrivateReplyBridge, Program, Qasedak.BuildingBlocks.IntegrationTests, Qasedak.BuildingBlocks.Infrastructure (+32 more)
-
-### Community 13 - "FollowerSnapshotPersistenceTests"
-Cohesion: 0.11
-Nodes (24): CancellationToken, DateOnly, Guid, IReadOnlyList, Task, FollowerSnapshotProvenance, FollowerSnapshotRecord, IFollowerSnapshotStore (+16 more)
-
-### Community 14 - "index.tsx"
+### Community 2 - "ZarinpalGatewayContractTests"
 Cohesion: 0.06
-Nodes (26): EditAutomationPage(), NewAutomationPage(), AutomationBuilderForm(), AutomationBuilderFormProps, AutomationDefinitionDto, AutomationDetail, AutomationsApi, AutomationSummary (+18 more)
+Nodes (38): CancellationToken, Guid, IScheduledWorkStore, ScheduledWorkItem, Task, TimeSpan, ScheduledWorkDispatcher, ScheduledWorkMetrics (+30 more)
 
-### Community 15 - "Task"
+### Community 3 - "Qasedak.BuildingBlocks.Application"
 Cohesion: 0.09
-Nodes (23): CancellationToken, Task, IPaymentGateway, CheckoutResult, CreateCheckoutUseCase, IReadOnlyList, PaymentGatewayResolver, IReadOnlyList (+15 more)
+Nodes (18): AssemblyMarker, string, ExecutionFailures, FollowUpSettlementStatus, AssemblyMarker, string, PublicReplyOutcomeCodes, Qasedak.BuildingBlocks.Application (+10 more)
 
-### Community 16 - "BillingDbContext.cs"
-Cohesion: 0.12
-Nodes (23): CancellationToken, DateTimeOffset, Guid, IReadOnlyList, List, ModelBuilder, Plan, string (+15 more)
-
-### Community 17 - "WorkspaceTests"
-Cohesion: 0.15
-Nodes (12): Guid, Membership, MembershipRole, Guid, Workspace, Fact, Guid, WorkspaceTests (+4 more)
-
-### Community 18 - "Task"
-Cohesion: 0.14
-Nodes (18): ConnectInstagramAccountUseCase, Connect, Disconnect, Fact, Jobs, States, string, Task (+10 more)
-
-### Community 19 - ".InvokeAsync"
-Cohesion: 0.07
-Nodes (22): string, CorrelationContext, CorrelationIds, ICorrelationContext, HttpContext, Task, CorrelationContextAccessor, CorrelationMiddleware (+14 more)
-
-### Community 20 - "Migration"
+### Community 4 - "Task"
 Cohesion: 0.08
-Nodes (14): InitialScheduledWorkCreation, AddPaymentsAndPlanPrices, InitialConversationsCreation, ModelBuilder, InitialInstagramCreation, InitialInstagramCreation, AddWebhookInbox, AddActiveRoutingIdentityIndex (+6 more)
+Nodes (35): AccountProfileOutcome, CancellationToken, CodeExchangeRequest, CodeExchangeResult, Connect, DateTimeOffset, Disconnect, Duplicate (+27 more)
 
-### Community 21 - "RevealFlowSnapshot"
-Cohesion: 0.19
-Nodes (13): RevealFlowSnapshot, CancellationToken, DateTimeOffset, Exception, Guid, IReadOnlyList, Task, EfRevealFlowStore (+5 more)
+### Community 5 - ".IssueAsync"
+Cohesion: 0.06
+Nodes (30): ITokenProtector, CancellationToken, DateTimeOffset, Guid, int, string, Task, TimeSpan (+22 more)
 
-### Community 22 - "Task"
-Cohesion: 0.13
-Nodes (18): CancellationToken, ConnectedAccount, DateTimeOffset, Duplicate, Guid, IReadOnlyList, Item, List (+10 more)
-
-### Community 23 - ".Create"
-Cohesion: 0.14
-Nodes (12): ActionKind, AutomationTrigger, Fact, InlineData, string, Theory, AuthoringProviderParityTests, Fact (+4 more)
-
-### Community 24 - "CancellationToken"
-Cohesion: 0.11
-Nodes (21): CancellationToken, ConnectedAccount, DateTimeOffset, Dictionary, Duplicate, Guid, IReadOnlyList, Item (+13 more)
-
-### Community 25 - "Qasedak.Modules.Contacts.Application"
-Cohesion: 0.07
-Nodes (19): AssemblyMarker, AssemblyMarker, ContactsDomainException, IConfiguration, IServiceCollection, DependencyInjection, PostgreSqlContainer, string (+11 more)
-
-### Community 26 - "Qasedak.Modules.Instagram.Application.Webhooks"
-Cohesion: 0.07
-Nodes (18): RevealFlowId, CancellationToken, Task, IWebhookPostIngestProcessor, NullWebhookPostIngestProcessor, int, WebhookNormalizationPolicy, IEndpointRouteBuilder (+10 more)
-
-### Community 27 - "RevealFlowCoordinatorTests"
-Cohesion: 0.18
-Nodes (9): CommentReferenceReadResult, Fact, Func, FakeReferenceReader, Harness, RecordingRelationshipClient, RevealFlowCoordinatorTests, Harness (+1 more)
-
-### Community 28 - "WebhookInboxTests"
-Cohesion: 0.09
-Nodes (19): CancellationToken, Task, IMetaWebhookIngester, MetaWebhookNotification, WebhookIngestionResult, CancellationToken, int, Task (+11 more)
-
-### Community 29 - "MetaWebhookVerificationTests"
-Cohesion: 0.10
-Nodes (16): WebhookSignatureFailure, WebhookSignatureResult, IWebhookSignatureVerifier, IWebhookSubscriptionValidator, WebhookSubscriptionFailure, WebhookSubscriptionResult, string, HmacWebhookSignatureVerifier (+8 more)
-
-### Community 30 - "Task"
-Cohesion: 0.16
-Nodes (14): Attempts, CreatePaymentRequest, DateTimeOffset, Fact, Plan, Task, BehpardakhtMellatGatewayFlowTests, CountingGateway (+6 more)
-
-### Community 31 - "Qasedak.BuildingBlocks.Domain"
-Cohesion: 0.08
-Nodes (20): Entity, DateTimeOffset, IDomainEvent, InboxConversationRow, InboxMessageRow, InboxPage, SearchPattern, string (+12 more)
-
-### Community 32 - ".Create"
-Cohesion: 0.24
-Nodes (8): CancellationToken, Guid, Task, EfUserRepository, EfWorkspaceRepository, Fact, Task, IdentityPersistenceTests
-
-### Community 33 - "ExactAccountRoutingTests"
-Cohesion: 0.15
-Nodes (18): AccessToken, AutomationRunRow, ChannelAccountId, CommentId, ConversationsDbContext, Fact, Guid, HttpClient (+10 more)
-
-### Community 34 - "FeatureScreens.tsx"
-Cohesion: 0.08
-Nodes (11): RESPONSE_TYPES, INITIAL_SHOWCASES, SCENARIOS, INITIAL_FORMS, FEATURES, MATCH_OPTIONS, RESPONSE_TYPES, METHODS (+3 more)
-
-### Community 35 - "Qasedak.Modules.Billing.Application.Payments"
-Cohesion: 0.10
-Nodes (17): AssemblyMarker, AssemblyMarker, BillingDomainException, CheckoutRequest, LoginResponse, Qasedak.Modules.Billing.Application, Qasedak.Modules.Billing.Domain, Qasedak.Modules.Billing.Infrastructure.Payments (+9 more)
-
-### Community 36 - "CancellationToken"
+### Community 6 - "CancellationToken"
 Cohesion: 0.14
 Nodes (19): CancellationToken, DateTimeOffset, Guid, IReadOnlyList, Task, FinalizePaymentOutcome, FinalizePaymentUseCase, IPaymentAttemptRepository (+11 more)
 
-### Community 37 - "BehpardakhtTransactionRequest"
-Cohesion: 0.18
-Nodes (14): CancellationToken, Task, BehpardakhtCodeResult, BehpardakhtPayRequest, BehpardakhtPayResult, BehpardakhtSoapClient, BehpardakhtTransactionRequest, IBehpardakhtSoapClient (+6 more)
+### Community 7 - "AutomationCapabilityWebhookFlowTests"
+Cohesion: 0.11
+Nodes (18): AutomationRunRow, DateTimeOffset, Fact, Guid, ScheduledWorkItem, string, Task, WorkOutcome (+10 more)
 
-### Community 38 - "Qasedak.BuildingBlocks.Application"
+### Community 8 - ".SendPrivateReplyAsync"
+Cohesion: 0.10
+Nodes (25): CancellationToken, Task, ICommentPrivateReplyClient, PrivateReplyFailure, PrivateReplyFailureReason, PrivateReplySendResult, CancellationToken, JsonDocument (+17 more)
+
+### Community 9 - "Task"
+Cohesion: 0.12
+Nodes (15): CancellationToken, CommentEffectClaim, ConnectedAccount, DateTimeOffset, Dictionary, Guid, InstagramEffectStatus, IReadOnlyList (+7 more)
+
+### Community 10 - "Task"
+Cohesion: 0.16
+Nodes (15): Attempts, CreatePaymentRequest, DateTimeOffset, Fact, List, Plan, Task, BehpardakhtMellatGatewayFlowTests (+7 more)
+
+### Community 11 - "BehpardakhtTransactionRequest"
+Cohesion: 0.13
+Nodes (17): PaymentVerificationResult, VerifyPaymentRequest, CancellationToken, Guid, string, Task, BehpardakhtCodeResult, BehpardakhtMellatPaymentGateway (+9 more)
+
+### Community 12 - ".OnPostbackAsync"
+Cohesion: 0.15
+Nodes (16): IRevealFlowObservability, CancellationToken, DateTimeOffset, Guid, IReadOnlyList, Task, IRevealFlowStore, RevealFlowOutcome (+8 more)
+
+### Community 13 - "Qasedak.Modules.Instagram.Infrastructure.Persistence"
+Cohesion: 0.07
+Nodes (24): FollowerSnapshotUseCase, CurrentFollowersModel, CurrentFollowerState, FollowerHistoryPoint, GetFollowerHistoryUseCase, InsightsAvailability, InstagramOverview, MediaOverviewState (+16 more)
+
+### Community 14 - "MetaPayloadNormalizerTests"
+Cohesion: 0.19
+Nodes (4): Fact, List, string, MetaPayloadNormalizerTests
+
+### Community 15 - "Qasedak.slnx"
+Cohesion: 0.05
+Nodes (39): ActionDispatch, ActionResult, CancellationToken, Task, AutomationPrivateReplyBridge, Program, Qasedak.BuildingBlocks.IntegrationTests, Qasedak.BuildingBlocks.Infrastructure (+31 more)
+
+### Community 16 - "index.tsx"
+Cohesion: 0.06
+Nodes (26): EditAutomationPage(), NewAutomationPage(), AutomationBuilderForm(), AutomationBuilderFormProps, AutomationDefinitionDto, AutomationDetail, AutomationsApi, AutomationSummary (+18 more)
+
+### Community 17 - "WorkspaceTests"
+Cohesion: 0.15
+Nodes (13): Guid, Membership, MembershipRole, Guid, Workspace, Fact, Guid, WorkspaceTests (+5 more)
+
+### Community 18 - "Qasedak.Modules.Instagram.Application.Webhooks"
+Cohesion: 0.07
+Nodes (16): RevealFlowId, int, WebhookNormalizationPolicy, IConfiguration, IServiceCollection, DependencyInjection, RevealFlowContinuationBridge, Qasedak.Modules.Instagram.Application.RevealFlow (+8 more)
+
+### Community 19 - "RevealFlowSnapshot"
+Cohesion: 0.18
+Nodes (14): RevealFlowSnapshot, CancellationToken, DateTimeOffset, Exception, Guid, IReadOnlyList, Task, EfRevealFlowStore (+6 more)
+
+### Community 20 - "Qasedak.BuildingBlocks.Domain"
 Cohesion: 0.09
-Nodes (19): FollowerSnapshotUseCase, CurrentFollowersModel, CurrentFollowerState, FollowerHistoryPoint, GetFollowerHistoryUseCase, InsightsAvailability, InstagramOverview, MediaOverviewState (+11 more)
+Nodes (17): Entity, DateTimeOffset, IDomainEvent, string, AutomationFailures, InboxConversationRow, InboxMessageRow, InboxPage (+9 more)
+
+### Community 21 - ".InvokeAsync"
+Cohesion: 0.07
+Nodes (22): string, CorrelationContext, CorrelationIds, ICorrelationContext, HttpContext, Task, CorrelationContextAccessor, CorrelationMiddleware (+14 more)
+
+### Community 22 - "Task"
+Cohesion: 0.10
+Nodes (22): CancellationToken, Task, IPaymentGateway, PaymentInitialization, CheckoutResult, CreateCheckoutUseCase, IReadOnlyList, PaymentGatewayResolver (+14 more)
+
+### Community 23 - "BillingDbContext"
+Cohesion: 0.12
+Nodes (22): CancellationToken, DateTimeOffset, Guid, IReadOnlyList, List, ModelBuilder, Plan, string (+14 more)
+
+### Community 24 - "Qasedak.Modules.Identity.Application.Authentication"
+Cohesion: 0.07
+Nodes (21): RegisterUserUseCase, AssemblyMarker, int, string, IdentityAuthOptions, Pbkdf2PasswordHasher, CreateWorkspaceRequest, LoginRequest (+13 more)
+
+### Community 25 - "Task"
+Cohesion: 0.14
+Nodes (18): ConnectInstagramAccountUseCase, Connect, Disconnect, Fact, Jobs, States, string, Task (+10 more)
+
+### Community 26 - ".Create"
+Cohesion: 0.10
+Nodes (17): int, EmailAddress, Guid, User, Fact, InlineData, Theory, EmailAddressTests (+9 more)
+
+### Community 27 - "CancellationToken"
+Cohesion: 0.11
+Nodes (21): CancellationToken, ConnectedAccount, DateTimeOffset, Dictionary, Duplicate, Guid, IReadOnlyList, Item (+13 more)
+
+### Community 28 - "Migration"
+Cohesion: 0.08
+Nodes (12): InitialScheduledWorkCreation, AddPaymentProviderOrderId, InitialConversationsCreation, InitialIdentityCreation, InitialInstagramCreation, AddWebhookInbox, AddActiveRoutingIdentityIndex, AddConnectionEnrichment (+4 more)
+
+### Community 29 - "WebhookInboxTests"
+Cohesion: 0.09
+Nodes (19): CancellationToken, Task, IMetaWebhookIngester, MetaWebhookNotification, WebhookIngestionResult, CancellationToken, int, Task (+11 more)
+
+### Community 30 - "MetaWebhookVerificationTests"
+Cohesion: 0.10
+Nodes (16): WebhookSignatureFailure, WebhookSignatureResult, IWebhookSignatureVerifier, IWebhookSubscriptionValidator, WebhookSubscriptionFailure, WebhookSubscriptionResult, string, HmacWebhookSignatureVerifier (+8 more)
+
+### Community 31 - "ExactAccountRoutingTests"
+Cohesion: 0.15
+Nodes (18): AccessToken, AutomationRunRow, ChannelAccountId, CommentId, ConversationsDbContext, Fact, Guid, HttpClient (+10 more)
+
+### Community 32 - "Task"
+Cohesion: 0.14
+Nodes (18): CancellationToken, DateTimeOffset, Dictionary, Fact, Guid, IReadOnlyList, List, PaymentAttempt (+10 more)
+
+### Community 33 - "FeatureScreens.tsx"
+Cohesion: 0.08
+Nodes (11): RESPONSE_TYPES, INITIAL_SHOWCASES, SCENARIOS, INITIAL_FORMS, FEATURES, MATCH_OPTIONS, RESPONSE_TYPES, METHODS (+3 more)
+
+### Community 34 - "Qasedak.Modules.Automations.Infrastructure.Persistence.Migrations"
+Cohesion: 0.06
+Nodes (17): MigrationBuilder, ModelBuilder, InitialAutomationsCreation, InitialAutomationsCreation, MigrationBuilder, ModelBuilder, AddAutomationRuns, AddAutomationRuns (+9 more)
+
+### Community 35 - "IdentityDbContext"
+Cohesion: 0.13
+Nodes (11): string, IdentityDbContext, IdentityDbContextFactory, PostgreSqlContainer, string, Task, PostgreSqlFixture, PostgresTestEnvironment (+3 more)
+
+### Community 36 - "Task"
+Cohesion: 0.15
+Nodes (13): CancellationToken, ConnectedAccount, DateTimeOffset, Guid, IReadOnlyList, MediaKind, Task, TimeSpan (+5 more)
+
+### Community 37 - "Qasedak.Modules.Contacts.Application"
+Cohesion: 0.07
+Nodes (18): AssemblyMarker, ContactInteractionOutcome, AssemblyMarker, IConfiguration, IServiceCollection, DependencyInjection, CancellationToken, Exception (+10 more)
+
+### Community 38 - "RevealFlowCoordinatorTests"
+Cohesion: 0.21
+Nodes (6): CommentReferenceReadResult, Fact, FakeReferenceReader, Harness, RevealFlowCoordinatorTests, Harness
 
 ### Community 39 - "Task"
 Cohesion: 0.15
-Nodes (16): CancellationToken, ConnectedAccount, DateTimeOffset, Dictionary, Fact, Guid, IReadOnlyList, Task (+8 more)
+Nodes (15): CancellationToken, ConnectedAccount, DateTimeOffset, Dictionary, Fact, Guid, IReadOnlyList, Task (+7 more)
 
-### Community 40 - "Qasedak.Modules.Instagram.Infrastructure.Persistence"
-Cohesion: 0.08
-Nodes (13): IConfiguration, IServiceCollection, DependencyInjection, DateTimeOffset, Guid, OAuthStateRow, Qasedak.Modules.Instagram.Application.RevealFlow, Qasedak.Modules.Instagram.IntegrationTests (+5 more)
+### Community 40 - ".HandleAsync"
+Cohesion: 0.06
+Nodes (31): AuditRedaction, CancellationToken, DateTimeOffset, Guid, Task, AuditEntry, IAuditTrail, CancellationToken (+23 more)
 
-### Community 41 - ".ReadCreatedAtUtcAsync"
+### Community 41 - "IConnectedAccountRepository"
 Cohesion: 0.11
-Nodes (22): CancellationToken, Task, CommentReferenceReadResult, Found, ICommentReferenceReader, NotFound, Unavailable, CancellationToken (+14 more)
+Nodes (21): CancellationToken, ConnectedAccount, DateTimeOffset, Guid, IReadOnlyList, string, Task, AccountFailures (+13 more)
 
-### Community 42 - "MetaGraphTransportTests"
-Cohesion: 0.12
-Nodes (14): JsonDocument, JsonElement, MetaGraphErrorParser, CancellationToken, Fact, HttpResponseMessage, JsonDocument, Task (+6 more)
-
-### Community 43 - "Task"
-Cohesion: 0.16
-Nodes (15): CancellationToken, DateTimeOffset, Dictionary, Fact, Guid, IReadOnlyList, PaymentAttempt, Subscription (+7 more)
-
-### Community 44 - "Task"
+### Community 42 - "Task"
 Cohesion: 0.16
 Nodes (16): CancellationToken, ConnectedAccount, DateTimeOffset, Duplicate, Guid, IReadOnlyList, Item, List (+8 more)
 
-### Community 45 - "Automation"
+### Community 43 - "Automation"
 Cohesion: 0.12
 Nodes (17): AutomationDefinition, DateTimeOffset, Guid, int, IReadOnlyList, List, Automation, AutomationStatus (+9 more)
 
-### Community 46 - "Subscription"
-Cohesion: 0.14
-Nodes (11): DateTimeOffset, Guid, int, IReadOnlyList, List, Subscription, SubscriptionPeriod, SubscriptionStatus (+3 more)
-
-### Community 47 - "ContactEndpoints"
-Cohesion: 0.11
-Nodes (22): CancellationToken, Guid, Task, ContactDetailRow, ContactFilter, ContactListRow, ContactPage, IContactQueries (+14 more)
-
-### Community 48 - "CommentToPrivateReplyAutomationFlowTests"
+### Community 44 - "CommentToPrivateReplyAutomationFlowTests"
 Cohesion: 0.20
 Nodes (15): AccessToken, AutomationRunRow, CommentId, DateTimeOffset, Fact, Guid, HttpResponseMessage, List (+7 more)
 
-### Community 49 - "IdentityAuthorizationTests"
-Cohesion: 0.11
-Nodes (18): Fact, Task, CreatedWorkspace, IdentityAuthorizationTests, LoginResponse, MemberDto, MembersResponse, MeResponse (+10 more)
-
-### Community 50 - "scripts"
+### Community 45 - "scripts"
 Cohesion: 0.06
 Nodes (33): eslint, eslint-config-next, dependencies, next, react, react-dom, devDependencies, eslint (+25 more)
 
-### Community 51 - "Qasedak.Modules.Automations.Infrastructure.Persistence.Migrations"
-Cohesion: 0.07
-Nodes (15): MigrationBuilder, ModelBuilder, InitialAutomationsCreation, InitialAutomationsCreation, MigrationBuilder, ModelBuilder, AddAutomationRuns, AddAutomationRuns (+7 more)
+### Community 46 - "ContactEndpoints"
+Cohesion: 0.12
+Nodes (22): CancellationToken, Guid, Task, ContactDetailRow, ContactFilter, ContactListRow, ContactPage, IContactQueries (+14 more)
 
-### Community 52 - ".GetDetailAsync"
+### Community 47 - ".ExecuteAsync"
+Cohesion: 0.12
+Nodes (19): CancellationToken, Task, ContactInteractionEntry, IContactInteractionLedger, CancellationToken, Task, ContactInteractionProjection, CancellationToken (+11 more)
+
+### Community 48 - ".GetDetailAsync"
 Cohesion: 0.08
 Nodes (26): CancellationToken, ChannelAccountId, DateTimeOffset, Guid, InboxConversationRow, InboxFilter, InboxMessageRow, InboxPage (+18 more)
 
-### Community 53 - "User"
+### Community 49 - ".ExecuteAsync"
 Cohesion: 0.11
-Nodes (17): CancellationToken, Guid, Task, IUserRepository, Guid, int, string, AuthenticationFailures (+9 more)
+Nodes (23): IReadOnlyList, InsightMetricKey, InsightsFailureKind, MetricAvailability, MetricObservation, MediaKind, CancellationToken, Guid (+15 more)
 
-### Community 54 - "Task"
+### Community 50 - "IdentityAuthorizationTests"
+Cohesion: 0.12
+Nodes (17): Fact, Task, CreatedWorkspace, IdentityAuthorizationTests, LoginResponse, MemberDto, MembersResponse, MeResponse (+9 more)
+
+### Community 51 - "Task"
 Cohesion: 0.17
 Nodes (14): CancellationToken, ConnectedAccount, DateTimeOffset, Dictionary, Fact, Guid, IReadOnlyList, List (+6 more)
 
-### Community 55 - "instagram/insights.ts"
+### Community 52 - "GraphMediaCatalogClientTests"
+Cohesion: 0.23
+Nodes (8): Client, Fact, Func, Guid, List, string, Task, GraphMediaCatalogClientTests
+
+### Community 53 - "instagram/insights.ts"
 Cohesion: 0.09
 Nodes (29): AnalyticsAvailability, CurrentFollowersModel, CurrentFollowerState, FollowerHistoryPoint, FollowerProvenance, InsightMetricObservation, InstagramOverview, isSnapshotDate() (+21 more)
 
-### Community 56 - ".ParsePayload"
-Cohesion: 0.10
-Nodes (18): AccountId, DateOnly, DateTimeOffset, Guid, int, string, FollowerSnapshotPayloadBody, FollowerSnapshotPolicy (+10 more)
+### Community 54 - ".Create"
+Cohesion: 0.12
+Nodes (13): Guid, int, IReadOnlyList, List, Entitlement, Plan, DateTimeOffset, Fact (+5 more)
 
-### Community 57 - "Task"
-Cohesion: 0.15
-Nodes (14): CancellationToken, Guid, PrivateReplySendResult, Task, FakeBehpardakhtSoapClient, RecordingTokenStoreDecorator, BehpardakhtCodeResult, BehpardakhtPayRequest (+6 more)
-
-### Community 58 - "CancellationToken"
-Cohesion: 0.11
-Nodes (21): CancellationToken, CodeExchangeRequest, CodeExchangeResult, DateTimeOffset, Duplicate, Guid, IReadOnlyList, Item (+13 more)
-
-### Community 59 - "ScheduledWork.cs"
+### Community 55 - ".ParsePayload"
 Cohesion: 0.13
-Nodes (22): CancellationToken, DateTimeOffset, Duplicate, Guid, IReadOnlyList, Item, string, Task (+14 more)
+Nodes (14): AccountId, DateOnly, DateTimeOffset, Guid, int, string, FollowerSnapshotPayloadBody, FollowerSnapshotPolicy (+6 more)
 
-### Community 60 - ".Evaluate"
+### Community 56 - ".Evaluate"
 Cohesion: 0.18
 Nodes (10): IReadOnlyList, AutomationEvaluator, RuleEvaluation, TriggerContext, AutomationCondition, DateTimeOffset, Fact, InlineData (+2 more)
 
-### Community 61 - ".Create"
+### Community 57 - ".Classify"
 Cohesion: 0.11
-Nodes (13): Fact, InlineData, Theory, EmailAddressTests, Fact, InlineData, string, Theory (+5 more)
+Nodes (9): HashSet, BehpardakhtCodeClass, BehpardakhtResponseCodes, InlineData, Theory, BehpardakhtResponseCodeTests, BehpardakhtSoapClientParsingTests, Name (+1 more)
 
-### Community 62 - ".SendDirectAsync"
+### Community 58 - "FollowStateResult"
+Cohesion: 0.07
+Nodes (33): CancellationToken, Task, FollowGatePolicy, FollowStateResult, IInstagramRelationshipClient, Verdict, string, FollowGateMode (+25 more)
+
+### Community 59 - ".SendDirectAsync"
 Cohesion: 0.22
 Nodes (9): CancellationToken, Task, Fact, InlineData, string, Task, Theory, GraphInstagramMessagingClientTests (+1 more)
 
-### Community 63 - "ApiPostgreSqlFixture"
-Cohesion: 0.13
-Nodes (25): AccountProfileOutcome, AfterCursor, AuditEntryRow, AccessToken, CommentId, CommentReferenceReadResult, Func, List (+17 more)
+### Community 60 - "AuthoringMessageBoundaryTests"
+Cohesion: 0.17
+Nodes (7): ActionKind, AutomationDefinition, Fact, InlineData, string, Theory, AuthoringMessageBoundaryTests
 
-### Community 64 - "AutomationEndpoints"
-Cohesion: 0.08
-Nodes (22): AuthorizeAttribute, AutomationResponse, AutomationsDomainException, Automation, ActionExtrasResponse, ActionRequest, ActionResponse, AutomationEndpoints (+14 more)
+### Community 61 - "ScheduledWork.cs"
+Cohesion: 0.14
+Nodes (21): CancellationToken, DateTimeOffset, Duplicate, Guid, IReadOnlyList, Item, string, Task (+13 more)
 
-### Community 65 - ".ExecuteAsync"
+### Community 62 - ".ExecuteAsync"
 Cohesion: 0.28
 Nodes (4): Fact, string, Task, ExecuteAutomationTests
 
-### Community 66 - ".Create"
-Cohesion: 0.13
-Nodes (13): Guid, int, IReadOnlyList, List, Entitlement, Plan, DateTimeOffset, Fact (+5 more)
+### Community 63 - "RecordingInstagramMessagingClient"
+Cohesion: 0.14
+Nodes (15): AccessToken, CommentId, Content, InstagramMessageContent, MessagingSendResult, PrivateReplySendResult, ProviderAccountId, Text (+7 more)
 
-### Community 67 - ".ExecuteAsync"
-Cohesion: 0.18
-Nodes (13): CancellationToken, Guid, Task, SendReplyCommand, SendReplyResult, CancellationToken, DateTimeOffset, Fact (+5 more)
+### Community 64 - "BillingEndpointTests"
+Cohesion: 0.28
+Nodes (5): Fact, Guid, HttpClient, Task, BillingEndpointTests
 
-### Community 68 - "Task"
+### Community 65 - "Task"
 Cohesion: 0.17
 Nodes (14): CancellationToken, CodeExchangeRequest, CodeExchangeResult, ConnectedAccount, Dictionary, Guid, IReadOnlyList, LongLivedTokenResult (+6 more)
 
-### Community 69 - ".ConnectedAccountAsync"
-Cohesion: 0.23
-Nodes (12): AccountId, Client, Fact, Guid, HttpClient, string, Task, LoginResponse (+4 more)
+### Community 66 - ".ConnectedAccountAsync"
+Cohesion: 0.29
+Nodes (9): AccountId, Client, Fact, Guid, HttpClient, string, Task, LoginResponse (+1 more)
 
-### Community 70 - "AutomationDefinition"
-Cohesion: 0.10
-Nodes (17): ActionExtrasResponse, ActionRequest, int, IReadOnlyList, TimeSpan, ActionExtras, AutomationAction, AutomationDefinition (+9 more)
-
-### Community 71 - ".NewSut"
+### Community 67 - ".NewSut"
 Cohesion: 0.16
 Nodes (13): Authenticate, Fact, InlineData, string, Task, Theory, AuthenticationUseCaseTests, CancellationToken (+5 more)
 
-### Community 72 - ".ExecuteAsync"
-Cohesion: 0.13
-Nodes (18): CancellationToken, Exception, Task, ContactInteractionOutcome, ContactInteractionProjection, ProjectContactInteractionUseCase, CancellationToken, DateTimeOffset (+10 more)
+### Community 68 - "InlineData"
+Cohesion: 0.12
+Nodes (13): DateTimeOffset, string, ScheduledWorkBackoff, ScheduledWorkOptions, ScheduledWorkPayloadGuard, MetaGraphClassifier, MetaGraphError, MetaGraphFailure (+5 more)
 
-### Community 73 - ".OnPostbackAsync"
-Cohesion: 0.24
-Nodes (10): IRevealFlowObservability, RevealFlowOutcome, CancellationToken, Guid, MessagingSendResult, Task, TimeSpan, RevealFlowCoordinator (+2 more)
+### Community 69 - ".Classify"
+Cohesion: 0.10
+Nodes (15): string, MetaGraphOptions, MetaGraphUris, CancellationToken, string, Task, GraphInstagramTokenInspector, Fact (+7 more)
 
-### Community 75 - "Qasedak.Modules.Identity.Application.Workspaces"
+### Community 70 - "Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations"
+Cohesion: 0.07
+Nodes (15): ModelBuilder, InitialInstagramCreation, ModelBuilder, AddWebhookInbox, ModelBuilder, AddActiveRoutingIdentityIndex, ModelBuilder, AddConnectionEnrichment (+7 more)
+
+### Community 71 - ".NewClient"
+Cohesion: 0.21
+Nodes (11): Client, DateOnly, Fact, Func, InlineData, List, MediaKind, string (+3 more)
+
+### Community 72 - "HmacSecurityTokenIssuer"
+Cohesion: 0.10
+Nodes (16): AuthenticateResult, AuthenticationHandler, AuthenticationSchemeOptions, Guid, ISecurityTokenIssuer, SecurityToken, TokenValidationResult, Guid (+8 more)
+
+### Community 73 - "Qasedak.Modules.Identity.Application.Workspaces"
 Cohesion: 0.08
 Nodes (20): AuthorizationHandler, AuthorizationHandlerContext, CancellationToken, Guid, Task, IWorkspaceAccessChecker, IConfiguration, IServiceCollection (+12 more)
 
-### Community 76 - ".ActivateAsync"
-Cohesion: 0.17
-Nodes (14): CancellationToken, DateTimeOffset, Guid, Task, ResolveWorkspaceEntitlementsUseCase, StartSubscriptionUseCase, WorkspaceEntitlements, CancellationToken (+6 more)
+### Community 74 - ".Create"
+Cohesion: 0.18
+Nodes (8): DateTimeOffset, Fact, Guid, Task, PaymentPersistenceTests, DateTimeOffset, Fact, PaymentAttemptTests
 
-### Community 77 - "Contact"
+### Community 75 - "Contact"
 Cohesion: 0.14
 Nodes (11): DateTimeOffset, Guid, int, IReadOnlyList, List, Contact, ContactNote, DateTimeOffset (+3 more)
 
-### Community 78 - "Qasedak.Modules.Contacts.Infrastructure.Persistence.Migrations"
+### Community 76 - "Qasedak.Modules.Contacts.Infrastructure.Persistence.Migrations"
 Cohesion: 0.08
 Nodes (13): MigrationBuilder, ModelBuilder, InitialContactsCreation, InitialContactsCreation, MigrationBuilder, ModelBuilder, AddContactInteractions, AddContactInteractions (+5 more)
 
-### Community 79 - ".ExecuteAsync"
-Cohesion: 0.13
-Nodes (20): MetricAvailability, MetricObservation, MediaKind, CancellationToken, Guid, Insights, IReadOnlyList, Item (+12 more)
+### Community 77 - "OverviewEndpointTests"
+Cohesion: 0.20
+Nodes (13): AccountId, Client, DateOnly, Fact, Guid, HttpClient, string, Task (+5 more)
 
-### Community 80 - "GraphInstagramMessagingClient"
+### Community 78 - "GraphInstagramMessagingClient"
 Cohesion: 0.09
 Nodes (17): IMessageSendObservability, InstagramMessageButton, Postback, WebUrl, string, Attachment, ButtonPayload, ButtonTemplatePayload (+9 more)
 
-### Community 81 - "FollowStateResult"
-Cohesion: 0.12
-Nodes (15): CancellationToken, Task, FollowGatePolicy, FollowStateResult, IInstagramRelationshipClient, Verdict, CancellationToken, string (+7 more)
-
-### Community 82 - "AuthoringMessageBoundaryTests"
-Cohesion: 0.17
-Nodes (5): Fact, InlineData, string, Theory, AuthoringMessageBoundaryTests
-
-### Community 83 - "Task"
+### Community 79 - "Task"
 Cohesion: 0.17
 Nodes (11): CancellationToken, DateTimeOffset, Fact, Guid, IReadOnlyList, Task, EntitlementGateTests, FakePlans (+3 more)
 
-### Community 84 - "colorExtended"
+### Community 80 - "HttpResponseMessage"
+Cohesion: 0.11
+Nodes (19): CancellationToken, FakeHandler, CancellationToken, HttpResponseMessage, HangingHandler, ScriptedInspectorHandler, ThrowingTransportHandler, CancellationToken (+11 more)
+
+### Community 81 - ".NewClient"
+Cohesion: 0.16
+Nodes (12): CancellationToken, Fact, HttpRequestMessage, HttpResponseMessage, string, Task, GraphInstagramOAuthClientTests, InstagramAuthorizationUrlBuilderTests (+4 more)
+
+### Community 82 - "colorExtended"
 Cohesion: 0.07
 Nodes (28): accentSoft, accentSofter, accentViolet, borderInput, dashboardDangerBorder, dashboardDangerSurface, dashboardQuickHelp, dashboardQuickInbox (+20 more)
 
-### Community 85 - "billing/presentation.ts"
+### Community 83 - "billing/presentation.ts"
 Cohesion: 0.10
 Nodes (17): CheckoutInner(), featureLimitLabel(), formatIrr(), PERSIAN_DIGITS, providerLabel(), ResultPresentation, ResultState, toPersianDigits() (+9 more)
 
-### Community 86 - "Feedback.tsx"
+### Community 84 - "Feedback.tsx"
 Cohesion: 0.12
 Nodes (6): SubscriptionScreen(), CapabilityScreen(), Card(), Skeleton(), StatusBadge(), PageHeader()
 
-### Community 87 - "compilerOptions"
+### Community 85 - "compilerOptions"
 Cohesion: 0.07
 Nodes (27): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+19 more)
 
-### Community 88 - "GraphInstagramOAuthClient"
+### Community 86 - "AutomationEndpoints"
+Cohesion: 0.09
+Nodes (20): ActionExtrasResponse, ActionRequest, AutomationResponse, AutomationsDomainException, ActionExtras, Automation, ActionExtrasResponse, ActionRequest (+12 more)
+
+### Community 87 - "GraphInstagramOAuthClient"
 Cohesion: 0.15
 Nodes (14): AuthorizationUrl, AuthorizationUrlRequest, CancellationToken, string, Task, GraphInstagramOAuthClient, InstagramAuthorizationUrlBuilder, MetaOAuthOptions (+6 more)
 
-### Community 89 - "AutomationFollowUpLedgerTests"
-Cohesion: 0.18
-Nodes (16): Automation, AutomationChannelDispatcher, ActionDispatch, ActionResult, CancellationToken, DateTimeOffset, Fact, Guid (+8 more)
-
-### Community 90 - "PaymentAttempt"
-Cohesion: 0.14
-Nodes (12): DateTimeOffset, Guid, int, string, PaymentAttempt, PaymentAttemptStatus, PaymentFailures, Dictionary (+4 more)
-
-### Community 91 - "OverviewEndpointTests"
-Cohesion: 0.26
-Nodes (10): AccountId, Client, DateOnly, Fact, Guid, HttpClient, string, Task (+2 more)
-
-### Community 92 - "Task"
-Cohesion: 0.20
-Nodes (13): Connect, Disconnect, Fact, Jobs, States, Task, TokenInspection, InstagramPersistenceTests (+5 more)
-
-### Community 93 - "session.ts"
+### Community 88 - "session.ts"
 Cohesion: 0.17
 Nodes (19): mutationOriginIsSafe(), proxy(), LoginResponse, POST(), POST(), LoginResponse, POST(), registrationMessages (+11 more)
 
-### Community 94 - "Conversation"
-Cohesion: 0.15
-Nodes (15): ChannelAccountId, DateTimeOffset, Guid, int, IReadOnlyList, List, Conversation, MessageState (+7 more)
+### Community 89 - "RevealFlowMetrics"
+Cohesion: 0.09
+Nodes (13): Action, IInsightsObservability, string, InsightsMetrics, string, MessageSendMetrics, string, RevealFlowMetrics (+5 more)
 
-### Community 95 - ".Classify"
-Cohesion: 0.14
-Nodes (7): HashSet, BehpardakhtCodeClass, BehpardakhtResponseCodes, InlineData, Theory, BehpardakhtResponseCodeTests, BehpardakhtSoapClientParsingTests
+### Community 90 - ".ExecuteSlotsAsync"
+Cohesion: 0.10
+Nodes (16): AutomationActionExecution, AutomationRunStatus, AutomationRun, CancellationToken, IReadOnlyList, Task, ExecuteAutomationUseCase, ExecutionOutcome (+8 more)
 
-### Community 96 - ".ExecuteAsync"
+### Community 91 - "ConversationsDbContext"
+Cohesion: 0.09
+Nodes (19): AuditDbContextFactory, DbSet, ModelBuilder, string, AuditDbContext, ModelBuilder, string, ScheduledWorkDbContext (+11 more)
+
+### Community 92 - "BillingDbContext.cs"
+Cohesion: 0.17
+Nodes (12): CheckoutRequest, LoginResponse, Qasedak.Modules.Billing.Application, Qasedak.Modules.Billing.Domain, Qasedak.Modules.Billing.Infrastructure.Payments, Qasedak.Modules.Billing.Infrastructure, Qasedak.Modules.Billing.Domain.Payments, Qasedak.Modules.Billing.Infrastructure.Endpoints (+4 more)
+
+### Community 93 - ".ExecuteAsync"
+Cohesion: 0.21
+Nodes (12): CancellationToken, Guid, string, Task, ReplyFailures, SendReplyCommand, SendReplyResult, SendReplyUseCase (+4 more)
+
+### Community 94 - ".HandleAsync"
+Cohesion: 0.12
+Nodes (14): CancellationToken, Guid, Task, IUserRepository, Guid, int, string, AuthenticationFailures (+6 more)
+
+### Community 95 - ".ExecuteAsync"
 Cohesion: 0.13
 Nodes (15): CancellationToken, Guid, Task, IWorkspaceRepository, CancellationToken, Guid, string, Task (+7 more)
 
-### Community 97 - ".Evaluate"
-Cohesion: 0.18
-Nodes (7): PrivateReplyPolicy, PrivateReplyPolicyInput, PrivateReplyPolicyOutcome, PrivateReplyPolicyVerdict, DateTimeOffset, Fact, PrivateReplyPolicyTests
+### Community 96 - ".UserAndCredentialRoundTripThroughRepository"
+Cohesion: 0.23
+Nodes (9): CancellationToken, Guid, Task, EfUserRepository, EfWorkspaceRepository, UserCredentials, Fact, Task (+1 more)
 
-### Community 98 - "GraphSubscriptionClient"
-Cohesion: 0.11
-Nodes (17): CancellationToken, IReadOnlyList, string, Task, InstagramSubscriptionFields, ISubscriptionClient, SubscriptionFailures, SubscriptionResult (+9 more)
+### Community 97 - "FollowerSnapshotRecord"
+Cohesion: 0.13
+Nodes (17): CancellationToken, DateOnly, Guid, Task, FollowerSnapshotProvenance, FollowerSnapshotRecord, IFollowerSnapshotStore, CancellationToken (+9 more)
+
+### Community 98 - ".ReadCreatedAtUtcAsync"
+Cohesion: 0.17
+Nodes (15): CancellationToken, JsonDocument, MetaGraphOptions, MetaGraphTransport, string, Task, GraphCommentReferenceReader, Client (+7 more)
 
 ### Community 99 - "InteractiveWebhookEndpointTests"
 Cohesion: 0.29
 Nodes (9): Fact, Func, Guid, HttpResponseMessage, List, long, string, Task (+1 more)
 
-### Community 100 - "AutomationsDbContext"
-Cohesion: 0.13
-Nodes (20): AutomationStatus, ChannelAccountId, DateTimeOffset, DbSet, Guid, List, ModelBuilder, string (+12 more)
+### Community 100 - "LoggerMessage"
+Cohesion: 0.15
+Nodes (11): Guid, Log, CancellationToken, Guid, ScheduledWorkItem, Task, WorkOutcome, TokenRefreshScheduledHandler (+3 more)
 
-### Community 101 - "Qasedak.BuildingBlocks.Infrastructure.Scheduling"
-Cohesion: 0.11
-Nodes (15): DateTimeOffset, Guid, ModelBuilder, string, ScheduledWorkDbContext, ScheduledWorkRow, ScheduledWorkDbContextFactory, PostgreSqlContainer (+7 more)
+### Community 101 - "GraphSubscriptionClient"
+Cohesion: 0.12
+Nodes (16): CancellationToken, IReadOnlyList, string, Task, InstagramSubscriptionFields, ISubscriptionClient, SubscriptionFailures, SubscriptionResult (+8 more)
 
-### Community 102 - "BehpardakhtMellatPaymentGateway"
-Cohesion: 0.18
-Nodes (9): PaymentVerificationResult, VerifyPaymentRequest, Guid, string, BehpardakhtMellatPaymentGateway, BehpardakhtOptions, List, Queue (+1 more)
+### Community 102 - "MetaGraphTransportTests"
+Cohesion: 0.17
+Nodes (7): JsonDocument, JsonElement, MetaGraphErrorParser, Fact, JsonDocument, Task, MetaGraphTransportTests
 
-### Community 103 - "IConnectedAccountRepository"
-Cohesion: 0.19
-Nodes (12): CancellationToken, ConnectedAccount, DateTimeOffset, Guid, IReadOnlyList, string, Task, AccountFailures (+4 more)
-
-### Community 104 - "InboundAccountResolutionTests"
+### Community 103 - "InboundAccountResolutionTests"
 Cohesion: 0.19
 Nodes (11): AutomationRunRow, ChannelAccountId, ConversationsDbContext, Fact, Guid, HttpClient, HttpResponseMessage, string (+3 more)
 
-### Community 105 - "ZarinpalPaymentGateway"
-Cohesion: 0.13
-Nodes (12): string, ZarinpalOptions, CancellationToken, Guid, string, Task, Log, ZarinpalEnvelope (+4 more)
+### Community 104 - "EfContactRepository"
+Cohesion: 0.16
+Nodes (12): Exception, ProjectContactInteractionUseCase, CancellationToken, Guid, IReadOnlyList, Task, EfContactRepository, DateTimeOffset (+4 more)
 
-### Community 106 - "IdentityDbContext"
-Cohesion: 0.07
-Nodes (19): int, WorkspaceName, UserCredentials, ModelBuilder, string, IdentityDbContext, IdentityDbContextFactory, PostgreSqlContainer (+11 more)
-
-### Community 107 - ".NewSut"
+### Community 105 - ".NewSut"
 Cohesion: 0.21
 Nodes (11): DateOnly, Dictionary, Fact, Handler, Insights, Jobs, Tokens, FollowerSnapshotScheduledHandlerTests (+3 more)
 
-### Community 108 - ".Validate"
+### Community 106 - ".Validate"
 Cohesion: 0.24
 Nodes (5): Fact, InlineData, Theory, MessageValidationPolicyTests, ButtonTemplate
 
-### Community 109 - ".Classify"
-Cohesion: 0.13
-Nodes (13): string, MetaGraphOptions, CancellationToken, string, Task, GraphInstagramTokenInspector, Fact, InlineData (+5 more)
+### Community 107 - "IAsyncLifetime"
+Cohesion: 0.11
+Nodes (17): PostgreSqlContainer, string, Task, PostgreSqlFixture, PostgresTestEnvironment, PostgreSqlContainer, string, Task (+9 more)
 
-### Community 110 - "AutomationAggregateTests"
+### Community 108 - "AutomationAggregateTests"
 Cohesion: 0.20
 Nodes (7): Automation, DateTimeOffset, Fact, InlineData, string, Theory, AutomationAggregateTests
 
-### Community 111 - "Qasedak.Modules.Billing.Infrastructure.Persistence.Migrations"
-Cohesion: 0.09
-Nodes (10): MigrationBuilder, ModelBuilder, InitialBillingCreation, InitialBillingCreation, ModelBuilder, AddPaymentsAndPlanPrices, ModelBuilder, AddPaymentProviderOrderId (+2 more)
+### Community 109 - "Exception"
+Cohesion: 0.10
+Nodes (15): AutomationsDomainException, PaymentGatewayUnavailableException, PaymentProviderDisabledException, PaymentProviderUnknownException, PaymentRequestRejectedException, PaymentVerificationOutcome, PaymentConcurrencyException, BillingDomainException (+7 more)
 
-### Community 112 - "EfContactRepository"
-Cohesion: 0.21
-Nodes (10): CancellationToken, Guid, IReadOnlyList, Task, EfContactRepository, DateTimeOffset, Fact, Guid (+2 more)
-
-### Community 113 - "IRevealFlowStore"
-Cohesion: 0.32
-Nodes (6): CancellationToken, DateTimeOffset, Guid, IReadOnlyList, Task, IRevealFlowStore
-
-### Community 114 - "IWebhookInboxStore"
-Cohesion: 0.17
-Nodes (11): CancellationToken, DateTimeOffset, IReadOnlyList, Task, InboxEntryRecord, IWebhookInboxStore, CancellationToken, DateTimeOffset (+3 more)
-
-### Community 115 - "Task"
+### Community 110 - ".Create"
 Cohesion: 0.22
-Nodes (10): AccountResolution, CancellationToken, ConnectedAccount, DateTimeOffset, Fact, Guid, IReadOnlyList, Task (+2 more)
+Nodes (6): ActionKind, AutomationTrigger, Fact, InlineData, Theory, AutomationDefinitionValidationTests
 
-### Community 116 - "RevealFlowMetrics"
-Cohesion: 0.11
-Nodes (11): Action, IInsightsObservability, string, InsightsMetrics, string, MessageSendMetrics, string, RevealFlowMetrics (+3 more)
-
-### Community 117 - "FakeRunRepository"
-Cohesion: 0.18
-Nodes (13): AutomationId, Automation, AutomationActionStatus, CancellationToken, ChannelAccountId, DateTimeOffset, Dictionary, Guid (+5 more)
-
-### Community 118 - "AccountResolution"
-Cohesion: 0.23
-Nodes (8): AccountResolution, CancellationToken, ConnectedAccount, DateTimeOffset, Guid, IReadOnlyList, Task, EfConnectedAccountRepository
-
-### Community 119 - "GraphAccountProfileClient"
-Cohesion: 0.12
-Nodes (16): CancellationToken, string, Task, AccountProfileOutcome, IAccountProfileClient, IdentityMismatch, InstagramAccountProfile, Ok (+8 more)
-
-### Community 120 - "IIntegrationEventDispatcher"
-Cohesion: 0.13
-Nodes (13): InstagramCommentCreated, CancellationToken, Task, FanOutIntegrationEventDispatcher, CancellationToken, Task, IRevealFlowStartContentProvider, NoRevealFlowStartProvider (+5 more)
-
-### Community 121 - "RevealFlowWebhookFlowTests"
-Cohesion: 0.28
-Nodes (9): DateTimeOffset, Fact, Guid, HttpResponseMessage, string, Task, RevealFlowWebhookFlowTests, Seeded (+1 more)
-
-### Community 122 - "Task"
-Cohesion: 0.19
-Nodes (11): CancellationToken, DateTimeOffset, Fact, Guid, IReadOnlyList, List, Task, ActivateAutomationUseCaseTests (+3 more)
-
-### Community 123 - "rehearse_deployment.py"
-Cohesion: 0.22
-Nodes (20): Path, api_env(), command(), docker(), login_existing(), main(), public_api_request(), CompletedProcess (+12 more)
-
-### Community 124 - "EfScheduledWorkStore"
-Cohesion: 0.22
-Nodes (12): CancellationToken, DateTimeOffset, Guid, ScheduledWorkEnqueue, ScheduledWorkItem, Task, TimeSpan, WorkOutcome (+4 more)
-
-### Community 125 - "AutomationRun"
-Cohesion: 0.22
-Nodes (9): Automation, DateTimeOffset, Guid, IReadOnlyList, List, AutomationActionExecution, AutomationActionStatus, AutomationRun (+1 more)
-
-### Community 126 - ".ContainsWholeWord"
-Cohesion: 0.21
-Nodes (6): WholeWordMatcher, Fact, InlineData, Theory, WholeWordMatcherTests, UnicodeCategory
-
-### Community 127 - "ProtectedTokenStore"
-Cohesion: 0.16
-Nodes (9): ITokenProtector, CancellationToken, Guid, Task, ProtectedTokenStore, string, AesGcmTokenProtector, TokenProtectionOptions (+1 more)
-
-### Community 128 - "InstagramEffectType"
-Cohesion: 0.20
-Nodes (4): InstagramEffectType, ICommentEffectObservability, string, CommentEffectMetrics
-
-### Community 129 - "ProcessPendingWebhookEventsTests"
-Cohesion: 0.28
-Nodes (8): Guid, Fact, Guid, Task, ProcessPendingWebhookEventsTests, RecordingDispatcher, RecordingInbox, RecordingObservability
-
-### Community 130 - "Qasedak.Modules.Instagram.Application.Effects"
-Cohesion: 0.18
-Nodes (6): MetaGraphUris, Qasedak.Modules.Instagram.UnitTests.Effects, Qasedak.Modules.Instagram.Infrastructure.Effects, Qasedak.Modules.Instagram.Infrastructure.Graph, Qasedak.Modules.Instagram.Application.Effects, Uri
-
-### Community 131 - ".SendPublicReplyAsync"
-Cohesion: 0.24
-Nodes (10): CancellationToken, Task, Client, Fact, Handler, HttpResponseMessage, ScriptedHttpHandler, string (+2 more)
-
-### Community 132 - ".Decode"
-Cohesion: 0.24
-Nodes (6): Guid, CursorEnvelope, MediaCatalogCursorCodec, Fact, Guid, MediaCatalogCursorCodecTests
-
-### Community 133 - "Qasedak.BuildingBlocks.Application.Scheduling"
-Cohesion: 0.11
-Nodes (12): DateTimeOffset, string, ScheduledWorkBackoff, ScheduledWorkOptions, ScheduledWorkPayloadGuard, ScheduledWorkServiceCollectionExtensions, IConfiguration, DependencyInjection (+4 more)
-
-### Community 134 - "InlineData"
-Cohesion: 0.21
-Nodes (7): MetaGraphClassifier, MetaGraphError, MetaGraphFailure, ScheduledWorkPolicyTests, InlineData, Task, Theory
-
-### Community 135 - "ModelSnapshot"
-Cohesion: 0.08
-Nodes (13): ModelBuilder, AuditDbContextModelSnapshot, ModelBuilder, ScheduledWorkDbContextModelSnapshot, ModelBuilder, AutomationsDbContextModelSnapshot, ModelBuilder, BillingDbContextModelSnapshot (+5 more)
-
-### Community 136 - "InsightMetricKey"
-Cohesion: 0.20
-Nodes (7): InsightMetricKey, IReadOnlyList, MediaKind, InsightMetricRegistry, MediaKind, Fact, InsightMetricRegistryTests
-
-### Community 137 - "GraphInstagramInsightsClient"
-Cohesion: 0.20
-Nodes (11): CancellationToken, DateOnly, Func, IReadOnlyList, List, MediaKind, string, Task (+3 more)
-
-### Community 138 - "ConnectionEnrichmentEndpointTests"
-Cohesion: 0.31
-Nodes (10): Fact, Guid, HttpClient, HttpResponseMessage, string, Task, ConnectionEnrichmentEndpointTests, LoginResponse (+2 more)
-
-### Community 139 - "ContactEndpointTests"
-Cohesion: 0.21
-Nodes (11): DateTimeOffset, Fact, Guid, HttpClient, HttpResponseMessage, string, Task, ContactEndpointTests (+3 more)
-
-### Community 140 - "ScheduledWorkStoreTests"
-Cohesion: 0.37
-Nodes (4): DateTimeOffset, Fact, Task, ScheduledWorkStoreTests
-
-### Community 141 - "RefreshInstagramTokenTests"
-Cohesion: 0.25
-Nodes (8): DateTimeOffset, Fact, InlineData, Theory, RefreshInstagramTokenTests, FakeRepository, FakeTokenStore, RefreshInstagramTokenUseCase
-
-### Community 142 - "TokenRefreshScheduledHandlerTests"
-Cohesion: 0.21
-Nodes (10): Dictionary, Fact, Handler, Jobs, TokenRefreshScheduledHandlerTests, Qasedak.Modules.Instagram.UnitTests.Refresh, FakeInspector, FakeOAuthClient (+2 more)
-
-### Community 143 - "RecordingMessagingClient"
-Cohesion: 0.11
-Nodes (14): AccessToken, CommentId, Content, InstagramMessageContent, List, MessagingSendResult, ProviderAccountId, Text (+6 more)
-
-### Community 144 - "Button.tsx"
-Cohesion: 0.15
-Nodes (9): FormErrors, WorkspaceOnboarding(), Button(), ButtonLink(), ButtonProps, ButtonVariant, variantClass, StatusAlert() (+1 more)
-
-### Community 145 - "ConnectedAccount"
-Cohesion: 0.24
-Nodes (8): AccountHealth, DateTimeOffset, Guid, IReadOnlyList, List, SubscriptionHealth, ConnectedAccount, ConnectionPath
-
-### Community 146 - ".Create"
-Cohesion: 0.26
-Nodes (4): DateTimeOffset, Fact, Guid, ContactAggregateTests
-
-### Community 147 - "Qasedak.Modules.Conversations.Infrastructure.Persistence.Migrations"
-Cohesion: 0.11
-Nodes (9): ModelBuilder, InitialConversationsCreation, MigrationBuilder, ModelBuilder, AddChannelAccountId, AddChannelAccountId, ModelBuilder, ConversationsDbContextModelSnapshot (+1 more)
-
-### Community 148 - "InsightContracts.cs"
-Cohesion: 0.18
-Nodes (13): CancellationToken, DateOnly, MediaKind, Task, AccountInsightsResult, Failed, FollowerCountResult, IInstagramInsightsClient (+5 more)
-
-### Community 149 - "InstagramMessageContent"
-Cohesion: 0.19
-Nodes (10): ButtonTemplate, InstagramMessageContent, PlainText, CancellationToken, Task, IInstagramMessagingClient, MessagingFailure, MessagingFailureReason (+2 more)
-
-### Community 150 - "MetaOAuthPorts.cs"
-Cohesion: 0.18
-Nodes (10): CancellationToken, Task, CodeExchangeRequest, CodeExchangeResult, CodeExchangeSuccess, IMetaOAuthClient, LongLivedToken, LongLivedTokenResult (+2 more)
-
-### Community 151 - "MetaGraphCallResult"
-Cohesion: 0.22
-Nodes (12): CancellationToken, HttpRequestMessage, HttpResponseMessage, JsonDocument, Task, MetaGraphCallResult, MetaGraphTransport, Rejected (+4 more)
-
-### Community 152 - "health.ts"
-Cohesion: 0.19
-Nodes (11): InstagramConnectionPage(), AccountHealth, ConnectionState, describeConnectionFailure(), describeSubscriptionHealth(), FAILURE_COPY, HEALTH_PRESENTATION, healthPresentation() (+3 more)
-
-### Community 153 - ".ExecuteAsync"
-Cohesion: 0.20
-Nodes (10): CancellationToken, Guid, Task, IConversationRepository, CancellationToken, Guid, Task, InboundMessageProjection (+2 more)
-
-### Community 154 - ".MapFailureAsync"
-Cohesion: 0.15
-Nodes (13): CancellationToken, DateTimeOffset, Guid, MetaOAuthFailureReason, Task, Permanent, RefreshInstagramTokenUseCase, Retryable (+5 more)
-
-### Community 155 - ".Create"
-Cohesion: 0.19
-Nodes (9): int, string, CreatedToken, RevealCorrelation, Fact, InlineData, Theory, RevealCorrelationTests (+1 more)
-
-### Community 156 - "InstagramDbContext"
-Cohesion: 0.12
-Nodes (13): CommentEffectRow, ConnectedAccount, DbSet, Guid, ModelBuilder, string, InstagramDbContext, StoredAccountToken (+5 more)
-
-### Community 157 - "ConversationInboxEndpointTests"
-Cohesion: 0.24
-Nodes (10): Fact, Guid, HttpClient, Task, ConversationInboxEndpointTests, InboxDetailResponse, InboxItem, InboxMessage (+2 more)
-
-### Community 158 - "ActivateAutomationUseCase.cs"
-Cohesion: 0.12
-Nodes (11): IAutomationActivationPolicy, IConfiguration, IServiceCollection, DependencyInjection, CancellationToken, Guid, Task, PermissiveActivationPolicy (+3 more)
-
-### Community 159 - "ActionResult"
-Cohesion: 0.18
-Nodes (7): ActionDispatch, ActionResult, IAutomationActionDispatcher, CancellationToken, RecordingDispatcher, List, FakeDispatcher
-
-### Community 160 - ".EvaluateAsync"
-Cohesion: 0.13
-Nodes (14): CancellationToken, ChannelAccountId, DateTimeOffset, Guid, Task, DirectEligibility, IDirectEligibilityPort, CancellationToken (+6 more)
-
-### Community 161 - "ConversationsDbContext"
-Cohesion: 0.18
-Nodes (9): DbSet, ModelBuilder, string, ValueConverter, ConversationsDbContext, ConversationsDbContextFactory, Fact, Task (+1 more)
-
-### Community 162 - ".ExecuteAsync"
-Cohesion: 0.17
-Nodes (10): CancellationToken, Guid, IReadOnlyList, Task, ConnectAccountResult, ConnectInstagramAccountCommand, DisconnectAccountResult, DisconnectInstagramAccountUseCase (+2 more)
-
-### Community 163 - "GraphCommentPublicReplyClient"
-Cohesion: 0.15
-Nodes (11): CancellationToken, Task, ICommentPublicReplyClient, PublicReplyFailure, PublicReplyFailureReason, PublicReplySendResult, JsonDocument, MetaGraphOptions (+3 more)
-
-### Community 164 - ".ProcessPendingAsync"
-Cohesion: 0.15
-Nodes (6): IWebhookNormalizationObservability, CancellationToken, Task, ProcessPendingWebhookEventsUseCase, WebhookProcessingSummary, RecordingObservability
-
-### Community 165 - ".MapMediaEndpoints"
-Cohesion: 0.15
-Nodes (8): ConnectionsFailureMapper, MediaEndpointLogs, MediaEndpoints, Fact, InlineData, Theory, ConnectionsFailureMapperTests, Qasedak.Modules.Instagram.Infrastructure.Endpoints
-
-### Community 166 - "WebhookToContactProjectionTests"
-Cohesion: 0.21
-Nodes (8): DateTimeOffset, Fact, Guid, HttpResponseMessage, string, Task, WebhookToContactProjectionTests, ContactsDbContext
-
-### Community 167 - "CancellationToken"
-Cohesion: 0.18
-Nodes (11): CancellationToken, DateTimeOffset, Dictionary, Func, IReadOnlyList, List, FakeResolver, RecordingDispatcher (+3 more)
-
-### Community 168 - ".HandleAsync"
-Cohesion: 0.19
-Nodes (10): DateTimeOffset, Guid, CancellationToken, Task, AuthenticateUserCommand, AuthenticateUserResult, AuthenticateUserUseCase, Lazy (+2 more)
-
-### Community 169 - ".DispatchAsync"
-Cohesion: 0.14
-Nodes (11): Guid, int, string, FollowUpJobPayload, FollowUpJobPolicy, ActionDispatch, ActionResult, CancellationToken (+3 more)
-
-### Community 170 - "ContactsDbContext"
-Cohesion: 0.26
-Nodes (13): DateTimeOffset, DbSet, Guid, List, ModelBuilder, string, ContactIdentityRow, ContactInteractionRow (+5 more)
-
-### Community 171 - "Qasedak.Modules.Instagram.Application.Media"
-Cohesion: 0.17
-Nodes (8): string, MediaCatalogFailures, int, string, MediaCatalogPolicy, Qasedak.Modules.Instagram.Infrastructure.Media, Qasedak.Modules.Instagram.Application.Media, Qasedak.Modules.Instagram.UnitTests.Media
-
-### Community 172 - "RevealFlowContracts.cs"
-Cohesion: 0.18
-Nodes (16): string, FollowGateMode, FollowState, FollowStateUnavailableReason, RevealFlowContent, RevealFlowFailures, RevealFlowState, RevealGatePromptStatus (+8 more)
-
-### Community 173 - ".ResolveAsync"
-Cohesion: 0.17
-Nodes (9): CancellationToken, Task, IInboundAccountResolver, InboundAccountResolution, InboundAccountStatus, CancellationToken, Task, ConnectedAccountInboundResolver (+1 more)
-
-### Community 174 - "WebhookToConversationProjectionTests"
-Cohesion: 0.23
-Nodes (8): ConversationsDbContext, DateTimeOffset, Fact, Guid, HttpResponseMessage, string, Task, WebhookToConversationProjectionTests
-
-### Community 175 - "IAsyncLifetime"
-Cohesion: 0.15
-Nodes (12): PostgreSqlContainer, string, Task, PostgreSqlFixture, PostgresTestEnvironment, string, Task, PostgreSqlFixture (+4 more)
-
-### Community 176 - "AccountResolutionTests"
-Cohesion: 0.39
-Nodes (5): DateTimeOffset, Fact, Guid, Task, AccountResolutionTests
-
-### Community 177 - "identity.ts"
-Cohesion: 0.17
-Nodes (10): clearSession(), CreateWorkspaceRequest, IdentityApi, LoginRequest, readSession(), readWorkspaceId(), RegisterRequest, safeStorage() (+2 more)
-
-### Community 178 - "FakeRunRepository"
-Cohesion: 0.26
-Nodes (9): AttemptMarkerResult, AutomationActionStatus, AutomationRun, CancellationToken, DateTimeOffset, Guid, List, FakeRunRepository (+1 more)
-
-### Community 179 - ".ExecuteSlotsAsync"
-Cohesion: 0.15
-Nodes (10): AutomationActionExecution, AutomationRunStatus, AutomationRun, CancellationToken, IReadOnlyList, Task, ExecuteAutomationUseCase, ExecutionOutcome (+2 more)
-
-### Community 180 - ".CheckCountLimitAsync"
+### Community 111 - ".CheckCountLimitAsync"
 Cohesion: 0.22
 Nodes (10): CancellationToken, DateTimeOffset, Guid, string, Task, EntitlementDecision, EntitlementGate, CancellationToken (+2 more)
 
-### Community 181 - ".Create"
-Cohesion: 0.36
-Nodes (5): DateTimeOffset, Fact, Guid, Task, PaymentPersistenceTests
+### Community 112 - "Subscription"
+Cohesion: 0.20
+Nodes (8): DateTimeOffset, Guid, int, IReadOnlyList, List, Subscription, SubscriptionPeriod, SubscriptionStatus
 
-### Community 182 - "MediaCatalogResult"
+### Community 113 - ".Activate"
+Cohesion: 0.17
+Nodes (10): DateTimeOffset, Fact, Task, BillingPersistenceTests, DateTimeOffset, Fact, SubscriptionLifecycleTests, Context (+2 more)
+
+### Community 114 - "Conversation"
+Cohesion: 0.15
+Nodes (14): DateTimeOffset, Guid, int, IReadOnlyList, List, Conversation, MessageState, CancellationToken (+6 more)
+
+### Community 115 - "IWebhookInboxStore"
+Cohesion: 0.17
+Nodes (11): CancellationToken, DateTimeOffset, IReadOnlyList, Task, InboxEntryRecord, IWebhookInboxStore, CancellationToken, DateTimeOffset (+3 more)
+
+### Community 116 - "Task"
+Cohesion: 0.22
+Nodes (10): AccountResolution, CancellationToken, ConnectedAccount, DateTimeOffset, Fact, Guid, IReadOnlyList, Task (+2 more)
+
+### Community 117 - "ApiPostgreSqlFixture"
+Cohesion: 0.09
+Nodes (25): AccountProfileOutcome, CommentReferenceReadResult, Func, IReadOnlyList, List, string, ApiPostgreSqlFixture, ApiTestEnvironment (+17 more)
+
+### Community 118 - "FakeRunRepository"
+Cohesion: 0.18
+Nodes (13): AutomationId, Automation, AutomationActionStatus, CancellationToken, ChannelAccountId, DateTimeOffset, Dictionary, Guid (+5 more)
+
+### Community 119 - "Qasedak.Modules.Billing.Infrastructure.Persistence.Migrations"
+Cohesion: 0.10
+Nodes (10): MigrationBuilder, ModelBuilder, InitialBillingCreation, InitialBillingCreation, ModelBuilder, AddPaymentsAndPlanPrices, AddPaymentsAndPlanPrices, ModelBuilder (+2 more)
+
+### Community 120 - "AccountResolution"
+Cohesion: 0.23
+Nodes (8): AccountResolution, CancellationToken, ConnectedAccount, DateTimeOffset, Guid, IReadOnlyList, Task, EfConnectedAccountRepository
+
+### Community 121 - "GraphAccountProfileClient"
+Cohesion: 0.12
+Nodes (16): CancellationToken, string, Task, AccountProfileOutcome, IAccountProfileClient, IdentityMismatch, InstagramAccountProfile, Ok (+8 more)
+
+### Community 122 - ".MapFailureAsync"
+Cohesion: 0.12
+Nodes (16): CancellationToken, DateTimeOffset, Guid, MetaOAuthFailureReason, Task, Permanent, RefreshInstagramTokenUseCase, Retryable (+8 more)
+
+### Community 123 - "EfCommentEffectLedger"
+Cohesion: 0.23
+Nodes (12): CommentEffectClaim, CommentEffectClaimKey, InstagramEffectStatus, DateTimeOffset, Guid, CommentEffectRow, CancellationToken, DateTimeOffset (+4 more)
+
+### Community 124 - ".ReserveAsync"
+Cohesion: 0.34
+Nodes (6): DateTimeOffset, Fact, Guid, string, Task, CommentEffectLedgerTests
+
+### Community 125 - "IIntegrationEventDispatcher"
+Cohesion: 0.12
+Nodes (14): CancellationToken, LoggerMessage, Task, LoggingIntegrationEventDispatcher, CancellationToken, Task, FanOutIntegrationEventDispatcher, CancellationToken (+6 more)
+
+### Community 126 - "RevealFlowWebhookFlowTests"
+Cohesion: 0.28
+Nodes (9): DateTimeOffset, Fact, Guid, HttpResponseMessage, string, Task, RevealFlowWebhookFlowTests, Seeded (+1 more)
+
+### Community 127 - "RecordingMessagingClient"
+Cohesion: 0.10
+Nodes (15): AccessToken, CommentId, Content, InstagramMessageContent, List, MessagingSendResult, ProviderAccountId, Text (+7 more)
+
+### Community 128 - "rehearse_deployment.py"
+Cohesion: 0.22
+Nodes (20): Path, api_env(), command(), docker(), login_existing(), main(), public_api_request(), CompletedProcess (+12 more)
+
+### Community 129 - "Qasedak.BuildingBlocks.Infrastructure.Scheduling"
+Cohesion: 0.11
+Nodes (12): ScheduledWorkStatus, ScheduledWorkServiceCollectionExtensions, DateTimeOffset, Guid, ScheduledWorkRow, IConfiguration, DependencyInjection, Qasedak.BuildingBlocks.Infrastructure.Scheduling (+4 more)
+
+### Community 130 - "EfScheduledWorkStore"
+Cohesion: 0.22
+Nodes (12): CancellationToken, DateTimeOffset, Guid, ScheduledWorkEnqueue, ScheduledWorkItem, Task, TimeSpan, WorkOutcome (+4 more)
+
+### Community 131 - ".ContainsWholeWord"
 Cohesion: 0.21
-Nodes (9): Failed, MediaCatalogResult, Ok, Guid, IMediaCursorCodec, CancellationToken, Guid, Task (+1 more)
+Nodes (6): WholeWordMatcher, Fact, InlineData, Theory, WholeWordMatcherTests, UnicodeCategory
 
-### Community 183 - "LoggerMessage"
+### Community 132 - "IEndpointRouteBuilder"
+Cohesion: 0.12
+Nodes (11): BillingFailureMapper, ConnectionsFailureMapper, MediaEndpointLogs, MediaEndpoints, Fact, InlineData, Theory, ConnectionsFailureMapperTests (+3 more)
+
+### Community 133 - "InstagramEffectType"
+Cohesion: 0.20
+Nodes (4): InstagramEffectType, ICommentEffectObservability, string, CommentEffectMetrics
+
+### Community 134 - "ProcessPendingWebhookEventsTests"
+Cohesion: 0.28
+Nodes (8): Guid, Fact, Guid, Task, ProcessPendingWebhookEventsTests, RecordingDispatcher, RecordingInbox, RecordingObservability
+
+### Community 135 - ".SendPublicReplyAsync"
+Cohesion: 0.24
+Nodes (10): CancellationToken, Task, Client, Fact, Handler, HttpResponseMessage, ScriptedHttpHandler, string (+2 more)
+
+### Community 136 - "GraphInstagramInsightsClient"
+Cohesion: 0.10
+Nodes (24): CancellationToken, DateOnly, MediaKind, Task, AccountInsightsResult, Failed, FollowerCountResult, IInstagramInsightsClient (+16 more)
+
+### Community 137 - ".Decode"
+Cohesion: 0.24
+Nodes (6): Guid, CursorEnvelope, MediaCatalogCursorCodec, Fact, Guid, MediaCatalogCursorCodecTests
+
+### Community 138 - "Task"
+Cohesion: 0.21
+Nodes (11): CancellationToken, DateTimeOffset, Fact, Guid, IReadOnlyList, List, Task, ActivateAutomationUseCaseTests (+3 more)
+
+### Community 139 - "MetaPayloadNormalizer"
+Cohesion: 0.27
+Nodes (8): ArrayEnumerator, IgnoredWebhookFragment, UnrecognizedWebhookFragment, DateTimeOffset, JsonElement, List, JsonElementExtensions, MetaPayloadNormalizer
+
+### Community 140 - "ModelSnapshot"
+Cohesion: 0.12
+Nodes (9): ModelBuilder, AutomationsDbContextModelSnapshot, ModelBuilder, BillingDbContextModelSnapshot, ModelBuilder, ContactsDbContextModelSnapshot, ModelBuilder, InstagramDbContextModelSnapshot (+1 more)
+
+### Community 141 - ".ScheduledRun"
+Cohesion: 0.27
+Nodes (10): AutomationActionStatus, CancellationToken, Guid, Task, FollowUpExecutionUseCase, FollowUpSettlement, Fact, Task (+2 more)
+
+### Community 142 - "AutomationRun"
+Cohesion: 0.24
+Nodes (8): Automation, DateTimeOffset, Guid, IReadOnlyList, List, AutomationActionExecution, AutomationRun, AutomationRunStatus
+
+### Community 143 - "JsonElement"
+Cohesion: 0.23
+Nodes (8): List, AutomationDefinitionJsonConverter, JsonConverter, JsonElement, JsonSerializerOptions, Type, Utf8JsonReader, Utf8JsonWriter
+
+### Community 144 - "MediaCatalogResult"
+Cohesion: 0.15
+Nodes (11): Failed, MediaCatalogResult, Ok, Guid, IMediaCursorCodec, MediaCatalogCursorData, MediaCursorDecodeResult, CancellationToken (+3 more)
+
+### Community 145 - "FollowerSnapshotPersistenceTests"
+Cohesion: 0.37
+Nodes (6): DateOnly, DateTimeOffset, Fact, Guid, Task, FollowerSnapshotPersistenceTests
+
+### Community 146 - "ConnectionEnrichmentEndpointTests"
+Cohesion: 0.31
+Nodes (10): Fact, Guid, HttpClient, HttpResponseMessage, string, Task, ConnectionEnrichmentEndpointTests, LoginResponse (+2 more)
+
+### Community 147 - "ContactEndpointTests"
+Cohesion: 0.21
+Nodes (11): DateTimeOffset, Fact, Guid, HttpClient, HttpResponseMessage, string, Task, ContactEndpointTests (+3 more)
+
+### Community 148 - "ScheduledWorkStoreTests"
+Cohesion: 0.37
+Nodes (4): DateTimeOffset, Fact, Task, ScheduledWorkStoreTests
+
+### Community 149 - "RefreshInstagramTokenTests"
+Cohesion: 0.25
+Nodes (8): DateTimeOffset, Fact, InlineData, Theory, RefreshInstagramTokenTests, FakeRepository, FakeTokenStore, RefreshInstagramTokenUseCase
+
+### Community 150 - "Button.tsx"
+Cohesion: 0.15
+Nodes (9): FormErrors, WorkspaceOnboarding(), Button(), ButtonLink(), ButtonProps, ButtonVariant, variantClass, StatusAlert() (+1 more)
+
+### Community 151 - "ConnectedAccount"
+Cohesion: 0.24
+Nodes (8): AccountHealth, DateTimeOffset, Guid, IReadOnlyList, List, SubscriptionHealth, ConnectedAccount, ConnectionPath
+
+### Community 152 - "AutomationsDbContext"
+Cohesion: 0.19
+Nodes (16): AutomationStatus, AutomationActionStatus, ChannelAccountId, DateTimeOffset, DbSet, Guid, List, ModelBuilder (+8 more)
+
+### Community 153 - ".Create"
 Cohesion: 0.26
-Nodes (8): CancellationToken, Guid, ScheduledWorkItem, Task, WorkOutcome, TokenRefreshScheduledHandler, Qasedak.Modules.Instagram.Infrastructure.Refresh, LoggerMessage
+Nodes (4): DateTimeOffset, Fact, Guid, ContactAggregateTests
 
-### Community 184 - ".HandleAsync"
+### Community 154 - "Qasedak.Modules.Conversations.Infrastructure.Persistence.Migrations"
+Cohesion: 0.11
+Nodes (9): ModelBuilder, InitialConversationsCreation, MigrationBuilder, ModelBuilder, AddChannelAccountId, AddChannelAccountId, ModelBuilder, ConversationsDbContextModelSnapshot (+1 more)
+
+### Community 155 - ".ExecuteAsync"
+Cohesion: 0.15
+Nodes (11): CancellationToken, Guid, Task, AccountHealthEvaluation, EvaluateAccountHealthUseCase, CancellationToken, Task, IMetaTokenInspector (+3 more)
+
+### Community 156 - ".ForMedia"
+Cohesion: 0.19
+Nodes (6): IReadOnlyList, MediaKind, InsightMetricRegistry, MediaKind, Fact, InsightMetricRegistryTests
+
+### Community 157 - "InstagramMessageContent"
+Cohesion: 0.19
+Nodes (10): ButtonTemplate, InstagramMessageContent, PlainText, CancellationToken, Task, IInstagramMessagingClient, MessagingFailure, MessagingFailureReason (+2 more)
+
+### Community 158 - "MetaOAuthPorts.cs"
+Cohesion: 0.18
+Nodes (10): CancellationToken, Task, CodeExchangeRequest, CodeExchangeResult, CodeExchangeSuccess, IMetaOAuthClient, LongLivedToken, LongLivedTokenResult (+2 more)
+
+### Community 159 - "MetaGraphCallResult"
+Cohesion: 0.22
+Nodes (12): CancellationToken, HttpRequestMessage, HttpResponseMessage, JsonDocument, Task, MetaGraphCallResult, MetaGraphTransport, Rejected (+4 more)
+
+### Community 160 - "AuthoringProviderParityTests"
+Cohesion: 0.22
+Nodes (6): Fact, InlineData, string, Theory, AuthoringProviderParityTests, InstagramMessageContent
+
+### Community 161 - "health.ts"
+Cohesion: 0.19
+Nodes (11): InstagramConnectionPage(), AccountHealth, ConnectionState, describeConnectionFailure(), describeSubscriptionHealth(), FAILURE_COPY, HEALTH_PRESENTATION, healthPresentation() (+3 more)
+
+### Community 162 - "Task"
+Cohesion: 0.22
+Nodes (9): AfterCursor, Guid, Task, RecordingTokenStoreDecorator, ScriptedMediaCatalogClient, IMediaCatalogClient, IMediaCursorCodec, MediaCatalogPage (+1 more)
+
+### Community 163 - "AutomationFollowUpLedgerTests"
+Cohesion: 0.31
+Nodes (9): Automation, DateTimeOffset, Fact, Guid, Task, AutomationFollowUpLedgerTests, FixedClock, EfAutomationRepository (+1 more)
+
+### Community 164 - "AutomationDefinition"
+Cohesion: 0.17
+Nodes (11): int, IReadOnlyList, TimeSpan, AutomationAction, AutomationDefinition, ConditionField, ConditionOperator, RevealActionContent (+3 more)
+
+### Community 165 - "ConversationInboxEndpointTests"
+Cohesion: 0.24
+Nodes (10): Fact, Guid, HttpClient, Task, ConversationInboxEndpointTests, InboxDetailResponse, InboxItem, InboxMessage (+2 more)
+
+### Community 166 - ".Evaluate"
+Cohesion: 0.29
+Nodes (3): DateTimeOffset, Fact, PrivateReplyPolicyTests
+
+### Community 167 - "TokenRefreshScheduledHandlerTests"
+Cohesion: 0.25
+Nodes (9): Dictionary, Fact, Handler, Jobs, TokenRefreshScheduledHandlerTests, FakeInspector, FakeOAuthClient, FakeWorkStore (+1 more)
+
+### Community 168 - "Qasedak.Modules.Automations.Infrastructure/DependencyInjection.cs"
+Cohesion: 0.15
+Nodes (8): IConfiguration, IServiceCollection, DependencyInjection, CancellationToken, Guid, Task, PermissiveActivationPolicy, Qasedak.Modules.Automations.Infrastructure
+
+### Community 169 - ".EvaluateAsync"
+Cohesion: 0.13
+Nodes (14): CancellationToken, ChannelAccountId, DateTimeOffset, Guid, Task, DirectEligibility, IDirectEligibilityPort, CancellationToken (+6 more)
+
+### Community 170 - ".ExecuteAsync"
+Cohesion: 0.21
+Nodes (10): CancellationToken, Guid, Task, IConversationRepository, CancellationToken, Guid, Task, InboundMessageProjection (+2 more)
+
+### Community 171 - ".ExecuteAsync"
+Cohesion: 0.17
+Nodes (10): CancellationToken, Guid, IReadOnlyList, Task, ConnectAccountResult, ConnectInstagramAccountCommand, DisconnectAccountResult, DisconnectInstagramAccountUseCase (+2 more)
+
+### Community 172 - "GraphCommentPublicReplyClient"
+Cohesion: 0.15
+Nodes (11): CancellationToken, Task, ICommentPublicReplyClient, PublicReplyFailure, PublicReplyFailureReason, PublicReplySendResult, JsonDocument, MetaGraphOptions (+3 more)
+
+### Community 173 - "PaymentAttempt"
+Cohesion: 0.11
+Nodes (15): DateTimeOffset, Guid, int, string, PaymentAttempt, PaymentAttemptStatus, PaymentFailures, Dictionary (+7 more)
+
+### Community 174 - ".ProcessPendingAsync"
+Cohesion: 0.15
+Nodes (6): IWebhookNormalizationObservability, CancellationToken, Task, ProcessPendingWebhookEventsUseCase, WebhookProcessingSummary, RecordingObservability
+
+### Community 175 - "InstagramDbContext"
+Cohesion: 0.13
+Nodes (12): CommentEffectRow, ConnectedAccount, DbSet, Guid, ModelBuilder, string, InstagramDbContext, StoredAccountToken (+4 more)
+
+### Community 176 - "WebhookToContactProjectionTests"
+Cohesion: 0.21
+Nodes (8): DateTimeOffset, Fact, Guid, HttpResponseMessage, string, Task, WebhookToContactProjectionTests, ContactsDbContext
+
+### Community 177 - "CancellationToken"
+Cohesion: 0.18
+Nodes (11): CancellationToken, DateTimeOffset, Dictionary, Func, IReadOnlyList, List, FakeResolver, RecordingDispatcher (+3 more)
+
+### Community 178 - "ActionResult"
+Cohesion: 0.18
+Nodes (7): ActionDispatch, ActionResult, IAutomationActionDispatcher, CancellationToken, RecordingDispatcher, List, FakeDispatcher
+
+### Community 179 - ".DispatchAsync"
+Cohesion: 0.14
+Nodes (11): Guid, int, string, FollowUpJobPayload, FollowUpJobPolicy, ActionDispatch, ActionResult, CancellationToken (+3 more)
+
+### Community 180 - "ContactsDbContext"
+Cohesion: 0.26
+Nodes (13): DateTimeOffset, DbSet, Guid, List, ModelBuilder, string, ContactIdentityRow, ContactInteractionRow (+5 more)
+
+### Community 181 - "Qasedak.Modules.Instagram.Application.Media"
+Cohesion: 0.17
+Nodes (8): string, MediaCatalogFailures, int, string, MediaCatalogPolicy, Qasedak.Modules.Instagram.Infrastructure.Media, Qasedak.Modules.Instagram.Application.Media, Qasedak.Modules.Instagram.UnitTests.Media
+
+### Community 182 - "RevealCorrelation"
+Cohesion: 0.19
+Nodes (8): int, string, CreatedToken, RevealCorrelation, Fact, InlineData, Theory, RevealCorrelationTests
+
+### Community 183 - ".ResolveAsync"
+Cohesion: 0.17
+Nodes (9): CancellationToken, Task, IInboundAccountResolver, InboundAccountResolution, InboundAccountStatus, CancellationToken, Task, ConnectedAccountInboundResolver (+1 more)
+
+### Community 184 - "IWebhookPostIngestProcessor"
+Cohesion: 0.15
+Nodes (10): CancellationToken, Task, IWebhookPostIngestProcessor, NullWebhookPostIngestProcessor, IEndpointRouteBuilder, int, MetaWebhookEndpoints, CancellationToken (+2 more)
+
+### Community 185 - "Qasedak.Modules.Instagram.Application.Effects"
+Cohesion: 0.27
+Nodes (4): Qasedak.Modules.Instagram.UnitTests.Effects, Qasedak.Modules.Instagram.Infrastructure.Effects, Qasedak.Modules.Instagram.Infrastructure.Graph, Qasedak.Modules.Instagram.Application.Effects
+
+### Community 186 - "WebhookToConversationProjectionTests"
+Cohesion: 0.23
+Nodes (8): ConversationsDbContext, DateTimeOffset, Fact, Guid, HttpResponseMessage, string, Task, WebhookToConversationProjectionTests
+
+### Community 187 - "AccountResolutionTests"
+Cohesion: 0.39
+Nodes (5): DateTimeOffset, Fact, Guid, Task, AccountResolutionTests
+
+### Community 188 - "identity.ts"
+Cohesion: 0.17
+Nodes (10): clearSession(), CreateWorkspaceRequest, IdentityApi, LoginRequest, readSession(), readWorkspaceId(), RegisterRequest, safeStorage() (+2 more)
+
+### Community 189 - "FakeRunRepository"
+Cohesion: 0.26
+Nodes (9): AttemptMarkerResult, AutomationActionStatus, AutomationRun, CancellationToken, DateTimeOffset, Guid, List, FakeRunRepository (+1 more)
+
+### Community 190 - "Qasedak.BuildingBlocks.Infrastructure/DependencyInjection.cs"
+Cohesion: 0.15
+Nodes (9): DateTimeOffset, IClock, IServiceCollection, DependencyInjection, DateTimeOffset, SystemClock, Qasedak.BuildingBlocks.Application, Qasedak.BuildingBlocks.Infrastructure (+1 more)
+
+### Community 191 - ".Create"
+Cohesion: 0.18
+Nodes (7): int, WorkspaceName, ModelBuilder, Fact, InlineData, Theory, WorkspaceNameTests
+
+### Community 192 - ".HandleAsync"
 Cohesion: 0.30
 Nodes (8): CancellationToken, DateOnly, Guid, LoggerMessage, ScheduledWorkItem, Task, WorkOutcome, FollowerSnapshotScheduledHandler
 
-### Community 185 - "WebhookMetrics"
+### Community 193 - "WebhookMetrics"
 Cohesion: 0.16
 Nodes (7): string, WebhookMetrics, Dictionary, Fact, WebhookMetricsTests, Histogram, MeterListener
 
-### Community 186 - ".NewClient"
-Cohesion: 0.36
-Nodes (6): Fact, string, Task, GraphInstagramOAuthClientTests, GraphInstagramOAuthClient, MetaOAuthOptions
+### Community 194 - "CancellationToken"
+Cohesion: 0.35
+Nodes (8): CancellationToken, FakeBehpardakhtSoapClient, BehpardakhtCodeResult, BehpardakhtPayRequest, BehpardakhtPayResult, BehpardakhtTransactionRequest, IBehpardakhtSoapClient, Queue
 
-### Community 187 - "AccountsScreen.tsx"
+### Community 195 - "AccountsScreen.tsx"
 Cohesion: 0.26
 Nodes (9): DashboardLayout(), WorkspaceOnboardingPage(), AccountsScreen(), roleNames, getIdentity, getWorkspaceMembers, IdentityMe, WorkspaceMembers (+1 more)
 
-### Community 188 - "instagram/media.ts"
+### Community 196 - "instagram/media.ts"
 Cohesion: 0.19
 Nodes (12): KNOWN_KINDS, MediaKind, MediaPickerChild, MediaPickerItem, MediaPickerPage, normalizeKind(), normalizePage(), RawMediaPickerChild (+4 more)
 
-### Community 189 - ".RecordAsync"
-Cohesion: 0.16
-Nodes (10): CancellationToken, Task, AuditEntry, IAuditTrail, CancellationToken, DateTimeOffset, Guid, Task (+2 more)
+### Community 197 - ".ActivateAsync"
+Cohesion: 0.36
+Nodes (8): CancellationToken, DateTimeOffset, Guid, Task, ResolveWorkspaceEntitlementsUseCase, StartSubscriptionUseCase, WorkspaceEntitlements, TimeSpan
 
-### Community 190 - "Exception"
+### Community 198 - ".FindByWorkspaceAsync"
+Cohesion: 0.30
+Nodes (6): CancellationToken, Guid, IReadOnlyList, Task, IPlanRepository, ISubscriptionRepository
+
+### Community 199 - "ZarinpalPaymentGateway"
 Cohesion: 0.18
-Nodes (11): PaymentGatewayUnavailableException, PaymentInitialization, PaymentProviderDisabledException, PaymentProviderUnknownException, PaymentRequestRejectedException, PaymentVerificationOutcome, PaymentConcurrencyException, AssemblyMarker (+3 more)
+Nodes (9): string, ZarinpalOptions, CancellationToken, string, Task, ZarinpalEnvelope, ZarinpalPaymentGateway, ZarinpalRequestData (+1 more)
 
-### Community 191 - "TokenRefreshPolicy"
+### Community 200 - "ConversationTests"
+Cohesion: 0.34
+Nodes (3): DateTimeOffset, Fact, ConversationTests
+
+### Community 201 - "TokenRefreshPolicy"
 Cohesion: 0.20
 Nodes (7): DateTimeOffset, Guid, int, string, TimeSpan, RefreshPayloadBody, TokenRefreshPolicy
 
-### Community 192 - "GraphMediaCatalogClient"
+### Community 202 - "GraphMediaCatalogClient"
 Cohesion: 0.26
 Nodes (6): MediaCatalogChildItem, MediaCatalogItem, MediaKind, List, string, GraphMediaCatalogClient
 
-### Community 193 - ".HandleAsync"
+### Community 203 - "IIntegrationEvent"
+Cohesion: 0.19
+Nodes (11): CancellationToken, Task, IIntegrationEventDispatcher, Guid, EntryNormalization, IIntegrationEvent, InstagramMentionCreated, InstagramMessageRead (+3 more)
+
+### Community 204 - "ScriptableRevealFlowStartProvider"
+Cohesion: 0.24
+Nodes (8): InstagramCommentCreated, CancellationToken, Task, IRevealFlowStartContentProvider, NoRevealFlowStartProvider, RevealFlowStartBridge, RevealFlowStartRequest, ScriptableRevealFlowStartProvider
+
+### Community 205 - ".HandleAsync"
 Cohesion: 0.29
 Nodes (8): AutomationActionStatus, CancellationToken, Guid, LoggerMessage, ScheduledWorkItem, Task, WorkOutcome, AutomationFollowUpScheduledHandler
 
-### Community 194 - ".MigrateAsync"
+### Community 206 - ".MigrateAsync"
 Cohesion: 0.24
 Nodes (6): LoggerMessage, Task, DatabaseMigrator, MigrationLogs, MigrationRunLogs, IServiceProvider
 
-### Community 195 - "DatabaseMigratorTests"
+### Community 207 - "DatabaseMigratorTests"
 Cohesion: 0.27
 Nodes (6): Fact, PostgreSqlContainer, Task, WebApplicationFactory, DatabaseMigratorTests, Qasedak.Api.Migrations
 
-### Community 196 - "MetaWebhookEndpointTests"
+### Community 208 - "MetaWebhookEndpointTests"
 Cohesion: 0.32
 Nodes (4): Fact, string, Task, MetaWebhookEndpointTests
 
-### Community 197 - "AutomationRunLedgerTests"
+### Community 209 - "AutomationRunLedgerTests"
 Cohesion: 0.29
 Nodes (8): Automation, DateTimeOffset, EfAutomationRepository, Fact, string, Task, AutomationRunLedgerTests, FixedClock
 
-### Community 198 - "PaymentAttemptTests"
-Cohesion: 0.32
-Nodes (3): DateTimeOffset, Fact, PaymentAttemptTests
+### Community 210 - ".NewClient"
+Cohesion: 0.29
+Nodes (8): Fact, List, string, Task, GraphSubscriptionClientTests, Bodies, Client, Requests
 
-### Community 199 - "LandingPage.tsx"
+### Community 211 - "LandingPage.tsx"
 Cohesion: 0.15
 Nodes (9): metadata, audiences, brands, customers, faqs, features, LandingPage(), planBenefits (+1 more)
 
-### Community 200 - "ScriptedInstagramInsightsClient"
+### Community 212 - "ScriptedInstagramInsightsClient"
 Cohesion: 0.22
 Nodes (9): AccountInsightsResult, ScriptedInstagramInsightsClient, DateOnly, DayUtc, FollowerCountResult, Kind, MediaInsightsResult, MediaKind (+1 more)
 
-### Community 201 - "capture.mjs"
+### Community 213 - "capture.mjs"
 Cohesion: 0.21
 Nodes (12): command(), evaluate(), eventWaiters, nextEvent(), outputDirectory, pending, report, runtimeIssues (+4 more)
 
-### Community 202 - "Qasedak.BuildingBlocks.Application.Auditing"
-Cohesion: 0.17
-Nodes (6): AuditRedaction, IServiceCollection, DependencyInjection, Qasedak.BuildingBlocks.Application.Auditing, Qasedak.BuildingBlocks.Infrastructure, IApplicationBuilder
+### Community 214 - "Qasedak.BuildingBlocks.Infrastructure.Auditing"
+Cohesion: 0.14
+Nodes (8): MigrationBuilder, ModelBuilder, InitialAuditCreation, InitialAuditCreation, ModelBuilder, AuditDbContextModelSnapshot, Qasedak.BuildingBlocks.Infrastructure.Auditing, Qasedak.BuildingBlocks.Infrastructure.Auditing.Migrations
 
-### Community 203 - "ILogger"
+### Community 215 - "EfAutomationRunRepository"
+Cohesion: 0.36
+Nodes (6): AttemptMarkerResult, CancellationToken, DateTimeOffset, Guid, Task, EfAutomationRunRepository
+
+### Community 216 - "ILogger"
 Cohesion: 0.36
 Nodes (6): CancellationToken, LoggerMessage, string, Task, InstagramReplyGateway, ILogger
 
-### Community 204 - "ConversationTests"
-Cohesion: 0.36
-Nodes (3): DateTimeOffset, Fact, ConversationTests
+### Community 217 - "GraphAccountProfileClientTests"
+Cohesion: 0.33
+Nodes (6): CancellationToken, Fact, string, Task, GraphAccountProfileClientTests, ScriptedProfileHandler
 
-### Community 205 - "adHocFeaturesFile"
+### Community 218 - "adHocFeaturesFile"
 Cohesion: 0.15
 Nodes (13): fileId, note, pageCount, penpotRevision, status, adHocFeaturesFile, directamLandingPage, candidateBoardId (+5 more)
 
-### Community 206 - "Qasedak.BuildingBlocks.Infrastructure.Auditing"
-Cohesion: 0.20
-Nodes (6): MigrationBuilder, ModelBuilder, InitialAuditCreation, InitialAuditCreation, Qasedak.BuildingBlocks.Infrastructure.Auditing, Qasedak.BuildingBlocks.Infrastructure.Auditing.Migrations
+### Community 219 - "ChannelAccountId"
+Cohesion: 0.24
+Nodes (4): Guid, ChannelAccountId, Fact, ChannelAccountIdTests
 
-### Community 207 - "EfAutomationRunRepository"
-Cohesion: 0.39
-Nodes (5): CancellationToken, DateTimeOffset, Guid, Task, EfAutomationRunRepository
-
-### Community 208 - ".TryRecordAsync"
-Cohesion: 0.21
-Nodes (8): CancellationToken, Task, ContactInteractionEntry, IContactInteractionLedger, CancellationToken, Exception, Task, EfContactInteractionLedger
-
-### Community 209 - "IContactRepository"
+### Community 220 - "IContactRepository"
 Cohesion: 0.29
 Nodes (7): CancellationToken, Guid, IReadOnlyList, string, Task, ContactFailures, IContactRepository
 
-### Community 210 - "HmacSecurityTokenIssuer"
-Cohesion: 0.11
-Nodes (16): AuthenticateResult, AuthenticationHandler, AuthenticationSchemeOptions, Guid, ISecurityTokenIssuer, SecurityToken, TokenValidationResult, Guid (+8 more)
+### Community 221 - "ContactsInteractionBridge"
+Cohesion: 0.30
+Nodes (7): CancellationToken, DateTimeOffset, Guid, LoggerMessage, string, Task, ContactsInteractionBridge
 
-### Community 211 - "AutomationAccountBindingEndpointTests"
+### Community 222 - "AutomationAccountBindingEndpointTests"
 Cohesion: 0.30
 Nodes (6): Fact, Guid, HttpClient, Task, AutomationAccountBindingEndpointTests, LoginResponse
 
-### Community 212 - "AutomationPersistenceTests"
+### Community 223 - "AutomationPersistenceTests"
 Cohesion: 0.44
 Nodes (5): DateTimeOffset, EfAutomationRepository, Fact, Task, AutomationPersistenceTests
 
-### Community 213 - "AutomationDefinitionSerializerTests"
+### Community 224 - "AutomationDefinitionSerializerTests"
 Cohesion: 0.29
 Nodes (3): Fact, string, AutomationDefinitionSerializerTests
 
-### Community 214 - "AutomationEvaluatorV2Tests"
+### Community 225 - "AutomationEvaluatorV2Tests"
 Cohesion: 0.36
 Nodes (3): DateTimeOffset, Fact, AutomationEvaluatorV2Tests
 
-### Community 215 - ".NewScope"
-Cohesion: 0.32
-Nodes (7): DateTimeOffset, Fact, Task, BillingPersistenceTests, Context, Plans, Subscriptions
-
-### Community 216 - "source"
+### Community 226 - "source"
 Cohesion: 0.17
 Nodes (11): mappings, $schema, source, fileId, fileIdNote, fileName, inspectedPages, tool (+3 more)
 
-### Community 217 - "Sidebar.tsx"
+### Community 227 - "Sidebar.tsx"
 Cohesion: 0.23
 Nodes (7): Icon(), IconName, sourceIcons, Sidebar(), SidebarNavItem, SidebarProps, routeIsActive()
 
-### Community 218 - "IAutomationRunRepository"
+### Community 228 - "IAutomationRunRepository"
 Cohesion: 0.42
-Nodes (6): CancellationToken, DateTimeOffset, Guid, Task, AttemptMarkerResult, IAutomationRunRepository
+Nodes (5): CancellationToken, DateTimeOffset, Guid, Task, IAutomationRunRepository
 
-### Community 219 - ".CompleteAsync"
-Cohesion: 0.36
-Nodes (7): AutomationActionStatus, CancellationToken, Guid, Task, FollowUpExecutionUseCase, FollowUpSettlement, FollowUpSettlementStatus
+### Community 229 - ".NewScope"
+Cohesion: 0.31
+Nodes (5): Fact, Task, ContactCrmPersistenceTests, Queries, Repository
 
-### Community 220 - "ChannelDeliveryResult"
+### Community 230 - "ChannelDeliveryResult"
 Cohesion: 0.29
 Nodes (6): CancellationToken, Task, ChannelDeliveryRequest, ChannelDeliveryResult, IConversationChannelGateway, FakeGateway
 
-### Community 221 - ".MapConversationEndpoints"
+### Community 231 - ".MapConversationEndpoints"
 Cohesion: 0.20
 Nodes (7): int, InboxFilter, IEndpointRouteBuilder, IResult, ConversationEndpoints, ReplyRequest, Qasedak.Modules.Conversations.Infrastructure.Endpoints
 
-### Community 222 - ".Build"
+### Community 232 - ".Build"
 Cohesion: 0.35
 Nodes (4): Fact, InlineData, Theory, InboxSearchTests
 
-### Community 223 - ".ExecuteAsync"
+### Community 233 - ".ExecuteAsync"
 Cohesion: 0.25
 Nodes (7): CancellationToken, string, Task, CommentPrivateReplyCommand, CommentPrivateReplyCoordinator, CommentPrivateReplyResult, PrivateReplyOutcomeCodes
 
-### Community 224 - ".DispatchAsync"
+### Community 234 - "ICommentEffectLedger"
+Cohesion: 0.49
+Nodes (5): CancellationToken, DateTimeOffset, Guid, Task, ICommentEffectLedger
+
+### Community 235 - ".DispatchAsync"
 Cohesion: 0.18
 Nodes (9): ActionDispatch, ActionResult, CancellationToken, Task, ActionDispatch, ActionResult, CancellationToken, Task (+1 more)
 
-### Community 225 - ".DispatchAsync"
-Cohesion: 0.31
-Nodes (6): CancellationToken, Guid, LoggerMessage, Task, AutomationInboundMessageBridge, IIntegrationEvent
-
-### Community 226 - ".ScheduledRun"
-Cohesion: 0.47
-Nodes (4): Fact, Task, FollowUpExecutionUseCaseTests, FakeRunRepository
-
-### Community 227 - "remote-deploy.sh"
+### Community 236 - "remote-deploy.sh"
 Cohesion: 0.42
 Nodes (10): backup_database(), compose(), health_and_smoke(), IMAGE_TAG, public_auth_routing_smoke(), rollback(), remote-deploy.sh script, verify_running_tag() (+2 more)
 
-### Community 228 - "typography"
+### Community 237 - "typography"
 Cohesion: 0.18
 Nodes (11): typography, font.family, font.size.brand, font.size.footerTime, font.size.mark, font.size.nav, font.size.sub, font.weight.extrabold (+3 more)
 
-### Community 229 - "ConversationsApi"
+### Community 238 - "ConversationsApi"
 Cohesion: 0.24
 Nodes (6): FILTERS, InboxPage(), ConversationDetail, ConversationListItem, ConversationMessage, ConversationsApi
 
-### Community 230 - "InitialIdentityCreation"
-Cohesion: 0.15
-Nodes (6): ModelBuilder, InitialIdentityCreation, InitialIdentityCreation, ModelBuilder, IdentityDbContextModelSnapshot, Qasedak.Modules.Identity.Infrastructure.Persistence.Migrations
+### Community 239 - ".ReadAuditEntriesAsync"
+Cohesion: 0.33
+Nodes (5): AuditEntry, AuditEntryRow, Fact, Task, AuditTrailEndpointTests
 
-### Community 231 - ".ExecuteAsync"
-Cohesion: 0.29
-Nodes (6): CancellationToken, Guid, Task, AccountHealthEvaluation, EvaluateAccountHealthUseCase, Qasedak.Modules.Instagram.Application.OAuth
-
-### Community 232 - ".ExecuteAsync"
+### Community 240 - "20260905132336_InitialScheduledWorkCreation.Designer.cs"
 Cohesion: 0.20
-Nodes (9): CancellationToken, DateOnly, Guid, Task, AccountTerminal, FollowerSnapshotOutcome, NoData, Observed (+1 more)
+Nodes (5): ModelBuilder, InitialScheduledWorkCreation, ModelBuilder, ScheduledWorkDbContextModelSnapshot, Qasedak.BuildingBlocks.Infrastructure.Scheduling.Migrations
 
-### Community 233 - ".ExecuteAsync"
+### Community 241 - ".DispatchAsync"
+Cohesion: 0.27
+Nodes (7): RevealFollowGateMode, ActionDispatch, ActionResult, CancellationToken, Task, AutomationRevealBridge, FollowGateMode
+
+### Community 242 - "20260823110059_InitialIdentityCreation.Designer.cs"
+Cohesion: 0.20
+Nodes (5): ModelBuilder, InitialIdentityCreation, ModelBuilder, IdentityDbContextModelSnapshot, Qasedak.Modules.Identity.Infrastructure.Persistence.Migrations
+
+### Community 243 - ".ExecuteAsync"
+Cohesion: 0.27
+Nodes (6): CancellationToken, Guid, SubscriptionHealth, Task, RepairSubscriptionResult, RepairSubscriptionUseCase
+
+### Community 244 - ".ExecuteAsync"
 Cohesion: 0.27
 Nodes (6): CancellationToken, Guid, Task, ListMediaPageUseCase, MediaPageUseCaseResult, MediaCatalogPage
 
-### Community 234 - ".MapConnectionEndpoints"
+### Community 245 - ".MapConnectionEndpoints"
 Cohesion: 0.29
 Nodes (4): SubscriptionHealth, ConnectAccountRequest, ConnectionEndpointLogs, ConnectionEndpoints
 
-### Community 235 - "http"
+### Community 246 - "http"
 Cohesion: 0.20
 Nodes (9): ASPNETCORE_ENVIRONMENT, applicationUrl, commandName, dotnetRunMessages, environmentVariables, launchBrowser, profiles, http (+1 more)
 
-### Community 236 - "ScriptedSubscriptionClient"
-Cohesion: 0.29
-Nodes (7): IReadOnlyList, CompositePaymentGatewayResolver, RecordingPaymentGatewayResolver, ScriptedSubscriptionClient, IPaymentGateway, IPaymentGatewayResolver, SubscriptionResult
-
-### Community 237 - "ContactPersistenceTests"
+### Community 247 - "ContactPersistenceTests"
 Cohesion: 0.47
 Nodes (4): DateTimeOffset, Fact, Task, ContactPersistenceTests
 
-### Community 238 - "TokenRefreshPolicyTests"
+### Community 248 - "TokenRefreshPolicyTests"
 Cohesion: 0.33
 Nodes (3): DateTimeOffset, Fact, TokenRefreshPolicyTests
 
-### Community 239 - "NullHandlerLogger"
+### Community 249 - "NullHandlerLogger"
 Cohesion: 0.22
 Nodes (7): EventId, Exception, Func, IDisposable, LogLevel, NullHandlerLogger, TokenRefreshScheduledHandler
 
-### Community 240 - "color"
+### Community 250 - "color"
 Cohesion: 0.20
 Nodes (10): border.default, brand.accent, surface.page, surface.subtle, text.disabled, text.muted, text.nav, text.primary (+2 more)
 
-### Community 241 - "frontend-experience.test.mjs"
+### Community 251 - "frontend-experience.test.mjs"
 Cohesion: 0.27
 Nodes (5): DashboardShell(), dashboardNavigation, dashboardNavigationHrefs(), root, sourceRoot
 
-### Community 242 - "ChannelAccountIdTests"
-Cohesion: 0.33
-Nodes (3): Guid, Fact, ChannelAccountIdTests
-
-### Community 243 - "AuditDbContext"
-Cohesion: 0.25
-Nodes (6): AuditDbContextFactory, DbSet, ModelBuilder, string, AuditDbContext, DbContext
-
-### Community 244 - "IAutomationRepository"
+### Community 252 - "IAutomationRepository"
 Cohesion: 0.47
 Nodes (5): CancellationToken, Guid, IReadOnlyList, Task, IAutomationRepository
 
-### Community 245 - "Message"
-Cohesion: 0.39
-Nodes (5): ConversationStatus, MessageDirection, DateTimeOffset, Guid, Message
+### Community 253 - "CommentReferenceReadResult"
+Cohesion: 0.25
+Nodes (7): CancellationToken, Task, CommentReferenceReadResult, Found, ICommentReferenceReader, NotFound, Unavailable
 
-### Community 246 - ".ExecuteAsync"
-Cohesion: 0.28
-Nodes (6): CancellationToken, Guid, SubscriptionHealth, Task, RepairSubscriptionResult, RepairSubscriptionUseCase
-
-### Community 247 - ".ValidateButton"
+### Community 254 - ".ValidateButton"
 Cohesion: 0.36
 Nodes (3): MessageContentValidationCode, MessageContentValidationResult, MessageValidationPolicy
 
-### Community 248 - ".InspectAsync"
-Cohesion: 0.28
-Nodes (5): CancellationToken, Task, IMetaTokenInspector, TokenInspection, TokenInspectionKind
+### Community 255 - ".DispatchAsync"
+Cohesion: 0.31
+Nodes (7): AutomationChannelDispatcher, ActionDispatch, ActionResult, CancellationToken, AcceptingDispatcher, RejectingDispatcher, IAutomationActionDispatcher
 
-### Community 249 - ".DispatchAsync"
+### Community 256 - ".DispatchAsync"
 Cohesion: 0.36
 Nodes (5): CancellationToken, Guid, LoggerMessage, Task, AutomationCommentBridge
 
-### Community 250 - ".DispatchAsync"
-Cohesion: 0.31
-Nodes (6): ActionDispatch, ActionResult, CancellationToken, Task, AutomationRevealBridge, FollowGateMode
+### Community 257 - "ChannelAccountMigrationTests"
+Cohesion: 0.42
+Nodes (3): Fact, Task, ChannelAccountMigrationTests
 
-### Community 251 - "RecordingInstagramMessagingClient"
-Cohesion: 0.31
-Nodes (7): Content, InstagramMessageContent, MessagingSendResult, RecordingInstagramMessagingClient, HashSet, IInstagramMessagingClient, RecipientId
-
-### Community 252 - "IClock"
+### Community 258 - "IClock"
 Cohesion: 0.22
 Nodes (8): FixedClock, FixedClock, FixedClock, MutableClock, DateTimeOffset, FixedClock, Qasedak.Modules.Instagram.UnitTests.TestSupport, IClock
 
-### Community 253 - ".NewScope"
-Cohesion: 0.42
-Nodes (5): Fact, Task, ContactCrmPersistenceTests, Queries, Repository
-
-### Community 254 - "ContactTagNoteTests"
+### Community 259 - "ContactTagNoteTests"
 Cohesion: 0.47
 Nodes (3): DateTimeOffset, Fact, ContactTagNoteTests
 
-### Community 255 - "Pbkdf2PasswordHasher"
-Cohesion: 0.15
-Nodes (9): IPasswordHasher, int, string, IdentityAuthOptions, Pbkdf2PasswordHasher, Fact, InlineData, Theory (+1 more)
-
-### Community 256 - "NullHandlerLogger"
+### Community 260 - "NullHandlerLogger"
 Cohesion: 0.25
 Nodes (6): EventId, Exception, Func, IDisposable, LogLevel, NullHandlerLogger
 
-### Community 257 - "tokens"
+### Community 261 - "tokens"
 Cohesion: 0.22
-Nodes (9): menu, card, chip, control, dashboardCard, landingCard, tokens, elevation (+1 more)
+Nodes (9): menu, nav.rowStep, sidebar.footerCard.height, sidebar.footerCard.width, sidebar.width, sub.rowStep, tokens, elevation (+1 more)
 
-### Community 258 - "automations/presentation.ts"
+### Community 262 - "automations/presentation.ts"
 Cohesion: 0.22
 Nodes (4): AUTOMATION_STATUS_LABELS, FAILURE_COPY, MATCH_MODE_OPTIONS, MatchMode
 
-### Community 259 - "ContactsApi"
+### Community 263 - "ContactsApi"
 Cohesion: 0.22
 Nodes (4): ContactDetail, ContactIdentity, ContactNote, ContactsApi
 
-### Community 260 - "rehearse_backup_restore.py"
+### Community 264 - "rehearse_backup_restore.py"
 Cohesion: 0.44
 Nodes (8): docker(), main(), psql(), psql_stdin(), CompletedProcess, Run SQL via stdin — immune to Windows arg-quoting mangling of double quotes., run(), wait_healthy()
 
-### Community 261 - ".AuditRecordsAreAppendOnly"
-Cohesion: 0.39
-Nodes (4): AuditEntry, Fact, Task, AuditTrailEndpointTests
-
-### Community 262 - ".ExecuteAsync"
+### Community 265 - ".MapIdentityEndpoints"
 Cohesion: 0.36
-Nodes (6): Automation, CancellationToken, DateTimeOffset, Guid, Task, ActivateAutomationUseCase
+Nodes (4): AuthorizeAttribute, Guid, IdentityEndpoints, ClaimsPrincipal
 
-### Community 263 - "InsightsEndpoints.cs"
+### Community 266 - "EfConversationRepository"
+Cohesion: 0.50
+Nodes (4): CancellationToken, Guid, Task, EfConversationRepository
+
+### Community 267 - ".Evaluate"
+Cohesion: 0.43
+Nodes (4): PrivateReplyPolicy, PrivateReplyPolicyInput, PrivateReplyPolicyOutcome, PrivateReplyPolicyVerdict
+
+### Community 268 - "InsightsEndpoints.cs"
 Cohesion: 0.29
 Nodes (4): ILogger, LoggerMessage, InsightsEndpointLogs, InsightsEndpoints
 
-### Community 264 - "WebhookBacklogGauge"
+### Community 269 - "WebhookBacklogGauge"
 Cohesion: 0.32
 Nodes (5): CancellationToken, Func, Task, WebhookBacklogGauge, IHostedService
 
-### Community 266 - "HelpScreen.tsx"
+### Community 270 - "PostgreSqlFixture"
+Cohesion: 0.32
+Nodes (5): PostgreSqlContainer, string, Task, PostgreSqlFixture, PostgresTestEnvironment
+
+### Community 271 - "PostgreSqlFixture"
+Cohesion: 0.32
+Nodes (5): PostgreSqlContainer, string, Task, PostgreSqlFixture, PostgresTestEnvironment
+
+### Community 272 - "FakeWorkStore"
+Cohesion: 0.32
+Nodes (6): Duplicate, Item, List, ScheduledWorkEnqueue, ScheduledWorkItem, FakeWorkStore
+
+### Community 273 - "HelpScreen.tsx"
 Cohesion: 0.32
 Nodes (5): categories, faqs, HelpScreen(), normalize(), quickLinks
 
-### Community 267 - "DashboardOverview.tsx"
+### Community 274 - "DashboardOverview.tsx"
 Cohesion: 0.29
 Nodes (3): DashboardOverview(), FeatureCard, features
 
-### Community 268 - "inbox/presentation.ts"
+### Community 275 - "inbox/presentation.ts"
 Cohesion: 0.25
 Nodes (3): CONVERSATION_STATUS_LABELS, FA_DIGITS, REPLY_FAILURE_COPY
 
-### Community 269 - "penpot-sync.test.mjs"
+### Community 276 - "penpot-sync.test.mjs"
 Cohesion: 0.25
 Nodes (5): APPROVAL_STATUSES, manifest, manifestPath, root, SYNC_STATUSES
 
-### Community 270 - "generate_manifest.py"
+### Community 277 - "generate_manifest.py"
 Cohesion: 0.39
 Nodes (7): _canonical_bytes(), entries(), main(), Path, Return the sorted list of git-tracked files, relative to the repo root.      Dis, Return the file bytes in git's canonical form.      The repository normalizes te, tracked_files()
 
-### Community 271 - "IClock"
-Cohesion: 0.33
-Nodes (5): DateTimeOffset, IClock, DateTimeOffset, SystemClock, Qasedak.BuildingBlocks.Application
-
-### Community 272 - "AuthorizationUrlBuilderPort.cs"
+### Community 278 - "AuthorizationUrlBuilderPort.cs"
 Cohesion: 0.38
 Nodes (5): string, AuthorizationUrl, AuthorizationUrlRequest, IAuthorizationUrlBuilder, InstagramAuthorizationScopes
 
-### Community 273 - "RecordingPaymentGateway"
+### Community 279 - "RecordingPaymentGateway"
 Cohesion: 0.43
 Nodes (5): RecordingPaymentGateway, CreatePaymentRequest, PaymentInitialization, PaymentVerificationResult, VerifyPaymentRequest
 
-### Community 274 - ".GetProfileAsync"
-Cohesion: 0.33
-Nodes (5): AccountProfileOutcome, StubProfileClient, AccountProfileOutcome, FakeProfileClient, IAccountProfileClient
-
-### Community 275 - "FakeOAuthClient"
+### Community 280 - "FakeOAuthClient"
 Cohesion: 0.43
 Nodes (4): CodeExchangeRequest, CodeExchangeResult, LongLivedTokenResult, FakeOAuthClient
 
-### Community 276 - ".SendAsync"
+### Community 281 - ".SendAsync"
 Cohesion: 0.38
 Nodes (5): CancellationToken, HttpRequestMessage, HttpResponseMessage, CancellationAwareHandler, ThrowingHandler
 
-### Community 277 - "FakeOAuthClient"
+### Community 282 - "FakeOAuthClient"
 Cohesion: 0.38
 Nodes (4): CodeExchangeRequest, CodeExchangeResult, LongLivedTokenResult, FakeOAuthClient
 
-### Community 278 - "m12CustomerFrontendPrimary"
+### Community 283 - "m12CustomerFrontendPrimary"
 Cohesion: 0.29
 Nodes (7): m12CustomerFrontendPrimary, fileId, fileName, note, pageCount, penpotRevision, status
 
-### Community 280 - "conversations/api/server.ts"
+### Community 285 - "conversations/api/server.ts"
 Cohesion: 0.29
 Nodes (6): ConversationDetail, ConversationMessage, getConversation, getInboxPage, InboxConversation, InboxPageData
 
-### Community 281 - "20260905132336_InitialScheduledWorkCreation.Designer.cs"
-Cohesion: 0.33
-Nodes (3): ModelBuilder, InitialScheduledWorkCreation, Qasedak.BuildingBlocks.Infrastructure.Scheduling.Migrations
-
-### Community 282 - ".GetPageAsync"
+### Community 286 - ".GetPageAsync"
 Cohesion: 0.53
 Nodes (4): CancellationToken, Guid, Task, IMediaCatalogClient
 
-### Community 283 - "ApiSmokeTests"
-Cohesion: 0.33
-Nodes (5): ApiSmokeTests, HttpClient, IClassFixture, Program, WebApplicationFactory
-
-### Community 284 - "CorrelationEndpointTests"
+### Community 287 - "CorrelationEndpointTests"
 Cohesion: 0.47
 Nodes (3): Fact, Task, CorrelationEndpointTests
 
-### Community 285 - ".OutboundPostbackPayloadSurvivesWebhookNormalizationRoundTrip"
+### Community 288 - ".OutboundPostbackPayloadSurvivesWebhookNormalizationRoundTrip"
 Cohesion: 0.40
 Nodes (4): Fact, string, Task, PostbackRoundTripTests
 
-### Community 286 - "spacing"
+### Community 289 - "radius"
 Cohesion: 0.33
-Nodes (6): nav.rowStep, sidebar.footerCard.height, sidebar.footerCard.width, sidebar.width, sub.rowStep, spacing
+Nodes (6): card, chip, control, dashboardCard, landingCard, radius
 
-### Community 287 - "InsightsPolicy.cs"
+### Community 290 - "InsightsPolicy.cs"
 Cohesion: 0.40
 Nodes (4): int, string, InsightsOptions, InsightsPolicy
 
-### Community 290 - ".PublicEndpointsThrottlePerSourceWith429AndRetryAfter"
+### Community 292 - ".PublicEndpointsThrottlePerSourceWith429AndRetryAfter"
 Cohesion: 0.40
 Nodes (3): Fact, Task, RateLimitEndpointTests
 
-### Community 292 - "ScriptedHttpHandler"
+### Community 293 - "FakeProfileClient"
 Cohesion: 0.50
-Nodes (4): CancellationToken, HttpRequestMessage, HttpResponseMessage, ScriptedHttpHandler
+Nodes (4): StubProfileClient, AccountProfileOutcome, FakeProfileClient, IAccountProfileClient
 
-### Community 295 - "check_architecture.py"
+### Community 297 - "check_architecture.py"
 Cohesion: 0.70
 Nodes (4): main(), project_kind(), Path, resolve_reference()
 
-### Community 297 - "AccountTypes.cs"
-Cohesion: 0.50
-Nodes (3): AccountHealth, ConnectionPath, SubscriptionHealth
+### Community 298 - "Qasedak.Modules.Billing.Domain"
+Cohesion: 0.22
+Nodes (4): AssemblyMarker, AssemblyMarker, Qasedak.Modules.Billing.Application, Qasedak.Modules.Billing.Domain
 
 ### Community 310 - "check_environment_contract.py"
 Cohesion: 0.83
 Nodes (3): collect_code_keys(), doc_covers(), main()
 
+### Community 510 - "Message"
+Cohesion: 0.39
+Nodes (5): ConversationStatus, MessageDirection, DateTimeOffset, Guid, Message
+
+### Community 511 - ".StartAsync"
+Cohesion: 0.43
+Nodes (4): CancellationToken, LoggerMessage, Task, FollowerSnapshotScheduleBootstrap
+
 ## Knowledge Gaps
 - **481 isolated node(s):** `Entity`, `AssemblyMarker`, `AssemblyMarker`, `AssemblyMarker`, `AssemblyMarker` (+476 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **209 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **198 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Qasedak.BuildingBlocks.Application` connect `Qasedak.BuildingBlocks.Application` to `Qasedak.Modules.Instagram.Application.Effects`, `ZarinpalGatewayContractTests`, `Qasedak.Modules.Automations.Application`, `Qasedak.Modules.Identity.Application.Authentication`, `Qasedak.slnx`, `TokenRefreshScheduledHandlerTests`, `.ExecuteAsync`, `Qasedak.Modules.Instagram.Application.Webhooks`, `.MapFailureAsync`, `Qasedak.BuildingBlocks.Domain`, `.ExecuteAsync`, `.ProcessPendingAsync`, `.HandleAsync`, `Qasedak.Modules.Instagram.Infrastructure.Persistence`, `LoggerMessage`, `Qasedak.BuildingBlocks.Application.Auditing`, `.CompleteAsync`, `.ExecuteAsync`, `Qasedak.BuildingBlocks.Infrastructure.Scheduling`, `.ExecuteAsync`, `IClock`?**
-  _High betweenness centrality (0.160) - this node is a cross-community bridge._
-- **Why does `Qasedak.Modules.Instagram.Infrastructure.Persistence` connect `Qasedak.Modules.Instagram.Infrastructure.Persistence` to `20260905204310_AddConnectionEnrichment.Designer.cs`, `20260906035357_AddFollowerSnapshots.Designer.cs`, `Qasedak.Modules.Instagram.Application.Effects`, `.ReserveAsync`, `20260906232403_AddCommentEffects.Designer.cs`, `20260907012837_AddRevealFlows.Designer.cs`, `Qasedak.Modules.Automations.Application`, `ModelSnapshot`, `20260905015456_AddActiveRoutingIdentityIndex.Designer.cs`, `FollowerSnapshotPersistenceTests`, `Migration`, `Qasedak.Modules.Instagram.Application.Webhooks`, `WebhookInboxTests`, `InstagramDbContext`, `Qasedak.BuildingBlocks.Application`, `ApiPostgreSqlFixture`, `20260823181140_AddWebhookInbox.Designer.cs`, `IWebhookInboxStore`, `ProtectedTokenStore`?**
-  _High betweenness centrality (0.083) - this node is a cross-community bridge._
-- **Why does `Qasedak.Api.IntegrationTests` connect `Qasedak.Modules.Automations.Application` to `ContactEndpointTests`, `Qasedak.Modules.Instagram.Application.Webhooks`, `ApiSmokeTests`, `CorrelationEndpointTests`, `ConversationInboxEndpointTests`, `Qasedak.BuildingBlocks.Domain`, `.PublicEndpointsThrottlePerSourceWith429AndRetryAfter`, `Qasedak.Modules.Billing.Application.Payments`, `Qasedak.BuildingBlocks.Application`, `WebhookToContactProjectionTests`, `Qasedak.Modules.Instagram.Infrastructure.Persistence`, `Qasedak.Modules.Instagram.Application.Media`, `WebhookToConversationProjectionTests`, `IdentityAuthorizationTests`, `ApiPostgreSqlFixture`, `DatabaseMigratorTests`, `MetaWebhookEndpointTests`, `Qasedak.BuildingBlocks.Application.Auditing`, `AutomationAccountBindingEndpointTests`, `GraphSubscriptionClient`?**
-  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+- **Why does `Qasedak.BuildingBlocks.Application` connect `Qasedak.BuildingBlocks.Application` to `Qasedak.BuildingBlocks.Infrastructure.Scheduling`, `ZarinpalGatewayContractTests`, `IClock`, `LoggerMessage`, `.HandleAsync`, `.ExecuteAsync`, `.ExecuteAsync`, `Qasedak.Modules.Instagram.Infrastructure.Persistence`, `.ProcessPendingAsync`, `Qasedak.slnx`, `Qasedak.Modules.Instagram.Application.Webhooks`, `.ExecuteAsync`, `Qasedak.BuildingBlocks.Domain`, `Qasedak.Modules.Identity.Application.Authentication`, `Qasedak.Modules.Instagram.Application.Effects`, `.MapFailureAsync`, `.ExecuteAsync`, `Qasedak.BuildingBlocks.Infrastructure/DependencyInjection.cs`?**
+  _High betweenness centrality (0.167) - this node is a cross-community bridge._
+- **Why does `Qasedak.Modules.Instagram.Infrastructure.Persistence` connect `Qasedak.Modules.Instagram.Infrastructure.Persistence` to `FollowerSnapshotRecord`, `Qasedak.BuildingBlocks.Application`, `.IssueAsync`, `Qasedak.Modules.Instagram.Infrastructure.Persistence.Migrations`, `ModelSnapshot`, `InstagramDbContext`, `Qasedak.Modules.Instagram.Application.Webhooks`, `IWebhookInboxStore`, `ApiPostgreSqlFixture`, `Qasedak.Modules.Instagram.Application.Effects`, `FollowStateResult`, `WebhookInboxTests`?**
+  _High betweenness centrality (0.084) - this node is a cross-community bridge._
+- **Why does `Qasedak.Api.IntegrationTests` connect `Qasedak.BuildingBlocks.Application` to `.PublicEndpointsThrottlePerSourceWith429AndRetryAfter`, `GraphSubscriptionClient`, `ConversationInboxEndpointTests`, `.HandleAsync`, `Qasedak.Modules.Instagram.Infrastructure.Persistence`, `DatabaseMigratorTests`, `MetaWebhookEndpointTests`, `WebhookToContactProjectionTests`, `IdentityAuthorizationTests`, `ContactEndpointTests`, `Qasedak.BuildingBlocks.Domain`, `ApiPostgreSqlFixture`, `Qasedak.Modules.Instagram.Application.Webhooks`, `Qasedak.Modules.Instagram.Application.Media`, `WebhookToConversationProjectionTests`, `BillingDbContext.cs`, `AutomationAccountBindingEndpointTests`, `CorrelationEndpointTests`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
 - **What connects `Entity`, `AssemblyMarker`, `AssemblyMarker` to the rest of the system?**
   _481 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `MetaPayloadNormalizerTests` be split into smaller, more focused modules?**
-  _Cohesion score 0.05855855855855856 - nodes in this community are weakly interconnected._
-- **Should `GraphMediaCatalogClientTests` be split into smaller, more focused modules?**
-  _Cohesion score 0.05311355311355311 - nodes in this community are weakly interconnected._
 - **Should `Task` be split into smaller, more focused modules?**
-  _Cohesion score 0.06338185890257558 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.062280701754385964 - nodes in this community are weakly interconnected._
+- **Should `Task` be split into smaller, more focused modules?**
+  _Cohesion score 0.07199529826623567 - nodes in this community are weakly interconnected._
+- **Should `ZarinpalGatewayContractTests` be split into smaller, more focused modules?**
+  _Cohesion score 0.055176890619928594 - nodes in this community are weakly interconnected._

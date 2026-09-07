@@ -37,6 +37,43 @@ public sealed class EfAutomationRepository(AutomationsDbContext context) : IAuto
         return rows.Select(FromRow).ToList();
     }
 
+    public async Task<AutomationReconciliationScope?> GetCommentReconciliationScopeAsync(
+        Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default)
+    {
+        var rows = await context.Automations
+            .Include(r => r.Versions.OrderBy(v => v.Number))
+            .Where(r => r.WorkspaceId == workspaceId && r.ChannelAccountId == channelAccountId && r.Status == AutomationStatus.Active)
+            .ToListAsync(cancellationToken);
+
+        var hasAnySource = false;
+        var specific = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var row in rows)
+        {
+            var automation = FromRow(row);
+            var trigger = automation.CurrentDefinition.Trigger;
+            if (trigger.Kind != TriggerKind.CommentCreated)
+            {
+                continue;
+            }
+
+            if (trigger.Source == SourceScope.AnySource)
+            {
+                hasAnySource = true;
+            }
+            else if (!string.IsNullOrWhiteSpace(trigger.SourceMediaId))
+            {
+                specific.Add(trigger.SourceMediaId);
+            }
+        }
+
+        if (!hasAnySource && specific.Count == 0)
+        {
+            return null;
+        }
+
+        return new AutomationReconciliationScope(hasAnySource, specific.ToList());
+    }
+
     public async Task SaveChangesAsync(Automation automation, CancellationToken cancellationToken = default)
     {
         // Upsert semantics: check tracked locals first (covers inserts within this scope),

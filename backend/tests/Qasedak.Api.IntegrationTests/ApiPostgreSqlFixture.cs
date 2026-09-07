@@ -15,10 +15,12 @@ using Qasedak.Modules.Conversations.Infrastructure.Persistence;
 using Qasedak.Modules.Identity.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Effects;
+using Qasedak.Modules.Instagram.Application.HistorySync;
 using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Application.Reconciliation;
 using Qasedak.Modules.Instagram.Application.RevealFlow;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
@@ -570,6 +572,12 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
     /// <summary>Scripted IG Comment reference reads (creation timestamp for the 7-day policy).</summary>
     public RecordingCommentReferenceReader CommentReferences { get; } = new();
 
+    /// <summary>Scripted comment-history edge (M13-013 Phase A reconciliation).</summary>
+    public ScriptableCommentHistoryClient CommentHistory { get; } = new();
+
+    /// <summary>Scripted Conversations API history edge (M13-013 Phase B sync).</summary>
+    public ScriptableConversationHistoryClient ConversationHistory { get; } = new();
+
     /// <summary>Scripted Meta connection edges shared with connection endpoint tests.</summary>
     public ScriptedOAuthClient OAuth { get; } = new();
 
@@ -682,6 +690,15 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                 services.RemoveAll<IMediaCatalogClient>();
                 services.AddSingleton(Media);
                 services.AddSingleton<IMediaCatalogClient>(sp => sp.GetRequiredService<ScriptedMediaCatalogClient>());
+                // M13-013: scripted comment-history and conversation-history edges; the
+                // real scope-query bridge, sync operations, import gateway and sweep
+                // use cases stay wired — only provider HTTP is replaced.
+                services.RemoveAll<Qasedak.Modules.Instagram.Application.Reconciliation.IInstagramCommentHistoryClient>();
+                services.AddSingleton(CommentHistory);
+                services.AddSingleton<Qasedak.Modules.Instagram.Application.Reconciliation.IInstagramCommentHistoryClient>(sp => sp.GetRequiredService<ScriptableCommentHistoryClient>());
+                services.RemoveAll<Qasedak.Modules.Instagram.Application.HistorySync.IInstagramConversationHistoryClient>();
+                services.AddSingleton(ConversationHistory);
+                services.AddSingleton<Qasedak.Modules.Instagram.Application.HistorySync.IInstagramConversationHistoryClient>(sp => sp.GetRequiredService<ScriptableConversationHistoryClient>());
                 // Insights (M13-007): scripted account/media/follower edges, recording reads.
                 services.RemoveAll<IInstagramInsightsClient>();
                 services.AddSingleton(Insights);
@@ -797,4 +814,85 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
 public sealed class ApiTestEnvironment : ICollectionFixture<ApiPostgreSqlFixture>
 {
     public const string Name = "api-postgres";
+}
+
+/// <summary>Scripted comment-history edge (M13-013 Phase A): bounded pages per media.</summary>
+public sealed class ScriptableCommentHistoryClient : IInstagramCommentHistoryClient
+{
+    public int CallCount { get; private set; }
+
+    public List<(string MediaId, string? AfterCursor)> Calls { get; } = [];
+
+    /// <summary>Pages served per media id (in call order).</summary>
+    public Dictionary<string, Queue<CommentHistoryResult>> Pages { get; } = new();
+
+    public void Reset()
+    {
+        CallCount = 0;
+        Calls.Clear();
+        Pages.Clear();
+    }
+
+    public void ScriptMedia(string mediaId, params ProviderCommentRow[] comments) =>
+        Pages[mediaId] = new Queue<CommentHistoryResult>([new CommentHistoryResult.Ok(new CommentHistoryPage(comments, null, false))]);
+
+    public Task<CommentHistoryResult> ListCommentsPageAsync(
+        string accessToken, string providerAccountId, string mediaId, int limit, string? afterCursor, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        Calls.Add((mediaId, afterCursor));
+        if (!Pages.TryGetValue(mediaId, out var queue) || queue.Count == 0)
+        {
+            return Task.FromResult<CommentHistoryResult>(new CommentHistoryResult.Ok(new CommentHistoryPage([], null, false)));
+        }
+
+        return Task.FromResult(queue.Dequeue());
+    }
+}
+
+/// <summary>Scripted Conversations API history edge (M13-013 Phase B).</summary>
+public sealed class ScriptableConversationHistoryClient : IInstagramConversationHistoryClient
+{
+    public int CallCount { get; private set; }
+
+    public List<ProviderConversationRow> Conversations { get; } = [];
+
+    /// <summary>Message-id rows per conversation.</summary>
+    public Dictionary<string, List<ProviderConversationMessageRow>> Messages { get; } = new();
+
+    /// <summary>Detail rows per message id.</summary>
+    public Dictionary<string, ProviderMessageDetailRow> Details { get; } = new();
+
+    public void Reset()
+    {
+        CallCount = 0;
+        Conversations.Clear();
+        Messages.Clear();
+        Details.Clear();
+    }
+
+    public Task<ConversationListResult> ListConversationsPageAsync(
+        string accessToken, string providerAccountId, int limit, string? afterCursor, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        return Task.FromResult<ConversationListResult>(new ConversationListResult.Ok(new ProviderConversationPage(Conversations, null, false)));
+    }
+
+    public Task<ConversationMessagesResult> GetConversationMessagesPageAsync(
+        string accessToken, string conversationId, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        return Task.FromResult<ConversationMessagesResult>(new ConversationMessagesResult.Ok(
+            Messages.TryGetValue(conversationId, out var rows) ? rows : []));
+    }
+
+    public Task<MessageDetailResult> GetMessageDetailAsync(
+        string accessToken, string messageId, CancellationToken cancellationToken = default)
+    {
+        CallCount++;
+        return Task.FromResult<MessageDetailResult>(
+            Details.TryGetValue(messageId, out var detail)
+                ? new MessageDetailResult.Ok(detail)
+                : new MessageDetailResult.Failed(ConversationHistoryFailures.HistoryUnavailableOutsideRecentWindow, false));
+    }
 }

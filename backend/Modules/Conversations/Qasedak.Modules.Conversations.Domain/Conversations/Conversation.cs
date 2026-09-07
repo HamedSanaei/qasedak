@@ -123,7 +123,7 @@ public sealed class Conversation
         {
             conversation._messages.Add(Message.FromState(
                 state.Id, state.ConversationId, state.Direction, state.ProviderMessageId,
-                state.SenderId, state.Body, state.OccurredAtUtc));
+                state.SenderId, state.Body, state.OccurredAtUtc, state.ContentKind, state.ImportSource, state.WebhookObserved));
         }
 
         return conversation;
@@ -178,6 +178,62 @@ public sealed class Conversation
         return message;
     }
 
+    /// <summary>
+    /// Appends a provider-history-imported message (M13-013 Phase B). Semantics are
+    /// deliberately NOT a webhook projection: no unread inflation, no archived-thread
+    /// reopen (history is reconciliation, not a new-message notification), and content
+    /// is never fabricated. Duplicate provider ids are rejected by the same rule code
+    /// as <see cref="AppendMessage"/> so the import use case treats them as no-ops.
+    /// </summary>
+    public Message AppendImportedMessage(
+        Guid messageId,
+        MessageDirection direction,
+        string providerMessageId,
+        string senderId,
+        string? body,
+        DateTimeOffset occurredAtUtc,
+        MessageContentKind contentKind)
+    {
+        if (_messages.Any(m => m.ProviderMessageId == providerMessageId))
+        {
+            throw new ConversationsDomainException(
+                "message.duplicateProviderId",
+                $"Provider message '{providerMessageId}' was already appended to this conversation.");
+        }
+
+        var message = Message.CreateFromHistory(messageId, Id, direction, providerMessageId, senderId, body, occurredAtUtc, contentKind);
+        _messages.Add(message);
+        if (occurredAtUtc > LastMessageAtUtc || _messages.Count == 1)
+        {
+            LastMessageAtUtc = occurredAtUtc;
+        }
+
+        return message;
+    }
+
+    /// <summary>
+    /// Marks a history-imported message as observed by the LIVE webhook: the real-time
+    /// event proves delivery, so unread is accounted exactly once (M13-013 §59). No-op
+    /// rule-code exception when the message is absent or already observed.
+    /// </summary>
+    public void MarkObservedByWebhook(string providerMessageId, DateTimeOffset observedAtUtc)
+    {
+        var message = _messages.FirstOrDefault(m => m.ProviderMessageId == providerMessageId);
+        if (message is null || message.ImportSource != MessageImportSource.ProviderHistory || message.WebhookObserved)
+        {
+            throw new ConversationsDomainException(
+                "message.webhookObservationInvalid",
+                "Only an unobserved history-imported message may be marked by the webhook.");
+        }
+
+        message.MarkObservedByWebhook(observedAtUtc);
+        UnreadCount++;
+        if (observedAtUtc > LastMessageAtUtc)
+        {
+            LastMessageAtUtc = observedAtUtc;
+        }
+    }
+
     public const int MaxBodyLength = 1000;
 
     /// <summary>Workspace member read the inbound queue; resets unread accounting.</summary>
@@ -220,4 +276,7 @@ public sealed record MessageState(
     string? ProviderMessageId,
     string SenderId,
     string Body,
-    DateTimeOffset OccurredAtUtc);
+    DateTimeOffset OccurredAtUtc,
+    MessageContentKind ContentKind = MessageContentKind.Text,
+    MessageImportSource ImportSource = MessageImportSource.RealTime,
+    bool WebhookObserved = false);

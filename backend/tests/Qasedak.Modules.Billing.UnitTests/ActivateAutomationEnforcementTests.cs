@@ -37,6 +37,24 @@ public sealed class ActivateAutomationUseCaseTests
         public Task<IReadOnlyList<Automation>> ListByAccountAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<Automation>>(Store.Where(a => a.ChannelAccountId == channelAccountId).ToList());
 
+        public Task<AutomationReconciliationScope?> GetCommentReconciliationScopeAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default)
+        {
+            var active = Store.Where(a => a.WorkspaceId == workspaceId && a.ChannelAccountId == channelAccountId && a.Status == AutomationStatus.Active).ToList();
+            var hasAny = active.Any(a => a.CurrentDefinition.Trigger.Kind == TriggerKind.CommentCreated && a.CurrentDefinition.Trigger.Source == SourceScope.AnySource);
+            var specific = active
+                .Where(a => a.CurrentDefinition.Trigger.Kind == TriggerKind.CommentCreated && a.CurrentDefinition.Trigger.Source == SourceScope.SpecificSource)
+                .Select(a => a.CurrentDefinition.Trigger.SourceMediaId!)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
+            if (!hasAny && specific.Count == 0)
+            {
+                return Task.FromResult<AutomationReconciliationScope?>(null);
+            }
+
+            return Task.FromResult<AutomationReconciliationScope?>(new AutomationReconciliationScope(hasAny, specific));
+        }
+
         public async Task SaveChangesAsync(Automation automation, CancellationToken cancellationToken = default)
         {
             await Task.Yield();

@@ -1,7 +1,9 @@
 using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Application.Scheduling;
 using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
+using Qasedak.Modules.Instagram.Application.HistorySync;
 using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Application.Reconciliation;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Domain.Accounts;
 
@@ -37,6 +39,7 @@ public sealed class ConnectInstagramAccountUseCase(
     ISubscriptionClient subscriptions,
     IScheduledWorkStore scheduledWork,
     IOAuthStateStore oauthStates,
+    EnsureConversationSyncUseCase ensureHistorySync,
     IClock clock)
 {
     public async Task<ConnectAccountResult> ExecuteAsync(ConnectInstagramAccountCommand command, CancellationToken cancellationToken = default)
@@ -182,6 +185,29 @@ public sealed class ConnectInstagramAccountUseCase(
                 MaxAttempts: FollowerSnapshotPolicy.DefaultMaxAttempts),
             clock.UtcNow,
             cancellationToken);
+
+        // Comment-reconciliation chain (M13-013 Phase A): ensure the recurring sweep
+        // exists for the new account; occurrence-specific idempotency key; the sweep
+        // itself never runs inside the connect HTTP path (provider traversal happens
+        // in claimed scheduled jobs only).
+        var reconDueAtUtc = clock.UtcNow.Add(CommentReconciliationPolicy.Cadence);
+        await scheduledWork.EnqueueAsync(
+            new ScheduledWorkEnqueue(
+                CommentReconciliationPolicy.JobType,
+                CommentReconciliationPolicy.IdempotencyKey(account.Id, reconDueAtUtc),
+                CommentReconciliationPolicy.Payload(account.Id),
+                PayloadVersion: CommentReconciliationPolicy.PayloadVersion,
+                ConnectedAccountId: account.Id,
+                WorkspaceId: command.WorkspaceId,
+                DueAtUtc: reconDueAtUtc,
+                MaxAttempts: CommentReconciliationPolicy.DefaultMaxAttempts),
+            clock.UtcNow,
+            cancellationToken);
+
+        // Initial bounded conversation-history sync (M13-013 Phase B): enqueued at
+        // connect, executed by the scheduled worker — the OAuth callback never waits
+        // on Graph traversal (§67). Coalesced by the one-active-per-account+kind rule.
+        await ensureHistorySync.ExecuteAsync(account.Id, command.WorkspaceId, SyncOperationKind.Initial, cancellationToken);
 
         return ConnectAccountResult.Ok(account.Id, account.SubscriptionHealth);
     }

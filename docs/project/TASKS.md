@@ -1460,7 +1460,7 @@ account); evidence commit `[skip ci]` verified to trigger zero second pipeline.
 **Suggested commit:** `feat(automations): complete instagram trigger and action parity`
 
 ## M13-013 — Add comment reconciliation and provider history synchronization
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Recover recent provider comments and conversations that were not projected
 through webhooks, using bounded exact-account synchronization that feeds existing
@@ -1495,6 +1495,44 @@ webhook-versus-reconciliation dedup, restart/rate-limit retry, exact-account iso
 initial/manual message import and repeat-import idempotency; cross-workspace negatives and
 operational metrics pass; architecture/state/handoff/manifest and relevant gates pass
 without live Meta calls.
+
+**Completion (2026-09-07, pre-deploy):** Phase A comment reconciliation + Phase B
+conversation history implemented end-to-end. Fresh first-party Meta verification
+retrieved 2026-09-07 (IG Media Comments + IG Comment + Conversations API references,
+developers.facebook.com): comments edge (≤50/query reverse-chronological, top-level
+only, no timestamp filter, non-organic + post-broadcast-live unavailable via
+Instagram Login) and Conversations API (20-recent-message-detail limit, Requests
+omitted after 30 days, message list newest-first) recorded in the coverage matrix
+with the ``instagram_business_basic``/``_manage_comments``/``_manage_messages``
+permissions and ``graph.instagram.com`` host. Reconciliation reuses the M13-006
+recent-media traversal for AnySource, unioned + deduped with specific-source media
+ids, honors owner/self + unknown-author fail-closed + 14-day horizon and dispatches
+recovered comments through the SAME M13-008 fan-out/M13-012 evaluator/M13-009 effect
+ledger keyed on the provider comment id — webhook↔reconciliation convergence proven
+E2E both orders (exactly one logical run/effect). Recurring sweeps run on M13-004
+scheduled work (15-min cadence, per-account chain, occurrence-scoped idempotency
+keys, restart-safe claim, rate-limited chains, permanent outcomes stop + bootstrap
+re-establishes). Conversation history sync adds a focused Conversations client
+(versioned paths, bounded cursor components only — foreign ``paging.next`` never
+followed), per-account operation store (one active Queued/Running per account+kind
+via partial unique index, checkpointed stages, truthful terminal states, stale-Running
+reclaim), initial ensure at connect + existing-account bootstrap + authorized manual
+resync API (enqueue-only, coalescing, 404 foreign account), and a composition-root
+bridge importing through the channel-neutral Conversations ``ImportProviderHistoryUseCase``
+(one external participant rule, direction from exact provider identities,
+Unsupported/Share/NoText classification, unread/history/webhook precedence with
+``WebhookObserved``, import-source provenance, and provider-MID uniqueness scoped to
+``UNIQUE (ConversationId, ProviderMessageId) WHERE ProviderMessageId IS NOT NULL``
+replacing the global index — migration `20260907053239_AddHistoryImportAndScopedProviderMessageId`;
+Instagram migration `20260907053310_AddProviderSyncOperations`). History imports
+never emit automation events (no dispatcher port exists in the sync path; proven E2E:
+DM-looking history creates ZERO AutomationRuns). Verification: 1255/1255 backend
+tests green (Instagram unit 533 incl. client contract/cursor/cap/sweep matrices;
+Conversations 33; PG 65 incl. operation coalescing/restart/concurrency races and
+recurrence jobs; Api E2E 145 incl. reconciliation/history flows), `dotnet format`
+clean, architecture check passed (36 projects), frontend `npm run verify` green,
+`verify.py --full` PASSED. Graphify: refresh + all six M13-013 queries recorded
+healthy 0.9.26. M13-014 remains TODO.
 
 **Suggested commit:** `feat(instagram): reconcile comments and conversation history`
 

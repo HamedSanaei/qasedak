@@ -77,10 +77,16 @@ namespace Qasedak.Modules.Conversations.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<int>("ContentKind")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("ConversationId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Direction")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ImportSource")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("OccurredAtUtc")
@@ -95,12 +101,14 @@ namespace Qasedak.Modules.Conversations.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<bool>("WebhookObserved")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ConversationId");
-
-                    b.HasIndex("ProviderMessageId")
+                    b.HasIndex("ConversationId", "ProviderMessageId")
                         .IsUnique()
+                        .HasDatabaseName("IX_messages_conversation_provider_message")
                         .HasFilter("\"ProviderMessageId\" IS NOT NULL");
 
                     b.ToTable("messages", "conversations");

@@ -80,7 +80,17 @@ public sealed class ProjectInboundMessageUseCase(
         catch (ConversationsDomainException exception) when (
             exception.RuleCode == "message.duplicateProviderId" && !created)
         {
-            // Idempotent redelivery: state already contains this message.
+            // Idempotent redelivery: state already contains this message. A row that
+            // was FIRST imported from bounded provider history becomes observed by the
+            // live webhook now: the real-time event proves delivery, so unread is
+            // accounted exactly once (M13-013 §59 — history-first/webhook-second).
+            var observed = TryMarkHistoryRowObserved(conversation, projection.ProviderMessageId, projection.OccurredAtUtc == default ? clock.UtcNow : projection.OccurredAtUtc);
+            if (observed)
+            {
+                await conversations.SaveChangesAsync(cancellationToken);
+                return InboundProjectionResult.Appended(conversation.Id, created);
+            }
+
             return InboundProjectionResult.DuplicateDelivery(conversation.Id);
         }
         catch (ConversationsDomainException exception) when (exception.RuleCode == "message.tooLong")
@@ -98,5 +108,23 @@ public sealed class ProjectInboundMessageUseCase(
 
         await conversations.SaveChangesAsync(cancellationToken);
         return InboundProjectionResult.Appended(conversation.Id, created);
+    }
+
+    private static bool TryMarkHistoryRowObserved(Conversation conversation, string? providerMessageId, DateTimeOffset observedAtUtc)
+    {
+        if (string.IsNullOrWhiteSpace(providerMessageId))
+        {
+            return false;
+        }
+
+        try
+        {
+            conversation.MarkObservedByWebhook(providerMessageId, observedAtUtc);
+            return true;
+        }
+        catch (ConversationsDomainException exception) when (exception.RuleCode == "message.webhookObservationInvalid")
+        {
+            return false;
+        }
     }
 }

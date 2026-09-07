@@ -5,15 +5,18 @@ using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.Effects;
 using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
+using Qasedak.Modules.Instagram.Application.HistorySync;
 using Qasedak.Modules.Instagram.Application.Insights;
 using Qasedak.Modules.Instagram.Application.Media;
 using Qasedak.Modules.Instagram.Application.Messaging;
 using Qasedak.Modules.Instagram.Application.OAuth;
+using Qasedak.Modules.Instagram.Application.Reconciliation;
 using Qasedak.Modules.Instagram.Application.RevealFlow;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Application.Webhooks;
 using Qasedak.Modules.Instagram.Infrastructure.Effects;
 using Qasedak.Modules.Instagram.Infrastructure.Graph;
+using Qasedak.Modules.Instagram.Infrastructure.HistorySync;
 using Qasedak.Modules.Instagram.Infrastructure.Insights;
 using Qasedak.Modules.Instagram.Infrastructure.Media;
 using Qasedak.Modules.Instagram.Infrastructure.Messaging;
@@ -21,6 +24,7 @@ using Qasedak.Modules.Instagram.Infrastructure.OAuth;
 using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Qasedak.Modules.Instagram.Infrastructure.Profiles;
 using Qasedak.Modules.Instagram.Infrastructure.Protection;
+using Qasedak.Modules.Instagram.Infrastructure.Reconciliation;
 using Qasedak.Modules.Instagram.Infrastructure.RevealFlow;
 using Qasedak.Modules.Instagram.Infrastructure.Snapshots;
 using Qasedak.Modules.Instagram.Infrastructure.Subscriptions;
@@ -127,6 +131,34 @@ public static class DependencyInjection
             sp.GetRequiredService<IMediaCursorCodec>()));
         services.AddSingleton<IMediaCatalogClient>(sp => sp.GetRequiredService<GraphMediaCatalogClient>());
         services.AddScoped<ListMediaPageUseCase>();
+
+        // Comment reconciliation (M13-013 Phase A): focused comments-history adapter
+        // over the shared transport; the scope query port is bridged at the
+        // composition root (Automations); recurring chain + DB-only bootstrap.
+        services.AddHttpClient(GraphInstagramCommentHistoryClient.HttpClientName);
+        services.AddSingleton(sp => new GraphInstagramCommentHistoryClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramCommentHistoryClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<IInstagramCommentHistoryClient>(sp => sp.GetRequiredService<GraphInstagramCommentHistoryClient>());
+        services.AddSingleton(sp => new CommentReconciliationMetrics());
+        services.AddScoped<CommentReconciliationUseCase>();
+        services.AddScoped<ICommentSweep>(sp => sp.GetRequiredService<CommentReconciliationUseCase>());
+        services.AddHostedService<CommentReconciliationScheduleBootstrap>();
+
+        // Conversation history sync (M13-013 Phase B): focused Conversations API
+        // adapter, Instagram-owned sync-operation persistence, durable handler chain,
+        // DB-only bootstrap and the ensure/coalesce use case. The channel-neutral
+        // import gateway is bridged at the composition root (Conversations).
+        services.AddHttpClient(GraphInstagramConversationHistoryClient.HttpClientName);
+        services.AddSingleton(sp => new GraphInstagramConversationHistoryClient(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(GraphInstagramConversationHistoryClient.HttpClientName),
+            sp.GetRequiredService<IOptions<MetaGraphOptions>>()));
+        services.AddSingleton<IInstagramConversationHistoryClient>(sp => sp.GetRequiredService<GraphInstagramConversationHistoryClient>());
+        services.AddScoped<IProviderSyncOperationStore, EfProviderSyncOperationStore>();
+        services.AddScoped<ConversationHistorySyncUseCase>();
+        services.AddScoped<EnsureConversationSyncUseCase>();
+        services.AddSingleton(sp => new ConversationSyncMetrics());
+        services.AddHostedService<ConversationHistorySyncScheduleBootstrap>();
 
         // Insights (M13-007): focused adapter over the shared Graph transport, the
         // verified metric registry, bounded-concurrency policy and observability.

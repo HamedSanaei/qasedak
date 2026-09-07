@@ -53,6 +53,9 @@ public sealed class ExecuteAutomationTests
         public Task<IReadOnlyList<Automation>> ListByAccountAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<Automation>>(Threads.Where(a => a.ChannelAccountId == channelAccountId).ToList());
 
+        public Task<AutomationReconciliationScope?> GetCommentReconciliationScopeAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<AutomationReconciliationScope?>(null);
+
         public Task SaveChangesAsync(Automation automation, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
     }

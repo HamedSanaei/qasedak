@@ -62,8 +62,17 @@ public sealed class ConversationsDbContext(DbContextOptions<ConversationsDbConte
             message.Property(m => m.SenderId).HasMaxLength(64);
             message.Property(m => m.Body).HasMaxLength(Conversation.MaxBodyLength);
             message.Property(m => m.Direction).HasConversion<int>();
-            // Idempotent projection safety net: a provider identity is stored once.
-            message.HasIndex(m => m.ProviderMessageId).IsUnique().HasFilter("\"ProviderMessageId\" IS NOT NULL");
+            message.Property(m => m.ContentKind).HasConversion<int>();
+            message.Property(m => m.ImportSource).HasConversion<int>();
+            // M13-013 §61/§62: the Domain contract is uniqueness PER CONVERSATION and
+            // Meta does not formally guarantee globally unique mids, so the scoped
+            // (ConversationId, ProviderMessageId) index replaces the former global
+            // unique index. Same MID on two exact accounts/conversations may coexist;
+            // within one conversation a provider identity is stored once.
+            message.HasIndex(m => new { m.ConversationId, m.ProviderMessageId })
+                .IsUnique()
+                .HasFilter("\"ProviderMessageId\" IS NOT NULL")
+                .HasDatabaseName("IX_messages_conversation_provider_message");
         });
     }
 }

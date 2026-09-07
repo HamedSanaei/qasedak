@@ -19,6 +19,16 @@ public interface IAutomationRepository
     /// </summary>
     Task<IReadOnlyList<Automation>> ListByAccountAsync(Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Channel-neutral comment-reconciliation scope (M13-013 §13): for the exact
+    /// account, whether any ACTIVE comment-trigger automation has AnySource scope and
+    /// the deduplicated union of SpecificSource media ids. Returns null when the
+    /// account has no active comment-trigger automation — callers must then perform
+    /// zero provider traffic. Never exposes message text/actions outside Automations.
+    /// </summary>
+    Task<AutomationReconciliationScope?> GetCommentReconciliationScopeAsync(
+        Guid workspaceId, ChannelAccountId channelAccountId, CancellationToken cancellationToken = default);
+
     /// <summary>Persists the current aggregate state (insert or full-row upsert).</summary>
     Task SaveChangesAsync(Automation automation, CancellationToken cancellationToken = default);
 }

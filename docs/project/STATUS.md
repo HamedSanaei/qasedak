@@ -2,9 +2,46 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-013 — Add comment reconciliation and provider history synchronization (TODO)
-**Last completed:** M13-012 (2026-09-07, deployed)
-**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters, the durable reveal-flow capability and full automation trigger/action parity (comment + inbound-DM triggers with exact-account binding, post/original-post scope, every-event/keyword/whole-word matching, Private Reply / Direct / Public Reply / reveal / durable crash-safe follow-up actions on a schema-v2 versioned definition) complete; M13-013 comment reconciliation/history sync not started
+**Current task:** M13-014 — Expose complete frontend Instagram application surface (TODO, next)
+**Last completed:** M13-013 (2026-09-07)
+**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters, the durable reveal-flow capability, full automation trigger/action parity (comment + inbound-DM triggers with exact-account binding, post/original-post scope, every-event/keyword/whole-word matching, Private Reply / Direct / Public Reply / reveal / durable crash-safe follow-up actions on a schema-v2 versioned definition), bounded comment reconciliation feeding the existing semantic automation path, and channel-neutral conversation-history import/sync complete; M13-014 (frontend surface) TODO
+
+## 2026-09-07 — M13-013 comment reconciliation + conversation history implemented
+
+- Fresh first-party Meta verification retrieved 2026-09-07 (IG Media Comments, IG
+  Comment and Conversations API references, developers.facebook.com): comments edge
+  reverse-chronological ≤50/query, top-level only, no timestamp filter, non-organic /
+  post-broadcast-live unavailable through Instagram Login; Conversations API message
+  detail bounded to the newest 20 per conversation and Requests omitted after 30 days;
+  permissions `instagram_business_basic` + `_manage_comments` + `_manage_messages`;
+  coverage matrix recorded.
+- **Phase A (comment reconciliation):** per-account recurring sweep (M13-004, 15-min
+  cadence, restart-safe claim, occurrence-scoped keys, rate-limited chains continue /
+  permanent outcomes stop + DB-only bootstrap re-establishes); zero provider traffic
+  without active comment automation; AnySource reuses the M13-006 bounded recent-media
+  traversal unioned+deduped with specific-source ids; per-sweep caps; owner/self
+  skipped; missing author fails closed; 14-day horizon; recovered comments enter the
+  SAME M13-008 fan-out → M13-012 evaluator → M13-009 effect ledger keyed on the
+  provider comment id (webhook↔reconciliation converges on one logical run/effect —
+  proven E2E both orders).
+- **Phase B (conversation history):** focused Conversations adapter (versioned paths,
+  bounded cursor components only — provider `paging.next` URLs never followed),
+  per-account provider-sync operation store (one active Queued/Running per
+  account+kind partial unique index, checkpointed stages, stale-Running reclaim,
+  truthful terminal states), initial ensure at connect, DB-only bootstrap for existing
+  accounts, authorized manual resync (enqueue-only, coalescing), composition-root
+  bridge into the channel-neutral Conversations `ImportProviderHistoryUseCase`
+  (exact-identity direction, one-external-participant rule, Unsupported/Share/NoText
+  truthfulness, unread/webhook precedence, provenance); provider-MID uniqueness now
+  scoped `UNIQUE (ConversationId, ProviderMessageId) WHERE ProviderMessageId IS NOT
+  NULL`; history imports NEVER emit automation events (zero AutomationRuns proven).
+- **Gates:** 1255/1255 backend tests green; `dotnet format` clean; architecture check
+  passed (36 projects); frontend `npm run verify` green; `verify.py --full` PASSED;
+  Graphify healthy 0.9.26 refresh + all six M13-013 queries recorded.
+- **Schema:** Conversations migration `20260907053239_AddHistoryImportAndScopedProviderMessageId`
+  (additive: ContentKind/ImportSource/WebhookObserved columns + scoped MID index,
+  drops the global provider-MID uniqueness) and Instagram migration
+  `20260907053310_AddProviderSyncOperations`.
 
 ## 2026-09-07 — M13-012 authoring-limits correction deployed (provider-bound parity)
 

@@ -60,6 +60,9 @@ if (!string.IsNullOrWhiteSpace(platformConnectionString))
     builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Refresh.TokenRefreshScheduledHandler>();
     builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Snapshots.FollowerSnapshotScheduledHandler>();
     builder.Services.AddScheduledWorkHandler<Qasedak.Api.CrossModule.AutomationFollowUpScheduledHandler>();
+    // M13-013: recurring comment reconciliation + durable conversation-history sync.
+    builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Reconciliation.CommentReconciliationScheduledHandler>();
+    builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.HistorySync.ConversationHistorySyncScheduledHandler>();
 }
 
 // Workspace-membership policy: every /workspaces/{workspaceId}/... endpoint group requires
@@ -117,6 +120,12 @@ builder.Services.AddScoped<Qasedak.Modules.Billing.Application.EntitlementGate>(
 builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IAutomationActivationPolicy,
     Qasedak.Api.CrossModule.BillingActivationPolicyAdapter>();
 builder.Services.AddScoped<Qasedak.Modules.Automations.Application.ExecuteAutomationUseCase>();
+// M13-013 bridges: the channel-neutral reconciliation scope (Automations → Instagram)
+// and the channel-neutral history import gateway (Instagram → Conversations).
+builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Reconciliation.ICommentReconciliationScopeQuery,
+    Qasedak.Api.CrossModule.AutomationCommentScopeAdapter>();
+builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.HistorySync.IConversationHistoryImportGateway,
+    Qasedak.Api.CrossModule.ConversationHistoryImportBridge>();
 
 // Risk-class rate limiting: public/authenticated/webhook/sensitive budgets, 429+Retry-After.
 builder.Services.AddRateLimiter(options => Qasedak.BuildingBlocks.Infrastructure.RateLimiting.RateLimitPolicies.Configure(options, builder.Configuration));
@@ -152,6 +161,7 @@ app.MapConversationEndpoints();
 app.MapContactEndpoints();
 app.MapConnectionEndpoints();
 app.MapMediaEndpoints();
+app.MapHistorySyncEndpoints();
 app.MapInsightsEndpoints();
 app.MapAutomationEndpoints();
 app.MapBillingEndpoints();

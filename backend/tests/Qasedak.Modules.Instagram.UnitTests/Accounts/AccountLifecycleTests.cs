@@ -2,6 +2,7 @@ using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Application.Scheduling;
 using Qasedak.Modules.Instagram.Application.Accounts;
 using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
+using Qasedak.Modules.Instagram.Application.HistorySync;
 using Qasedak.Modules.Instagram.Application.OAuth;
 using Qasedak.Modules.Instagram.Application.Subscriptions;
 using Qasedak.Modules.Instagram.Domain.Accounts;
@@ -221,8 +222,9 @@ public sealed class AccountLifecycleTests
         var jobs = new FakeScheduledWorkStore();
         var states = new FakeOAuthStateStore();
         var clock = new FixedClock(Now);
+        var ensureSync = new EnsureConversationSyncUseCase(new FakeProviderSyncOperationStore(), jobs, clock);
         return (
-            new ConnectInstagramAccountUseCase(repo, tokens, oauth, profiles, subscriptions, jobs, states, clock),
+            new ConnectInstagramAccountUseCase(repo, tokens, oauth, profiles, subscriptions, jobs, states, ensureSync, clock),
             new DisconnectInstagramAccountUseCase(repo, tokens, clock),
             new ListWorkspaceConnectionsUseCase(repo),
             repo,
@@ -553,5 +555,31 @@ public sealed class AccountLifecycleTests
         Assert.Equal(SubscriptionHealth.NeedsRepair, account.SubscriptionHealth);
         Assert.NotNull(account.LastSubscriptionCheckUtc);
         // The repair endpoint (covered separately) recovers this without new OAuth.
+    }
+
+    private sealed class FakeProviderSyncOperationStore : IProviderSyncOperationStore
+    {
+        public Task<ProviderSyncOperation?> CreateOrGetActiveAsync(Guid operationId, Guid connectedAccountId, Guid workspaceId, SyncOperationKind kind, DateTimeOffset now, CancellationToken cancellationToken = default) =>
+            Task.FromResult<ProviderSyncOperation?>(new ProviderSyncOperation(
+                operationId, connectedAccountId, workspaceId, kind, SyncOperationStatus.Queued, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, null, null, now, null, null, now));
+
+        public Task<ProviderSyncOperation?> FindByIdAsync(Guid operationId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<ProviderSyncOperation?>(null);
+
+        public Task<bool> TryStartAsync(Guid operationId, DateTimeOffset now, CancellationToken cancellationToken = default) =>
+            Task.FromResult(true);
+
+        public Task CheckpointAsync(Guid operationId, int stage, string? nextCursor, ProviderSyncCounters counters, DateTimeOffset now, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task CompleteAsync(Guid operationId, ProviderSyncCounters counters, DateTimeOffset now, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task FailAsync(Guid operationId, string failureCategory, bool transient, ProviderSyncCounters counters, DateTimeOffset now, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task<IReadOnlyList<ProviderSyncOperation>> ListRecentAsync(Guid connectedAccountId, int limit, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ProviderSyncOperation>>([]);
     }
 }
