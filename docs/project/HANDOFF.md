@@ -1,5 +1,101 @@
 # Current handoff
 
+## 2026-09-07 — M13-012 DONE; M13-013 packet ready (do not start M13-013)
+
+M13-012 completed automation parity: comment + inbound-DM triggers, post/original-post
+scope, every-event/keyword/whole-word matching, explicit actions (Private Reply, Direct,
+Public Reply, reveal, durable follow-up) on a backward-compatible schema-v2 definition.
+
+### M13-013 packet (read-only; do NOT implement reconciliation/history sync)
+
+- **Final TriggerContext:** `EventId` (provider semantic identity: comment id for
+  comments, provider mid for DMs), `Kind` (TriggerKind.CommentCreated=1 /
+  InboundDirectMessage=2), `ProviderEventIdentity` (same semantic id), `SenderId`
+  (comment FromId / DM sender id; null never fabricated), `Text`, `OccurredAtUtc`,
+  `MediaId`, `OriginalMediaId`, `IsLiveComment`. Deterministic evaluator consumes it;
+  no I/O/clock/random anywhere in evaluation.
+- **Comment trigger identity:** run ledger keys on `automationId + comment id` —
+  duplicate fragments, re-enveloped deliveries and future provider-history imports
+  converge on one logical trigger. DM trigger identity: `automationId + mid` (message
+  without mid fails closed, zero traffic).
+- **Exact account binding:** every execution requires the event's resolved
+  ConnectedAccountId == automation.ChannelAccountId (refusal BEFORE evaluation and
+  ledger); bridges consume only normalized `InstagramCommentCreated` /
+  `InstagramMessageReceived`; no workspace-first search, no first-account fallback.
+- **Source scope:** SourceScope.AnySource / SpecificSource + `SourceMediaId` (opaque
+  bounded ≤64, never resolved); comment matching honors `media.id` and
+  `media.original_media_id` (ad originals). DM triggers reject media scope at authoring.
+- **Text matching:** TextMatchMode.EveryEvent (keywords ignored) / Keywords (ANY-of
+  case-insensitive substring); `WholeWord` (Keywords only) uses `WholeWordMatcher`
+  (Unicode boundary algorithm, diacritics-safe). Conditions: CommentText/SenderId ×
+  Contains/Equals, all must hold.
+- **Final ActionKinds (append-only):** 1 SendDirectMessage (LEGACY origin-aware —
+  comment ⇒ Private Reply, DM ⇒ Direct), 2 SendPrivateReply (comment only),
+  3 DirectMessage (DM only), 4 StartRevealFlow (comment only; Extras.Reveal required),
+  5 SendPublicReply (comment only), 6 ScheduleFollowUp (comment or DM;
+  Extras.Delay 1m–7d). Matrix and conflicts enforced at authoring (≤1
+  Private-Ready-consumer per comment definition).
+- **Legacy v1 compatibility:** schema-versioned JSON converter; version-1 rows
+  evaluate identically to pre-M13-012 (`LegacyV1BehavesIdenticallyToPreM13012Evaluation`
+  fixture); no enum renumbering; frozen versions never rewritten.
+- **Private/Public effects:** `comment_effects` ledger stays provider-effect authority
+  for Private/Public replies (public reply outcome replayed into AutomationRun with
+  zero provider call on Succeeded; Attempting/Uncertain/TerminalFailed replay
+  terminally; foreign ownership truthfully Suppressed).
+- **Reveal mapping:** StartRevealFlow → `AutomationRevealBridge` → M13-011 coordinator
+  with automation-owned bounded content; opening Private Reply, gate prompt, postback
+  and single reveal keep M13-011's CAS authorities.
+- **Scheduled follow-up model:** `FollowUpJobPolicy.WorkType`, payload
+  `{runId, actionIndex}` only (no secret, no message text — resolved from the pinned
+  frozen version at due time), idempotency key = run+index, MaxAttempts default;
+  `AutomationFollowUpScheduledHandler` revalidates lifecycle → version → exact account
+  → participant → 24h window in that order.
+- **Window lookup:** `AutomationDirectEligibilityAdapter` → Conversations
+  `GetLatestInboundOccurredAtUtcAsync(workspace, channel, account, participant)` — the
+  latest locally-projected inbound user message is the only 24h anchor; comment /
+  Private Reply / public reply / postback / schedule timestamps never anchor it;
+  transient projection failure ⇒ Unknown (retryable, zero provider call); Meta stays
+  final authority (`direct.windowExpired` terminal at due time).
+- **Outbound crash safety:** every non-repeatable mutation is preceded by a durable
+  Attempting marker (PG CAS single UPDATE for follow-ups; run ledger for immediate
+  actions); after the marker NO automatic second call — crash/restart/timeout settles
+  Uncertain (`action.attemptInterrupted` / `followUp.attemptInterrupted`), zero resend;
+  explicit provider rejection after an external attempt ⇒ TerminalFailed; local
+  pre-provider rejection (ExternalAttempt=false) stays retryable.
+- **AutomationRun states:** Pending/Scheduled/Attempting/Succeeded/Suppressed/Uncertain/
+  TerminalFailed/ContinuationStarted slots; run Completed/Finished/Running/Failed;
+  additive columns AttemptedAtUtc, CompletedAtUtc, ProviderRecipientId,
+  ProviderMessageId (migration `20260907023218_AddAutomationActionAttemptColumns`,
+  additive; Down drops only new columns).
+- **Definition persistence:** `AutomationDefinitionJsonConverter` writes
+  `{"schemaVersion":2,...}` and reads v1 legacy rows; `AutomationDefinition` JSON column
+  unchanged; frozen version pinning in runs unchanged.
+- **Known webhook/history gaps (M13-013 material):** no comment listing/history
+  recovery; no Conversations history sync; no missed-webhook sweep; `entry.time` is
+  notification time, never comment creation time (M13-009 `ICommentReferenceReader`
+  remains the only creation-time authority); every-event DM triggers are at-least-once
+  via the run ledger.
+
+### M13-012 delivery (implementation evidence)
+
+- **Backend 1128/1128:** unit 890 (Automations 135: evaluator v1+v2, whole-word Unicode,
+  serializer legacy fixtures, definition validation matrix/conflicts, follow-up CAS,
+  execute-use-case terminal outcomes); PostgreSQL + API E2E 238 (Automations ledger 11
+  incl. concurrent attempt-marker race; API E2E 134 incl. 12 signed-webhook capability
+  flows: DM trigger once + redelivery no-repeat, legacy origin-aware routing, missing
+  mid fail-closed, specific-source MediaId/OriginalMediaId, public+private exactly once
+  each, reveal mapping, follow-up due-time single send, disabled suppression, window
+  expired terminal, interrupted attempt Uncertain, §48 comment-alone suppression,
+  §47 no-from-id schedule fail-closed). Frontend `npm run verify` green (string-typed
+  DTOs source-compatible; no UI changes).
+- **Migration:** `20260907023218_AddAutomationActionAttemptColumns` (Automations
+  schema, additive; old binary bootable; applied before image switch).
+- **Gates:** `dotnet format --verify-no-changes` clean; architecture check passed;
+  Graphify 0.9.26 healthy (code-only refresh + cluster-only + bounded query recorded);
+  `verify.py --full` green except the known local-only `check_docs.py` deviation from
+  the human-owned untracked handbook (preserved byte-identically, never staged, absent
+  in CI). No live Meta calls; no production effects.
+
 ## 2026-09-07 — M13-011 DONE; M13-012 packet ready (do not start M13-012)
 
 M13-011 added the durable Instagram reveal-flow capability (follow gate, opening DM,

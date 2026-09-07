@@ -696,6 +696,7 @@ public sealed class ApiPostgreSqlFixture : IAsyncLifetime
                         [
                             sp.GetRequiredService<Qasedak.Api.CrossModule.InstagramConversationBridge>(),
                             sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationCommentBridge>(),
+                            sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationInboundMessageBridge>(),
                             sp.GetRequiredService<Qasedak.Api.CrossModule.ContactsInteractionBridge>(),
                             sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowContinuationBridge>(),
                             sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowStartBridge>(),

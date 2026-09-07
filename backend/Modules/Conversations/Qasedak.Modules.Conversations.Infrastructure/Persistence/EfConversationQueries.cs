@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Conversations.Application.Conversations;
 using Qasedak.Modules.Conversations.Domain.Conversations;
 
@@ -50,6 +51,29 @@ public sealed class EfConversationQueries(ConversationsDbContext context) : ICon
             .ToListAsync(cancellationToken);
 
         return new InboxPage(items, filter.Page, filter.Take, total);
+    }
+
+    public async Task<DateTimeOffset?> GetLatestInboundOccurredAtUtcAsync(
+        Guid workspaceId,
+        string channel,
+        ChannelAccountId channelAccountId,
+        string participantId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(participantId))
+        {
+            return null;
+        }
+
+        return await context.Conversations.AsNoTracking()
+            .Where(c => c.WorkspaceId == workspaceId
+                && c.Channel == channel
+                && c.ChannelAccountId == channelAccountId
+                && c.ParticipantId == participantId)
+            .SelectMany(c => c.Messages)
+            .Where(m => m.Direction == MessageDirection.Inbound)
+            .Select(m => (DateTimeOffset?)m.OccurredAtUtc)
+            .MaxAsync(cancellationToken);
     }
 
     public async Task<(InboxConversationRow Row, IReadOnlyList<InboxMessageRow> Messages)?> GetDetailAsync(

@@ -214,19 +214,49 @@ public static class AutomationEndpoints
         string? TriggerKind,
         IReadOnlyList<string>? KeywordFilters,
         IReadOnlyList<ConditionRequest>? Conditions,
-        IReadOnlyList<ActionRequest>? Actions);
+        IReadOnlyList<ActionRequest>? Actions,
+        string? TextMatchMode = null,
+        bool? WholeWord = null,
+        string? SourceScope = null,
+        string? SourceMediaId = null);
 
     public sealed record ConditionRequest(string? Field, string? Operator, string? ExpectedValue);
 
-    public sealed record ActionRequest(string? Kind, string? MessageText);
+    public sealed record ActionRequest(
+        string? Kind,
+        string? MessageText,
+        int? DelayMinutes = null,
+        RevealActionRequest? Reveal = null);
+
+    public sealed record RevealActionRequest(
+        string? GatePromptText,
+        string? PostbackButtonTitle,
+        string? RevealText,
+        string? FollowUrl,
+        string? FollowButtonTitle,
+        string? FollowGateMode);
 
     public sealed record ConditionResponse(string Field, string Operator, string ExpectedValue);
 
-    public sealed record ActionResponse(string Kind, string MessageText);
+    public sealed record ActionResponse(string Kind, string MessageText, ActionExtrasResponse? Extras);
+
+    public sealed record ActionExtrasResponse(int? DelayMinutes, RevealActionResponse? Reveal);
+
+    public sealed record RevealActionResponse(
+        string GatePromptText,
+        string PostbackButtonTitle,
+        string RevealText,
+        string? FollowUrl,
+        string? FollowButtonTitle,
+        string FollowGateMode);
 
     public sealed record DefinitionResponse(
         string TriggerKind,
         IReadOnlyList<string> KeywordFilters,
+        string TextMatchMode,
+        bool WholeWord,
+        string SourceScope,
+        string? SourceMediaId,
         IEnumerable<ConditionResponse> Conditions,
         IEnumerable<ActionResponse> Actions);
 
@@ -255,10 +285,14 @@ public static class AutomationEndpoints
             new DefinitionResponse(
                 automation.CurrentDefinition.Trigger.Kind.ToString(),
                 automation.CurrentDefinition.Trigger.KeywordFilters,
+                automation.CurrentDefinition.Trigger.TextMatch.ToString(),
+                automation.CurrentDefinition.Trigger.WholeWord,
+                automation.CurrentDefinition.Trigger.Source.ToString(),
+                automation.CurrentDefinition.Trigger.SourceMediaId,
                 automation.CurrentDefinition.Conditions.Select(c => new ConditionResponse(
                     c.Field.ToString(), c.Operator.ToString(), c.ExpectedValue)),
                 automation.CurrentDefinition.Actions.Select(a => new ActionResponse(
-                    a.Kind.ToString(), a.MessageText))));
+                    a.Kind.ToString(), a.MessageText, DefinitionMapper.ToExtrasResponse(a.Extras)))));
     }
 
     /// <summary>Maps wire payloads onto domain value objects; unknown enum names fail closed.</summary>
@@ -288,6 +322,30 @@ public static class AutomationEndpoints
                 return false;
             }
 
+            // Legacy authoring convention preserved: an omitted text-match mode means
+            // Keywords for non-empty filter lists, EveryEvent otherwise.
+            var textMatch = request.TextMatchMode is null
+                ? (keywords.Length > 0 ? TextMatchMode.Keywords : TextMatchMode.EveryEvent)
+                : ParseEnum<TextMatchMode>(request.TextMatchMode, "automation.textMatchModeInvalid", ref errorCode);
+            if (textMatch is null)
+            {
+                return false;
+            }
+
+            var sourceScope = request.SourceScope is null
+                ? SourceScope.AnySource
+                : ParseEnum<SourceScope>(request.SourceScope, "automation.sourceScopeInvalid", ref errorCode);
+            if (sourceScope is null)
+            {
+                return false;
+            }
+
+            if (request.WholeWord is true && textMatch != TextMatchMode.Keywords)
+            {
+                errorCode = "automation.wholeWordRequiresKeywords";
+                return false;
+            }
+
             var conditions = new List<AutomationCondition>();
             foreach (var condition in request.Conditions ?? [])
             {
@@ -313,13 +371,27 @@ public static class AutomationEndpoints
                     return false;
                 }
 
-                actions.Add(new AutomationAction(actionKind, action!.MessageText ?? string.Empty));
+                var extras = MapExtras(action, actionKind, ref errorCode);
+                if (errorCode is not null)
+                {
+                    return false;
+                }
+
+                actions.Add(new AutomationAction(actionKind, action!.MessageText ?? string.Empty, extras));
             }
 
             try
             {
                 definition = AutomationDefinition.Create(
-                    new AutomationTrigger(triggerKind, keywords), conditions, actions);
+                    new AutomationTrigger(
+                        triggerKind,
+                        keywords,
+                        textMatch.Value,
+                        request.WholeWord ?? false,
+                        sourceScope.Value,
+                        request.SourceMediaId),
+                    conditions,
+                    actions);
                 return true;
             }
             catch (AutomationsDomainException exception)
@@ -328,5 +400,73 @@ public static class AutomationEndpoints
                 return false;
             }
         }
+
+        private static TEnum? ParseEnum<TEnum>(string? value, string errorCode, ref string? error) where TEnum : struct, Enum
+        {
+            if (Enum.TryParse<TEnum>(value, ignoreCase: true, out var parsed) && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+
+            error = errorCode;
+            return null;
+        }
+
+        private static ActionExtras? MapExtras(ActionRequest? action, ActionKind kind, ref string? errorCode)
+        {
+            if (action is null)
+            {
+                return null;
+            }
+
+            TimeSpan? delay = null;
+            if (action.DelayMinutes is { } minutes)
+            {
+                // Product bounds enforced again by the domain; here only shape/size sanity.
+                if (minutes <= 0 || minutes > (int)AutomationAction.FollowUpDelayMax.TotalMinutes)
+                {
+                    errorCode = "automation.followUpDelayInvalid";
+                    return null;
+                }
+
+                delay = TimeSpan.FromMinutes(minutes);
+            }
+
+            RevealActionContent? reveal = null;
+            if (action.Reveal is { } revealRequest)
+            {
+                var followGateMode = revealRequest.FollowGateMode is null
+                    ? RevealFollowGateMode.Disabled
+                    : ParseEnum<RevealFollowGateMode>(revealRequest.FollowGateMode, "automation.revealFollowGateModeInvalid", ref errorCode);
+                if (followGateMode is null)
+                {
+                    return null;
+                }
+
+                reveal = new RevealActionContent(
+                    revealRequest.GatePromptText ?? string.Empty,
+                    revealRequest.PostbackButtonTitle ?? string.Empty,
+                    revealRequest.RevealText ?? string.Empty,
+                    revealRequest.FollowUrl,
+                    revealRequest.FollowButtonTitle,
+                    followGateMode.Value);
+            }
+
+            return delay is null && reveal is null ? null : new ActionExtras(delay, reveal);
+        }
+
+        internal static ActionExtrasResponse? ToExtrasResponse(ActionExtras? extras) => extras is null
+            ? null
+            : new ActionExtrasResponse(
+                extras.Delay is { } delay ? (int)delay.TotalMinutes : null,
+                extras.Reveal is { } reveal
+                    ? new RevealActionResponse(
+                        reveal.GatePromptText,
+                        reveal.PostbackButtonTitle,
+                        reveal.RevealText,
+                        reveal.FollowUrl,
+                        reveal.FollowButtonTitle,
+                        reveal.FollowGateMode.ToString())
+                    : null);
     }
 }

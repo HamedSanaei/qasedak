@@ -193,8 +193,8 @@ public sealed class AutomationAggregateTests
             AutomationTrigger.CommentCreated(),
             [
                 new AutomationAction(ActionKind.SendDirectMessage, "first"),
-                new AutomationAction(ActionKind.SendDirectMessage, "second"),
-                new AutomationAction(ActionKind.SendDirectMessage, "third"),
+                new AutomationAction(ActionKind.SendPublicReply, "second"),
+                new AutomationAction(ActionKind.SendPublicReply, "third"),
             ]);
 
         Assert.Equal(["first", "second", "third"], definition.Actions.Select(a => a.MessageText).ToArray());

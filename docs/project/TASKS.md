@@ -1370,38 +1370,54 @@ alone does not block or fail the entire task.
 **Suggested commit:** `feat(automations): add instagram reveal and follow gate flow`
 
 ## M13-012 — Extend automations with post scope, DM triggers, public replies and follow-ups
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Reach the remaining core OpenReply automation behavior through Qasedak's
 existing immutable version definitions, deterministic evaluator and AutomationRun ledger.
 
 **Depends on:** M13-002, M13-004, M13-008, M13-009, M13-010.
 
-**Implementation scope:** Extend channel-neutral trigger context/definitions with channel
-account, comment versus inbound-DM trigger, provider message/comment identity, specific-
-source versus any-source scope, media/original-media identity, keyword/every-comment and
-whole-word modes. Add generic execution capabilities for direct/Private Reply,
-interactive opening/reveal, public reply and durable follow-up while mapping to Instagram
-only in Api/CrossModule. Persist opening/reveal/link/follow/public-reply/follow-up config in
-stable versioned definitions. If public reply pools are retained, select once at execution
-and persist the chosen variant for reproducible retry—no randomness/network/clock/token
-access in the evaluator. DM triggers use provider message ID and direct-message semantics;
-scheduled follow-ups carry no secret and revalidate automation/account/window state.
-Follow-gate-specific definition fields and execution integrate with M13-011 only when the
-provider capability is verified and implemented. M13-012 consumes those capabilities
-conditionally; unsupported follow status must be documented and truthfully excluded, and
-must not block inbound-DM triggers, post scoping, original-media matching, whole-word/
-every-comment modes, public replies, durable follow-ups, exact-account routing or direct/
-Private Reply execution.
+**Completion evidence (2026-09-07):** Schema-v2 `AutomationDefinition` with append-only
+enum values preserved (TriggerKind 1=CommentCreated, 2=InboundDirectMessage; ActionKind
+1=SendDirectMessage legacy origin-aware, 2=SendPrivateReply, 3=DirectMessage,
+4=StartRevealFlow, 5=SendPublicReply, 6=ScheduleFollowUp); schema-versioned JSON converter
+with legacy-v1 fixture equivalence proof (`LegacyV1BehavesIdenticallyToPreM13012Evaluation`);
+deterministic evaluator (no I/O/clock/random) with TextMatchMode EveryEvent/Keywords,
+Unicode whole-word boundary matcher, SourceScope Any/Specific with MediaId/OriginalMediaId
+semantics; exact-account comment/DM bridges consuming normalized M13-008 events
+(`InstagramCommentCreated` / `InstagramMessageReceived`); AutomationRun async/attempt
+states (Scheduled/Attempting/Suppressed/Uncertain/ContinuationStarted) with additive action
+columns (AttemptedAtUtc, CompletedAtUtc, ProviderRecipientId, ProviderMessageId) via
+migration `20260907023218_AddAutomationActionAttemptColumns` (additive, legacy-safe);
+PostgreSQL CAS attempt marker (single guarded UPDATE; concurrency test proves exactly one
+worker may send), suppress-with-status CAS, no-tracking reads; M13-004 follow-up jobs with
+identifier-only payloads (runId+actionIndex), idempotency keys, version pinning and
+revalidation of automation lifecycle / exact account / participant / 24h window at due
+time; window-expired settles TerminalFailed `direct.windowExpired`; comment-alone never
+schedules a sendable follow-up (§48: no inbound user message ⇒ suppressed
+`followUp.recipientUnavailable`; missing from.id fails closed at schedule time with zero
+job); interrupted attempts settle Uncertain with zero resend; legacy
+CommentCreated+SendDirectMessage still routes to M13-009 Private Reply; public reply
+boundary replays `comment_effects` ledger verdicts (zero provider call on Succeeded);
+StartRevealFlow maps automation-owned content into the M13-011 flow without rebuilding it;
+create/update APIs validate trigger/action matrix, scope, keyword counts, delay bounds,
+reveal content and private-reply conflicts; zero Meta calls at authoring; frontend DTOs
+string-typed and source-compatible (no UI changes; M13-014 owns UX).
 
-**Completion contract:** Graphify evidence recorded; exhaustive evaluator/unit tests cover
-post/original-post, any-post, whole-word/every-comment and DM triggers; PostgreSQL/API e2e
-tests cover exact-account isolation, provider-message idempotency, separate public/private
-effects, persisted reply choice, delayed follow-up restart/duplicate/window behavior and
-version reproducibility; existing automation invariants remain green; architecture/state/
-handoff/manifest and relevant gates pass without live Meta calls. Completion remains
-possible when M13-011 records follow status as officially unavailable, provided the
-unsupported gate is excluded truthfully and all independent automation parity passes.
+**Completion contract:** Graphify evidence recorded (0.9.26, code-only refresh +
+cluster + bounded query); evaluator/unit tests 890 (Automations 135 incl. whole-word
+Unicode, serializer legacy fixtures, definition validation, evaluator v2, follow-up CAS);
+PostgreSQL/API tests 238 (Automations 11 incl. concurrent attempt-marker race; API E2E 134
+incl. 12 signed-webhook capability tests: DM idempotency, legacy routing, fail-closed
+missing mid, source scope, public+private coexistence, reveal mapping, follow-up due-time
+single send, disabled suppression, window-expired terminal, interrupted attempt, §48
+comment-follow-up suppression, §47 no-from-id fail-closed); backend 1128/1128; frontend
+`npm run verify` green (lint, tests, build); `dotnet format --verify-no-changes` clean;
+architecture check passed (36 projects, 6 modules); `verify.py --full` gates pass
+(architecture/docs-state/penpot/repository-contract/restore/build/format/tests/frontend/
+both Docker image builds) with the single local-only deviation of `check_docs.py` seeing
+the human-owned untracked `docs/fa/qasedak_m13_production_handbook_fa.html` (preserved
+byte-identically, never staged, absent in CI); no live Meta calls.
 
 **Suggested commit:** `feat(automations): complete instagram trigger and action parity`
 

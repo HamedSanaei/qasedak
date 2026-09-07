@@ -21,6 +21,7 @@ public static class DependencyInjection
         // billing-backed entitlement enforcement (server-owned plan limits).
         services.AddScoped<IAutomationActivationPolicy, PermissiveActivationPolicy>();
         services.AddScoped<ActivateAutomationUseCase>();
+        services.AddScoped<FollowUpExecutionUseCase>();
         // ExecuteAutomationUseCase is registered with its IAutomationActionDispatcher
         // binding when the comment→DM flow lands (M06-005); registering it earlier would
         // fail host validation with an unresolvable port.

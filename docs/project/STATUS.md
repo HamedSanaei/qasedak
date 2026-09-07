@@ -2,9 +2,60 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-012 — Extend automations with post scope, DM triggers, public replies and follow-ups (TODO)
-**Last completed:** M13-011 (2026-09-07)
-**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters (typed plain-text/button-template content with verified limits, typed provider success, safe zero-call rejection of unverified Private Reply interactive variants) and the durable reveal-flow capability (PlainText opening Private Reply → user-response correlation → Direct gate prompt → validated postback → optional follow gate → single Direct reveal) complete; M13-012 automation configuration mapping not started
+**Current task:** M13-013 — Add comment reconciliation and provider history synchronization (TODO)
+**Last completed:** M13-012 (2026-09-07)
+**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters, the durable reveal-flow capability and full automation trigger/action parity (comment + inbound-DM triggers with exact-account binding, post/original-post scope, every-event/keyword/whole-word matching, Private Reply / Direct / Public Reply / reveal / durable crash-safe follow-up actions on a schema-v2 versioned definition) complete; M13-013 comment reconciliation/history sync not started
+
+## 2026-09-07 — M13-012 DONE: comment + DM triggers, public replies, reveal mapping, durable follow-ups
+
+- **Definition v2 (backward compatible):** append-only enum values — TriggerKind 1=
+  CommentCreated, 2=InboundDirectMessage; ActionKind 1=SendDirectMessage (legacy
+  origin-aware), 2=SendPrivateReply, 3=DirectMessage, 4=StartRevealFlow,
+  5=SendPublicReply, 6=ScheduleFollowUp. Legacy v1 rows deserialize through a
+  schema-versioned JSON converter with proven behavioral equivalence; old
+  CommentCreated+SendDirectMessage(1) still routes to the M13-009 Private Reply.
+- **Evaluator (deterministic, no I/O/clock/random):** TextMatchMode EveryEvent/Keywords
+  (ANY-of case-insensitive substring), Unicode whole-word boundary matcher
+  (`WholeWordMatcher`, diacritics-safe), SourceScope Any/Specific with
+  MediaId/OriginalMediaId matching for ad-post originals, ordered conditions/actions.
+- **Exact-account triggers:** composition-root bridges consume normalized
+  `InstagramCommentCreated` and `InstagramMessageReceived` events only; the run ledger
+  keys on provider semantic identity (comment id / message mid) so webhook redelivery
+  and future M13-013 history converge on one logical trigger; mismatched account ⇒
+  zero evaluation, zero provider calls.
+- **AutomationRun async/attempt states:** Scheduled (durable follow-up), Attempting
+  (durable in-flight marker before EVERY non-repeatable mutation), Suppressed,
+  Uncertain, ContinuationStarted; additive action columns (AttemptedAtUtc,
+  CompletedAtUtc, ProviderRecipientId, ProviderMessageId) via additive migration
+  `20260907023218_AddAutomationActionAttemptColumns`; PostgreSQL CAS on the marker
+  (single guarded UPDATE) proven under concurrency — exactly one worker may send.
+- **Public reply:** routed through the M13-009 `comment_effects` ledger — a
+  Succeeded effect replays into the AutomationRun with zero provider calls; Attempting/
+  Uncertain/TerminalFailed replay terminally; another automation's ownership is
+  truthfully Suppressed.
+- **Reveal:** StartRevealFlow carries bounded automation-owned content into the M13-011
+  coordinator without rebuilding it; opening Private Reply, gate prompt, postback and
+  single reveal all remain under M13-011's existing CAS authorities.
+- **Durable follow-ups (M13-004):** identifier-only payloads (runId+actionIndex), no
+  secrets, idempotency-keyed enqueue, frozen-version pinning at due time; revalidation
+  order = automation lifecycle (not Active ⇒ suppress) → pinned version → exact account
+  → participant → 24h window (latest locally-projected inbound user message via the
+  Conversations query; never comment/postback/schedule timestamps). Window expired ⇒
+  TerminalFailed `direct.windowExpired`; comment-alone never sends (§48 — no inbound
+  user message ⇒ `followUp.recipientUnavailable`; a comment without from.id fails
+  closed at schedule time with zero job); interrupted attempts settle Uncertain with
+  zero resend; Meta remains final window authority.
+- **Authoring:** create/update APIs validate the trigger/action matrix, source scope,
+  keyword bounds, follow-up delay (1m–7d), reveal content (button titles ≤40, https
+  follow URL ≤2048, texts ≤1000) and single-Private-Reply-consumer conflicts; no Meta
+  call during authoring; frontend DTOs stay source-compatible (M13-014 owns UX).
+- **Tests/gates:** backend 1128/1128 (unit 890 incl. 135 Automations; PG + API E2E 238
+  incl. 12 signed-webhook capability flows and the concurrent attempt-marker race);
+  frontend `npm run verify` green; format clean; architecture 36 projects; Graphify
+  0.9.26 healthy (code-only refresh + cluster + bounded query recorded); verify.py
+  --full gates pass with the single local-only `check_docs.py` deviation caused by the
+  human-owned untracked handbook (preserved byte-identically, never staged, absent in
+  CI). No live Meta calls.
 
 ## 2026-09-07 — M13-011 DONE: follow gate, opening DM and postback reveal flow
 

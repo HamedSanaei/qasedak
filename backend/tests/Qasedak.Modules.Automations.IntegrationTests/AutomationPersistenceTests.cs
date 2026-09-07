@@ -23,7 +23,7 @@ public sealed class AutomationPersistenceTests(PostgreSqlFixture fixture)
             [new AutomationCondition(ConditionField.CommentText, ConditionOperator.Contains, "price")],
             [
                 new AutomationAction(ActionKind.SendDirectMessage, message),
-                new AutomationAction(ActionKind.SendDirectMessage, "fallback"),
+                new AutomationAction(ActionKind.SendPublicReply, "fallback"),
             ]);
 
     private EfAutomationRepository NewRepository()

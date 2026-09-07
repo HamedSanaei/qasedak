@@ -40,10 +40,37 @@ public enum AutomationActionStatus
 
     /// <summary>Terminal: the provider/effect failed deterministically; never re-attempted.</summary>
     TerminalFailed = 5,
+
+    /// <summary>
+    /// Durable in-flight marker persisted BEFORE any non-repeatable provider mutation
+    /// (M13-012 §54-56): after it exists, a crash/restart must never issue another
+    /// mutation — the slot is recovered as <see cref="Uncertain"/>.
+    /// </summary>
+    Attempting = 6,
+
+    /// <summary>
+    /// The action was durably accepted for later execution (delayed follow-up scheduled
+    /// via platform scheduled work). Settled by the follow-up handler at due time.
+    /// </summary>
+    Scheduled = 7,
+
+    /// <summary>
+    /// The action durably started a continuation that outlives the originating dispatch
+    /// (reveal flow awaiting user interaction). The continuation store is authoritative;
+    /// this slot is never re-dispatched.
+    /// </summary>
+    ContinuationStarted = 8,
 }
 
-/// <summary>One action slot inside a run.</summary>
-public sealed record AutomationActionExecution(int Index, AutomationActionStatus Status, string? FailureCode);
+/// <summary>One action slot inside a run (additive metadata; no token, no raw payload).</summary>
+public sealed record AutomationActionExecution(
+    int Index,
+    AutomationActionStatus Status,
+    string? FailureCode,
+    DateTimeOffset? AttemptedAtUtc = null,
+    DateTimeOffset? CompletedAtUtc = null,
+    string? ProviderRecipientId = null,
+    string? ProviderMessageId = null);
 
 /// <summary>
 /// Execution record making automation effects idempotent: one run exists per
@@ -136,11 +163,57 @@ public sealed class AutomationRun
         return run;
     }
 
-    /// <summary>Marks the indexed action succeeded; only the next pending slot may follow.</summary>
-    public void RecordSuccess(int actionIndex, DateTimeOffset occurredAtUtc)
+    /// <summary>Marks the indexed action as durably in-flight (before the provider call).</summary>
+    public void RecordAttempt(int actionIndex, DateTimeOffset attemptedAtUtc)
     {
         EnsureMutable(actionIndex);
-        _actions[actionIndex] = _actions[actionIndex] with { Status = AutomationActionStatus.Succeeded };
+        _actions[actionIndex] = _actions[actionIndex] with
+        {
+            Status = AutomationActionStatus.Attempting,
+            AttemptedAtUtc = attemptedAtUtc,
+        };
+    }
+
+    /// <summary>Settles an in-flight action as durably scheduled for later execution.</summary>
+    public void RecordScheduled(int actionIndex, DateTimeOffset occurredAtUtc, string? providerRecipientId)
+    {
+        EnsureMutable(actionIndex);
+        _actions[actionIndex] = _actions[actionIndex] with
+        {
+            Status = AutomationActionStatus.Scheduled,
+            CompletedAtUtc = occurredAtUtc,
+            ProviderRecipientId = providerRecipientId,
+        };
+        CloseIfTerminal(occurredAtUtc);
+    }
+
+    /// <summary>Settles an in-flight action as a durably started continuation.</summary>
+    public void RecordContinuationStarted(int actionIndex, DateTimeOffset occurredAtUtc)
+    {
+        EnsureMutable(actionIndex);
+        _actions[actionIndex] = _actions[actionIndex] with
+        {
+            Status = AutomationActionStatus.ContinuationStarted,
+            CompletedAtUtc = occurredAtUtc,
+        };
+        CloseIfTerminal(occurredAtUtc);
+    }
+
+    /// <summary>Marks the indexed action succeeded; only the next pending slot may follow.</summary>
+    public void RecordSuccess(
+        int actionIndex,
+        DateTimeOffset occurredAtUtc,
+        string? providerRecipientId = null,
+        string? providerMessageId = null)
+    {
+        EnsureMutable(actionIndex);
+        _actions[actionIndex] = _actions[actionIndex] with
+        {
+            Status = AutomationActionStatus.Succeeded,
+            CompletedAtUtc = occurredAtUtc,
+            ProviderRecipientId = providerRecipientId,
+            ProviderMessageId = providerMessageId,
+        };
         CloseIfTerminal(occurredAtUtc);
     }
 
@@ -160,7 +233,13 @@ public sealed class AutomationRun
     /// terminal closes as <see cref="AutomationRunStatus.Finished"/> — immutable, never
     /// re-dispatched, never marked delivered.
     /// </summary>
-    public void RecordTerminal(int actionIndex, AutomationActionStatus status, string failureCode, DateTimeOffset occurredAtUtc)
+    public void RecordTerminal(
+        int actionIndex,
+        AutomationActionStatus status,
+        string failureCode,
+        DateTimeOffset occurredAtUtc,
+        string? providerRecipientId = null,
+        string? providerMessageId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(failureCode);
         if (status is not (AutomationActionStatus.Suppressed or AutomationActionStatus.Uncertain or AutomationActionStatus.TerminalFailed))
@@ -169,8 +248,25 @@ public sealed class AutomationRun
         }
 
         EnsureMutable(actionIndex);
-        _actions[actionIndex] = _actions[actionIndex] with { Status = status, FailureCode = failureCode };
+        _actions[actionIndex] = _actions[actionIndex] with
+        {
+            Status = status,
+            FailureCode = failureCode,
+            CompletedAtUtc = occurredAtUtc,
+            ProviderRecipientId = providerRecipientId,
+            ProviderMessageId = providerMessageId,
+        };
         CloseIfTerminal(occurredAtUtc);
+    }
+
+    /// <summary>Reopens a locally-failed run for a resumed execution pass.</summary>
+    public void ReopenForRetry()
+    {
+        if (Status == AutomationRunStatus.Failed)
+        {
+            Status = AutomationRunStatus.Running;
+            FinishedAtUtc = null;
+        }
     }
 
     private void EnsureMutable(int actionIndex)
@@ -192,7 +288,10 @@ public sealed class AutomationRun
         }
 
         var current = _actions[actionIndex];
-        if (current.Status != AutomationActionStatus.Pending && current.Status != AutomationActionStatus.Failed)
+        if (current.Status is not (AutomationActionStatus.Pending
+            or AutomationActionStatus.Failed
+            or AutomationActionStatus.Attempting
+            or AutomationActionStatus.Scheduled))
         {
             throw new AutomationsDomainException("run.alreadyRecorded", $"Action {actionIndex} was already recorded.");
         }
@@ -207,6 +306,9 @@ public sealed class AutomationRun
             return;
         }
 
+        // Scheduled (delayed follow-up) and ContinuationStarted (reveal flow) slots are
+        // settled later by their continuation — they keep the run Running; only fully
+        // settled terminal sets close as Finished.
         if (_actions.All(a => a.Status is AutomationActionStatus.Succeeded
             or AutomationActionStatus.Suppressed
             or AutomationActionStatus.Uncertain

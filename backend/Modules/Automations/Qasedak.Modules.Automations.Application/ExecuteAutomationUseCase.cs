@@ -1,3 +1,4 @@
+using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Domain;
 using Qasedak.Modules.Automations.Domain.Definitions;
@@ -50,11 +51,14 @@ public enum ExecutionStatus
 /// Orchestrates one idempotent automation execution:
 /// 1. load the automation — must be Active (disabled/paused automations refuse);
 /// 2. evaluate the frozen version's definition deterministically; non-matches end cheaply;
-/// 3. probe the run ledger by producer event id: an existing run short-circuits to
-///    AlreadyProcessed (webhook redelivery never re-dispatches succeeded slots);
+/// 3. probe the run ledger by the provider semantic trigger identity: an existing run
+///    short-circuits to AlreadyProcessed (webhook redelivery never re-dispatches settled
+///    slots);
 /// 4. start a run pinned to the frozen version number and execute action slots strictly
-///    in order, persisting after each so partially executed runs survive crashes and are
-///    resumed at the first pending slot on retry;
+///    in order. BEFORE dispatching each slot a durable <see cref="AutomationActionStatus.Attempting"/>
+///    marker is persisted (M13-012 §54-57): after it exists no second provider mutation may
+///    ever occur — a crash/restart recovers the slot as <see cref="AutomationActionStatus.Uncertain"/>
+///    with zero traffic; a live rejection that already attempted externally is terminal;
 /// 5. a recorded run whose pinned version no longer equals the automation's frozen
 ///    version is refused as stale — executions stay reproducible against their version.
 /// Concurrent deliveries of the same event race on the ledger's unique index; losers map
@@ -63,7 +67,8 @@ public enum ExecutionStatus
 public sealed class ExecuteAutomationUseCase(
     IAutomationRepository automations,
     IAutomationRunRepository runs,
-    IAutomationActionDispatcher dispatcher)
+    IAutomationActionDispatcher dispatcher,
+    IClock clock)
 {
     public async Task<ExecutionOutcome> ExecuteAsync(ExecutionRequest request, CancellationToken cancellationToken = default)
     {
@@ -137,11 +142,34 @@ public sealed class ExecuteAutomationUseCase(
         ExecutionRequest request,
         CancellationToken cancellationToken)
     {
+        // A resumed execution pass reopens a locally-failed run (its slots may retry).
+        if (run.Status == AutomationRunStatus.Failed)
+        {
+            run.ReopenForRetry();
+        }
+
         foreach (var slot in run.Actions
-            .Where(a => a.Status is Domain.AutomationActionStatus.Pending or Domain.AutomationActionStatus.Failed)
+            .Where(a => a.Status is Domain.AutomationActionStatus.Pending
+                or Domain.AutomationActionStatus.Failed
+                or Domain.AutomationActionStatus.Attempting)
             .OrderBy(a => a.Index))
         {
             var action = definition.Actions[slot.Index];
+            var now = clock.UtcNow;
+
+            if (slot.Status == Domain.AutomationActionStatus.Attempting)
+            {
+                // Crash between the durable marker and the recorded outcome: an external
+                // mutation may have happened. Never re-send — settle as Uncertain.
+                run.RecordTerminal(slot.Index, Domain.AutomationActionStatus.Uncertain, "action.attemptInterrupted", now);
+                await runs.SaveChangesAsync(run, cancellationToken);
+                continue;
+            }
+
+            // Durable in-flight marker BEFORE any non-repeatable provider mutation.
+            run.RecordAttempt(slot.Index, now);
+            await runs.SaveChangesAsync(run, cancellationToken);
+
             var result = await dispatcher.DispatchAsync(new ActionDispatch(
                 run.WorkspaceId,
                 request.Channel,
@@ -152,25 +180,48 @@ public sealed class ExecuteAutomationUseCase(
                 run.AutomationVersionNumber,
                 request.Trigger.EventId,
                 request.Trigger.Kind,
-                request.Trigger.CommentId,
+                request.Trigger.ProviderEventIdentity,
                 request.Trigger.OccurredAtUtc,
                 request.Trigger.IsLiveComment,
+                request.Trigger.MediaId,
+                request.Trigger.OriginalMediaId,
                 slot.Index,
-                action.Kind), cancellationToken);
+                action.Kind,
+                action.Extras,
+                run.Id), cancellationToken);
 
             if (result.Accepted)
             {
-                run.RecordSuccess(slot.Index, request.Trigger.OccurredAtUtc);
+                switch (result.AcceptedStatus)
+                {
+                    case Domain.AutomationActionStatus.Scheduled:
+                        run.RecordScheduled(slot.Index, now, request.Trigger.SenderId);
+                        break;
+                    case Domain.AutomationActionStatus.ContinuationStarted:
+                        run.RecordContinuationStarted(slot.Index, now);
+                        break;
+                    default:
+                        run.RecordSuccess(slot.Index, now, result.ProviderRecipientId, result.ProviderMessageId);
+                        break;
+                }
             }
             else if (result.Terminal && result.TerminalStatus is { } terminalStatus)
             {
                 // One-shot effect outcomes are terminal: never re-attempted, never marked
                 // delivered. A Finished run is immutable like a Completed run.
-                run.RecordTerminal(slot.Index, terminalStatus, result.FailureCode ?? "action.terminal", request.Trigger.OccurredAtUtc);
+                run.RecordTerminal(slot.Index, terminalStatus, result.FailureCode ?? "action.terminal", now, result.ProviderRecipientId, result.ProviderMessageId);
+            }
+            else if (!result.ExternalAttempt)
+            {
+                // The dispatcher proved no external mutation occurred (e.g. account/token
+                // missing before any provider call) — the slot may be retried safely.
+                run.RecordFailure(slot.Index, result.FailureCode ?? "action.rejected", now);
             }
             else
             {
-                run.RecordFailure(slot.Index, result.FailureCode ?? "action.rejected", request.Trigger.OccurredAtUtc);
+                // A live rejection after an external attempt is terminal: retrying could
+                // duplicate a mutation whose outcome is ambiguous.
+                run.RecordTerminal(slot.Index, Domain.AutomationActionStatus.TerminalFailed, result.FailureCode ?? "action.attemptedFailure", now);
             }
 
             await runs.SaveChangesAsync(run, cancellationToken);

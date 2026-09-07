@@ -59,6 +59,7 @@ if (!string.IsNullOrWhiteSpace(platformConnectionString))
     builder.Services.AddQasedakScheduledWork(platformConnectionString, builder.Configuration);
     builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Refresh.TokenRefreshScheduledHandler>();
     builder.Services.AddScheduledWorkHandler<Qasedak.Modules.Instagram.Infrastructure.Snapshots.FollowerSnapshotScheduledHandler>();
+    builder.Services.AddScheduledWorkHandler<Qasedak.Api.CrossModule.AutomationFollowUpScheduledHandler>();
 }
 
 // Workspace-membership policy: every /workspaces/{workspaceId}/... endpoint group requires
@@ -76,6 +77,7 @@ builder.Services.AddAuthorization(options =>
 // resolves one dispatcher, so the composition root fans out to all consumers.
 builder.Services.AddScoped<Qasedak.Api.CrossModule.InstagramConversationBridge>();
 builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationCommentBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationInboundMessageBridge>();
 builder.Services.AddScoped<Qasedak.Api.CrossModule.ContactsInteractionBridge>();
 builder.Services.AddScoped<Qasedak.Api.CrossModule.RevealFlowContinuationBridge>();
 builder.Services.AddScoped<Qasedak.Api.CrossModule.RevealFlowStartBridge>();
@@ -86,6 +88,7 @@ builder.Services.AddScoped<Qasedak.Modules.Instagram.Application.Webhooks.IInteg
     [
         sp.GetRequiredService<Qasedak.Api.CrossModule.InstagramConversationBridge>(),
         sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationCommentBridge>(),
+        sp.GetRequiredService<Qasedak.Api.CrossModule.AutomationInboundMessageBridge>(),
         sp.GetRequiredService<Qasedak.Api.CrossModule.ContactsInteractionBridge>(),
         sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowContinuationBridge>(),
         sp.GetRequiredService<Qasedak.Api.CrossModule.RevealFlowStartBridge>(),
@@ -100,6 +103,12 @@ builder.Services.AddScoped<Qasedak.Modules.Conversations.Application.Conversatio
 // (M13-009, global semantic claim enforced) and keeps established conversation replies on
 // the direct-message gateway (recipient.id, 24h window enforced there).
 builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationPrivateReplyBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationDirectSendBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationRevealBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationPublicReplyBridge>();
+builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationFollowUpBridge>();
+builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IDirectEligibilityPort,
+    Qasedak.Api.CrossModule.AutomationDirectEligibilityAdapter>();
 builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IAutomationActionDispatcher,
     Qasedak.Api.CrossModule.AutomationChannelDispatcher>();
 // Entitlement enforcement: automation activation is gated by the workspace's plan limits

@@ -20,10 +20,14 @@ public sealed class AutomationEvaluatorTests
         string[]? keywords = null,
         AutomationCondition[]? conditions = null,
         string[]? actions = null) =>
+        // A comment-triggered definition may consume the one Private Reply allowance once:
+        // the first slot uses the legacy origin-aware action, later slots the separate
+        // public-reply effect (valid coexistence per M13-009/M13-012 semantics).
         AutomationDefinition.Create(
             AutomationTrigger.CommentCreated(keywords ?? []),
             conditions ?? [],
-            (actions ?? ["reply"]).Select(a => new AutomationAction(ActionKind.SendDirectMessage, a)));
+            (actions ?? ["reply"]).Select((a, i) => new AutomationAction(
+                i == 0 ? ActionKind.SendDirectMessage : ActionKind.SendPublicReply, a)));
 
     [Fact]
     public void MatchingKindWithNoFiltersMatchesAndReturnsOrderedActions()

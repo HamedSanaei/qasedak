@@ -1,33 +1,53 @@
 using Qasedak.Modules.Automations.Application;
-using Qasedak.Modules.Conversations.Application.Conversations;
+using Qasedak.Modules.Automations.Domain.Definitions;
 
 namespace Qasedak.Api.CrossModule;
 
 /// <summary>
 /// Binds the Automations module's channel-neutral dispatcher port to the outbound
-/// operations. Routing is origin-aware (M13-009): an action fired by a COMMENT trigger
-/// is a first-contact response and MUST use the comment-ID-addressed Private Reply
-/// operation — never a normal recipient.id DM (a comment does not open the 24h DM
-/// window; normal sends fail with 10/2534022 and would consume the one allowed reply
-/// incorrectly). Established conversation replies keep the direct-message gateway path
-/// (recipient.id, 24h-window policy enforced there).
+/// operations (M13-012 §29-31, §57). Routing is origin-aware: the legacy
+/// <see cref="ActionKind.SendDirectMessage"/> fired by a COMMENT trigger is a
+/// first-contact response and MUST use the comment-ID-addressed Private Reply operation —
+/// never a normal recipient.id DM (a comment does not open the 24h DM window; normal
+/// sends fail with 10/2534022 and would consume the one allowed reply incorrectly).
+/// Explicit kinds route to their dedicated operation; the run ledger's durable Attempting
+/// marker (persisted by the use case before this call) makes every provider-attempted
+/// outcome terminal.
 /// </summary>
 public sealed class AutomationChannelDispatcher(
-    IConversationChannelGateway gateway,
-    AutomationPrivateReplyBridge privateReplyBridge) : IAutomationActionDispatcher
+    AutomationPrivateReplyBridge privateReplyBridge,
+    AutomationDirectSendBridge directSendBridge,
+    AutomationRevealBridge revealBridge,
+    AutomationPublicReplyBridge publicReplyBridge,
+    AutomationFollowUpBridge followUpBridge) : IAutomationActionDispatcher
 {
     public async Task<ActionResult> DispatchAsync(ActionDispatch dispatch, CancellationToken cancellationToken = default)
     {
-        if (dispatch.TriggerKind == Qasedak.Modules.Automations.Domain.Definitions.TriggerKind.CommentCreated
-            && dispatch.ActionKind == Qasedak.Modules.Automations.Domain.Definitions.ActionKind.SendDirectMessage)
+        switch (dispatch.ActionKind)
         {
-            return await privateReplyBridge.DispatchAsync(dispatch, cancellationToken);
+            case ActionKind.SendDirectMessage:
+                // Legacy origin-aware semantics (M13-012 §9): comment origin ⇒ Private Reply.
+                return dispatch.TriggerKind == TriggerKind.CommentCreated
+                    ? await privateReplyBridge.DispatchAsync(dispatch, cancellationToken)
+                    : await directSendBridge.DispatchAsync(dispatch, cancellationToken);
+
+            case ActionKind.SendPrivateReply:
+                return await privateReplyBridge.DispatchAsync(dispatch, cancellationToken);
+
+            case ActionKind.DirectMessage:
+                return await directSendBridge.DispatchAsync(dispatch, cancellationToken);
+
+            case ActionKind.StartRevealFlow:
+                return await revealBridge.DispatchAsync(dispatch, cancellationToken);
+
+            case ActionKind.SendPublicReply:
+                return await publicReplyBridge.DispatchAsync(dispatch, cancellationToken);
+
+            case ActionKind.ScheduleFollowUp:
+                return await followUpBridge.DispatchAsync(dispatch, cancellationToken);
+
+            default:
+                return ActionResult.TerminalFailed("action.unsupportedKind");
         }
-
-        var result = await gateway.DeliverAsync(
-            new ChannelDeliveryRequest(dispatch.WorkspaceId, dispatch.Channel, dispatch.ChannelAccountId, dispatch.ParticipantId, dispatch.MessageText),
-            cancellationToken);
-
-        return result.Accepted ? ActionResult.Delivered() : ActionResult.Rejected(result.FailureCode ?? "action.rejected");
     }
 }

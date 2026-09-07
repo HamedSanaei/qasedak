@@ -75,6 +75,8 @@ public sealed class AutomationsDbContext(DbContextOptions<AutomationsDbContext> 
             entity.HasKey(a => new { a.RunId, a.ActionIndex });
             entity.Property(a => a.ActionIndex).ValueGeneratedNever();
             entity.Property(a => a.FailureCode).HasMaxLength(100);
+            entity.Property(a => a.ProviderRecipientId).HasMaxLength(100);
+            entity.Property(a => a.ProviderMessageId).HasMaxLength(200);
         });
     }
 }
@@ -126,7 +128,7 @@ public static class AutomationDefinitionSerializer
     private static readonly JsonSerializerOptions Options = new()
     {
         IncludeFields = true,
-        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
+        Converters = { new AutomationDefinitionJsonConverter() },
     };
 
     public static string Serialize(AutomationDefinition definition) => JsonSerializer.Serialize(definition, Options);
@@ -158,7 +160,7 @@ public sealed class AutomationRunRow
     public List<AutomationRunActionRow> Actions { get; init; } = [];
 }
 
-/// <summary>Persistence row for one action slot of a run.</summary>
+/// <summary>Persistence row for one action slot of a run (additive metadata, no secrets).</summary>
 public sealed class AutomationRunActionRow
 {
     public Guid RunId { get; init; }
@@ -168,4 +170,12 @@ public sealed class AutomationRunActionRow
     public AutomationActionStatus Status { get; set; }
 
     public string? FailureCode { get; set; }
+
+    public DateTimeOffset? AttemptedAtUtc { get; set; }
+
+    public DateTimeOffset? CompletedAtUtc { get; set; }
+
+    public string? ProviderRecipientId { get; set; }
+
+    public string? ProviderMessageId { get; set; }
 }

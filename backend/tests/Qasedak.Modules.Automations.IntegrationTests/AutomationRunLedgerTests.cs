@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Qasedak.BuildingBlocks.Application;
 using Qasedak.BuildingBlocks.Domain;
 using Qasedak.Modules.Automations.Application;
 using Qasedak.Modules.Automations.Domain;
@@ -48,7 +49,7 @@ public sealed class AutomationRunLedgerTests(PostgreSqlFixture fixture)
                 AutomationTrigger.CommentCreated(),
                 [
                     new AutomationAction(ActionKind.SendDirectMessage, "dm one"),
-                    new AutomationAction(ActionKind.SendDirectMessage, "dm two"),
+                    new AutomationAction(ActionKind.SendPublicReply, "dm two"),
                 ]),
             Now,
             new ChannelAccountId(Guid.CreateVersion7()));
@@ -65,7 +66,7 @@ public sealed class AutomationRunLedgerTests(PostgreSqlFixture fixture)
         var barrier = new TaskCompletionSource();
 
         static ExecuteAutomationUseCase UseCase(EfAutomationRepository repo, EfAutomationRunRepository runs) =>
-            new(repo, runs, new RecordingDispatcher());
+            new(repo, runs, new RecordingDispatcher(), new FixedClock(Now));
 
         var first = Task.Run(async () =>
         {
@@ -100,13 +101,13 @@ public sealed class AutomationRunLedgerTests(PostgreSqlFixture fixture)
         var automationRepo = NewAutomationRepository();
         var automation = await SeedActiveAsync(automationRepo);
         var failingDispatcher = new RecordingDispatcher(failTextContaining: "dm one");
-        var useCase = new ExecuteAutomationUseCase(automationRepo, NewRunRepository(), failingDispatcher);
+        var useCase = new ExecuteAutomationUseCase(automationRepo, NewRunRepository(), failingDispatcher, new FixedClock(Now));
 
         var failed = await useCase.ExecuteAsync(new ExecutionRequest(automation.Id, Trigger("evt-retry-1"), "instagram", automation.ChannelAccountId), default);
         Assert.Equal(ExecutionStatus.Failed, failed.Status);
 
         // Fresh repositories simulate a new process picking the retry up.
-        var retryUseCase = new ExecuteAutomationUseCase(NewAutomationRepository(), NewRunRepository(), new RecordingDispatcher());
+        var retryUseCase = new ExecuteAutomationUseCase(NewAutomationRepository(), NewRunRepository(), new RecordingDispatcher(), new FixedClock(Now));
         var retried = await retryUseCase.ExecuteAsync(new ExecutionRequest(automation.Id, Trigger("evt-retry-1"), "instagram", automation.ChannelAccountId), default);
 
         Assert.Equal(ExecutionStatus.Executed, retried.Status);
@@ -118,12 +119,18 @@ public sealed class AutomationRunLedgerTests(PostgreSqlFixture fixture)
     private static TriggerContext Trigger(string eventId) =>
         new(eventId, TriggerKind.CommentCreated, $"comment-{eventId}", "customer-1", "hello price?", Now);
 
-    /// <summary>Accepts every dispatch unless its text contains the fault marker.</summary>
+    /// <summary>Accepts every dispatch unless its text contains the fault marker (proved-local rejection).</summary>
     private sealed class RecordingDispatcher(string? failTextContaining = null) : IAutomationActionDispatcher
     {
         public Task<ActionResult> DispatchAsync(ActionDispatch dispatch, CancellationToken cancellationToken = default) =>
             Task.FromResult(failTextContaining is not null && dispatch.MessageText.Contains(failTextContaining, StringComparison.Ordinal)
-                ? ActionResult.Rejected("instagram.unavailable")
+                ? ActionResult.RejectedLocal("instagram.unavailable")
                 : ActionResult.Delivered());
+    }
+
+    /// <summary>Deterministic clock for reproducible time-dependent behavior.</summary>
+    private sealed class FixedClock(DateTimeOffset utcNow) : IClock
+    {
+        public DateTimeOffset UtcNow { get; } = utcNow;
     }
 }

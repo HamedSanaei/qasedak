@@ -40,13 +40,18 @@ public sealed partial class AutomationCommentBridge(
         var active = await automations.ListByAccountAsync(comment.WorkspaceId.Value, channelAccountId, cancellationToken);
         foreach (var automation in active.Where(a => a.Status == AutomationStatus.Active))
         {
+            // The run ledger keys on the provider SEMANTIC identity (the comment id), not
+            // the transport fragment id: duplicate fragments, re-enveloped deliveries and
+            // future provider-history imports (M13-013) converge on one logical trigger.
             var trigger = new TriggerContext(
-                comment.EventId,
+                comment.CommentId,
                 TriggerKind.CommentCreated,
                 comment.CommentId,
                 comment.FromId,
                 comment.Text,
                 comment.CreatedAtUtc,
+                comment.MediaId,
+                comment.OriginalMediaId,
                 comment.IsLiveComment);
 
             // The workspace hint defends against cross-workspace id collisions; the use
