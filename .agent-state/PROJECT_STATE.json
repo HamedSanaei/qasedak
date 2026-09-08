@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-08T14:00:39.242038+00:00",
+  "updatedAt": "2026-09-08T14:30:18.556186+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
-  "currentMilestone": "M13",
-  "currentTask": "M13-015",
+  "currentMilestone": "M14",
+  "currentTask": "M14-001",
   "lastCompletedTask": "M13-015",
   "completedTasks": [
     "M00-001",
@@ -84,7 +84,7 @@
     "required": true,
     "status": "healthy",
     "version": "0.9.26",
-    "lastEvidence": "M13-015",
+    "lastEvidence": "PLAN-M14",
     "sourceCommit": null,
     "mode": "code-only (local AST; no LLM API key available for doc semantic extraction)",
     "outputs": [
@@ -165,9 +165,9 @@
     "m13015Delivery": "production deploy green: immutable exact-SHA image, backup, no migration, PostgreSQL/API/Web healthy, safe webhook-negative smoke passed, no rollback, no deploy-log Meta startup traffic"
   },
   "nextActions": [
-    "Human-owned external Meta gates remain: App Review, Advanced Access, Business Verification, App Live/subscription verification, and a designated production Instagram TEST account for optional live smoke. No next milestone/task is started."
+    "M14-001 is registered and remains TODO. Run its own preflight/lock only when explicitly authorized; no M14 implementation has started."
   ],
-  "lastInstruction": "M13-015 DONE and deployed from exact task SHA 0452c70a1701a2335a2bfba3554617bfde7c3f3e; CI 34233900393, CodeQL 34233899991, Publish 34234383144, Deploy 34234558863 all success; immutable image sha-0452c70a1701; safe production smoke passed; live Meta M13-015 end-to-end smoke NOT RUN — no designated production test Instagram account; App Review/Advanced Access/Business Verification remain Unknown; M13-001 through M13-015 complete; no next milestone authorized.",
+  "lastInstruction": "PLAN-M14 completed: M13 remains complete; M14 Automation Operations & Safe Recovery is registered; currentTask=M14-001 TODO; lastCompletedTask=M13-015; Graphify PLAN-M14 A-F recorded; no M14 implementation, lock, Penpot edit or deployment occurred.",
   "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
   "m13008Deployment": {
     "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",

@@ -1617,3 +1617,126 @@ classified truthfully and excluded from the supported parity claim.
 **Completion evidence:** M13-015 is DONE and deployed from exact task SHA `0452c70a1701a2335a2bfba3554617bfde7c3f3e`. Exact-SHA CI `34233900393`, CodeQL `34233899991`, Publish Images `34234383144` and Deploy Production `34234558863` all completed successfully. Immutable image `sha-0452c70a1701`; API digest `sha256:00cb99417670f905ee3180d0fdac59b818862005fc78a94018b7ea38cb37290d`; Web digest `sha256:5ce78d7d4892b59a4ea60e29eabfadbd21e6a5168fc7ff60c45f45f9e5453b30`; backup `qasedak-20260908T135142Z-sha-0452c70a1701.dump`. No M13-015 migration exists: all eight schemas were already up to date and the one-shot migration run completed without applying a migration. Production PostgreSQL/API/Web health and deployment smoke passed with no rollback; public safe smoke `/`=200, `/api/v1/system`=200, wrong webhook verify token=403, unsigned webhook POST=401, protected settings route=307. CI live-Meta isolation is proven by the passed host-deny step for graph.instagram.com/api.instagram.com/graph.facebook.com/www.instagram.com and `check_meta_ci_isolation.py`; no production Meta token secret is consumed, provider HTTP contract tests use deterministic fake/mock transports, and real PostgreSQL integration assemblies executed (backend 1319/1319; Instagram real-PG 68/68; API E2E 157/157). Frontend 96/96; Release 0 warnings/0 errors; `verify.py --full` FULL VERIFY PASSED; Graphify 0.9.26 A-F evidence dated 2026-09-08. Canonical artifacts: `docs/product/m13-015-meta-compliance-matrix.md`, `docs/ops/M13-015_META_APP_REVIEW_CHECKLIST.md`, `docs/ops/M13-015_META_PRODUCTION_RUNBOOK.md`, `docs/product/m13-015-adversarial-audit.md`. Meta App Review, Advanced Access and Business Verification remain Unknown. live Meta M13-015 end-to-end smoke NOT RUN — no designated production test Instagram account.
 
 **Suggested commit:** `test(instagram): validate openreply parity and meta compliance`
+
+## M14-001 — Freeze automation operations and recovery contract
+**Status:** TODO
+
+**Outcome:** Define the operator-facing execution taxonomy, ownership boundaries and allowed recovery/disposition matrix before adding APIs or UI.
+
+**Depends on:** M13-015.
+
+**Implementation scope:** Trace `AutomationRun`/action slots, automation-related scheduled follow-up/dead-letter state and existing audit/metrics; define workspace-scoped query contracts, stable failure/status semantics, operator authorization, safe correlation identifiers and explicit allowed/forbidden actions. Preserve exact-account authorization before secret/provider access, PostgreSQL authority for concurrency claims and M13's `Attempting`/`Uncertain` no-blind-resend rule. If any provider behavior becomes material to the contract, freshly verify it from first-party sources at execution time.
+
+**Explicit non-goals:** No new automation trigger/action kind, no provider capability, no frontend implementation, no automatic resend of ambiguous effects, no generic platform scheduler console.
+
+**Completion contract:** Graphify evidence recorded; contract/status/action matrix is deterministic; architecture decision recorded only if a real boundary changes; contract/unit tests pin the allowed recovery rules; docs/state/handoff/manifest gates pass.
+
+**Suggested commit:** `docs(operations): define automation recovery contract`
+
+## M14-002 — Expose workspace-scoped automation run and effect history
+**Status:** TODO
+
+**Outcome:** Let an authorized workspace inspect automation runs and per-action outcomes without database/log access.
+
+**Depends on:** M14-001.
+
+**Implementation scope:** Add Automations-owned query ports/read models and bounded list/detail APIs for runs, automation version, trigger time, action status, stable failure code and safe provider outcome identifiers where policy allows. Use PostgreSQL-backed projections/queries, pagination and workspace ownership; never expose token, raw provider payload or arbitrary user content.
+
+**Explicit non-goals:** No retry/resolution mutation, no new automation behavior, no cross-module Infrastructure reference, no frontend redesign.
+
+**Completion contract:** Unit + real-PostgreSQL + API tests cover filtering/pagination, exact workspace isolation, unknown/foreign IDs, completed/finished/failed/uncertain states and zero secret/provider leakage; architecture/state gates pass.
+
+**Suggested commit:** `feat(automations): expose execution history`
+
+
+## M14-003 — Surface automation-related scheduled-work diagnostics
+**Status:** TODO
+
+**Outcome:** Show operators whether delayed follow-up work is queued, leased, retrying, exhausted or dead-lettered and correlate it safely to the owning automation run/action.
+
+**Depends on:** M14-001, M14-002.
+
+**Implementation scope:** Add the smallest platform/application query boundary needed for automation-related scheduled jobs only, then compose it through `Qasedak.Api` with Automations run identity. Preserve identifier-only payload policy, lease/retry/backoff authority and module boundaries. Provider-sync history already has its own M13 surface and is not duplicated here.
+
+**Explicit non-goals:** No generic scheduled-job administration UI, no raw job payload exposure, no direct database access from another module, no blind requeue of ambiguous provider effects.
+
+**Completion contract:** Real-PostgreSQL/API tests cover queued/claimed/retry/dead-letter/restart states, exact workspace/run ownership, safe correlation and no secret/user-content leakage; architecture gates pass.
+
+**Suggested commit:** `feat(operations): expose automation work diagnostics`
+
+## M14-004 — Add auditable safe resolution for terminal and uncertain executions
+**Status:** TODO
+
+**Outcome:** Give operators a durable, auditable way to investigate and disposition terminal/uncertain automation outcomes without turning ambiguity into a duplicate provider mutation.
+
+**Depends on:** M14-001, M14-002, M14-003.
+
+**Implementation scope:** Persist operator disposition/notes using the owning module or an explicit composition-root/audit contract; support only actions proven safe by M14-001 (for example acknowledge/review/confirm outcome, and retry only states that are provably pre-provider and retryable). `Attempting`/`Uncertain` one-shot effects remain non-resendable through the original effect authority. Authorization is workspace-scoped and every mutation is audited.
+
+**Explicit non-goals:** No automatic retry of `Uncertain`, no rewriting provider history, no customer-account probing, no new provider endpoint or automation action kind.
+
+**Completion contract:** PostgreSQL concurrency/idempotency tests prove one authoritative disposition, immutable effect history, cross-workspace rejection, audit evidence and no duplicate provider dispatch; stable API failures documented.
+
+**Suggested commit:** `feat(operations): add safe execution resolution`
+
+
+## M14-005 — Complete operations observability and support diagnostics
+**Status:** TODO
+
+**Outcome:** Make automation execution incidents diagnosable from low-cardinality metrics, audited outcome codes and a safe support-facing correlation view.
+
+**Depends on:** M14-002, M14-003, M14-004.
+
+**Implementation scope:** Audit existing automation/scheduled/provider-effect metrics and logs; add only missing low-cardinality counters/histograms/audit events needed to diagnose run/effect/resolution state. Define a safe correlation bundle using repository-approved identifiers and stable codes without tokens, raw provider JSON or arbitrary message/comment text.
+
+**Explicit non-goals:** No high-cardinality metric labels, no raw customer-content logging, no new external monitoring dependency unless separately approved, no feature analytics unrelated to operations.
+
+**Completion contract:** Metric/log redaction tests, cardinality assertions and diagnostic-path tests cover important run/effect/dead-letter/resolution outcomes; operations documentation explains how to investigate without DB surgery.
+
+**Suggested commit:** `chore(observability): cover automation operations diagnostics`
+
+## M14-006 — Approve the Penpot source for the operations console
+**Status:** TODO
+
+**Outcome:** Establish the approved visual source for automation execution diagnostics/recovery before any Next.js visual implementation.
+
+**Depends on:** M14-001, M14-002, M14-003, M14-004, M14-005.
+
+**Implementation scope:** Live-read the current Qasedak Penpot file through the official Penpot MCP and identify an approved board/component set for run history, action outcomes, uncertain/terminal states and safe resolution controls. If no approved design exists, create/obtain and explicitly approve that design prerequisite in Penpot and update the sync mapping/evidence before M14-007. Record exact boards/components and responsive/state requirements.
+
+**Explicit non-goals:** No Next.js product implementation, no invented visual values from screenshots/memory, no backend/API change.
+
+**Completion contract:** Official Penpot MCP evidence and sync record are current; required states/actions map to M14-001 contracts; design has loading/empty/error/permission/terminal/uncertain/resolution states; `validate_penpot_sync.py` and docs/state gates pass.
+
+**Suggested commit:** `docs(design): approve automation operations console`
+
+
+## M14-007 — Deliver the automation operations console
+**Status:** TODO
+
+**Outcome:** Let workspace operators inspect run/effect history, understand failures/uncertainty, follow related scheduled work and perform only the safe recovery actions approved by M14-001/M14-004.
+
+**Depends on:** M14-002, M14-003, M14-004, M14-005, M14-006.
+
+**Implementation scope:** Before visual work, live-read the approved Penpot board/components via official Penpot MCP. Implement reusable Next.js screens/components, bounded filters/detail views, automation-list/detail deep links, truthful terminal/uncertain copy and audited safe-action UX. Preserve exact workspace/account boundaries, permission/loading/empty/error states and the existing Automations authoring behavior.
+
+**Explicit non-goals:** No new trigger/action/provider capability, no speculative retry button for `Uncertain`, no visual invention when Penpot evidence is unavailable, no operator-only internals leaked into unrelated customer surfaces.
+
+**Completion contract:** Frontend behavior tests cover all approved states/actions and fail-closed unknown values; responsive/accessibility review passes; Penpot sync evidence, `npm run verify`, architecture/state/manifest gates pass.
+
+**Suggested commit:** `feat(web): deliver automation operations console`
+
+## M14-008 — Harden automation operations and release M14
+**Status:** TODO
+
+**Outcome:** Prove the complete M14 diagnostics/recovery workflow is authorization-safe, restart-safe, auditable and production-operable.
+
+**Depends on:** M14-002, M14-003, M14-004, M14-005, M14-006, M14-007.
+
+**Implementation scope:** Add adversarial real-PostgreSQL/API flows for workspace isolation, concurrent disposition, interrupted/dead-letter follow-up, immutable `Attempting`/`Uncertain` semantics, audit correlation and frontend/API parity; update operator runbook and production smoke. External Meta behavior is verified freshly only if a test depends on it; live Meta remains explicit opt-in with a designated TEST account.
+
+**Explicit non-goals:** No App Review/Advanced Access implementation, no customer-account smoke, no next milestone, no weakening M13 provider-effect safety.
+
+**Completion contract:** Focused and full repository gates pass; Testcontainers proves DB concurrency/restart claims; exact-SHA CI/CodeQL/images/deploy and safe production smoke succeed; externally blocked/manual items remain truthful; state/handoff/manifest finalize M14 only.
+
+**Suggested commit:** `test(operations): harden automation recovery workflows`

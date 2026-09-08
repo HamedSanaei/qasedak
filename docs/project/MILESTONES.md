@@ -131,3 +131,11 @@ or unverified follow-status lookup does not block the supported opening/postback
 independent automation-parity exit criteria.
 
 Suggested milestone commit: `feat(instagram): deliver openreply parity integration`
+
+## M14 — Automation Operations & Safe Recovery
+
+**Goal:** give workspace operators auditable visibility into automation executions and safe recovery workflows for failed, terminal and uncertain effects without weakening M13's no-blind-resend guarantees.
+
+Exit: workspace-scoped run/effect diagnostics, automation-related scheduled-work visibility, explicitly safe operator resolution/disposition flows, low-cardinality audit/metrics, an approved Penpot-governed operations console, real-PostgreSQL authorization/concurrency/restart tests, and production gates are complete; ambiguous provider mutations are never automatically resent and external Meta approvals remain separate manual dependencies.
+
+Suggested milestone commit: `feat(operations): deliver automation diagnostics and safe recovery`

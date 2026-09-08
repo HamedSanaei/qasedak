@@ -1,10 +1,41 @@
 # Project status
 
 **Project:** Qasedak
-**Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-015 - Add Meta compliance, app-review and production parity gates (DONE; final M13 task)
+**Current milestone:** M14 — Automation Operations & Safe Recovery (PLANNED)
+**Current task:** M14-001 - Freeze automation operations and recovery contract (TODO)
 **Last completed:** M13-015 (2026-09-08)
-**Product implementation:** M13 milestone implementation complete through M13-015 for current officially supported and intentionally scoped Instagram capabilities; unsupported/external Meta capabilities remain explicitly classified rather than simulated.
+**Product implementation:** M13 is complete and deployed. M14 is registered as planning only; no M14 implementation has started.
+
+## 2026-09-08 - PLAN-M14 accepted; M14-001 is next and TODO
+
+**Selected outcome:** give workspace operators auditable automation execution visibility and safe recovery/disposition workflows for failed, terminal and uncertain effects without weakening M13's no-blind-resend guarantees.
+
+### Post-M13 gap inventory
+
+| Observation | Classification | Planning conclusion |
+|---|---|---|
+| `AutomationRun`/action state is durable but has no workspace list/detail API | Product capability gap | Core M14 foundation. |
+| Automation list/builder has no execution history, effect status or uncertain/terminal diagnostics | UX/product-surface gap | Core M14 console outcome. |
+| `IAutomationRunRepository` has point lookups/commands but no bounded workspace query projection | Architecture/technical-debt gap | Add only the query boundary required by the operator outcome. |
+| `Uncertain`/`TerminalFailed` and scheduled dead letters are safe but require DB/log inspection for operator disposition | Reliability/operations gap | Strongest current operational gap; preserve no blind resend. |
+| Operator resolution actions require explicit authorization/audit/redaction rules | Security/compliance gap | Must be part of the recovery contract before mutation UI/API. |
+| Meta App Review, Advanced Access, Business Verification and designated production test account | External/manual dependency | Not M14 coding tasks; track separately. |
+| Exact-account routing, provider security, account health, history-sync operations, billing activation entitlement | Already complete | Do not reopen M13/M09 foundations. |
+| Cards/form-maker/ice-breakers/smart-SMS and other heterogeneous future feature concepts | Intentionally out of scope | Separate roadmap/product decisions, not one M14 kitchen sink. |
+
+### Candidate decision table (5 = strongest / lowest risk)
+
+| Theme | Value | Severity | Ready | Arch fit | Deterministic | External-independent | Coherent | Risk | Total |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Automation Operations & Safe Recovery | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 | 39 |
+| First-user Instagram activation/onboarding | 4 | 3 | 5 | 4 | 4 | 4 | 4 | 4 | 32 |
+| Provider/account operations console | 4 | 3 | 5 | 4 | 5 | 5 | 4 | 4 | 34 |
+| Close all visible future feature pages | 4 | 3 | 2 | 3 | 4 | 5 | 2 | 2 | 25 |
+| External Meta go-live approvals | 5 | 4 | 1 | 2 | 1 | 1 | 3 | 1 | 18 |
+
+Rejected alternatives: onboarding is usable enough to defer; account health/history-sync already have M13 surfaces and can feed M14 diagnostics without a separate milestone; the future-feature pages are unrelated product bets; Meta approvals are human/external rather than implementable software work.
+
+**Graphify planning evidence:** 0.9.26, code-only fallback (`graphify . --update --no-viz --code-only; graphify cluster-only .`), graph 7901 nodes / 17950 edges / 556 communities; six PLAN-M14 queries A-F executed with budget 1200 and appended without overwriting M13 evidence.
 
 ## 2026-09-08 - M13-015 DONE and deployed; M13 milestone complete
 

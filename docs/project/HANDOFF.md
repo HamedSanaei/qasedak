@@ -1,5 +1,26 @@
 # Current handoff
 
+## 2026-09-08 - M13 complete; PLAN-M14 accepted; M14-001 next (TODO)
+
+M13-001 through M13-015 are complete and deployed. M14 is now registered as **Automation Operations & Safe Recovery**. This planning session does not start implementation: M14-001 is TODO, no lock is acquired and no product code/Penpot design has been changed.
+
+### M14-001 read-only packet
+
+- **Problem:** Qasedak durably records automation runs/actions, including `Uncertain`, `TerminalFailed`, scheduled follow-up and dead-letter semantics, but operators cannot list/inspect those execution records through a workspace API/UI and have no explicit safe resolution contract.
+- **Current architecture:** Automations owns `AutomationRun` and action-slot state; `IAutomationRunRepository` supports trigger/id point lookups plus guarded follow-up marker transitions; M13 effect ledgers and BuildingBlocks scheduled work already enforce durable idempotency/leases; `Qasedak.Api` is the composition root for cross-module bridges.
+- **Important invariants:** never blind-resend `Attempting`/`Uncertain`; workspace/exact-account authorization before secret/provider access; PostgreSQL is authoritative for races; no DB transaction across provider HTTP; no token/raw provider/customer-text leakage; no cross-module Infrastructure reference.
+- **Dependencies:** M13-015 only. External Meta App Review/Advanced Access/Business Verification and a designated live test account are not implementation dependencies for M14-001.
+- **Known non-goals:** no new trigger/action types, no publishing/Ads/Tagging/Human-Agent work, no generic scheduler admin console, no frontend visual implementation, no next milestone.
+- **Expected gates:** Graphify task evidence; contract/status/action matrix; unit/contract tests for allowed recovery states; architecture/docs/state/manifest checks. If future provider assumptions enter the contract, refresh first-party provider verification then.
+
+### M14 planning boundaries
+
+- M14's one-sentence goal: give workspace operators auditable visibility into automation executions and safe recovery workflows for failed, terminal and uncertain effects without weakening M13's no-blind-resend guarantees.
+- M14-002/003 expose bounded execution + related scheduled-work diagnostics; M14-004 adds only explicitly safe audited disposition actions; M14-005 closes low-cardinality operational observability.
+- M14-006 is a design prerequisite: live-read official Penpot MCP and approve an operations-console board/component set; if no approved design exists, M14-007 is blocked from visual invention.
+- M14-007 implements the approved console; M14-008 performs real-PostgreSQL/adversarial/release hardening. All M14 tasks remain TODO at planning completion.
+- Provider-sync history/account health are already exposed from M13 and are not duplicated into a generic provider console. Heterogeneous future feature pages remain separate roadmap choices. External Meta approvals remain manual dependencies.
+
 ## 2026-09-08 - M13-015 DONE and deployed; M13 milestone complete
 
 M13-001 through M13-015 are complete and deployed for the capabilities supported by the current official Meta contract and intentionally included in Qasedak. Exact task SHA `0452c70a1701a2335a2bfba3554617bfde7c3f3e` is running as immutable image `sha-0452c70a1701`. No next milestone is started.
