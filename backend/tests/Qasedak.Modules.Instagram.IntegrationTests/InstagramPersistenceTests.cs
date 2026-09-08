@@ -417,6 +417,146 @@ public sealed class InstagramPersistenceTests(PostgreSqlFixture fixture)
         Assert.Equal(0, await verification.AccountTokens.CountAsync(t => t.AccountId == connected.AccountId));
     }
 
+    [Fact]
+    public async Task ConcurrentRefreshUseCasesPersistExactlyOneAuthoritativeRotation()
+    {
+        var (connect, _, _, _, _, states) = NewStack();
+        var workspaceId = Guid.CreateVersion7();
+        var connected = await ConnectAsync(connect, states, workspaceId);
+        Assert.True(connected.Success, connected.FailureCode);
+
+        ITokenProtector protector = new AesGcmTokenProtector(
+            Options.Create(new TokenProtectionOptions { KeyBase64 = Convert.ToBase64String(ProtectionKey) }));
+        await using var firstContext = NewContext();
+        await using var secondContext = NewContext();
+        var gate = new TwoPartyGate();
+        var first = new RefreshInstagramTokenUseCase(
+            new EfConnectedAccountRepository(firstContext), new ProtectedTokenStore(firstContext, protector),
+            new CoordinatedRefreshOAuthClient("ROTATED-A", gate), new StubInspector(), new FixedClock(Now.AddDays(50)));
+        var second = new RefreshInstagramTokenUseCase(
+            new EfConnectedAccountRepository(secondContext), new ProtectedTokenStore(secondContext, protector),
+            new CoordinatedRefreshOAuthClient("ROTATED-B", gate), new StubInspector(), new FixedClock(Now.AddDays(50)));
+
+        var outcomes = await Task.WhenAll(first.ExecuteAsync(connected.AccountId), second.ExecuteAsync(connected.AccountId));
+
+        Assert.Single(outcomes, outcome => outcome is TokenRefreshOutcome.Rotated);
+        Assert.Single(outcomes, outcome => outcome is TokenRefreshOutcome.Stale);
+        var expectedToken = outcomes[0] is TokenRefreshOutcome.Rotated ? "ROTATED-A" : "ROTATED-B";
+        await using var verification = NewContext();
+        var stored = await verification.Accounts.AsNoTracking().SingleAsync(a => a.Id == connected.AccountId);
+        Assert.Equal(1u, stored.Version);
+        Assert.Equal(expectedToken, await new ProtectedTokenStore(verification, protector).GetAsync(connected.AccountId));
+    }
+
+    [Fact]
+    public async Task ConcurrentSubscriptionRepairsCannotLastWriterWinHealth()
+    {
+        var (connect, _, _, _, _, states) = NewStack();
+        var workspaceId = Guid.CreateVersion7();
+        var connected = await ConnectAsync(connect, states, workspaceId);
+        Assert.True(connected.Success, connected.FailureCode);
+        ITokenProtector protector = new AesGcmTokenProtector(
+            Options.Create(new TokenProtectionOptions { KeyBase64 = Convert.ToBase64String(ProtectionKey) }));
+        await using var firstContext = NewContext();
+        await using var secondContext = NewContext();
+        var gate = new TwoPartyGate();
+        var first = new RepairSubscriptionUseCase(
+            new EfConnectedAccountRepository(firstContext), new ProtectedTokenStore(firstContext, protector),
+            new CoordinatedSubscriptionClient(SubscriptionResult.Subscribed(InstagramSubscriptionFields.Required), gate),
+            new FixedClock(Now.AddHours(1)));
+        var second = new RepairSubscriptionUseCase(
+            new EfConnectedAccountRepository(secondContext), new ProtectedTokenStore(secondContext, protector),
+            new CoordinatedSubscriptionClient(SubscriptionResult.Failed(SubscriptionFailures.PermissionDenied, transient: false), gate),
+            new FixedClock(Now.AddHours(1)));
+
+        var outcomes = await Task.WhenAll(first.ExecuteAsync(workspaceId, connected.AccountId), second.ExecuteAsync(workspaceId, connected.AccountId));
+        Assert.Single(outcomes, outcome => outcome.FailureCode == SubscriptionFailures.Unavailable);
+        var authoritative = Assert.Single(outcomes, outcome => outcome.Success || outcome.FailureCode == SubscriptionFailures.PermissionDenied);
+        await using var verification = NewContext();
+        var stored = await verification.Accounts.AsNoTracking().SingleAsync(a => a.Id == connected.AccountId);
+        Assert.Equal(1u, stored.Version);
+        Assert.Equal(authoritative.Success ? SubscriptionHealth.Healthy : SubscriptionHealth.NeedsRepair, stored.SubscriptionHealth);
+        Assert.Equal(authoritative.Success ? null : SubscriptionFailures.PermissionDenied, stored.SubscriptionDetail);
+    }
+
+    private sealed class TwoPartyGate
+    {
+        private readonly TaskCompletionSource<bool> _ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _arrivals;
+
+        public async Task ArriveAsync(CancellationToken cancellationToken)
+        {
+            if (Interlocked.Increment(ref _arrivals) == 2)
+            {
+                _ready.TrySetResult(true);
+            }
+            await _ready.Task.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken);
+        }
+    }
+
+    private sealed class CoordinatedRefreshOAuthClient(string rotatedToken, TwoPartyGate gate) : IMetaOAuthClient
+    {
+        public Task<CodeExchangeResult> ExchangeCodeAsync(CodeExchangeRequest request, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<LongLivedTokenResult> ExchangeShortLivedForLongLivedAsync(string shortLivedAccessToken, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public async Task<LongLivedTokenResult> RefreshLongLivedAsync(string longLivedAccessToken, CancellationToken cancellationToken = default)
+        {
+            await gate.ArriveAsync(cancellationToken);
+            return LongLivedTokenResult.Ok(new(rotatedToken, 60 * 24 * 3600L));
+        }
+    }
+
+    private sealed class CoordinatedSubscriptionClient(SubscriptionResult result, TwoPartyGate gate) : ISubscriptionClient
+    {
+        public async Task<SubscriptionResult> SubscribeAsync(string accessToken, string professionalAccountId, IReadOnlyList<string> fields, CancellationToken cancellationToken = default)
+        {
+            await gate.ArriveAsync(cancellationToken);
+            return result;
+        }
+    }
+
+    [Fact]
+    public async Task SentinelTokenPersistsOnlyAsCiphertextAndNeverInAccountOrOperationRows()
+    {
+        const string sentinel = "M13_015_SENTINEL_TOKEN_DO_NOT_LEAK";
+        var (connect, _, _, _, _, states) = NewStack();
+        var workspaceId = Guid.CreateVersion7();
+        var connected = await ConnectAsync(connect, states, workspaceId);
+        Assert.True(connected.Success, connected.FailureCode);
+
+        ITokenProtector protector = new AesGcmTokenProtector(
+            Options.Create(new TokenProtectionOptions { KeyBase64 = Convert.ToBase64String(ProtectionKey) }));
+        await using (var write = NewContext())
+        {
+            var store = new ProtectedTokenStore(write, protector);
+            await store.StoreAsync(connected.AccountId, sentinel);
+            await write.SaveChangesAsync();
+        }
+
+        await using var verification = NewContext();
+        var tokenRow = await verification.AccountTokens.AsNoTracking().SingleAsync(t => t.AccountId == connected.AccountId);
+        Assert.DoesNotContain(sentinel, tokenRow.Ciphertext, StringComparison.Ordinal);
+        Assert.Equal(sentinel, await new ProtectedTokenStore(verification, protector).GetAsync(connected.AccountId));
+
+        var account = await verification.Accounts.AsNoTracking().SingleAsync(a => a.Id == connected.AccountId);
+        Assert.DoesNotContain(sentinel, account.HealthDetail ?? string.Empty, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, account.SubscriptionDetail ?? string.Empty, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, account.Username ?? string.Empty, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, account.DisplayName ?? string.Empty, StringComparison.Ordinal);
+
+        var operations = await verification.ProviderSyncOperations.AsNoTracking()
+            .Where(o => o.ConnectedAccountId == connected.AccountId)
+            .ToListAsync();
+        Assert.All(operations, operation =>
+        {
+            Assert.DoesNotContain(sentinel, operation.FailureCategory ?? string.Empty, StringComparison.Ordinal);
+            Assert.DoesNotContain(sentinel, operation.NextProviderCursor ?? string.Empty, StringComparison.Ordinal);
+        });
+    }
+
     private sealed class FixedClock(DateTimeOffset utcNow) : IClock
     {
         public DateTimeOffset UtcNow { get; } = utcNow;

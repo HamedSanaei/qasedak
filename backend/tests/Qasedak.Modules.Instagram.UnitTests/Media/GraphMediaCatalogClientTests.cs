@@ -22,7 +22,7 @@ public sealed class GraphMediaCatalogClientTests
 
     private static readonly Guid AccountId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
-    private readonly IMediaCursorCodec _codec = new MediaCatalogCursorCodec();
+    private readonly MediaCatalogCursorCodec _codec = new();
 
     private static (GraphMediaCatalogClient Client, List<HttpRequestMessage> Requests) NewClient(
         params HttpResponseMessage[] responses)
@@ -291,6 +291,27 @@ public sealed class GraphMediaCatalogClientTests
         Assert.Equal(MediaCatalogFailures.Unavailable, result.FailureCode);
         Assert.DoesNotContain("IGSECRET", result.ToString());
         Assert.DoesNotContain(AccessToken, result.ToString());
+    }
+
+    [Theory]
+    [InlineData("https://evil.example.com/steal")]
+    [InlineData("http://localhost/admin")]
+    [InlineData("http://127.0.0.1/internal")]
+    [InlineData("http://169.254.169.254/latest/meta-data/")]
+    [InlineData("ftp://evil.example.com/file")]
+    public async Task PagingNextIsIgnoredAndOnlyBoundedCursorIsReturned(string nextUrl)
+    {
+        var body = $"{{\"data\":[],\"paging\":{{\"cursors\":{{\"after\":\"safe-cursor\"}},\"next\":\"{nextUrl}\"}}}}";
+        var (client, requests) = NewClient(Json(body));
+
+        var result = Assert.IsType<MediaCatalogResult.Ok>(
+            await client.GetPageAsync(AccessToken, ProviderAccount, AccountId, 25, null, default));
+
+        Assert.Single(requests);
+        Assert.Equal("graph.instagram.com", requests[0].RequestUri!.Host);
+        var decoded = _codec.Decode(result.Page.NextCursor, AccountId);
+        Assert.True(decoded.Valid);
+        Assert.Equal("safe-cursor", decoded.ProviderAfterCursor);
     }
 
     // ---------- Recent-N traversal ----------

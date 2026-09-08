@@ -54,19 +54,24 @@ public sealed class GraphInstagramConversationHistoryClientTests
         Assert.DoesNotContain(AccessToken, handler.LastRequest!.RequestUri!.ToString());
     }
 
-    [Fact]
-    public async Task ConversationListAfterCursorSentAndForeignNextNeverFollowed()
+    [Theory]
+    [InlineData("https://evil.example.com/steal")]
+    [InlineData("http://localhost/admin")]
+    [InlineData("http://127.0.0.1/internal")]
+    [InlineData("http://169.254.169.254/latest/meta-data/")]
+    [InlineData("file:///etc/passwd")]
+    public async Task ConversationCursorRebuildNeverFollowsUntrustedPagingNext(string nextUrl)
     {
-        var (client, handler) = NewClient(Json(
-            """{"data":[],"paging":{"cursors":{"after":"abc"},"next":"https://evil.example.com/steal"}}"""));
+        var body = $"{{\"data\":[],\"paging\":{{\"cursors\":{{\"after\":\"safe-cursor\"}},\"next\":\"{nextUrl}\"}}}}";
+        var (client, handler) = NewClient(Json(body));
 
-        var result = await client.ListConversationsPageAsync(AccessToken, IgId, 25, "abc", default);
+        var result = await client.ListConversationsPageAsync(AccessToken, IgId, 25, "input-cursor", default);
 
         var page = Assert.IsType<ConversationListResult.Ok>(result).Page;
-        Assert.Equal("abc", page.NextAfterCursor);
+        Assert.Equal("safe-cursor", page.NextAfterCursor);
         Assert.True(page.HasMore);
-        Assert.Contains("after=abc", handler.LastRequest!.RequestUri!.ToString());
-        Assert.DoesNotContain("evil.example.com", handler.LastRequest!.RequestUri!.ToString());
+        Assert.Contains("after=input-cursor", handler.LastRequest!.RequestUri!.ToString());
+        Assert.Equal("graph.instagram.com", handler.LastRequest.RequestUri.Host);
     }
 
     [Fact]

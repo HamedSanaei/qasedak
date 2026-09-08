@@ -147,6 +147,13 @@ public sealed class CapabilityEndpointTests(ApiPostgreSqlFixture fixture)
         Assert.Equal(HttpStatusCode.NotFound, foreignResponse.StatusCode);
         Assert.Equal("account.notFound",
             (await foreignResponse.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("code").GetString());
+        Assert.Equal(tokenReadsBefore, fixture.Tokens.TokenGets.Count);
+        Assert.Equal(0, fixture.Media.CallCount);
+        Assert.Equal(0, fixture.Insights.CallCount);
+        Assert.Empty(fixture.Relationships.Calls);
+        Assert.Empty(fixture.Messaging.TypedSends);
+        Assert.Empty(fixture.PrivateReplies.Sends);
+        Assert.Empty(fixture.PublicReplies.Sends);
 
         var unknownResponse = await client.GetAsync(
             $"/api/v1/workspaces/{home}/instagram/connections/{Guid.CreateVersion7()}/capabilities");

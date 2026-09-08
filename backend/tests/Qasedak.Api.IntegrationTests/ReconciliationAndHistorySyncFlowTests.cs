@@ -318,6 +318,28 @@ public sealed class ReconciliationAndHistorySyncFlowTests(ApiPostgreSqlFixture f
     }
 
     [Fact]
+    public async Task ForeignWorkspaceHistorySyncGetAndPostAre404BeforeTokenOrProviderAccess()
+    {
+        var home = await SeedAccountOnlyAsync("612");
+        var foreign = await SeedAccountOnlyAsync("613");
+        var token = await TokenAsync("sync-foreign-" + Guid.NewGuid().ToString("N") + "@test.dev", home.WorkspaceId);
+        using var client = AuthedClient(token);
+
+        fixture.ConversationHistory.Reset();
+        fixture.Tokens.TokenGets.Clear();
+
+        var post = await client.PostAsJsonAsync(
+            $"/api/v1/workspaces/{home.WorkspaceId}/instagram/connections/{foreign.AccountId}/history-sync", new { });
+        var get = await client.GetAsync(
+            $"/api/v1/workspaces/{home.WorkspaceId}/instagram/connections/{foreign.AccountId}/history-sync");
+
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, post.StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, get.StatusCode);
+        Assert.Empty(fixture.Tokens.TokenGets);
+        Assert.Equal(0, fixture.ConversationHistory.CallCount);
+    }
+
+    [Fact]
     public async Task InitialSyncIsEnsuredAtConnectWithoutProviderCallsInOauthCallback()
     {
         fixture.ConversationHistory.Reset();

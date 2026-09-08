@@ -232,6 +232,15 @@ public sealed class ConnectedAccount
         LastSubscriptionCheckUtc = checkedAtUtc;
     }
 
+    /// <summary>Explicit repair is a concurrency-authoritative mutation; unlike initial
+    /// connection enrichment it advances the aggregate generation so simultaneous repair
+    /// outcomes cannot overwrite one another with last-writer-wins semantics.</summary>
+    public void ApplySubscriptionRepair(SubscriptionHealth health, string? detail, DateTimeOffset checkedAtUtc)
+    {
+        ApplySubscription(health, detail, checkedAtUtc);
+        Version++;
+    }
+
     public void MarkExpiringSoon() => Transition(AccountHealth.ExpiringSoon);
 
     public void MarkExpired() => Transition(AccountHealth.Expired);

@@ -101,6 +101,71 @@ public sealed class MetaWebhookEndpointTests(ApiPostgreSqlFixture fixture)
         Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("?hub.verify_token=api-integration-meta-verify-token&hub.challenge=x")]
+    [InlineData("?hub.mode=subscribe&hub.verify_token=api-integration-meta-verify-token")]
+    [InlineData("?hub.mode=%00&hub.verify_token=api-integration-meta-verify-token&hub.challenge=x")]
+    public async Task InvalidHandshakeShapesAreForbidden(string query)
+    {
+        var response = await fixture.Client.GetAsync(Endpoint + query);
+        Assert.Equal(System.Net.HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SignedEmptyBodyIsRejectedAsBadRequestAfterAuthenticityCheck()
+    {
+        var body = Array.Empty<byte>();
+        using var content = new ByteArrayContent(body);
+        content.Headers.Add("X-Hub-Signature-256", Signed(body));
+        var response = await fixture.Client.PostAsync(Endpoint, content);
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SignedInvalidJsonIsRejectedAsBadRequest()
+    {
+        var body = Encoding.UTF8.GetBytes("not-json");
+        using var content = new ByteArrayContent(body);
+        content.Headers.Add("X-Hub-Signature-256", Signed(body));
+        var response = await fixture.Client.PostAsync(Endpoint, content);
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task BodyChangedAfterSigningIsUnauthorized()
+    {
+        var signed = Encoding.UTF8.GetBytes("{\"object\":\"instagram\",\"entry\":[]}");
+        var modified = Encoding.UTF8.GetBytes("{\"object\":\"instagram\",\"entry\":[{}]}");
+        using var content = new ByteArrayContent(modified);
+        content.Headers.Add("X-Hub-Signature-256", Signed(signed));
+        var response = await fixture.Client.PostAsync(Endpoint, content);
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task MalformedSignaturePrefixIsUnauthorized()
+    {
+        var body = Encoding.UTF8.GetBytes("{}");
+        using var content = new ByteArrayContent(body);
+        content.Headers.Add("X-Hub-Signature-256", "sha1=" + new string('0', 64));
+        var response = await fixture.Client.PostAsync(Endpoint, content);
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ValidJsonAtBodyLimitIsAcceptedThroughNormalIngestion()
+    {
+        const string prefix = "{\"object\":\"instagram\",\"padding\":\"";
+        const string suffix = "\",\"entry\":[]}";
+        var padding = new string('x', MetaWebhookEndpoints.MaxBodyBytes - prefix.Length - suffix.Length);
+        var body = Encoding.UTF8.GetBytes(prefix + padding + suffix);
+        Assert.Equal(MetaWebhookEndpoints.MaxBodyBytes, body.Length);
+        using var content = new ByteArrayContent(body);
+        content.Headers.Add("X-Hub-Signature-256", Signed(body));
+        var response = await fixture.Client.PostAsync(Endpoint, content);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
+
     [Fact]
     public async Task OversizedNotificationIsRejectedBeforeSignatureWork()
     {

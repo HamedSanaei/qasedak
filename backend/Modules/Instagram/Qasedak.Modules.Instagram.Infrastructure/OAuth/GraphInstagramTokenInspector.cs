@@ -27,10 +27,11 @@ public sealed class GraphInstagramTokenInspector(HttpClient http, IOptions<MetaG
     public async Task<TokenInspection> InspectAsync(string accessToken, CancellationToken cancellationToken = default)
     {
         var endpoint = MetaGraphUris.Versioned(_options.GraphHost, _options.ApiVersion, "me", "fields=id").ToString();
-        // The token travels as a query parameter exactly as the documented probe does;
-        // it never enters returned details, logs or exceptions (transport redacts).
-        var outcome = await _transport.GetAsync(
-            endpoint + "&access_token=" + Uri.EscapeDataString(accessToken), cancellationToken);
+        // Credentials are header-only. Query-string tokens leak through proxies,
+        // access logs and request diagnostics even when result details are redacted.
+        using var request = new HttpRequestMessage(HttpMethod.Get, endpoint);
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        var outcome = await _transport.SendAsync(request, cancellationToken);
 
         return outcome switch
         {

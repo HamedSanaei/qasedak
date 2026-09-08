@@ -55,11 +55,12 @@ public sealed class InstagramAuthorizationUrlBuilderTests
             new[]
             {
                 InstagramAuthorizationScopes.Basic,
-                InstagramAuthorizationScopes.ContentPublish,
                 InstagramAuthorizationScopes.ManageMessages,
                 InstagramAuthorizationScopes.ManageComments,
+                InstagramAuthorizationScopes.ManageInsights,
             },
             InstagramAuthorizationScopes.Default);
+        Assert.DoesNotContain(InstagramAuthorizationScopes.ContentPublish, InstagramAuthorizationScopes.Default);
     }
 }
 

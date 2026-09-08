@@ -2,9 +2,21 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-015 - Add Meta compliance, app-review and production parity gates (TODO, next)
-**Last completed:** M13-014 (2026-09-08)
-**Product implementation:** M13-014 frontend Instagram parity surface complete for current supported capabilities: exact-account Connections/Profile, Insights, Media Picker, bounded History Sync and Automation Builder V2 with truthful capability states; M13-015 remains TODO.
+**Current task:** M13-015 - Add Meta compliance, app-review and production parity gates (DONE; final M13 task)
+**Last completed:** M13-015 (2026-09-08)
+**Product implementation:** M13 milestone implementation complete through M13-015 for current officially supported and intentionally scoped Instagram capabilities; unsupported/external Meta capabilities remain explicitly classified rather than simulated.
+
+## 2026-09-08 - M13-015 local finalization complete; exact-SHA delivery pending
+
+- Compliance/parity gates complete against the fresh 2026-09-08 first-party Meta contract; OpenReply parity is limited to current-Meta-supported capabilities intentionally included in Qasedak. FollowGate remains server-owned `Unsupported`; Ads/Tagging/publishing/Human-Agent automation/full-history claims are not fabricated.
+- Security: normal Graph resource tokens are Bearer-header-only; CI deny gate blocks official Meta hosts and production token-secret usage; provider errors are bounded/redacted; pagination never follows raw `paging.next`; scheduled payload guard rejects credential-bearing keys.
+- Exact-account: every account API/automation authoring route validates WorkspaceId + ConnectedAccountId before token/provider access; foreign/unknown/disconnected/legacy routes fail closed; no first-active-account fallback.
+- OAuth default scopes are exactly `instagram_business_basic`, `instagram_business_manage_messages`, `instagram_business_manage_comments`, `instagram_business_manage_insights`; `instagram_business_content_publish` is not requested.
+- Provider/webhook coverage: every production Graph adapter is mapped to deterministic transport/error/redaction coverage; webhook GET/POST matrix includes challenge, signature, modified body, malformed/empty JSON and body-size bounds.
+- Real PostgreSQL parity matrix reuses strong existing concurrency/idempotency authorities for Private/Public effects, comment webhook↔reconciliation, reveal/postback redelivery, inbound DM automation, history/webhook convergence, same MID across accounts, token-refresh/subscription-repair races and scheduled restart semantics.
+- Operations artifacts: `docs/product/m13-015-meta-compliance-matrix.md`, `docs/ops/M13-015_META_APP_REVIEW_CHECKLIST.md`, `docs/ops/M13-015_META_PRODUCTION_RUNBOOK.md`, `docs/product/m13-015-adversarial-audit.md` (50/50 mapped). External App Review, Advanced Access and Business Verification remain Unknown.
+- Final local verification: backend **1319/1319**, including Instagram real-PG 68 and API E2E 157; frontend **96/96** plus production Next.js build; Release build 0 warnings/0 errors; format/architecture/docs/state/environment/Penpot/Meta-CI gates green; `verify.py --full` PASSED with Testcontainers and both Docker images.
+- Production exact-SHA CI/CodeQL/Publish/Deploy and safe smoke are the remaining delivery evidence only. Live Meta end-to-end is NOT claimed without a designated production TEST account; customer accounts are forbidden for smoke. No next milestone/task is started.
 
 ## 2026-09-08 - M13-014 frontend Instagram parity deployed
 

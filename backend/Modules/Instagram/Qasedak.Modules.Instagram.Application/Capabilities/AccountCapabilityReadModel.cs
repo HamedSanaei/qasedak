@@ -50,7 +50,7 @@ public abstract record AccountCapabilitiesResult
 /// </summary>
 public static class InstagramCapabilityPolicy
 {
-    public const string ManageInsightsScope = "instagram_business_manage_insights";
+    public const string ManageInsightsScope = InstagramAuthorizationScopes.ManageInsights;
 
     private sealed record Rule(
         InstagramCapability Capability,

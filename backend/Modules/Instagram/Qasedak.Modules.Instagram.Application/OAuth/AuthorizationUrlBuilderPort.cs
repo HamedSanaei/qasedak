@@ -15,13 +15,16 @@ public static class InstagramAuthorizationScopes
 
     public const string ManageComments = "instagram_business_manage_comments";
 
-    /// <summary>Scopes requested for the fast Business Login connection flow.</summary>
+    public const string ManageInsights = "instagram_business_manage_insights";
+
+    /// <summary>Scopes requested for the fast Business Login connection flow. Least privilege:
+    /// publishing is intentionally excluded because M13 exposes no publishing feature.</summary>
     public static readonly string[] Default =
     [
         Basic,
-        ContentPublish,
         ManageMessages,
         ManageComments,
+        ManageInsights,
     ];
 }
 

@@ -2,6 +2,9 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
+using Qasedak.Modules.Instagram.Domain.Accounts;
+using Qasedak.Modules.Instagram.Infrastructure.Persistence;
 using Xunit;
 
 namespace Qasedak.Api.IntegrationTests;
@@ -45,12 +48,29 @@ public sealed class AutomationAccountBindingEndpointTests(ApiPostgreSqlFixture f
         return client;
     }
 
+    private async Task<Guid> SeedConnectedAccountAsync(Guid workspaceId)
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<InstagramDbContext>();
+        var account = ConnectedAccount.Create(
+            Guid.CreateVersion7(),
+            workspaceId,
+            "ig-binding-" + Guid.NewGuid().ToString("N"),
+            ConnectionPath.InstagramLogin,
+            ["instagram_business_basic"],
+            DateTimeOffset.UtcNow.AddDays(30),
+            DateTimeOffset.UtcNow.AddDays(-2));
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
+        return account.Id;
+    }
+
     [Fact]
     public async Task CreatePersistsBindingAndReadsSurfaceIt()
     {
         var tag = Guid.CreateVersion7().ToString("N");
         var workspaceId = Guid.CreateVersion7();
-        var accountId = Guid.CreateVersion7();
+        var accountId = await SeedConnectedAccountAsync(workspaceId);
         using var client = AuthedClient(await TokenAsync("binding-create-" + tag + "@example.com", workspaceId));
 
         var created = await client.PostAsJsonAsync(
@@ -79,11 +99,42 @@ public sealed class AutomationAccountBindingEndpointTests(ApiPostgreSqlFixture f
     }
 
     [Fact]
+    public async Task ForeignWorkspaceBindingIsRejectedBeforeTokenOrProviderAccess()
+    {
+        var home = Guid.CreateVersion7();
+        var foreign = Guid.CreateVersion7();
+        var foreignAccount = await SeedConnectedAccountAsync(foreign);
+        using var client = AuthedClient(await TokenAsync(
+            "binding-foreign-" + Guid.NewGuid().ToString("N") + "@example.com", home));
+
+        fixture.Tokens.TokenGets.Clear();
+        fixture.Media.Reset();
+        fixture.Insights.Reset();
+        fixture.Messaging.TypedSends.Clear();
+        fixture.PrivateReplies.Sends.Clear();
+        fixture.PublicReplies.Sends.Clear();
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/v1/workspaces/{home}/automations",
+            new { name = "foreign binding", definition = Definition(), channelAccountId = foreignAccount });
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("automation.accountNotFound", payload.GetProperty("code").GetString());
+        Assert.Empty(fixture.Tokens.TokenGets);
+        Assert.Equal(0, fixture.Media.CallCount);
+        Assert.Equal(0, fixture.Insights.CallCount);
+        Assert.Empty(fixture.Messaging.TypedSends);
+        Assert.Empty(fixture.PrivateReplies.Sends);
+        Assert.Empty(fixture.PublicReplies.Sends);
+    }
+
+    [Fact]
     public async Task BindingChangeThroughPutIsRejectedAsImmutable()
     {
         var tag = Guid.CreateVersion7().ToString("N");
         var workspaceId = Guid.CreateVersion7();
-        var accountId = Guid.CreateVersion7();
+        var accountId = await SeedConnectedAccountAsync(workspaceId);
         using var client = AuthedClient(await TokenAsync("binding-put-" + tag + "@example.com", workspaceId));
 
         var created = await client.PostAsJsonAsync(

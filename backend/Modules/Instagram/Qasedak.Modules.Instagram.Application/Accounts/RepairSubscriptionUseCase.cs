@@ -40,18 +40,24 @@ public sealed class RepairSubscriptionUseCase(
         var accessToken = await tokens.GetAsync(account.Id, cancellationToken);
         if (string.IsNullOrEmpty(accessToken))
         {
-            account.ApplySubscription(SubscriptionHealth.NeedsRepair, SubscriptionFailures.Unavailable, clock.UtcNow);
-            await accounts.SaveChangesAsync(cancellationToken);
+            account.ApplySubscriptionRepair(SubscriptionHealth.NeedsRepair, SubscriptionFailures.Unavailable, clock.UtcNow);
+            if (!await accounts.TrySaveChangesAsync(cancellationToken))
+            {
+                return RepairSubscriptionResult.Refused(SubscriptionFailures.Unavailable);
+            }
             return RepairSubscriptionResult.Refused(AccountFailures.TokenMissing);
         }
 
         var result = await subscriptions.SubscribeAsync(
             accessToken, account.ProviderUserId, InstagramSubscriptionFields.Required, cancellationToken);
-        account.ApplySubscription(
+        account.ApplySubscriptionRepair(
             result.Success ? SubscriptionHealth.Healthy : SubscriptionHealth.NeedsRepair,
             result.Success ? null : result.FailureCode,
             clock.UtcNow);
-        await accounts.SaveChangesAsync(cancellationToken);
+        if (!await accounts.TrySaveChangesAsync(cancellationToken))
+        {
+            return RepairSubscriptionResult.Refused(SubscriptionFailures.Unavailable);
+        }
 
         if (result.Success)
         {

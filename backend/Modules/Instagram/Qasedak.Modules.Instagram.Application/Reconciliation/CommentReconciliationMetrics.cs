@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 namespace Qasedak.Modules.Instagram.Application.Reconciliation;
@@ -12,12 +13,16 @@ public sealed class CommentReconciliationMetrics
 
     private readonly Counter<long> _comments = Meter.CreateCounter<long>("qasedak.instagram.comment_reconciliation.comments", "comments");
 
+    private readonly Histogram<long> _scanVolumes = Meter.CreateHistogram<long>("qasedak.instagram.comment_reconciliation.scan_volume", "items");
+
     private static readonly Meter Meter = new("Qasedak.Instagram.CommentReconciliation", "1.0.0");
 
-    public void SweepCompleted(string outcome, int mediaScanned, int pages) =>
-        _sweeps.Add(1, new KeyValuePair<string, object?>("outcome", outcome),
-            new KeyValuePair<string, object?>("media", mediaScanned),
-            new KeyValuePair<string, object?>("pages", pages));
+    public void SweepCompleted(string outcome, int mediaScanned, int pages)
+    {
+        _sweeps.Add(1, new KeyValuePair<string, object?>("outcome", outcome));
+        _scanVolumes.Record(mediaScanned, new TagList { { "kind", "media" }, { "outcome", outcome } });
+        _scanVolumes.Record(pages, new TagList { { "kind", "pages" }, { "outcome", outcome } });
+    }
 
     public void Comments(int dispatched, int selfSkipped, int unknownAuthorSkipped)
     {

@@ -1,5 +1,38 @@
 # Current handoff
 
+## 2026-09-08 - M13-015 DONE locally; final M13 delivery handoff
+
+M13-001 through M13-015 are implemented and locally final-verified for the capabilities supported by the current official Meta contract and intentionally included in Qasedak. No next milestone is started. Exact-SHA CI/CD and production evidence are appended after the task commit.
+
+### Supported/current implementation
+
+- Instagram Login exact-account connection/profile/subscription lifecycle, protected token rotation, server-owned capability projection, media catalog, account/media insights + follower snapshots, signed comments/messages/postbacks/read webhooks, Private Reply, Direct messaging, Public Reply, reveal/postback continuation, comment + inbound-DM automations, durable delayed follow-up, comment reconciliation and provider-bounded conversation history sync.
+- Exact account/workspace identity is mandatory end-to-end. No first-account fallback; foreign account authoring/API reads fail before token/provider I/O; provider MID uniqueness is scoped to the exact thread/account.
+- Non-repeatable outbound effects use durable claim/Attempting authorities; crash/timeout after an external attempt becomes Uncertain and is never blindly resent. Scheduled work uses leases, reclaim, bounded retry/backoff/max-attempts and identifier-only payloads.
+
+### Intentionally out of scope / unsupported
+
+- Publishing and `instagram_business_content_publish`, Human Agent automation/window bypass, ads/shopping/hashtag/Business-Discovery extras, group/folder semantics and blind OpenReply reproduction remain out of M13 scope. Ads/Tagging are unavailable on the chosen Instagram Login path.
+- FollowGate relationship adapter exists and is deterministic, but product capability remains `Unsupported` until ordinary product eligibility/consent basis is proven. Provider-limited history is never called full lifetime history and inaccessible old detail is never labeled deletion.
+
+### Permissions and subscriptions
+
+- Requested OAuth scopes: Basic + ManageMessages + ManageComments + ManageInsights only.
+- Server-owned webhook subscription set: `comments`, `live_comments`, `messages`, `messaging_postbacks`, `messaging_seen`.
+- Third-party production use still depends on real Meta App Review / Advanced Access / Business Verification / Live-mode evidence where applicable; repository status for those external gates remains Unknown.
+
+### Security / observability / CI
+
+- Normal Graph resource credentials are Bearer-header-only; raw provider paging URLs are never followed; provider prose/body/token material is bounded or withheld; durable token storage is protected; job payloads reject credential-bearing shapes.
+- Metrics remain low-cardinality: dynamic counts are histogram measurements, never identifier/count dimensions; logs use bounded outcome/failure categories, not customer text/tokens.
+- CI explicitly denies live Meta hosts and runs `check_meta_ci_isolation.py`; all provider contracts use fake/mock transports while PostgreSQL Testcontainers remain real.
+
+### Verification and operations
+
+- Backend 1319/1319; frontend 96/96; Release 0 warnings/0 errors; format/architecture/docs/state/environment/Penpot/Meta-CI green; full verify PASSED including real PostgreSQL and API/Web Docker builds. Graphify M13-015 A-F evidence from 2026-09-08 is reused, not rerun.
+- Canonical artifacts: compliance matrix `docs/product/m13-015-meta-compliance-matrix.md`; App Review checklist `docs/ops/M13-015_META_APP_REVIEW_CHECKLIST.md`; production runbook `docs/ops/M13-015_META_PRODUCTION_RUNBOOK.md`; 50-question audit `docs/product/m13-015-adversarial-audit.md`.
+- Safe production smoke never mutates Meta. Designated live Meta smoke may run only with an explicitly supplied production TEST Instagram account and cleanup plan; never a customer account. If none is supplied, record the runbook's exact NOT RUN statement.
+
 ## 2026-09-08 - M13-014 DONE and deployed; M13-015 read-only packet
 
 M13-014 is complete, locally verified and deployed from exact task SHA `767473f0b8d0c74367b379578977c5e54c38df10` using immutable image `sha-767473f0b8d0`. M13-015 is next and remains TODO; this is read-only handoff evidence only.

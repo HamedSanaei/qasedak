@@ -1580,7 +1580,7 @@ and residual not-run gates are explicit.
 **Suggested commit:** `feat(web): expose instagram parity workflows`
 
 ## M13-015 — Add Meta compliance, app-review and production parity gates
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Prove the complete M13 implementation is production-safe, policy-current,
 observable and regression-protected without calling live Meta from CI. "OpenReply parity"
@@ -1613,5 +1613,7 @@ are current and any externally unexecuted App Review/production smoke is reporte
 than claimed. The gate must not fail merely because OpenReply contains behavior that the
 current official Meta contract no longer supports; such behavior must instead be
 classified truthfully and excluded from the supported parity claim.
+
+**Completion evidence:** M13-015 local production-parity gates are green: fresh first-party Meta contract retrieval remains dated 2026-09-08; Graphify 0.9.26 A-F evidence reused; deterministic provider-adapter/webhook/security matrices complete; exact-account automation binding and least-privilege OAuth corrections shipped in-tree; `FollowGate` remains truthfully `Unsupported`; scheduled-work secret guard rejects credential-bearing payload keys and all durable jobs remain identifier-only. Adversarial audit 50/50 mapped with external approvals kept Unknown; production runbook separates zero-Meta safe smoke from designated TEST-account live smoke. Final local gates: backend 1319/1319 including Testcontainers PostgreSQL and API E2E 157/157; frontend 96/96 + production build; Release build 0 warnings/0 errors; format, architecture, docs/state/environment/Penpot, Meta CI isolation and `verify.py --full` (including API/Web Docker builds) PASSED. Production exact-SHA CI/CD and smoke evidence are recorded after the task commit; live Meta remains NOT RUN unless an operator supplies a designated production TEST account.
 
 **Suggested commit:** `test(instagram): validate openreply parity and meta compliance`

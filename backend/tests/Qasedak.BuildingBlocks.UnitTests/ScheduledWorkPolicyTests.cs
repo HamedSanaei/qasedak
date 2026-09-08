@@ -40,6 +40,8 @@ public sealed class ScheduledWorkPolicyTests
 
     [Theory]
     [InlineData("""{"access_token":"EAACEdEose0secret"}""")]
+    [InlineData("""{"accessToken":"M13_015_SENTINEL_TOKEN_DO_NOT_LEAK"}""")]
+    [InlineData("""{"token":"opaque-secret"}""")]
     [InlineData("""{"client_secret":"shhh"}""")]
     [InlineData("""{"x":"access_token=abc"}""")]
     [InlineData("""{"x":"IGAAsecret"}""")]

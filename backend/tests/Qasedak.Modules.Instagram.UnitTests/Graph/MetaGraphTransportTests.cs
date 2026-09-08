@@ -221,7 +221,10 @@ public sealed class MetaGraphTransportTests
         var healthy = await inspector.InspectAsync(token, default);
 
         Assert.Equal(TokenInspectionKind.Healthy, healthy.Kind);
-        Assert.StartsWith("https://graph.instagram.com/v26.0/me?fields=id&access_token=", last!.RequestUri!.ToString());
+        Assert.Equal("https://graph.instagram.com/v26.0/me?fields=id", last!.RequestUri!.ToString());
+        Assert.Equal("Bearer", last.Headers.Authorization?.Scheme);
+        Assert.Equal(token, last.Headers.Authorization?.Parameter);
+        Assert.DoesNotContain(token, last.RequestUri.ToString(), StringComparison.Ordinal);
 
         var rejecting = new GraphInstagramTokenInspector(
             new HttpClient(new ScriptedInspectorHandler(

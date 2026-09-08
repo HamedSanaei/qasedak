@@ -394,12 +394,18 @@ public sealed class OverviewEndpointTests(ApiPostgreSqlFixture fixture)
         var huge = await client.GetAsync(HistoryUrl(workspace, accountA, "?limit=1000"));
         Assert.Equal(HttpStatusCode.BadRequest, huge.StatusCode);
 
-        // Foreign workspace: 404 before any history query.
+        // Foreign workspace: 404 before any history query/token/provider access.
+        fixture.Tokens.TokenGets.Clear();
+        fixture.Media.Reset();
+        fixture.Insights.Reset();
         var foreignWorkspace = FreshWorkspace();
         var clientB = await AuthedClientAsync("overview-hist-foreign@example.com", foreignWorkspace);
         var foreign = await clientB.GetAsync(HistoryUrl(foreignWorkspace, accountA));
         Assert.Equal(HttpStatusCode.NotFound, foreign.StatusCode);
         Assert.Equal("account.notFound",
             (await foreign.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("code").GetString());
+        Assert.Empty(fixture.Tokens.TokenGets);
+        Assert.Equal(0, fixture.Media.CallCount);
+        Assert.Equal(0, fixture.Insights.CallCount);
     }
 }

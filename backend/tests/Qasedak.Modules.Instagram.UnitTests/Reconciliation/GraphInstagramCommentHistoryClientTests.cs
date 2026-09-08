@@ -122,13 +122,16 @@ public sealed class GraphInstagramCommentHistoryClientTests
         Assert.Null(page.NextAfterCursor);
     }
 
-    [Fact]
-    public async Task MaliciousForeignNextUrlIsNeverFollowedAndYieldsNoCursor()
+    [Theory]
+    [InlineData("https://evil.example.com/steal?token=abc")]
+    [InlineData("http://localhost/admin")]
+    [InlineData("http://127.0.0.1/internal")]
+    [InlineData("http://169.254.169.254/latest/meta-data/")]
+    [InlineData("ftp://evil.example.com/file")]
+    public async Task UntrustedPagingNextIsNeverFollowedAndYieldsNoCursor(string nextUrl)
     {
-        // next points at an attacker host; the bounded cursor component is missing so
-        // the page must be treated as final — the URL is never parsed or fetched.
-        var (client, handler) = NewClient(Json(
-            """{"data":[],"paging":{"next":"https://evil.example.com/steal?token=abc"}}"""));
+        var body = $"{{\"data\":[],\"paging\":{{\"next\":\"{nextUrl}\"}}}}";
+        var (client, handler) = NewClient(Json(body));
 
         var result = await client.ListCommentsPageAsync(AccessToken, "178414000000012345", MediaId, 25, null, default);
 
@@ -136,6 +139,7 @@ public sealed class GraphInstagramCommentHistoryClientTests
         Assert.Null(page.NextAfterCursor);
         Assert.True(page.HasMore);
         Assert.Equal(1, handler.Calls);
+        Assert.Equal("graph.instagram.com", handler.LastRequest!.RequestUri!.Host);
     }
 
     [Fact]

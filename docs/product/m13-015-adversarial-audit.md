@@ -1,0 +1,67 @@
+# M13-015 — 50-question adversarial audit
+
+**Audit date:** 2026-09-08
+**Rule:** every PASS names concrete code/test/document authority. External or production-only facts are never converted to PASS by repository automation.
+
+Allowed verdicts: `PASS — code/test authority`, `PASS — documentation authority`, `EXTERNAL BLOCKER`, `PRODUCTION-ONLY`, `NOT APPLICABLE by verified current contract`.
+
+| # | Adversarial question | Verdict | Concrete authority / finding |
+|---:|---|---|---|
+| 1 | Can CI reach live Meta endpoints? | PASS — code/test authority | `scripts/check_meta_ci_isolation.py`; `.github/workflows/ci.yml` step `Deny live Meta endpoints`; hosts mapped to loopback. |
+| 2 | Can a real Meta/Instagram token secret be consumed by CI? | PASS — code/test authority | `check_meta_ci_isolation.py` rejects production Meta/Instagram token-secret references; deterministic provider tests use fake handlers. |
+| 3 | Can a normal Graph resource token appear in a URI? | PASS — code/test authority | `GraphInstagramTokenInspector` uses Bearer; `MetaTokenRedactionGateTests`; resource-adapter contract tests assert token absent from URL. OAuth exchange query parameters remain the documented protocol exception. |
+| 4 | Can provider `paging.next` cause SSRF? | PASS — code/test authority | `GraphMediaCatalogClientTests`, `GraphInstagramCommentHistoryClientTests`, `GraphInstagramConversationHistoryClientTests` inject evil/localhost/loopback/metadata/scheme URLs and never fetch them. |
+| 5 | Can provider error prose/token material leak outward? | PASS — code/test authority | `MetaGraphTransportTests.CredentialShapedMessagesAreWithheld`; `MetaTokenRedactionGateTests`; adapter redaction tests. |
+| 6 | Can raw provider JSON be returned by Qasedak APIs? | PASS — code/test authority | `MediaCatalogEndpointTests.RateLimitedProviderFailureMapsTo503WithoutLeakingProviderBody`; stable failure DTOs in Graph adapters; compliance matrix §12. |
+| 7 | Are rate limits distinct from permanent failures? | PASS — code/test authority | `MetaErrorTaxonomyTests.RateLimitsAndServerErrorsStayTransient`; media/insights/history/reconciliation rate-limit tests. |
+| 8 | Does permission loss degrade unrelated capabilities globally? | PASS — code/test authority | `OverviewEndpointTests.PermissionLossDegradesOnlyAnalyticsAndStopsMediaFanOut`; `InstagramOverviewUseCaseTests.PermissionLossDisablesOnlyAnalyticsMediaCatalogAndFollowersSurvive`. |
+| 9 | Can an `Attempting` provider mutation be blindly resent after crash/restart? | PASS — code/test authority | `ExecuteAutomationTests.CrashAfterAttemptMarkerRecoversAsUncertainWithZeroResend`; `CommentPrivateReplyCoordinatorTests.AttemptingStateReplaysUncertainWithoutSecondCall`; `FollowUpExecutionUseCaseTests.InterruptedAttemptSettlesUncertainWithoutSecondMutation`. |
+| 10 | Can concurrent Private Reply claims send twice? | PASS — code/test authority | real-PG `CommentEffectLedgerTests.ConcurrentSameKeyHasExactlyOneWinner` and `TwoMatchingAutomationsConcurrentlyProduceOneGlobalWinner`. |
+| 11 | Can Public Reply and Private Reply collide into one ledger slot? | PASS — code/test authority | `CommentEffectLedgerTests.PrivateReplyAndPublicReplyAreIndependent`; `CommentPrivateReplyCoordinatorTests.PublicReplyEffectIsIndependentOfPrivateReply`. |
+| 12 | Can postback redelivery reveal twice? | PASS — code/test authority | API real-PG `RevealFlowWebhookFlowTests.PostbackRedeliveryNeverSendsTheRevealTwice`. |
+| 13 | Can a read receipt open reveal or trigger automation? | PASS — code/test authority | `MetaPayloadNormalizerTests.ReadBecomesMessageReadWithMidAndIgnoresAnyWatermark`; `RevealFlowWebhookFlowTests` only continues from qualifying reply/postback paths. |
+| 14 | Does a comment alone open the normal Direct messaging window? | PASS — code/test authority | `CommentToPrivateReplyAutomationFlowTests.CommentAutomationNeverTouchesTheDmWindowPath`; Direct eligibility requires user-message basis. |
+| 15 | Can delayed follow-up bypass the 24-hour user-message window? | PASS — code/test authority | `AutomationCapabilityWebhookFlowTests` follow-up window suppression plus `FollowUpExecutionUseCaseTests` attempt marker/revalidation path. |
+| 16 | Is FollowGate falsely advertised as supported because an adapter exists? | PASS — code/test authority | `InstagramCapabilityPolicy` declares FollowGate `Supported: false`; `CapabilityEndpointTests` expects `Unsupported`; relationship adapter remains separate. |
+| 17 | Can conversation-history import trigger DM automations? | PASS — code/test authority | real-PG `ReconciliationAndHistorySyncFlowTests.HistorySyncImportsConversationsButNeverTriggersDmAutomations`; unit `ConversationHistorySyncUseCaseTests.HistoryImportsNeverEmitAutomationEvents`. |
+| 18 | Is inaccessible old provider history modeled as deletion? | PASS — documentation authority | compliance matrix §13 and `meta-instagram-platform-contract.md`: provider-limited detail/Requests omission is not deletion. |
+| 19 | Can a multi-account webhook route an entry to the wrong account? | PASS — code/test authority | `InteractiveWebhookEndpointTests.MultiEntryWebhookResolvesEachAccountIndependently`; `InboundAccountResolutionTests` reconnect/duplicate-active cases fail closed. |
+| 20 | Can the same provider account identity be active across workspaces? | PASS — code/test authority | `AccountLifecycleTests.ActiveConnectionInAnotherWorkspaceIsRejectedWithoutNewRow`; `InboundAccountResolutionTests.DuplicateActiveIdentityAcrossWorkspacesFailsClosed`. |
+| 21 | Can the same provider MID on two exact accounts collide? | PASS — code/test authority | real-PG `ReconciliationAndHistorySyncFlowTests.SameProviderMidOnTwoExactAccountsCoexists`. |
+| 22 | Can a foreign/unknown account cause token read or provider I/O before authorization? | PASS — code/test authority | media/overview/capability/history-sync/automation-binding foreign-workspace API tests assert zero token/provider access. |
+| 23 | Is there any first-active/first-account fallback for outbound or automation routing? | PASS — code/test authority | `ExactAccountRoutingTests.DisconnectedMissingUnknownAndLegacyBindingsRefuseWithoutFallback`; `LegacyUnboundAutomationNeverExecutesOnExactEvents`. |
+| 24 | Can reconciliation self-comments loop into automation? | PASS — code/test authority | `CommentReconciliationUseCaseTests.SelfCommentIsSkippedWithZeroDispatch`. |
+| 25 | Can a comment with unknown author identity trigger recovered-comment automation? | PASS — code/test authority | `CommentReconciliationUseCaseTests.CommentWithoutAuthorIdFailsClosedNeverDispatched`; real-time normalizer preserves nullable author truthfully. |
+| 26 | Is username used as durable routing identity? | PASS — code/test authority | `GraphAccountProfileClientTests` requires provider `id`; webhook/account routing uses provider IDs; username remains presentation metadata. |
+| 27 | Can OAuth state be replayed, moved across workspace, or redirect-substituted? | PASS — code/test authority | real-PG `OAuthStateStoreTests.ReplayIsRejectedAfterFirstConsume`, `UnknownExpiredForeignAndRedirectMismatchedStatesFail`; `AccountLifecycleTests` state-negative matrix. |
+| 28 | Can concurrent token refresh rotations overwrite each other incorrectly? | PASS — code/test authority | real-PG `InstagramPersistenceTests.ConcurrentTokenRefreshCommitsOneAuthoritativeRotation`; one rotation wins and stale writer is refused. |
+| 29 | Can concurrent subscription repair persist conflicting outcomes? | PASS — code/test authority | real-PG `InstagramPersistenceTests.ConcurrentSubscriptionRepairPersistsOneAuthoritativeOutcome`; `RepairSubscriptionUseCase` uses CAS-style save. |
+| 30 | Can scheduled-work payloads persist tokens or user content? | PASS — code/test authority | `ScheduledWorkStoreTests.SecretShapedPayloadsAreRejectedAtEnqueue`; token/snapshot/reconciliation/history/follow-up payload tests are identifier-only; sentinel included. |
+| 31 | Is Meta HTTP performed while an EF transaction/lock is held across provider latency? | PASS — code/test authority | application coordinators separate DB claim/state transitions from provider calls; `CommentPrivateReplyCoordinator` persists Attempting before send, refresh/repair use optimistic CAS rather than holding DB transactions over HTTP. |
+| 32 | Is caller cancellation swallowed as a provider failure? | PASS — code/test authority | `MetaGraphTransportTests.TransportDistinguishesTimeoutFromCallerCancellation`; messaging/private/public/history/reconciliation adapter cancellation tests propagate caller cancellation. |
+| 33 | Does Qasedak claim Ads support on Instagram Login? | NOT APPLICABLE by verified current contract | compliance matrix §3/official first-party contract: Ads unavailable on the Instagram Login path; no workaround. |
+| 34 | Does Qasedak claim Tagging support on Instagram Login? | NOT APPLICABLE by verified current contract | compliance matrix §3/official first-party contract: Tagging unavailable on the Instagram Login path; no workaround. |
+| 35 | Does Qasedak claim full lifetime conversation history? | NOT APPLICABLE by verified current contract | compliance matrix §§3,13: provider detail/history coverage is bounded; UI/docs must not call it full lifetime sync. |
+| 36 | Is Meta App Review approved? | EXTERNAL BLOCKER | repository contains no approval evidence; `M13-015_META_APP_REVIEW_CHECKLIST.md` and compliance matrix §16 keep status Unknown. |
+| 37 | Is Advanced Access approved? | EXTERNAL BLOCKER | no external evidence; checklist/compliance matrix explicitly keep Advanced Access Unknown. |
+| 38 | Does default OAuth request an unused publishing permission? | PASS — code/test authority | `InstagramAuthorizationScopes.Default` excludes `ContentPublish`; `MetaOAuthAdapterTests.DefaultScopeSetMatchesTheVerifiedContract`. |
+| 39 | Does default OAuth request the shipped insights permission? | PASS — code/test authority | `InstagramAuthorizationScopes.ManageInsights` is in Default; capability tests use the same centralized constant. |
+| 40 | Is FollowGate product support claimed despite unresolved eligibility/consent basis? | PASS — documentation authority | compliance matrix classifies it `Unverified / externally blocked`; capability API stays `Unsupported`; runbook forbids enabling it for smoke. |
+| 41 | Is Human Agent used as an automated window bypass? | PASS — documentation authority | compliance matrix classifies Human Agent automation intentionally out of Qasedak scope and forbids using it to bypass normal automation windows. |
+| 42 | Is publishing included in M13 parity or App Review permissions? | PASS — documentation authority | publishing is `Supported but intentionally out of Qasedak scope`; `content_publish` is not requested; checklist excludes it. |
+| 43 | Does “OpenReply parity” mean blind reproduction of unsupported behavior? | PASS — documentation authority | compliance matrix §1 defines parity only for current-Meta-supported capabilities intentionally included by Qasedak. |
+| 44 | Can CI/deploy success be treated as external Meta approval? | PASS — documentation authority | compliance matrix §16, App Review checklist and production runbook keep external approval gates independent and Unknown without operator evidence. |
+| 45 | Are all M13-015 Graphify A–F queries recorded? | PASS — documentation authority | `.agent-state/GRAPHIFY_EVIDENCE.md` has the 2026-09-08 M13-015 row: all six queries A–F, graphify 0.9.26, code-only + cluster-only. |
+| 46 | Is zero-live-Meta CI isolation executable rather than aspirational? | PASS — code/test authority | `.github/workflows/ci.yml` deny step + `scripts/check_meta_ci_isolation.py`; `scripts/verify.py` invokes the gate. |
+| 47 | Are safe default smoke and designated live-Meta smoke clearly separated? | PASS — documentation authority | `docs/ops/M13-015_META_PRODUCTION_RUNBOOK.md` §§3–6; default smoke makes no Meta mutation and live sequence requires an explicitly designated TEST account. |
+| 48 | Can malformed/empty/oversized webhook bodies bypass signature/JSON/body limits? | PASS — code/test authority | `MetaWebhookEndpointTests`: complete GET/POST HTTP matrix including signed empty→400, invalid JSON→400, exact accepted bound→200, oversized→413, modified body→401. |
+| 49 | Can metrics/logging contain high-cardinality account IDs, tokens or user text? | PASS — code/test authority | `MetricCardinalityTests`; `CommentReconciliationMetrics`/`ConversationSyncMetrics` use count histograms; compliance matrix §12 inventories safe logging/redaction. |
+| 50 | May production live smoke silently use a customer account when no test account exists? | PRODUCTION-ONLY | production runbook forbids customer fallback and requires exact evidence text: `live Meta M13-015 end-to-end smoke NOT RUN — no designated production test Instagram account`. |
+
+## Audit verdict
+
+All repository-testable high-risk questions have concrete code/test or documentation authority. No material repository failure remains from this audit pass.
+
+External status is deliberately **not green**: App Review, Advanced Access and Business Verification remain Unknown/external until real Meta evidence is supplied. The designated live-Meta smoke remains production-only and must be recorded as NOT RUN when no explicit production TEST account is available.
+
+This audit does not replace broad/full repository verification; it is the adversarial mapping consumed by the M13-015 finalization and deployment evidence.

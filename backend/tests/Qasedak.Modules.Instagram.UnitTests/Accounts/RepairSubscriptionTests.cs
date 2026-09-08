@@ -20,6 +20,7 @@ public sealed class RepairSubscriptionTests
     private sealed class FakeRepository : IConnectedAccountRepository
     {
         public Dictionary<Guid, ConnectedAccount> Rows { get; } = [];
+        public bool TrySaveSucceeds { get; set; } = true;
 
         public Task<ConnectedAccount?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
             Task.FromResult(Rows.GetValueOrDefault(id));
@@ -44,7 +45,7 @@ public sealed class RepairSubscriptionTests
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-        public Task<bool> TrySaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(true);
+        public Task<bool> TrySaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(TrySaveSucceeds);
 
         public Task<bool> DisconnectAsync(Guid accountId, DateTimeOffset disconnectedAtUtc, CancellationToken cancellationToken = default) =>
             Task.FromResult(false);
@@ -164,6 +165,23 @@ public sealed class RepairSubscriptionTests
         Assert.Equal(AccountFailures.TokenMissing, result.FailureCode);
         Assert.Equal(SubscriptionHealth.NeedsRepair, account.SubscriptionHealth);
         Assert.Empty(subscriptions.Requests);
+    }
+
+    [Fact]
+    public async Task LostConcurrentRepairFailsClosedInsteadOfClaimingItsHealth()
+    {
+        var repo = new FakeRepository { TrySaveSucceeds = false };
+        var account = Connected(repo);
+        var subscriptions = new FakeSubscriptionClient();
+        var sut = new RepairSubscriptionUseCase(repo,
+            new FakeTokenStore(new Dictionary<Guid, string> { [account.Id] = "CURRENT-TOKEN" }),
+            subscriptions, new FixedClock(Now));
+
+        var result = await sut.ExecuteAsync(WorkspaceId, account.Id);
+
+        Assert.False(result.Success);
+        Assert.Equal(SubscriptionFailures.Unavailable, result.FailureCode);
+        Assert.Single(subscriptions.Requests);
     }
 
     [Fact]

@@ -231,6 +231,8 @@ public sealed class ScheduledWorkStoreTests(PostgreSqlFixture fixture) : IAsyncL
         await Assert.ThrowsAsync<ScheduledWorkException>(() => store.EnqueueAsync(
             EnqueuePayload(Key(), "{\"token\":\"EAACEdEose0secret\"}"), Now));
         await Assert.ThrowsAsync<ScheduledWorkException>(() => store.EnqueueAsync(
+            EnqueuePayload(Key(), "{\"accessToken\":\"M13_015_SENTINEL_TOKEN_DO_NOT_LEAK\"}"), Now));
+        await Assert.ThrowsAsync<ScheduledWorkException>(() => store.EnqueueAsync(
             EnqueuePayload(Key(), "{\"k\":\"client_secret=abc\"}"), Now));
         await Assert.ThrowsAsync<ScheduledWorkException>(() => store.EnqueueAsync(
             EnqueuePayload(Key(), "{\"k\":\"access_token=abc\"}"), Now));

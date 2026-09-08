@@ -112,6 +112,8 @@ builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationPublicReplyBridge>(
 builder.Services.AddScoped<Qasedak.Api.CrossModule.AutomationFollowUpBridge>();
 builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IDirectEligibilityPort,
     Qasedak.Api.CrossModule.AutomationDirectEligibilityAdapter>();
+builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IChannelAccountBindingValidator,
+    Qasedak.Api.CrossModule.AutomationChannelAccountBindingValidator>();
 builder.Services.AddScoped<Qasedak.Modules.Automations.Application.IAutomationActionDispatcher,
     Qasedak.Api.CrossModule.AutomationChannelDispatcher>();
 // Entitlement enforcement: automation activation is gated by the workspace's plan limits

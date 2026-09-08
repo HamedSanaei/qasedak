@@ -62,6 +62,10 @@ public sealed class MetaGraphTransport(HttpClient http, int timeoutSeconds)
             {
                 return new MetaGraphCallResult.Unreachable("HTTP request failed.");
             }
+            catch (InvalidOperationException)
+            {
+                return new MetaGraphCallResult.Unreachable("HTTP request failed.");
+            }
 
             using (response)
             {

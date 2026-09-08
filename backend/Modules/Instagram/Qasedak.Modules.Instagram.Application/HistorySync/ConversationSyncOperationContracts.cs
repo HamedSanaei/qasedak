@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 namespace Qasedak.Modules.Instagram.Application.HistorySync;
@@ -100,12 +101,15 @@ public sealed class ConversationSyncMetrics
 
     private readonly Counter<long> _messages = Meter.CreateCounter<long>("qasedak.instagram.conversation_history_sync.messages", "messages");
 
-    public void OperationCompleted(string kind, string outcome, int conversations, int details) =>
-        _operations.Add(1,
-            new KeyValuePair<string, object?>("kind", kind),
-            new KeyValuePair<string, object?>("outcome", outcome),
-            new KeyValuePair<string, object?>("conversations", conversations),
-            new KeyValuePair<string, object?>("details", details));
+    private readonly Histogram<long> _operationVolumes = Meter.CreateHistogram<long>("qasedak.instagram.conversation_history_sync.volume", "items");
+
+    public void OperationCompleted(string kind, string outcome, int conversations, int details)
+    {
+        var tags = new TagList { { "kind", kind }, { "outcome", outcome } };
+        _operations.Add(1, tags);
+        _operationVolumes.Record(conversations, new TagList { { "kind", "conversations" }, { "outcome", outcome } });
+        _operationVolumes.Record(details, new TagList { { "kind", "details" }, { "outcome", outcome } });
+    }
 
     public void Messages(int imported, int duplicates, int unsupported, int windowLimited)
     {

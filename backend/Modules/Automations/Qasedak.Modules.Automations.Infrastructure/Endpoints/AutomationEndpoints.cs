@@ -61,6 +61,7 @@ public static class AutomationEndpoints
             Guid workspaceId,
             SaveAutomationRequest request,
             IAutomationRepository repository,
+            IChannelAccountBindingValidator accountBindings,
             CancellationToken cancellationToken) =>
         {
             if (!DefinitionMapper.TryMap(request.Definition, out var definition, out var error))
@@ -77,6 +78,10 @@ public static class AutomationEndpoints
                 }
 
                 channelAccountId = new ChannelAccountId(request.ChannelAccountId.Value);
+                if (!await accountBindings.IsOwnedActiveAccountAsync(workspaceId, channelAccountId.Value, cancellationToken))
+                {
+                    return Results.NotFound(new { code = ChannelAccountBindingFailures.AccountNotFound });
+                }
             }
 
             var automation = Automation.Create(
@@ -93,6 +98,7 @@ public static class AutomationEndpoints
             Guid automationId,
             SaveAutomationRequest request,
             IAutomationRepository repository,
+            IChannelAccountBindingValidator accountBindings,
             CancellationToken cancellationToken) =>
         {
             var automation = await repository.FindByIdAsync(automationId, cancellationToken);
@@ -108,6 +114,12 @@ public static class AutomationEndpoints
                 && request.ChannelAccountId != automation.ChannelAccountId?.Value)
             {
                 return Results.Json(new { code = "automation.bindingImmutable" }, statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            if (automation.ChannelAccountId is { IsResolved: true } existingBinding
+                && !await accountBindings.IsOwnedActiveAccountAsync(workspaceId, existingBinding, cancellationToken))
+            {
+                return Results.NotFound(new { code = ChannelAccountBindingFailures.AccountNotFound });
             }
 
             if (!DefinitionMapper.TryMap(request.Definition, out var definition, out var error))

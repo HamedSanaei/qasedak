@@ -53,6 +53,8 @@ public static class ScheduledWorkPayloadGuard
         if (payloadJson.Contains("EAAC", StringComparison.Ordinal)
             || payloadJson.Contains("client_secret", StringComparison.OrdinalIgnoreCase)
             || payloadJson.Contains("access_token", StringComparison.OrdinalIgnoreCase)
+            || payloadJson.Contains("\"accessToken\"", StringComparison.OrdinalIgnoreCase)
+            || payloadJson.Contains("\"token\"", StringComparison.OrdinalIgnoreCase)
             || payloadJson.Contains("IGAA", StringComparison.Ordinal))
         {
             throw new ScheduledWorkException(
