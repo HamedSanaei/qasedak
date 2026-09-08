@@ -1,9 +1,17 @@
 # Current handoff
 
-## 2026-09-08 - M13-015 DONE locally; final M13 delivery handoff
+## 2026-09-08 - M13-015 DONE and deployed; M13 milestone complete
 
-M13-001 through M13-015 are implemented and locally final-verified for the capabilities supported by the current official Meta contract and intentionally included in Qasedak. No next milestone is started. Exact-SHA CI/CD and production evidence are appended after the task commit.
+M13-001 through M13-015 are complete and deployed for the capabilities supported by the current official Meta contract and intentionally included in Qasedak. Exact task SHA `0452c70a1701a2335a2bfba3554617bfde7c3f3e` is running as immutable image `sha-0452c70a1701`. No next milestone is started.
 
+### Exact delivery evidence
+
+- Exact-SHA workflows: CI `34233900393` success; CodeQL `34233899991` success; Publish Images `34234383144` success; Deploy Production `34234558863` success.
+- Image `sha-0452c70a1701`; API digest `sha256:00cb99417670f905ee3180d0fdac59b818862005fc78a94018b7ea38cb37290d`; Web digest `sha256:5ce78d7d4892b59a4ea60e29eabfadbd21e6a5168fc7ff60c45f45f9e5453b30`; backup `qasedak-20260908T135142Z-sha-0452c70a1701.dump`.
+- No M13-015 migration was applied; all eight schemas were already up to date. PostgreSQL/API/Web deployment health and smoke passed; no rollback. Background workers run inside the healthy API process; no separate worker container exists.
+- CI zero-live-Meta proof: all four official Meta hosts loopback-denied, `check_meta_ci_isolation.py` passed with no production token-secret reference, provider HTTP tests are deterministic fake/mock transports, and real PostgreSQL integration assemblies ran (1319/1319 backend).
+- Safe production smoke: `/` 200; `/api/v1/system` 200; wrong webhook verify token 403; unsigned webhook POST 401; protected Instagram settings route 307 to auth. Deploy log contains no official Meta host traffic/startup storm marker.
+- Meta App Review = Unknown; Advanced Access = Unknown; Business Verification = Unknown. live Meta M13-015 end-to-end smoke NOT RUN — no designated production test Instagram account.
 ### Supported/current implementation
 
 - Instagram Login exact-account connection/profile/subscription lifecycle, protected token rotation, server-owned capability projection, media catalog, account/media insights + follower snapshots, signed comments/messages/postbacks/read webhooks, Private Reply, Direct messaging, Public Reply, reveal/postback continuation, comment + inbound-DM automations, durable delayed follow-up, comment reconciliation and provider-bounded conversation history sync.

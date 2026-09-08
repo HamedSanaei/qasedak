@@ -6,7 +6,7 @@
 **Last completed:** M13-015 (2026-09-08)
 **Product implementation:** M13 milestone implementation complete through M13-015 for current officially supported and intentionally scoped Instagram capabilities; unsupported/external Meta capabilities remain explicitly classified rather than simulated.
 
-## 2026-09-08 - M13-015 local finalization complete; exact-SHA delivery pending
+## 2026-09-08 - M13-015 DONE and deployed; M13 milestone complete
 
 - Compliance/parity gates complete against the fresh 2026-09-08 first-party Meta contract; OpenReply parity is limited to current-Meta-supported capabilities intentionally included in Qasedak. FollowGate remains server-owned `Unsupported`; Ads/Tagging/publishing/Human-Agent automation/full-history claims are not fabricated.
 - Security: normal Graph resource tokens are Bearer-header-only; CI deny gate blocks official Meta hosts and production token-secret usage; provider errors are bounded/redacted; pagination never follows raw `paging.next`; scheduled payload guard rejects credential-bearing keys.
@@ -16,7 +16,13 @@
 - Real PostgreSQL parity matrix reuses strong existing concurrency/idempotency authorities for Private/Public effects, comment webhook↔reconciliation, reveal/postback redelivery, inbound DM automation, history/webhook convergence, same MID across accounts, token-refresh/subscription-repair races and scheduled restart semantics.
 - Operations artifacts: `docs/product/m13-015-meta-compliance-matrix.md`, `docs/ops/M13-015_META_APP_REVIEW_CHECKLIST.md`, `docs/ops/M13-015_META_PRODUCTION_RUNBOOK.md`, `docs/product/m13-015-adversarial-audit.md` (50/50 mapped). External App Review, Advanced Access and Business Verification remain Unknown.
 - Final local verification: backend **1319/1319**, including Instagram real-PG 68 and API E2E 157; frontend **96/96** plus production Next.js build; Release build 0 warnings/0 errors; format/architecture/docs/state/environment/Penpot/Meta-CI gates green; `verify.py --full` PASSED with Testcontainers and both Docker images.
-- Production exact-SHA CI/CodeQL/Publish/Deploy and safe smoke are the remaining delivery evidence only. Live Meta end-to-end is NOT claimed without a designated production TEST account; customer accounts are forbidden for smoke. No next milestone/task is started.
+- Exact task SHA `0452c70a1701a2335a2bfba3554617bfde7c3f3e`. CI `34233900393`, CodeQL `34233899991`, Publish Images `34234383144` and Deploy Production `34234558863` all completed/success for that exact SHA.
+- Immutable image `sha-0452c70a1701`. API digest `sha256:00cb99417670f905ee3180d0fdac59b818862005fc78a94018b7ea38cb37290d`; Web digest `sha256:5ce78d7d4892b59a4ea60e29eabfadbd21e6a5168fc7ff60c45f45f9e5453b30`. Backup `qasedak-20260908T135142Z-sha-0452c70a1701.dump` created before migration execution.
+- No M13-015 migration: identity/instagram/conversations/automations/contacts/billing/audit/platform schemas all reported already up to date; migration run completed without an applying-migration entry.
+- Production PostgreSQL ready/Healthy, API Healthy and Web started; deployment health/smoke passed; no rollback markers and no official Meta-host startup traffic appeared in deploy logs. Background workers are hosted by the healthy API process; there is no separate worker container in this topology.
+- Independent safe public smoke: `/` 200, `/api/v1/system` 200, wrong Instagram webhook verify token 403, unsigned Instagram webhook POST 401, anonymous `/dashboard/settings/instagram` 307 to auth.
+- CI isolation proof: `Deny live Meta endpoints` PASS with all four official hosts mapped to loopback; `check_meta_ci_isolation.py` PASS and reports no Meta token secret in CI; deterministic provider HTTP tests remain fake/mock while PostgreSQL integration assemblies executed for real (CI backend 1319/1319).
+- External status remains truthful: Meta App Review = Unknown; Advanced Access = Unknown; Business Verification = Unknown. live Meta M13-015 end-to-end smoke NOT RUN — no designated production test Instagram account. No customer account was used. No next milestone/task is started.
 
 ## 2026-09-08 - M13-014 frontend Instagram parity deployed
 

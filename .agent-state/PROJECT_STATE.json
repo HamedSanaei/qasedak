@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-08T07:28:02.755314+00:00",
+  "updatedAt": "2026-09-08T14:00:39.242038+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
   "currentTask": "M13-015",
@@ -160,12 +160,14 @@
     "m13014FullLocalGates": "PASSED: frontend 96/96 + production build; backend 1265/1265; Release 0 warnings/errors; format; architecture/docs/state/environment/Penpot; verify.py --full including API/Web Docker builds",
     "m13015FrontendVerify": "passed-lint-typecheck-96-tests-production-build",
     "m13015FullLocalGates": "PASSED: backend 1319/1319 with real PostgreSQL Testcontainers; frontend 96/96 + production build; Release 0 warnings/errors; format; architecture/docs/state/environment/Penpot; Meta CI isolation; verify.py --full including API/Web Docker builds",
-    "m13015Compliance": "50-question adversarial audit complete; provider adapter/webhook/exact-account/PG/scheduled/observability matrices complete; App Review/Advanced Access/Business Verification remain Unknown; FollowGate Unsupported; no blind OpenReply parity"
+    "m13015Compliance": "50-question adversarial audit complete; provider adapter/webhook/exact-account/PG/scheduled/observability matrices complete; App Review/Advanced Access/Business Verification remain Unknown; FollowGate Unsupported; no blind OpenReply parity",
+    "m13015ExactShaCi": "exact SHA 0452c70a1701a2335a2bfba3554617bfde7c3f3e: CI 34233900393 success (backend 1319/1319; frontend 96/96; repository contracts; Docker); CodeQL 34233899991 success; Meta deny + check_meta_ci_isolation.py pass",
+    "m13015Delivery": "production deploy green: immutable exact-SHA image, backup, no migration, PostgreSQL/API/Web healthy, safe webhook-negative smoke passed, no rollback, no deploy-log Meta startup traffic"
   },
   "nextActions": [
     "Human-owned external Meta gates remain: App Review, Advanced Access, Business Verification, App Live/subscription verification, and a designated production Instagram TEST account for optional live smoke. No next milestone/task is started."
   ],
-  "lastInstruction": "M13-015 local finalization gates PASSED and M13 milestone implementation is complete; currentTask/lastCompletedTask remain M13-015; exact-SHA task commit, CI/CD, safe production smoke and deployment-evidence [skip ci] record are the only remaining delivery steps; no next milestone is authorized.",
+  "lastInstruction": "M13-015 DONE and deployed from exact task SHA 0452c70a1701a2335a2bfba3554617bfde7c3f3e; CI 34233900393, CodeQL 34233899991, Publish 34234383144, Deploy 34234558863 all success; immutable image sha-0452c70a1701; safe production smoke passed; live Meta M13-015 end-to-end smoke NOT RUN — no designated production test Instagram account; App Review/Advanced Access/Business Verification remain Unknown; M13-001 through M13-015 complete; no next milestone authorized.",
   "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
   "m13008Deployment": {
     "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",
@@ -329,5 +331,33 @@
     "accessibility": "field errors aria-describedby; loading live regions; visible 2px solid keyboard focus",
     "penpot": "existing M13-014 evidence reused; no repeat MCP",
     "graphify": "existing M13-014 A-F evidence reused; no rerun"
+  },
+  "m13015Deployment": {
+    "sha": "0452c70a1701a2335a2bfba3554617bfde7c3f3e",
+    "image": "sha-0452c70a1701",
+    "apiDigest": "sha256:00cb99417670f905ee3180d0fdac59b818862005fc78a94018b7ea38cb37290d",
+    "webDigest": "sha256:5ce78d7d4892b59a4ea60e29eabfadbd21e6a5168fc7ff60c45f45f9e5453b30",
+    "ciRun": "34233900393",
+    "codeqlRun": "34233899991",
+    "publishRun": "34234383144",
+    "deployRun": "34234558863",
+    "backup": "qasedak-20260908T135142Z-sha-0452c70a1701.dump",
+    "schemaChange": false,
+    "migration": "no M13-015 migration; all eight schemas already up to date",
+    "health": "PostgreSQL ready/Healthy; API Healthy; Web started; background workers hosted in healthy API; deployment health/smoke passed; no rollback",
+    "publicSmoke": {
+      "root": 200,
+      "system": 200,
+      "challengeWrongToken": 403,
+      "postNoSignature": 401,
+      "protectedSettings": 307
+    },
+    "ciMetaIsolation": "Deny live Meta endpoints PASS; four official hosts loopback-denied; check_meta_ci_isolation.py PASS; no production Meta token secret in CI; provider HTTP fake/mock; real PostgreSQL integration suites executed",
+    "externalMeta": {
+      "appReview": "Unknown",
+      "advancedAccess": "Unknown",
+      "businessVerification": "Unknown"
+    },
+    "liveMetaSmoke": "live Meta M13-015 end-to-end smoke NOT RUN — no designated production test Instagram account"
   }
 }
