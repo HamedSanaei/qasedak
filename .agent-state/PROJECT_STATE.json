@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-07T15:23:45.058013+00:00",
+  "updatedAt": "2026-09-08T05:18:52.608474+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M13",
-  "currentTask": "M13-014",
-  "lastCompletedTask": "M13-013",
+  "currentTask": "M13-015",
+  "lastCompletedTask": "M13-014",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -76,13 +76,14 @@
     "M13-010",
     "M13-011",
     "M13-012",
-    "M13-013"
+    "M13-013",
+    "M13-014"
   ],
   "graphify": {
     "required": true,
     "status": "healthy",
     "version": "0.9.26",
-    "lastEvidence": "M13-013 recorded: healthy, graphify 0.9.26, refresh graphify . --update --no-viz, all six M13-013 queries A-F (Phase A comment reconciliation architecture; active-automation media scope; M13-004 scheduled recurrence; Phase B conversation history/import contract; connection lifecycle ensure; MetaGraphTransport/token protection)",
+    "lastEvidence": "M13-014",
     "sourceCommit": null,
     "mode": "code-only (local AST; no LLM API key available for doc semantic extraction)",
     "outputs": [
@@ -152,14 +153,16 @@
     "m13007Insights": "DONE-2026-09-06: fresh first-party verification (Insights guide, Account Insights 2026-06-16, Media Insights 2026-06-18, IG Login Get Started + IG User node + archived official Account Insights v21.0 + changelog, retrieved 2026-09-06; IG Login insights = instagram_business_basic + instagram_business_manage_insights; account period=day metric_type=total_value since/until UTC day, 90-day retention; media lifetime, 2-year retention; follower_count account metric is a daily DELTA, absolute total is followers_count field basic-only; empty data != 0); focused IInstagramInsightsClient port + GraphInstagramInsightsClient adapter on M13-003 transport; central verified InsightMetricRegistry (account set, feed/reel media sets, unknown kind = no request); first-class MetricAvailability; instagram.follower_snapshots migration 20260906035357 (additive, unique account/UTC-day, provenance enum, no FK, secret-free rows); PostgreSQL conditional upsert provenance precedence (Observed>Derived>Backfilled, observed freshest, same-quality first-write) under concurrency; instagram.follower-snapshot M13-004 handler (identifier-only payload, occurrence-specific key, next-day chain, retryable vs terminal, disconnected zero-call) + FollowerSnapshotScheduleBootstrap (idempotent startup ensure, DB-only, bounded 500/run); exact-account overview + history endpoints (404 foreign zero token/provider, permission loss degrades only analytics + stops media fan-out, bounded 25 media / max 4 concurrent, cancellation-aware, post-acquisition cancellation re-check); backfill NOT implemented (no verified absolute historical series); frontend insights overview/history data contract (fail-closed, secret-free); Instagram unit 286 (+60) + PG 35 (+11) + API E2E 97 (+10) + frontend 78 (+5); backend 786/786; format clean; architecture 36 projects; Graphify 0.9.26 healthy",
     "m13007Deployment": "deployed-2026-09-06: task SHA 7409dfb9057b383a8444961f92f2b6a9677cf32e; CI 34013214316 success; CodeQL 34013214397 success; Publish 34013373535 success (sha-7409dfb9057b); Deploy 34013423453 success (backup qasedak-20260906T051314Z-sha-7409dfb9057b.dump + migration 20260906035357_AddFollowerSnapshots applied + healthy + smoke ~05:13Z, no rollback); first CI 34013059596 failed only on stale FILE_MANIFEST (predated race-fix + 27 new files) and corrected via docs(manifest) commit — no code rerun; public smoke root 200/system 200/overview-unauth 401/history-unauth 401; live Meta insights smoke NOT RUN (no designated test account); production runtime = immutable sha-7409dfb9057b",
     "m13012AutomationParity": "DONE-2026-09-07: AutomationDefinition schema v2 (append-only TriggerKind 1=CommentCreated/2=InboundDirectMessage; ActionKind 1=SendDirectMessage legacy origin-aware/2=SendPrivateReply/3=DirectMessage/4=StartRevealFlow/5=SendPublicReply/6=ScheduleFollowUp; TextMatchMode EveryEvent/Keywords, WholeWord Unicode-boundary matcher, SourceScope Any/Specific with MediaId/OriginalMediaId semantics); schema-versioned JSON converter with legacy v1 fixture equivalence; deterministic evaluator (no I/O/clock/random); exact-account comment+DM bridges on normalized webhook events; AutomationRun async/attempt states (Scheduled/Attempting/Suppressed/Uncertain/ContinuationStarted) + additive action columns migration 20260907023218 (AttemptedAtUtc/CompletedAtUtc/ProviderRecipientId/ProviderMessageId); PG CAS attempt-marker (single UPDATE guard) + suppress-with-status CAS + no-tracking reads; follow-up job payload identifiers-only (runId+actionIndex), idempotency-keyed, version-pinned, lifecycle/window revalidation, window-expired TerminalFailed direct.windowExpired, comment-alone never sends (recipientUnavailable), no from.id fails closed at schedule time, interrupted attempt settles Uncertain zero resend; legacy CommentCreated+SendDirectMessage still routes Private Reply (M13-009); public reply boundary via comment_effects ledger replay (zero provider call); reveal action maps into M13-011 flow with automation-owned content; endpoints validate trigger/action matrix, scope, keyword, delay bounds, reveal content, private-reply conflicts; no Meta call at authoring; frontend DTO string-typed source-compatible, no UI changes; backend 1128/1128 (unit 890 incl. 135 Automations, PG 238 incl. 11 Automations ledger + follow-up CAS concurrency, API E2E 134 incl. 12 capability flow); frontend verify green; format clean; architecture 36 projects; verify.py --full: architecture/docs-state/penpot/repository-contract/restore/build/format/tests/frontend/Docker images all passed; local check_docs deviation only from human-owned untracked docs/fa/qasedak_m13_production_handbook_fa.html (preserved byte-identically, never staged, absent in CI)",
-    "fullSuite": "1255-of-1255 green (BuildingBlocks 28+15, Automations 181+11, Conversations 33, Billing 119+9, Contacts 23+9, Identity 79+5, Instagram 533+65, Api E2E 145)"
+    "fullSuite": "1255-of-1255 green (BuildingBlocks 28+15, Automations 181+11, Conversations 33, Billing 119+9, Contacts 23+9, Identity 79+5, Instagram 533+65, Api E2E 145)",
+    "m13014FrontendVerify": "passed-lint-typecheck-96-tests-production-build; runtime responsive audit 360/390/768/834/1024/1280/1440; accessibility defects fixed and regressed",
+    "m13014CapabilityProjection": "passed-8-unit-plus-2-api-e2e; exact-account token-free zero-provider-probe; FollowGate Unsupported",
+    "m13014FullLocalGates": "passed frontend verify; backend Release build 0 warnings/errors; format; docs/state/architecture/environment/Penpot/diff; deployment pending task commit"
   },
   "nextActions": [
-    "M13-014 — Expose complete frontend Instagram application surface (TODO, next)",
-    "Then M13-015 per tracker; keep every task scoped to one session",
-    "Operational go-live prerequisites (human, not CI): Mellat real terminal creds; designated production test Instagram account for live Meta smoke"
+    "M13-015 - Add Meta compliance, app-review and production parity gates (TODO; do not start in this session)",
+    "Operational go-live prerequisites remain human-owned: Mellat credentials and designated production Instagram test account"
   ],
-  "lastInstruction": "M13-013 DONE + deployed 2026-09-07: task c7b4045 + manifest aa12175 (final deployable M13_013_SHA aa12175adda2469a38ade036eb20cd28a6d4d210); CI 34137461683/CodeQL 34137461538/Publish 34137823073 (sha-aa12175adda2)/Deploy 34137925515 success; additive migrations 20260907053310_AddProviderSyncOperations + 20260907053239_AddHistoryImportAndScopedProviderMessageId applied; containers Healthy, host health+smoke passed; public smoke 200/200/403/401; live Meta M13-013 smoke NOT RUN (no designated test account); M13-014 TODO.",
+  "lastInstruction": "M13-014 implementation and local verification complete; finalize/manifest/task commit/exact-SHA delivery and production evidence remain in this session. M13-015 stays TODO.",
   "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
   "m13008Deployment": {
     "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",

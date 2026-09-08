@@ -8,57 +8,210 @@
     "verifiedAtUtc": "2026-08-30T12:48:39Z",
     "verifiedPageCount": 51,
     "verifiedPages": [
-      { "id": "c269caa0-e456-818c-8008-85a77340be65", "name": "Page 1" },
-      { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
-      { "id": "f5bf3c2c-b970-8002-8008-8749d0783515", "name": "Directam — Help Center" },
-      { "id": "f5bf3c2c-b970-8002-8008-874a0a4c21e6", "name": "Directam — Smart SMS" },
-      { "id": "f5bf3c2c-b970-8002-8008-874a8ad9b1a7", "name": "Directam — Profile States" },
-      { "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b", "name": "Directam — Connect Instagram" },
-      { "id": "f5bf3c2c-b970-8002-8008-874b593a11ee", "name": "Directam — Pricing & Components" },
-      { "id": "f5bf3c2c-b970-8002-8008-874de5c3b32c", "name": "Directam — Cards / Showcase" },
-      { "id": "f5bf3c2c-b970-8002-8008-874e49ee5813", "name": "Directam — Follow-up" },
-      { "id": "f5bf3c2c-b970-8002-8008-874ebb680e25", "name": "Directam — Comment Automation" },
-      { "id": "f5bf3c2c-b970-8002-8008-874f2719074c", "name": "Directam — Form Maker" },
-      { "id": "f5bf3c2c-b970-8002-8008-874f9cfc9e88", "name": "Directam — Ice Breakers" },
-      { "id": "f5bf3c2c-b970-8002-8008-8752c5573aef", "name": "Directam — Global Navigation Components" },
-      { "id": "324404a7-ad1e-8048-8008-87726817b6ab", "name": "GetCode · 00 Cover & Sitemap" },
-      { "id": "324404a7-ad1e-8048-8008-8772681cdddf", "name": "GetCode · 01 Foundations" },
-      { "id": "324404a7-ad1e-8048-8008-87726820902a", "name": "GetCode · 02 Components" },
-      { "id": "324404a7-ad1e-8048-8008-87726823fd52", "name": "GetCode · 03 Patterns" },
-      { "id": "324404a7-ad1e-8048-8008-87726826fe4f", "name": "GetCode · 04 HOME + Public Site — Numberland-derived" },
-      { "id": "324404a7-ad1e-8048-8008-8772682a1c67", "name": "GetCode · 05 Auth & Checkout" },
-      { "id": "324404a7-ad1e-8048-8008-8772682d66f4", "name": "GetCode · 06 Customer Dashboard" },
-      { "id": "324404a7-ad1e-8048-8008-877268307df0", "name": "GetCode · 07 Activation & OTP" },
-      { "id": "324404a7-ad1e-8048-8008-8772683469ba", "name": "GetCode · 08 Content & Support" },
-      { "id": "324404a7-ad1e-8048-8008-877268375b4d", "name": "GetCode · 09 Admin" },
-      { "id": "324404a7-ad1e-8048-8008-8772683b0884", "name": "GetCode · 10 Responsive & States" },
-      { "id": "c48311ed-e700-80f8-8008-881e9771c583", "name": "Qasedak · Product UI Components" },
-      { "id": "c48311ed-e700-80f8-8008-881f0352eb6a", "name": "Qasedak · Identity & Workspace" },
-      { "id": "c48311ed-e700-80f8-8008-88200ec40bf3", "name": "Qasedak · Inbox & Conversations" },
-      { "id": "c48311ed-e700-80f8-8008-8820a6cf5187", "name": "Qasedak · Billing & Payments" },
-      { "id": "9362b142-eccc-80db-8008-88550204562a", "name": "Vendora · 00 Overview" },
-      { "id": "9362b142-eccc-80db-8008-885502137853", "name": "Vendora · 01 Foundations" },
-      { "id": "9362b142-eccc-80db-8008-8855021e207c", "name": "Vendora · 02 Components" },
-      { "id": "9362b142-eccc-80db-8008-8855022a12f8", "name": "Vendora · 03 Home Responsive" },
-      { "id": "9362b142-eccc-80db-8008-885a189b26ec", "name": "Vendora · 04 Account Components" },
-      { "id": "9362b142-eccc-80db-8008-885a189ecce6", "name": "Vendora · 05 Account Dashboard" },
-      { "id": "9362b142-eccc-80db-8008-885a18a1685b", "name": "Vendora · 06 Profile & Security" },
-      { "id": "9362b142-eccc-80db-8008-885a18a3f391", "name": "Vendora · 07 Addresses" },
-      { "id": "9362b142-eccc-80db-8008-885a18a603af", "name": "Vendora · 08 Orders & Returns" },
-      { "id": "9362b142-eccc-80db-8008-885a18a86f53", "name": "Vendora · 09 Wishlist & Transactions" },
-      { "id": "9362b142-eccc-80db-8008-885a18ab10a5", "name": "Vendora · 10 Quick Pay & Responsive States" },
-      { "id": "738244a4-fc88-8016-8008-887954b993a1", "name": "Vendora Admin · 00 Blueprint" },
-      { "id": "738244a4-fc88-8016-8008-8879563c6ccc", "name": "Vendora Admin · 01 Foundations" },
-      { "id": "738244a4-fc88-8016-8008-8879564fa000", "name": "Vendora Admin · 02 Components" },
-      { "id": "738244a4-fc88-8016-8008-887956634369", "name": "Vendora Admin · 03 Dashboard" },
-      { "id": "738244a4-fc88-8016-8008-8879566b36f3", "name": "Vendora Admin · 04 Products" },
-      { "id": "738244a4-fc88-8016-8008-8879567de6e7", "name": "Vendora Admin · 05 Orders" },
-      { "id": "738244a4-fc88-8016-8008-88795686e2ec", "name": "Vendora Admin · 06 Catalog" },
-      { "id": "738244a4-fc88-8016-8008-8879569173b2", "name": "Vendora Admin · 07 Customers & Growth" },
-      { "id": "738244a4-fc88-8016-8008-887956d6ad30", "name": "Vendora Admin · 08 Team & Storefront" },
-      { "id": "738244a4-fc88-8016-8008-88795706f958", "name": "Vendora Admin · 09 Auth & Responsive" },
-      { "id": "738244a4-fc88-8016-8008-8879572978d7", "name": "Vendora Admin · 10 Future Ready" },
-      { "id": "086d9f39-42be-80a2-8008-88b39aa8436a", "name": "Vendora · 11 Shop & Product" }
+      {
+        "id": "c269caa0-e456-818c-8008-85a77340be65",
+        "name": "Page 1"
+      },
+      {
+        "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1",
+        "name": "Directam Admin Dashboard"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-8749d0783515",
+        "name": "Directam — Help Center"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874a0a4c21e6",
+        "name": "Directam — Smart SMS"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874a8ad9b1a7",
+        "name": "Directam — Profile States"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b",
+        "name": "Directam — Connect Instagram"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874b593a11ee",
+        "name": "Directam — Pricing & Components"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874de5c3b32c",
+        "name": "Directam — Cards / Showcase"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874e49ee5813",
+        "name": "Directam — Follow-up"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874ebb680e25",
+        "name": "Directam — Comment Automation"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874f2719074c",
+        "name": "Directam — Form Maker"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874f9cfc9e88",
+        "name": "Directam — Ice Breakers"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-8752c5573aef",
+        "name": "Directam — Global Navigation Components"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-87726817b6ab",
+        "name": "GetCode · 00 Cover & Sitemap"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-8772681cdddf",
+        "name": "GetCode · 01 Foundations"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-87726820902a",
+        "name": "GetCode · 02 Components"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-87726823fd52",
+        "name": "GetCode · 03 Patterns"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-87726826fe4f",
+        "name": "GetCode · 04 HOME + Public Site — Numberland-derived"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-8772682a1c67",
+        "name": "GetCode · 05 Auth & Checkout"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-8772682d66f4",
+        "name": "GetCode · 06 Customer Dashboard"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-877268307df0",
+        "name": "GetCode · 07 Activation & OTP"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-8772683469ba",
+        "name": "GetCode · 08 Content & Support"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-877268375b4d",
+        "name": "GetCode · 09 Admin"
+      },
+      {
+        "id": "324404a7-ad1e-8048-8008-8772683b0884",
+        "name": "GetCode · 10 Responsive & States"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-881e9771c583",
+        "name": "Qasedak · Product UI Components"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-881f0352eb6a",
+        "name": "Qasedak · Identity & Workspace"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-88200ec40bf3",
+        "name": "Qasedak · Inbox & Conversations"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-8820a6cf5187",
+        "name": "Qasedak · Billing & Payments"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-88550204562a",
+        "name": "Vendora · 00 Overview"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885502137853",
+        "name": "Vendora · 01 Foundations"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-8855021e207c",
+        "name": "Vendora · 02 Components"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-8855022a12f8",
+        "name": "Vendora · 03 Home Responsive"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885a189b26ec",
+        "name": "Vendora · 04 Account Components"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885a189ecce6",
+        "name": "Vendora · 05 Account Dashboard"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885a18a1685b",
+        "name": "Vendora · 06 Profile & Security"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885a18a3f391",
+        "name": "Vendora · 07 Addresses"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885a18a603af",
+        "name": "Vendora · 08 Orders & Returns"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885a18a86f53",
+        "name": "Vendora · 09 Wishlist & Transactions"
+      },
+      {
+        "id": "9362b142-eccc-80db-8008-885a18ab10a5",
+        "name": "Vendora · 10 Quick Pay & Responsive States"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-887954b993a1",
+        "name": "Vendora Admin · 00 Blueprint"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-8879563c6ccc",
+        "name": "Vendora Admin · 01 Foundations"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-8879564fa000",
+        "name": "Vendora Admin · 02 Components"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-887956634369",
+        "name": "Vendora Admin · 03 Dashboard"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-8879566b36f3",
+        "name": "Vendora Admin · 04 Products"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-8879567de6e7",
+        "name": "Vendora Admin · 05 Orders"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-88795686e2ec",
+        "name": "Vendora Admin · 06 Catalog"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-8879569173b2",
+        "name": "Vendora Admin · 07 Customers & Growth"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-887956d6ad30",
+        "name": "Vendora Admin · 08 Team & Storefront"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-88795706f958",
+        "name": "Vendora Admin · 09 Auth & Responsive"
+      },
+      {
+        "id": "738244a4-fc88-8016-8008-8879572978d7",
+        "name": "Vendora Admin · 10 Future Ready"
+      },
+      {
+        "id": "086d9f39-42be-80a2-8008-88b39aa8436a",
+        "name": "Vendora · 11 Shop & Product"
+      }
     ],
     "designSourceNotes": {
       "directamLandingPage": {
@@ -82,18 +235,69 @@
         "fileId": "c828d3cf-7d4e-8145-8008-95c04412c3f4",
         "pageCount": 17,
         "penpotRevision": null
+      },
+      "m13InstagramSurface": {
+        "status": "live-evidence-reused-no-repeat-mcp",
+        "note": "M13-014 implementation sync reused the already-recorded direct official Penpot MCP evidence in design/m13-014-penpot-live-evidence.md. No Penpot MCP or Graphify rerun was performed during verification. All required surfaces have explicit 1440/834/390 references; penpotRevision is null because Penpot exposed none.",
+        "fileId": "c828d3cf-7d4e-8145-8008-95c04412c3f4",
+        "fileName": "Qasedak",
+        "pageId": "61f0cbbe-bb06-8055-8008-9b00059479be",
+        "pageName": "M13-014 ? Instagram ? Design additions",
+        "penpotRevision": null,
+        "responsiveContractBoardId": "b9316594-6a5f-804f-8008-9b0d47e96e21",
+        "profileBoards": {
+          "desktop": "b9316594-6a5f-804f-8008-9b0cdb1e2253",
+          "tablet": "b9316594-6a5f-804f-8008-9b0cff23d572",
+          "mobile": "b9316594-6a5f-804f-8008-9b0d211198e4"
+        },
+        "tabletBoards": {
+          "connections": "b9316594-6a5f-804f-8008-9b0bc1d91bed",
+          "mediaPicker": "b9316594-6a5f-804f-8008-9b0bd4a3e1bb",
+          "historySync": "b9316594-6a5f-804f-8008-9b0be71c1a55",
+          "reveal": "b9316594-6a5f-804f-8008-9b0c0683282f",
+          "automation": "b9316594-6a5f-804f-8008-9b0c2bfca52e",
+          "followUp": "b9316594-6a5f-804f-8008-9b0c56fbb4bc"
+        },
+        "followUpMobileBoardId": "b9316594-6a5f-804f-8008-9b0e5240e00e"
       }
     },
     "inspectedPages": [
-      { "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1", "name": "Directam Admin Dashboard" },
-      { "id": "f5bf3c2c-b970-8002-8008-8749d0783515", "name": "Directam — Help Center" },
-      { "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b", "name": "Directam — Connect Instagram" },
-      { "id": "f5bf3c2c-b970-8002-8008-874ebb680e25", "name": "Directam — Comment Automation" },
-      { "id": "f5bf3c2c-b970-8002-8008-8752c5573aef", "name": "Directam — Global Navigation Components" },
-      { "id": "c48311ed-e700-80f8-8008-881e9771c583", "name": "Qasedak · Product UI Components" },
-      { "id": "c48311ed-e700-80f8-8008-881f0352eb6a", "name": "Qasedak · Identity & Workspace" },
-      { "id": "c48311ed-e700-80f8-8008-88200ec40bf3", "name": "Qasedak · Inbox & Conversations" },
-      { "id": "c48311ed-e700-80f8-8008-8820a6cf5187", "name": "Qasedak · Billing & Payments" }
+      {
+        "id": "f6b8d46f-5deb-801d-8008-85ad249c0ba1",
+        "name": "Directam Admin Dashboard"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-8749d0783515",
+        "name": "Directam — Help Center"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874ac4aa747b",
+        "name": "Directam — Connect Instagram"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-874ebb680e25",
+        "name": "Directam — Comment Automation"
+      },
+      {
+        "id": "f5bf3c2c-b970-8002-8008-8752c5573aef",
+        "name": "Directam — Global Navigation Components"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-881e9771c583",
+        "name": "Qasedak · Product UI Components"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-881f0352eb6a",
+        "name": "Qasedak · Identity & Workspace"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-88200ec40bf3",
+        "name": "Qasedak · Inbox & Conversations"
+      },
+      {
+        "id": "c48311ed-e700-80f8-8008-8820a6cf5187",
+        "name": "Qasedak · Billing & Payments"
+      }
     ]
   },
   "tokens": {
@@ -179,10 +383,17 @@
         "status": "provisional",
         "basis": "Connected Penpot file designated as the working design source for M05-005; pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/*"],
+      "nextRoutes": [
+        "/dashboard/*"
+      ],
       "componentPath": "src/shared/design/Sidebar.tsx",
-      "compositionPaths": ["src/app/dashboard/layout.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-tbd"],
+      "compositionPaths": [
+        "src/app/dashboard/layout.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-tbd"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.surface.subtle",
@@ -220,10 +431,20 @@
         "status": "approved",
         "basis": "Codex finalized the Qasedak-native auth design on page 'Qasedak · Identity & Workspace' (Login/Register Desktop+Mobile plus a states board). Live-inspected 2026-08-24 via MCP: split hero — brand panel #670048 r28 with decor ellipses #8e0062/#a90075, white ق mark r12, wordmark fs24, promise fs32 white, benefits with #168b5b ✓ circles; auth card white r28 stroke #e3e5e8 (eyebrow fs14 brand, title fs28 ink, inputs h54 r10 border #e3e5e8 placeholder #a09ba8, primary button #be0183 h52 r10, security note #edf3ff on login, password policy box #f6f7f9 on register). Email+password contracts preserved; the old GetCode OTP boards remain non-authoritative reference only."
       },
-      "nextRoutes": ["/login", "/register"],
+      "nextRoutes": [
+        "/login",
+        "/register"
+      ],
       "componentPath": "src/app/login/page.tsx",
-      "compositionPaths": ["src/app/register/page.tsx", "src/features/auth/validation.ts", "src/shared/api/identity.ts"],
-      "responsiveTargets": ["desktop-1440", "mobile-390"],
+      "compositionPaths": [
+        "src/app/register/page.tsx",
+        "src/features/auth/validation.ts",
+        "src/shared/api/identity.ts"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.surface.subtle",
@@ -241,19 +462,27 @@
     },
     {
       "id": "instagram.connections",
-      "designName": "Connect to Instagram — Desktop (+ Profile — Connected Accounts states)",
-      "penpotPageId": "f5bf3c2c-b970-8002-8008-874ac4aa747b",
-      "penpotPageName": "Connect to Instagram",
-      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874ac4b51953",
+      "designName": "M13-014 / Instagram Connections + Profile / Desktop, Tablet, Mobile",
+      "penpotPageId": "61f0cbbe-bb06-8055-8008-9b00059479be",
+      "penpotPageName": "M13-014 ? Instagram ? Design additions",
+      "penpotBoardId": "61f0cbbe-bb06-8055-8008-9b01559f23a3",
       "penpotComponentId": null,
       "approval": {
         "status": "approved",
-        "basis": "Live-inspected during M08-003: connect card (heading 22/800 #141414, three feature rows ✓/?/↗ with accentSoft glyph chips), method chooser (primary accent button 'اتصال با اینستاگرام', outline Facebook button #1877F2 disabled — only Business Login supported), legal note 12/400 muted. Connected-account rows from 'Profile — Connected Accounts' (f5bf3c2c-b970-8002-8008-874a8c53c34c): row bg surface-subtle r-card, name 14/600 + status chip 12/700, 'افزودن حساب جدید' secondary action. Health-state pills extend the design's single connected chip across backend AccountHealth values using approved status tokens."
+        "basis": "Existing direct Penpot evidence was reused for M13-014 without a repeat MCP call; Connections/Profile and states have explicit desktop/tablet/mobile boards and zero recorded containment/text-overflow violations."
       },
-      "nextRoutes": ["/dashboard/settings/instagram"],
+      "nextRoutes": [
+        "/dashboard/settings/instagram"
+      ],
       "componentPath": "src/app/dashboard/settings/instagram/page.tsx",
-      "compositionPaths": ["src/shared/design/ui/index.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-tbd"],
+      "compositionPaths": [
+        "src/shared/design/ui/index.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "tablet-834",
+        "mobile-390"
+      ],
       "tokenDependencies": [
         "color.surface.subtle",
         "color.text.primary",
@@ -266,29 +495,38 @@
         "colorExtended.accentSofter"
       ],
       "assetDependencies": [],
-      "lastSyncedAtUtc": "2026-08-24T14:40:00Z",
+      "lastSyncedAtUtc": "2026-09-08T04:54:58Z",
       "penpotRevision": null,
-      "syncStatus": "synced"
+      "syncStatus": "synced",
+      "notes": "M13-014 evidence: Connections desktop 61f0...9b01559f23a3, tablet b931...9b0bc1d91bed, mobile 61f0...9b016018480a; profile desktop/tablet/mobile b931...9b0cdb1e2253 / ...9b0cff23d572 / ...9b0d211198e4; states 61f0...9b015a68ea4e. Responsive contract b931...9b0d47e96e21. Exact account state remains application-owned; no provider probe on render."
     },
     {
       "id": "automations.comment",
-      "designName": "Comment Automation — List + New (+ Smart Answering Component States)",
-      "penpotPageId": "f5bf3c2c-b970-8002-8008-874eb9e5a3b1",
-      "penpotPageName": "Comment Automation",
-      "penpotBoardId": "f5bf3c2c-b970-8002-8008-874ebb85c7c2",
+      "designName": "M13-014 / Automation Builder V2 / Comment, Reveal, Follow-up",
+      "penpotPageId": "61f0cbbe-bb06-8055-8008-9b00059479be",
+      "penpotPageName": "M13-014 ? Instagram ? Design additions",
+      "penpotBoardId": "61f0cbbe-bb06-8055-8008-9b0191daf06e",
       "penpotComponentId": null,
       "approval": {
         "status": "approved",
-        "basis": "Live-inspected during M08-005 across three boards: List f5bf3c2c-b970-8002-8008-874ebb85c7c2 (help banner with accentSoft ? chip, primary '＋ اضافه کردن دستور', search field, cards ▧ name 15/700 + 'کامنت ← دایرکت' 12/500 + keyword chips 10/600 + ویرایش/حذف 12/700); New f5bf3c2c-b970-8002-8008-874ec2cb62fb (breadcrumb …/ایجاد, title 23/800, preview bubble, keyword chips 'مثال: قیمت، خرید، لینک', action row 'دایرکت', submit 'ثبت'); Component States f5bf3c2c-b970-8002-8008-8747843b4ad6 (match-type dropdown برابر/شامل/هر ریپلایی with hint panels, reply composer with counter and quick-reply limit). Documented divergences: design shows a ۰/۲۰۰۰ reply counter while the backend domain caps action text at 1000 (backend wins); design's per-post scoping dropdown has no v1 domain equivalent so it renders disabled ('همه پست‌ها'); quick-reply buttons/audio upload are out of backend scope for v1."
+        "basis": "M13-014 direct Penpot evidence covers Builder V2, validation, Reveal and Follow-up across desktop/tablet/mobile; behavior is constrained by the shipped backend schema and capability projection."
       },
-      "nextRoutes": ["/dashboard/automations", "/dashboard/automations/new", "/dashboard/automations/[automationId]"],
+      "nextRoutes": [
+        "/dashboard/automations",
+        "/dashboard/automations/new",
+        "/dashboard/automations/[automationId]"
+      ],
       "componentPath": "src/features/automations/AutomationBuilderForm.tsx",
       "compositionPaths": [
         "src/app/dashboard/automations/page.tsx",
         "src/app/dashboard/automations/new/page.tsx",
         "src/app/dashboard/automations/[automationId]/page.tsx"
       ],
-      "responsiveTargets": ["desktop-1440", "mobile-tbd"],
+      "responsiveTargets": [
+        "desktop-1440",
+        "tablet-834",
+        "mobile-390"
+      ],
       "tokenDependencies": [
         "color.surface.subtle",
         "color.text.primary",
@@ -302,9 +540,10 @@
         "colorExtended.statusDanger"
       ],
       "assetDependencies": [],
-      "lastSyncedAtUtc": "2026-08-24T17:20:00Z",
+      "lastSyncedAtUtc": "2026-09-08T04:54:58Z",
       "penpotRevision": null,
-      "syncStatus": "synced"
+      "syncStatus": "synced",
+      "notes": "M13-014 Builder boards: Comment desktop 61f0...9b0191daf06e / tablet b931...9b0c2bfca52e / mobile 61f0...9b0198edbde4; validation states 61f0...9b01a1fcd3cd; Reveal desktop 61f0...9b00bf5eede6 / tablet b931...9b0c0683282f / mobile 61f0...9b00ca7c794d / states 61f0...9b00c3bfbe5e; Follow-up desktop 61f0...9b019cbcce5a / tablet b931...9b0c56fbb4bc / mobile b931...9b0e5240e00e. FollowGate remains server-owned Unsupported."
     },
     {
       "id": "inbox.conversations",
@@ -317,7 +556,9 @@
         "status": "approved",
         "basis": "Codex finalized the Qasedak inbox design; live-inspected 2026-08-24 via MCP. Three-panel desktop: list card r14 («گفتگوها» fs20, search DISABLED by design with warning badge «فعلاً غیرفعال», filter chips باز/خوانده‌نشده/بایگانی active #fcebf6/#be0183, rows r12 selected #fcebf6 with avatar initial, unread badge brand circle, pagination «۱–۴ از ۲۴ گفتگو»); thread card (bubbles white vs outgoing #fcebf6, composer area #f6f7f9 wrapping white composer r12, counter, send button brand «ارسال», 24h-window note); context panel «اطلاعات گفتگو» with future-CRM placeholders honestly disabled. Product States board covers loading/empty/error/disconnected/mobile back-navigation."
       },
-      "nextRoutes": ["/dashboard/inbox"],
+      "nextRoutes": [
+        "/dashboard/inbox"
+      ],
       "componentPath": "src/features/inbox/presentation.ts",
       "compositionPaths": [
         "src/app/dashboard/inbox/page.tsx",
@@ -326,7 +567,11 @@
         "src/shared/api/contacts.ts",
         "src/features/contacts/presentation.ts"
       ],
-      "responsiveTargets": ["desktop-1440", "tablet-834", "mobile-390"],
+      "responsiveTargets": [
+        "desktop-1440",
+        "tablet-834",
+        "mobile-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.surface.subtle",
@@ -359,7 +604,11 @@
         "status": "approved",
         "basis": "Codex finalized the billing designs; live-inspected 2026-08-24 via MCP across five boards; provider labels updated in-file via MCP 2026-08-24 per ADR-009 (Bank Melli radio → به‌پرداخت ملت on Checkout Desktop+Mobile; design system unchanged). Plans: intro banner #fcebf6 r16 (server-owned prices), period selector pill display-only, plan cards white r16 with ✓ feature rows and «انتخاب پلن/انتخاب‌شده» states, one-off payment notice #fff6e6 (no auto-charge v1). Current Subscription: فعال badge #e9f7f1 + brand stripe, period meta from server, entitlement summary, «تمدید اشتراک» CTA + renewal card + payment history panel. Checkout: order summary (all amounts «مقدار سرور», total box brand, note that browser/callback amounts are ignored, secure note #edf3ff) + provider radios زرین‌پال/به‌پرداخت ملت (Mellat marked as requiring the verified merchant contract) + redirect state note. Payment Results: pending/success/failed/cancelled/already-verified/verification-error cards with idempotency copy."
       },
-      "nextRoutes": ["/dashboard/billing", "/dashboard/billing/checkout", "/dashboard/billing/result"],
+      "nextRoutes": [
+        "/dashboard/billing",
+        "/dashboard/billing/checkout",
+        "/dashboard/billing/result"
+      ],
       "componentPath": "src/app/dashboard/billing/page.tsx",
       "compositionPaths": [
         "src/app/dashboard/billing/checkout/page.tsx",
@@ -367,7 +616,10 @@
         "src/features/billing/presentation.ts",
         "src/shared/api/billing.ts"
       ],
-      "responsiveTargets": ["desktop-1440", "mobile-390"],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.surface.subtle",
@@ -399,10 +651,17 @@
         "status": "approved",
         "basis": "Human-designated public landing board; exact file/page/board identity and implementation evidence are preserved in docs/design/sync/M08-007-landing-main.md."
       },
-      "nextRoutes": ["/"],
+      "nextRoutes": [
+        "/"
+      ],
       "componentPath": "src/features/landing/ui/LandingPage.tsx",
-      "compositionPaths": ["src/app/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.brand.accent",
         "colorExtended.landingPurple",
@@ -439,13 +698,18 @@
         "status": "approved",
         "basis": "The human explicitly designated this exact Penpot page for M12-003. The board, all descendant text, dimensions, colors and live file revision were inspected through the official Penpot MCP on 2026-08-30."
       },
-      "nextRoutes": ["/dashboard"],
+      "nextRoutes": [
+        "/dashboard"
+      ],
       "componentPath": "src/features/dashboard/DashboardOverview.tsx",
       "compositionPaths": [
         "src/app/dashboard/page.tsx",
         "src/features/dashboard/dashboard-state.mjs"
       ],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -485,13 +749,18 @@
         "status": "provisional",
         "basis": "The human explicitly allowed the older Directam Help Center as a visual reference for missing frontend areas. The primary Qasedak-native file was inspected first and contains no Help board, so this mapping records a behavior-preserving Qasedak adaptation pending pixel sign-off."
       },
-      "nextRoutes": ["/dashboard/help"],
+      "nextRoutes": [
+        "/dashboard/help"
+      ],
       "componentPath": "src/features/help/HelpScreen.tsx",
       "compositionPaths": [
         "src/app/dashboard/help/page.tsx",
         "src/features/help/HelpScreen.module.css"
       ],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -522,10 +791,17 @@
         "status": "provisional",
         "basis": "User-designated file c828d3cf-7d4e-8145-8008-95c04412c3f4 inspected live through the official Penpot plugin: 1440×1050 board, education banner, search card and empty state with add-command CTA. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/features/smart-answer"],
+      "nextRoutes": [
+        "/dashboard/features/smart-answer"
+      ],
       "componentPath": "src/features/product/FeatureScreens.tsx",
-      "compositionPaths": ["src/app/dashboard/features/smart-answer/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/smart-answer/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -553,10 +829,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live: 1440×1480 builder board with trigger card, match select, hint strip, like-toggle row, five response-type buttons and phone preview. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/features/smart-answer/new"],
+      "nextRoutes": [
+        "/dashboard/features/smart-answer/new"
+      ],
       "componentPath": "src/app/dashboard/features/smart-answer/new/page.tsx",
-      "compositionPaths": ["src/app/dashboard/features/smart-answer/new/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/smart-answer/new/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -584,10 +867,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live and PNG-exported: education banner, search plus add row, three showcase cards with edit/delete, and the direct-message preview info card. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/features/cards"],
+      "nextRoutes": [
+        "/dashboard/features/cards"
+      ],
       "componentPath": "src/features/product/FeatureScreens.tsx",
-      "compositionPaths": ["src/app/dashboard/features/cards/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/cards/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -615,10 +905,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live and PNG-exported: trigger-chip card, response builder with five type buttons, empty canvas and phone preview. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/features/cards/new"],
+      "nextRoutes": [
+        "/dashboard/features/cards/new"
+      ],
       "componentPath": "src/app/dashboard/features/cards/new/page.tsx",
-      "compositionPaths": ["src/app/dashboard/features/cards/new/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/cards/new/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -646,10 +943,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live and PNG-exported: post select, trigger input, follow-gated follow toggle, fixed-response composer with type buttons and phone preview. The shared builder form stays application-owned; this mapping covers the features-namespaced composition."
       },
-      "nextRoutes": ["/dashboard/features/comment-automation/new"],
+      "nextRoutes": [
+        "/dashboard/features/comment-automation/new"
+      ],
       "componentPath": "src/features/automations/AutomationBuilderForm.tsx",
-      "compositionPaths": ["src/app/dashboard/features/comment-automation/new/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/comment-automation/new/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -677,10 +981,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live and PNG-exported: education banner, new-follow-up CTA, four scenario cards with edit actions, and the how-it-works card. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/features/follow-up"],
+      "nextRoutes": [
+        "/dashboard/features/follow-up"
+      ],
       "componentPath": "src/features/product/FeatureScreens.tsx",
-      "compositionPaths": ["src/app/dashboard/features/follow-up/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/follow-up/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -708,10 +1019,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live and PNG-exported: education banner, new-form CTA, three form cards with answer/question counts and results actions, plus the export info card. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/features/form-maker"],
+      "nextRoutes": [
+        "/dashboard/features/form-maker"
+      ],
       "componentPath": "src/features/product/FeatureScreens.tsx",
-      "compositionPaths": ["src/app/dashboard/features/form-maker/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/form-maker/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -739,10 +1057,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live and PNG-exported: trigger editor with 2-of-4 counter, removable chips, dashed hint box, save-guard note and save/clear actions. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/features/ice-breakers"],
+      "nextRoutes": [
+        "/dashboard/features/ice-breakers"
+      ],
       "componentPath": "src/app/dashboard/features/ice-breakers/page.tsx",
-      "compositionPaths": ["src/app/dashboard/features/ice-breakers/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/features/ice-breakers/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -770,10 +1095,17 @@
         "status": "provisional",
         "basis": "User-designated file inspected live and PNG-exported: intro line, service banner, three method cards (bulk, sync, interactive with soon badge) and the three-step card. Pixel sign-off pending human review."
       },
-      "nextRoutes": ["/dashboard/smart-sms"],
+      "nextRoutes": [
+        "/dashboard/smart-sms"
+      ],
       "componentPath": "src/app/dashboard/smart-sms/page.tsx",
-      "compositionPaths": ["src/app/dashboard/smart-sms/page.tsx"],
-      "responsiveTargets": ["desktop-1440", "mobile-derived-390"],
+      "compositionPaths": [
+        "src/app/dashboard/smart-sms/page.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "mobile-derived-390"
+      ],
       "tokenDependencies": [
         "color.surface.page",
         "color.border.default",
@@ -789,6 +1121,138 @@
       "penpotRevision": null,
       "syncStatus": "synced",
       "notes": "No SMS provider is connected; bulk/sync cards route to help and the interactive card stays honestly disabled with the design soon badge. No send capability invented."
+    },
+    {
+      "id": "instagram.insights",
+      "designName": "M13-014 / Instagram Insights / Desktop, Tablet, Mobile",
+      "penpotPageId": "61f0cbbe-bb06-8055-8008-9b00059479be",
+      "penpotPageName": "M13-014 ? Instagram ? Design additions",
+      "penpotBoardId": "61f0cbbe-bb06-8055-8008-9b004ffa6c79",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "approved",
+        "basis": "Existing M13-014 direct Penpot evidence covers Insights desktop/tablet/mobile and availability-state boards; implementation preserves explicit availability and provenance."
+      },
+      "nextRoutes": [
+        "/dashboard/instagram/insights"
+      ],
+      "componentPath": "src/app/dashboard/instagram/insights/page.tsx",
+      "compositionPaths": [
+        "src/features/instagram/insights.ts",
+        "src/features/instagram/capabilities.ts",
+        "src/features/instagram/ui/AccountSelector.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "tablet-834",
+        "mobile-390"
+      ],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.surface.subtle",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.statusSuccess",
+        "colorExtended.statusWarning",
+        "colorExtended.statusDanger"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-08T04:54:58Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Desktop 61f0...9b004ffa6c79; tablet 61f0...9b00560e6135; mobile 61f0...9b0053c501cf; availability states 61f0...9b007f9b67ea; responsive contract b931...9b0d47e96e21."
+    },
+    {
+      "id": "instagram.media-picker",
+      "designName": "M13-014 / Instagram Media Picker / Desktop, Tablet, Mobile",
+      "penpotPageId": "61f0cbbe-bb06-8055-8008-9b00059479be",
+      "penpotPageName": "M13-014 ? Instagram ? Design additions",
+      "penpotBoardId": "61f0cbbe-bb06-8055-8008-9b00833150eb",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "approved",
+        "basis": "Existing M13-014 direct Penpot evidence covers Media Picker desktop/tablet/mobile and loading/empty/error state board; implementation uses visual selection and opaque paging."
+      },
+      "nextRoutes": [
+        "/dashboard/instagram/media"
+      ],
+      "componentPath": "src/app/dashboard/instagram/media/page.tsx",
+      "compositionPaths": [
+        "src/features/instagram/media.ts",
+        "src/features/instagram/capabilities.ts",
+        "src/features/instagram/ui/AccountSelector.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "tablet-834",
+        "mobile-390"
+      ],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.surface.subtle",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.statusSuccess",
+        "colorExtended.statusWarning",
+        "colorExtended.statusDanger"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-08T04:54:58Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Desktop 61f0...9b00833150eb; tablet b931...9b0bd4a3e1bb; mobile 61f0...9b008964ba0d; states 61f0...9b008d5e4374; responsive contract b931...9b0d47e96e21."
+    },
+    {
+      "id": "instagram.history-sync",
+      "designName": "M13-014 / Conversation History Sync / Desktop, Tablet, Mobile",
+      "penpotPageId": "61f0cbbe-bb06-8055-8008-9b00059479be",
+      "penpotPageName": "M13-014 ? Instagram ? Design additions",
+      "penpotBoardId": "61f0cbbe-bb06-8055-8008-9b011f213920",
+      "penpotComponentId": null,
+      "approval": {
+        "status": "approved",
+        "basis": "Existing M13-014 direct Penpot evidence covers history-sync desktop/tablet/mobile plus running/result states; copy remains provider-bounded."
+      },
+      "nextRoutes": [
+        "/dashboard/instagram/history"
+      ],
+      "componentPath": "src/app/dashboard/instagram/history/page.tsx",
+      "compositionPaths": [
+        "src/features/instagram/history.ts",
+        "src/features/instagram/capabilities.ts",
+        "src/features/instagram/ui/AccountSelector.tsx"
+      ],
+      "responsiveTargets": [
+        "desktop-1440",
+        "tablet-834",
+        "mobile-390"
+      ],
+      "tokenDependencies": [
+        "color.surface.page",
+        "color.surface.subtle",
+        "color.border.default",
+        "color.text.primary",
+        "color.text.secondary",
+        "color.brand.accent",
+        "radius.card",
+        "radius.control",
+        "colorExtended.statusSuccess",
+        "colorExtended.statusWarning",
+        "colorExtended.statusDanger"
+      ],
+      "assetDependencies": [],
+      "lastSyncedAtUtc": "2026-09-08T04:54:58Z",
+      "penpotRevision": null,
+      "syncStatus": "synced",
+      "notes": "Desktop 61f0...9b011f213920; tablet b931...9b0be71c1a55; mobile 61f0...9b012c434433; running 61f0...9b01234d3d11; result states 61f0...9b0126915ef1; responsive contract b931...9b0d47e96e21."
     }
   ]
 }

@@ -1543,7 +1543,7 @@ RUN (no designated production test account). M13-014 remains TODO.
 **Suggested commit:** `feat(instagram): reconcile comments and conversation history`
 
 ## M13-014 — Expose complete frontend Instagram application surface
-**Status:** TODO
+**Status:** DONE
 
 **Outcome:** Make M13 complete in the frontend for the capabilities verified and
 implemented under the current official Meta contract, without simulating unsupported

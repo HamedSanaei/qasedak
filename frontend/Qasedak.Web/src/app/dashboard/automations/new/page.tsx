@@ -20,7 +20,7 @@ export default function NewAutomationPage() {
       </h1>
       <AutomationBuilderForm
         submitLabel="ثبت"
-        onSubmit={async (name, definition) => {
+        onSubmit={async (name, channelAccountId, definition) => {
           const session = readSession();
           const workspaceId = readWorkspaceId();
           if (!session || !workspaceId) {
@@ -28,7 +28,7 @@ export default function NewAutomationPage() {
             return { ok: false, code: null };
           }
           try {
-            await automationsApi().create(session.accessToken, workspaceId, { name, definition });
+            await automationsApi().create(session.accessToken, workspaceId, { name, channelAccountId, definition });
             router.push("/dashboard/automations");
             return { ok: true };
           } catch (error) {

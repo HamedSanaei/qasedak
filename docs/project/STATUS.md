@@ -2,9 +2,9 @@
 
 **Project:** Qasedak
 **Current milestone:** M13 — Instagram OpenReply Parity & Production Integration
-**Current task:** M13-014 — Expose complete frontend Instagram application surface (TODO, next)
-**Last completed:** M13-013 (2026-09-07)
-**Product implementation:** Instagram connection lifecycle, media catalog, insights, follower history, interactive webhook normalization, comment-automation Private Reply semantics (global semantic effect claim, exact-account comment-ID replies, public-reply boundary, Live/7-day policy, crash-safe replay), interactive messaging adapters, the durable reveal-flow capability, full automation trigger/action parity (comment + inbound-DM triggers with exact-account binding, post/original-post scope, every-event/keyword/whole-word matching, Private Reply / Direct / Public Reply / reveal / durable crash-safe follow-up actions on a schema-v2 versioned definition), bounded comment reconciliation feeding the existing semantic automation path, and channel-neutral conversation-history import/sync complete; M13-014 (frontend surface) TODO
+**Current task:** M13-015 - Add Meta compliance, app-review and production parity gates (TODO, next)
+**Last completed:** M13-014 (2026-09-08)
+**Product implementation:** M13-014 frontend Instagram parity surface complete for current supported capabilities: exact-account Connections/Profile, Insights, Media Picker, bounded History Sync and Automation Builder V2 with truthful capability states; M13-015 remains TODO.
 
 ## 2026-09-07 — M13-013 comment reconciliation + conversation history implemented
 

@@ -85,8 +85,10 @@ export default function EditAutomationPage() {
           <AutomationBuilderForm
             initialName={detail.name}
             initialDefinition={detail.definition}
+            initialChannelAccountId={detail.channelAccountId}
+            lockAccount
             submitLabel="ذخیره تغییرات"
-            onSubmit={async (name, definition) => {
+            onSubmit={async (name, channelAccountId, definition) => {
               const session = readSession();
               const workspaceId = readWorkspaceId();
               if (!session || !workspaceId) {

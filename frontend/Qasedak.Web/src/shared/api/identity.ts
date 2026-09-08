@@ -71,6 +71,11 @@ export function readWorkspaceId(): string | null {
   return safeStorage()?.getItem("qasedak.workspaceId") ?? null;
 }
 
+export const WORKSPACE_CHANGED_EVENT = "qasedak:workspace-changed";
+
 export function saveWorkspaceId(workspaceId: string): void {
   safeStorage()?.setItem("qasedak.workspaceId", workspaceId);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(WORKSPACE_CHANGED_EVENT, { detail: { workspaceId } }));
+  }
 }

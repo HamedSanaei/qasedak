@@ -9,9 +9,12 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button, Card, StatusPill } from "../../../../shared/design/ui";
 import { connectionsApi, type ConnectionsApi } from "../../../../shared/api/connections";
 import { readSession, readWorkspaceId } from "../../../../shared/api/identity";
+import { InstagramSurfaceNav } from "../../../../features/instagram/ui/InstagramSurfaceNav";
+import surfaceStyles from "../../../../features/instagram/ui/InstagramSurface.module.css";
 import {
   describeConnectionFailure,
   describeSubscriptionHealth,
@@ -20,15 +23,14 @@ import {
   type ConnectionState,
 } from "../../../../features/instagram/health";
 
+const client: ConnectionsApi = connectionsApi();
+
 export default function InstagramConnectionPage() {
   const router = useRouter();
   const [state, setState] = useState<"loading" | "error" | "ready">("loading");
   const [items, setItems] = useState<ConnectionState[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busyAccountId, setBusyAccountId] = useState<string | null>(null);
-
-  // Application seam for tests; production uses the real client.
-  const client: ConnectionsApi = connectionsApi();
 
   const load = useCallback(async () => {
     setState("loading");
@@ -48,7 +50,7 @@ export default function InstagramConnectionPage() {
       setErrorMessage(describeConnectionFailure(code));
       setState("error");
     }
-  }, [client, router]);
+  }, [router]);
 
   // Completes a Meta OAuth callback landing on this page (?code=&state=).
   // The state round-trips the server-issued single-use value; the query is
@@ -78,7 +80,7 @@ export default function InstagramConnectionPage() {
       setErrorMessage(describeConnectionFailure(errorCode));
       setState("error");
     }
-  }, [client, router]);
+  }, [router]);
 
   useEffect(() => {
     // Defer so the first setState happens outside the effect body (react-hooks lint).
@@ -160,15 +162,15 @@ export default function InstagramConnectionPage() {
 
   if (state === "loading") {
     return (
-      <main style={{ padding: "1.5rem 2rem" }}>
-        <p style={{ color: "var(--color-text-secondary)", fontSize: 14 }}>در حال دریافت وضعیت اتصال…</p>
+      <main className={surfaceStyles.page}>
+        <p role="status" aria-live="polite" style={{ color: "var(--color-text-secondary)", fontSize: 14 }}>در حال دریافت وضعیت اتصال…</p>
       </main>
     );
   }
 
   if (state === "error") {
     return (
-      <main style={{ padding: "1.5rem 2rem" }}>
+      <main className={surfaceStyles.page}>
         <Card>
           <div role="alert" style={{ color: "var(--color-status-danger)", fontSize: 14 }}>{errorMessage}</div>
           <div style={{ marginTop: "0.75rem" }}>
@@ -183,13 +185,14 @@ export default function InstagramConnectionPage() {
   const disconnected = items?.filter((a) => a.health === "Disconnected") ?? [];
 
   return (
-    <main style={{ padding: "1.5rem 2rem", maxWidth: 900 }}>
+    <main className={surfaceStyles.page}>
       <nav aria-label="مسیر" style={{ fontSize: 13, color: "#88828E", marginBottom: ".25rem" }}>
         داشبورد&nbsp;&nbsp;/&nbsp;&nbsp;اتصال پیج اینستاگرام
       </nav>
       <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--color-text-primary)", margin: "0 0 1rem" }}>
         اتصال پیج اینستاگرام
       </h1>
+      <InstagramSurfaceNav />
 
       {connected.length === 0 ? (
         <Card>
@@ -265,10 +268,6 @@ export default function InstagramConnectionPage() {
             <ul style={{ listStyle: "none", margin: "1rem 0 0", padding: 0, display: "grid", gap: ".75rem" }}>
               {connected.map((account) => {
                 const presentation = healthPresentation(account.health);
-                const canReconnect =
-                  account.health === "Expired" ||
-                  account.health === "ExpiringSoon" ||
-                  account.health === "Revoked";
                 return (
                   <li
                     key={account.accountId}
@@ -283,13 +282,18 @@ export default function InstagramConnectionPage() {
                       padding: ".875rem 1rem",
                     }}
                   >
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
-                        <strong style={{ fontSize: 14, fontWeight: 600, color: "#141414" }}>
-                          {account.username ? `@${account.username}` : account.providerIdentity}
-                        </strong>
+                    <div className={surfaceStyles.profileRow}>
+                      <span
+                        className={surfaceStyles.avatar}
+                        aria-label={account.profilePictureUrl ? "تصویر پروفایل حساب" : "تصویر پروفایل موجود نیست"}
+                        style={account.profilePictureUrl ? { backgroundImage: `url(${account.profilePictureUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+                      >{account.profilePictureUrl ? null : "IG"}</span>
+                      <div className={surfaceStyles.profileCopy}>
+                      <div style={{ display: "flex", alignItems: "center", gap: ".5rem", flexWrap: "wrap" }}>
+                        <strong className={surfaceStyles.profileName}>{account.displayName || account.username || account.providerIdentity}</strong>
                         <StatusPill tone={presentation.tone}>{presentation.label}</StatusPill>
                       </div>
+                      <div className={surfaceStyles.profileUsername}>{account.username ? `@${account.username}` : account.providerIdentity}{account.accountType ? ` · ${account.accountType}` : ""}</div>
                       <div style={{ fontSize: 12, color: "#737373", marginTop: ".25rem" }}>
                         اتصال از {account.path === "InstagramLogin" ? "اینستاگرام لاگین" : account.path}
                         {account.tokenExpiresAtUtc
@@ -301,8 +305,12 @@ export default function InstagramConnectionPage() {
                         {describeSubscriptionHealth(account.subscriptionHealth)}
                         {account.subscriptionDetail ? ` · ${account.subscriptionDetail}` : ""}
                       </div>
+                      </div>
                     </div>
-                    <div style={{ display: "flex", gap: ".5rem" }}>
+                    <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap" }}>
+                      <Link className={surfaceStyles.tab} href={`/dashboard/instagram/insights?accountId=${encodeURIComponent(account.accountId)}`}>آمار</Link>
+                      <Link className={surfaceStyles.tab} href={`/dashboard/instagram/media?accountId=${encodeURIComponent(account.accountId)}`}>رسانه‌ها</Link>
+                      <Link className={surfaceStyles.tab} href={`/dashboard/instagram/history?accountId=${encodeURIComponent(account.accountId)}`}>تاریخچه</Link>
                       {subscriptionNeedsRepair(account.subscriptionHealth) ? (
                         <Button
                           size="small"
@@ -312,9 +320,6 @@ export default function InstagramConnectionPage() {
                         >
                           تعمیر اعلان‌ها
                         </Button>
-                      ) : null}
-                      {canReconnect ? (
-                        <Button size="small" onClick={() => void startConnect()}>اتصال مجدد</Button>
                       ) : null}
                       <Button
                         size="small"

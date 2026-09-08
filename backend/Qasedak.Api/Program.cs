@@ -160,6 +160,7 @@ app.MapMetaWebhookEndpoints();
 app.MapConversationEndpoints();
 app.MapContactEndpoints();
 app.MapConnectionEndpoints();
+app.MapCapabilitiesEndpoints();
 app.MapMediaEndpoints();
 app.MapHistorySyncEndpoints();
 app.MapInsightsEndpoints();

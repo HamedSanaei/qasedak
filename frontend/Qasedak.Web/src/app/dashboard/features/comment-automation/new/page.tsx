@@ -16,7 +16,7 @@ export default function NewCommentAutomationPage() {
       <section className={styles.formCard} aria-label="فرم ایجاد دستور">
         <AutomationBuilderForm
           submitLabel="ذخیره"
-          onSubmit={async (name, definition) => {
+          onSubmit={async (name, channelAccountId, definition) => {
             const session = readSession();
             const workspaceId = readWorkspaceId();
             if (!session || !workspaceId) {
@@ -24,7 +24,7 @@ export default function NewCommentAutomationPage() {
               return { ok: false, code: null };
             }
             try {
-              await automationsApi().create(session.accessToken, workspaceId, { name, definition });
+              await automationsApi().create(session.accessToken, workspaceId, { name, channelAccountId, definition });
               router.push("/dashboard/features/comment-automation");
               return { ok: true };
             } catch (error) {

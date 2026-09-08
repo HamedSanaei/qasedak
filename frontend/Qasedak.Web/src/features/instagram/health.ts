@@ -34,6 +34,7 @@ export interface ConnectionState {
 export type PillTone = "success" | "warning" | "danger" | "info" | "neutral";
 
 const HEALTH_PRESENTATION: Record<string, { label: string; tone: PillTone }> = {
+  Connected: { label: "متصل", tone: "info" },
   Healthy: { label: "سالم", tone: "success" },
   ExpiringSoon: { label: "نزدیک انقضا", tone: "warning" },
   Expired: { label: "توکن منقضی", tone: "danger" },

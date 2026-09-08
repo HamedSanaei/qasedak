@@ -13,7 +13,16 @@ export const dashboardNavigation = Object.freeze([
       Object.freeze({ label: "پیام خوش‌آمدگویی", href: "/dashboard/features/ice-breakers" }),
     ]),
   }),
-  Object.freeze({ label: "اتصال اینستاگرام", href: "/dashboard/settings/instagram", icon: "instagram" }),
+  Object.freeze({
+    label: "اینستاگرام",
+    icon: "instagram",
+    children: Object.freeze([
+      Object.freeze({ label: "حساب‌ها و اتصال", href: "/dashboard/settings/instagram" }),
+      Object.freeze({ label: "آمار و اینسایت", href: "/dashboard/instagram/insights" }),
+      Object.freeze({ label: "رسانه‌ها", href: "/dashboard/instagram/media" }),
+      Object.freeze({ label: "تاریخچه گفتگو", href: "/dashboard/instagram/history" }),
+    ]),
+  }),
   Object.freeze({ label: "اشتراک", href: "/dashboard/billing", icon: "billing" }),
   Object.freeze({ label: "حساب من", href: "/dashboard/accounts", icon: "accounts" }),
   Object.freeze({ label: "راهنما و پشتیبانی", href: "/dashboard/help", icon: "help" }),

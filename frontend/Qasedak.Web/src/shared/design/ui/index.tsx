@@ -46,7 +46,7 @@ function FieldShell({ id, label, error, counter, children }: FieldShellProps) {
       {children}
       {counter ? <div className={styles.counter}>{counter}</div> : null}
       {error ? (
-        <div className={styles.fieldError} role="alert">
+        <div id={`${id}-error`} className={styles.fieldError} role="alert">
           {error}
         </div>
       ) : null}
@@ -67,6 +67,7 @@ export function TextField({ label, error, counter, ...rest }: TextFieldProps) {
       <input
         className={styles.input}
         aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${rest.id}-error` : rest["aria-describedby"]}
         {...rest}
       />
     </FieldShell>
@@ -86,6 +87,7 @@ export function TextAreaField({ label, error, counter, ...rest }: TextAreaFieldP
       <textarea
         className={styles.textarea}
         aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${rest.id}-error` : rest["aria-describedby"]}
         maxLength={2000}
         {...rest}
       />
@@ -103,7 +105,7 @@ export interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectEl
 export function SelectField({ id, label, options, error, className, ...rest }: SelectFieldProps) {
   return (
     <FieldShell id={id} label={label} error={error}>
-      <select id={id} className={[styles.select, className ?? ""].filter(Boolean).join(" ")} {...rest}>
+      <select id={id} className={[styles.select, className ?? ""].filter(Boolean).join(" ")} aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-error` : rest["aria-describedby"]} {...rest}>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}

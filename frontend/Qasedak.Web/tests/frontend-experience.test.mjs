@@ -59,13 +59,16 @@ test("the Sidebar navigation contract exposes every customer destination with ze
     "/dashboard/features/form-maker",
     "/dashboard/features/ice-breakers",
     "/dashboard/settings/instagram",
+    "/dashboard/instagram/insights",
+    "/dashboard/instagram/media",
+    "/dashboard/instagram/history",
     "/dashboard/billing",
     "/dashboard/accounts",
     "/dashboard/help",
   ];
   assert.deepEqual(hrefs, expected);
-  assert.equal(new Set(hrefs).size, 12);
-  assert.equal(hrefs.length + 1, 13, "twelve contract links plus the Sidebar brand link");
+  assert.equal(new Set(hrefs).size, 15);
+  assert.equal(hrefs.length + 1, 16, "fifteen contract links plus the Sidebar brand link");
   for (const href of hrefs) {
     assert.ok(existsSync(path.join(root, "src/app", href.replace(/^\//, ""), "page.tsx")), `missing Sidebar destination: ${href}`);
   }
@@ -74,7 +77,7 @@ test("the Sidebar navigation contract exposes every customer destination with ze
   assert.equal((shell.match(/navItems=\{dashboardNavigation\}/g) ?? []).length, 2, "desktop and drawer must share the contract");
   assert.match(sidebar, /navItems\.map/);
   assert.match(sidebar, /<Link href="\/dashboard" className=\{styles\.brand\}/);
-  assert.equal(dashboardNavigation.filter((item) => item.children).length, 1);
+  assert.equal(dashboardNavigation.filter((item) => item.children).length, 2);
 });
 
 test("dashboard state model covers first use, populated, empty, and failures", () => {

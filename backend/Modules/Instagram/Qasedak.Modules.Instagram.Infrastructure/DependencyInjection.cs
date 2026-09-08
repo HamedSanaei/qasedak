@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Qasedak.Modules.Instagram.Application.Accounts;
+using Qasedak.Modules.Instagram.Application.Capabilities;
 using Qasedak.Modules.Instagram.Application.Effects;
 using Qasedak.Modules.Instagram.Application.FollowerSnapshots;
 using Qasedak.Modules.Instagram.Application.HistorySync;
@@ -103,6 +104,7 @@ public static class DependencyInjection
         services.AddScoped<ConnectInstagramAccountUseCase>();
         services.AddScoped<DisconnectInstagramAccountUseCase>();
         services.AddScoped<ListWorkspaceConnectionsUseCase>();
+        services.AddScoped<GetAccountCapabilitiesUseCase>();
         services.AddScoped<EvaluateAccountHealthUseCase>();
         services.AddScoped<RepairSubscriptionUseCase>();
         services.AddScoped<RefreshInstagramTokenUseCase>();
