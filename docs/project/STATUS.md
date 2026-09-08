@@ -6,6 +6,19 @@
 **Last completed:** M13-014 (2026-09-08)
 **Product implementation:** M13-014 frontend Instagram parity surface complete for current supported capabilities: exact-account Connections/Profile, Insights, Media Picker, bounded History Sync and Automation Builder V2 with truthful capability states; M13-015 remains TODO.
 
+## 2026-09-08 - M13-014 frontend Instagram parity deployed
+
+- Task SHA `767473f0b8d0c74367b379578977c5e54c38df10`. Exact-SHA CI `34190682844`, CodeQL `34190682938`, Publish Images `34190934285`, Deploy Production `34191016147` all succeeded.
+- Immutable image `sha-767473f0b8d0`. API digest `sha256:2875de630f46f3aa65a5b985b1c85672ba0cbb2dd33b9e93ac0a349b8f436cf2`; Web digest `sha256:d88ee6c47b6068ad44d29eda3307994a065adcb0db68f68495a2809ebf79ad66`.
+- Backup `qasedak-20260908T053248Z-sha-767473f0b8d0.dump` was created. M13-014 adds no migration artifact; the one-shot migration runner completed and emitted no `Applying migration` entry.
+- PostgreSQL and API reported Healthy; Web started; deployment health/smoke passed; no rollback. M13-014 introduced no startup Meta probing.
+- Public smoke: `/` 200, `/api/v1/system` 200. Anonymous checks of settings/instagram, insights, media, history and automation builder returned 307 to login with no 5xx.
+- Exact-account ownership and server-owned token-free capability projection remain intact; capability GET performs zero Meta probing; `FollowGate` remains `Unsupported`; `Connected` is not rewritten to `Healthy`; no frontend direct Meta/token/provider DTO leakage.
+- Final local gates: frontend 96/96, backend 1265/1265, Release 0 warnings / 0 errors, `verify.py --full` PASSED. Runtime widths 360/390/768/834/1024/1280/1440. A11y: `aria-describedby`, loading live regions, visible 2px solid keyboard focus.
+- Existing Penpot M13-014 evidence and Graphify A-F evidence were reused; neither was rerun for delivery.
+- Live Meta M13-014 frontend parity smoke NOT RUN - no designated production test Instagram account; no customer state was mutated.
+- M13-015 remains TODO; no preflight, lock or implementation was started.
+
 ## 2026-09-07 — M13-013 comment reconciliation + conversation history implemented
 
 - Fresh first-party Meta verification retrieved 2026-09-07 (IG Media Comments, IG

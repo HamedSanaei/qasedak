@@ -1,5 +1,24 @@
 # Current handoff
 
+## 2026-09-08 - M13-014 DONE and deployed; M13-015 read-only packet
+
+M13-014 is complete, locally verified and deployed from exact task SHA `767473f0b8d0c74367b379578977c5e54c38df10` using immutable image `sha-767473f0b8d0`. M13-015 is next and remains TODO; this is read-only handoff evidence only.
+
+### M13-015 read-only packet
+
+- Routes: Connections/Profile `/dashboard/settings/instagram`; Insights `/dashboard/instagram/insights`; Media Picker `/dashboard/instagram/media`; History Sync `/dashboard/instagram/history`; Automation Builder V2 create/edit `/dashboard/automations/new` and `/dashboard/automations/[automationId]`.
+- Exact-account model: no first-account fallback; workspace change invalidates old account; media selection clears on account switch; existing automation account binding is immutable in edit mode.
+- Server capability states: Available, PermissionRequired, Disconnected, Unhealthy, TemporarilyUnavailable, Unsupported. Browser never infers capability from raw scopes; capability GET is local/token-free and makes zero Meta probes.
+- FollowGate is intentionally `Unsupported`; no usable toggle. `Connected` remains connected and is not blindly presented as `Healthy`; subscription health is separate.
+- Insights preserves availability/no-data/real-zero semantics and follower-history provenance in text. Media picker exposes no raw provider id or raw cursor. History wording remains provider-bounded and polling stops on terminal state/cleanup.
+- Builder V2 exposes only verified trigger/action combinations. Legacy comment-trigger `SendDirectMessage` value 1 remains truthfully presented as Private Reply and is not silently rewritten. Unknown future enum/config values fail closed.
+- Unsupported scope stays hidden: no Ads API, publishing, Human Agent automation, invented follow status, direct Meta browser calls, tokens or raw provider payloads.
+- Penpot boards: Connections `61f0cbbe-bb06-8055-8008-9b01559f23a3`; Profile `b9316594-6a5f-804f-8008-9b0cdb1e2253`; Insights `61f0cbbe-bb06-8055-8008-9b004ffa6c79`; Media `61f0cbbe-bb06-8055-8008-9b00833150eb`; History `61f0cbbe-bb06-8055-8008-9b011f213920`; Automation `61f0cbbe-bb06-8055-8008-9b0191daf06e`; Reveal `61f0cbbe-bb06-8055-8008-9b00bf5eede6`; Follow-up `61f0cbbe-bb06-8055-8008-9b019cbcce5a`; responsive contract `b9316594-6a5f-804f-8008-9b0d47e96e21`.
+- Responsive runtime widths: 360, 390, 768, 834, 1024, 1280, 1440. A11y: field errors via `aria-describedby`, loading live regions, visible 2px solid keyboard focus; inspected controls had accessible names/labels.
+- Gates: frontend 96/96; backend 1265/1265; Release 0 warnings/0 errors; `verify.py --full` PASSED. Penpot evidence and Graphify M13-014 A-F were reused and not rerun.
+- Production: CI `34190682844`, CodeQL `34190682938`, Publish `34190934285`, Deploy `34191016147` exact-SHA success; image `sha-767473f0b8d0`; backup `qasedak-20260908T053248Z-sha-767473f0b8d0.dump`; no new M13-014 migration; health/smoke passed; `/` 200 and `/api/v1/system` 200; no rollback.
+- Live Meta: M13-014 frontend parity smoke NOT RUN - no designated production test Instagram account. No customer DM/Private Reply/Public Reply/Reveal/Follow-up/History Sync/reconciliation was triggered.
+
 ## 2026-09-07 — M13-013 DONE; M13-014 packet ready (do not implement M13-014 UI)
 
 M13-013 (comment reconciliation + provider history synchronization) is complete and

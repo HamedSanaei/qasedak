@@ -1575,6 +1575,8 @@ and accessibility review passes; `npm run verify`, Penpot manifest validation,
 architecture/state/handoff/manifest and relevant full gates pass or exact design blockers
 and residual not-run gates are explicit.
 
+**Completion evidence:** Task SHA `767473f0b8d0c74367b379578977c5e54c38df10` deployed through exact-SHA CI `34190682844`, CodeQL `34190682938`, Publish Images `34190934285` and Deploy Production `34191016147`; immutable image `sha-767473f0b8d0` (API `sha256:2875de630f46f3aa65a5b985b1c85672ba0cbb2dd33b9e93ac0a349b8f436cf2`, Web `sha256:d88ee6c47b6068ad44d29eda3307994a065adcb0db68f68495a2809ebf79ad66`); backup `qasedak-20260908T053248Z-sha-767473f0b8d0.dump`; no new M13-014 migration artifact and migration runner completed without an applying-migration entry; production health/smoke passed with PostgreSQL/API healthy, Web started and no rollback; public smoke `/` 200 and `/api/v1/system` 200; authenticated M13-014 frontend routes return login redirects rather than 5xx when anonymous. Local gates: frontend 96/96, backend 1265/1265, Release 0 warnings/0 errors, `verify.py --full` PASSED; responsive 360/390/768/834/1024/1280/1440; accessibility fixes include `aria-describedby`, loading live regions and visible keyboard focus. Penpot and Graphify A-F evidence reused without rerun. Live Meta M13-014 frontend parity smoke NOT RUN - no designated production test Instagram account. M13-015 remains TODO.
+
 **Suggested commit:** `feat(web): expose instagram parity workflows`
 
 ## M13-015 — Add Meta compliance, app-review and production parity gates
