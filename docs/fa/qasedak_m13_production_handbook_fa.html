@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>کتابچه راهنمای M13 قاصدک — Instagram OpenReply Parity</title>
+<meta name="description" content="راهنمای فارسی قابلیت‌های M13 پروژه Qasedak و سناریوهای تست Production">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:#f5f6f8; --surface:#ffffff; --text:#202128; --muted:#686b75;
+  --border:#e4e6eb; --brand:#6d28d9; --brand-soft:#f0e9ff;
+  --green:#137a4b; --green-soft:#e9f8f0; --amber:#9a5c00; --amber-soft:#fff4dc;
+  --red:#a32d2d; --red-soft:#fff0f0; --nav:#17181d; --shadow:0 10px 32px rgba(22,23,28,.07);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Vazirmatn",Tahoma,Arial,sans-serif;line-height:2}
+a{color:inherit}
+button,input{font:inherit}
+.layout{display:grid;grid-template-columns:320px minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:var(--nav);color:#f7f7f8;padding:26px 20px}
+.brand{padding:8px 10px 22px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:18px}
+.brand strong{display:block;font-size:20px}
+.brand small{color:#bbbfc8}
+nav{display:grid;gap:5px}
+nav a{display:grid;grid-template-columns:70px 1fr;gap:8px;text-decoration:none;padding:9px 10px;border-radius:10px;color:#d8d9df;font-size:13px}
+nav a:hover{background:rgba(255,255,255,.08);color:#fff}
+nav a span{direction:ltr;text-align:left;color:#a78bfa;font-weight:800}
+main{min-width:0;padding:34px}
+.container{max-width:1180px;margin:auto}
+.hero{background:linear-gradient(135deg,#211a32,#17181d);color:#fff;border-radius:24px;padding:44px;box-shadow:var(--shadow);margin-bottom:28px}
+.hero .kicker{display:inline-flex;padding:6px 12px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#dacbff;font-size:12px}
+.hero h1{font-size:34px;line-height:1.6;margin:14px 0 8px}
+.hero p{max-width:850px;color:#d5d5da;margin:0}
+.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.hero-meta span{background:rgba(255,255,255,.08);padding:7px 12px;border-radius:10px;font-size:12px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 24px}
+.btn{border:1px solid var(--border);background:#fff;border-radius:12px;padding:9px 14px;cursor:pointer}
+.btn:hover{border-color:#c9c4d5}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 4px 18px rgba(22,23,28,.03)}
+.stat strong{display:block;font-size:24px;color:var(--brand)}
+.stat span{font-size:12px;color:var(--muted)}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin:0 0 22px;box-shadow:0 6px 24px rgba(22,23,28,.035);scroll-margin-top:20px}
+.chapter-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px}
+.eyebrow{display:block;color:var(--brand);font-weight:800;letter-spacing:.6px;direction:ltr;text-align:right}
+h2{margin:2px 0 0;font-size:24px;line-height:1.7}
+h3{font-size:16px;margin:0 0 10px}
+.pill{white-space:nowrap;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.card{border:1px solid var(--border);border-radius:15px;padding:18px;background:#fff}
+.card ul{margin:0;padding-right:20px}
+.card p{margin:0}
+.example{background:#faf8ff;border-color:#e3d8ff}
+.callout{border-radius:14px;padding:14px 16px;margin:12px 0}
+.goal{background:var(--green-soft);color:#155c3c}
+.danger{background:var(--red-soft);color:#7f2727}
+.note{background:var(--amber-soft);color:#724600}
+.testbox{margin-top:14px}
+.checks{display:grid;gap:7px}
+.check{display:flex;align-items:flex-start;gap:10px;padding:7px 9px;border-radius:9px;cursor:pointer}
+.check:hover{background:#f8f8fa}
+.check input{margin-top:8px;accent-color:var(--brand)}
+.check input:checked + span{text-decoration:line-through;color:#8d8f97}
+.matrix{overflow:auto;background:#fff;border:1px solid var(--border);border-radius:18px;margin-bottom:24px}
+table{border-collapse:collapse;width:100%;min-width:800px}
+th,td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:top;text-align:right}
+th{background:#f2f2f5;font-size:12px}
+td{font-size:13px}
+code{direction:ltr;display:inline-block;background:#f0f1f4;border:1px solid #e0e1e5;border-radius:6px;padding:1px 6px;font-family:Consolas,monospace;font-size:.88em}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.flow span{background:#fff;border:1px solid var(--border);padding:7px 11px;border-radius:10px}
+.flow b{color:var(--brand)}
+.section-title{font-size:25px;margin:34px 0 14px}
+.small{font-size:12px;color:var(--muted)}
+.footer{padding:30px 0 60px;color:var(--muted);font-size:12px;text-align:center}
+.mobile-toc{display:none}
+@media(max-width:1000px){
+  .layout{grid-template-columns:1fr}
+  aside{display:none}
+  main{padding:18px}
+  .hero{padding:28px}
+  .hero h1{font-size:27px}
+  .summary-grid{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+  .mobile-toc{display:block;background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:18px}
+}
+@media(max-width:560px){
+  main{padding:10px}
+  .hero,.chapter{border-radius:16px;padding:20px}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .chapter-head{display:block}
+  .pill{display:inline-block;margin-top:8px}
+}
+@media print{
+  @page{size:A4;margin:16mm}
+  aside,.toolbar,.mobile-toc{display:none!important}
+  .layout{display:block}
+  main{padding:0}
+  body{background:#fff;font-size:11pt}
+  .hero{background:#fff!important;color:#111;border:1px solid #bbb;box-shadow:none;break-after:page}
+  .hero p,.hero small{color:#333!important}
+  .hero-meta span{background:#eee;color:#111}
+  .chapter{box-shadow:none;break-inside:avoid;page-break-inside:avoid}
+  .card,.callout{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">
+      <strong>Qasedak · M13</strong>
+      <small>کتابچه قابلیت‌ها و تست Production</small>
+    </div>
+    <nav>
+      <a href="#intro"><span>START</span>راهنمای استفاده</a>
+      <a href="#flows"><span>FLOW</span>جریان‌های کلیدی</a>
+      <a href="#m13-001"><span>M13-001</span>بازبینی قرارداد فعلی Meta و اینستاگرام</a>
+<a href="#m13-002"><span>M13-002</span>اتصال تمام گفتگوها و Automationها به اکانت دقیق اینستاگرام</a>
+<a href="#m13-003"><span>M13-003</span>Graph Transport نسخه‌دار و خطاهای استاندارد</a>
+<a href="#m13-004"><span>M13-004</span>صف کارهای زمان‌بندی‌شده و پایدار روی PostgreSQL</a>
+<a href="#m13-005"><span>M13-005</span>تکمیل چرخه اتصال اکانت، Profile، Webhook Subscription و Token Refresh</a>
+<a href="#m13-006"><span>M13-006</span>کاتالوگ Media و انتخاب Post/Reel واقعی</a>
+<a href="#m13-007"><span>M13-007</span>Insights، آمار Media و تاریخچه Follower</a>
+<a href="#m13-008"><span>M13-008</span>تکمیل Webhook Normalization برای Comment، Message، Postback و Read</a>
+<a href="#m13-009"><span>M13-009</span>اصلاح Comment Automation به Private Reply واقعی</a>
+<a href="#m13-010"><span>M13-010</span>پیام‌های تعاملی: Text، Postback Button و Link Button</a>
+<a href="#m13-011"><span>M13-011</span>Opening Private Reply → Postback → Reveal و Follow Gate مشروط</a>
+<a href="#m13-012"><span>M13-012</span>تکمیل Automation: Post Scope، DM Trigger، Public Reply و Follow-up</a>
+<a href="#m13-013"><span>M13-013</span>بازیابی Commentهای از دست‌رفته و Sync تاریخچه Conversation</a>
+<a href="#m13-014"><span>M13-014</span>سطح کامل Frontend برای قابلیت‌های واقعاً پشتیبانی‌شده</a>
+<a href="#m13-015"><span>M13-015</span>Compliance، App Review و گیت نهایی Production</a>
+      <a href="#production-matrix"><span>QA</span>ماتریس تست Production</a>
+      <a href="#release"><span>GO-LIVE</span>چک‌لیست نهایی</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="container">
+      <section class="hero" id="intro">
+        <span class="kicker">نسخه برنامه‌ریزی‌شده بر اساس M13 فعلی Qasedak</span>
+        <h1>کتابچه راهنمای قابلیت‌های Instagram در M13</h1>
+        <p>
+          این سند توضیح می‌دهد در تسک‌های M13-001 تا M13-015 چه قابلیت‌هایی به Qasedak اضافه خواهند شد،
+          چرا هر قابلیت مهم است، نمونه رفتار صحیح چیست و پس از پیاده‌سازی چگونه در Staging یا Production
+          صحت عملکرد آن را بررسی کنی. بخش‌هایی که به قرارداد فعلی Meta وابسته‌اند باید پس از پایان M13-001
+          با نتیجه رسمی همان تسک تطبیق داده شوند.
+        </p>
+        <div class="hero-meta">
+          <span>RTL فارسی</span><span>فونت Vazirmatn</span><span>۱۵ تسک M13</span>
+          <span>سناریوهای Multi-account</span><span>Production QA</span>
+        </div>
+      </section>
+
+      <div class="mobile-toc">
+        <strong>دسترسی سریع:</strong>
+        <select onchange="if(this.value) location.hash=this.value" style="width:100%;margin-top:8px;padding:10px;border:1px solid var(--border);border-radius:10px">
+          <option value="">انتخاب بخش…</option>
+          <option value="#m13-001">M13-001 — بازبینی قرارداد فعلی Meta و اینستاگرام</option><option value="#m13-002">M13-002 — اتصال تمام گفتگوها و Automationها به اکانت دقیق اینستاگرام</option><option value="#m13-003">M13-003 — Graph Transport نسخه‌دار و خطاهای استاندارد</option><option value="#m13-004">M13-004 — صف کارهای زمان‌بندی‌شده و پایدار روی PostgreSQL</option><option value="#m13-005">M13-005 — تکمیل چرخه اتصال اکانت، Profile، Webhook Subscription و Token Refresh</option><option value="#m13-006">M13-006 — کاتالوگ Media و انتخاب Post/Reel واقعی</option><option value="#m13-007">M13-007 — Insights، آمار Media و تاریخچه Follower</option><option value="#m13-008">M13-008 — تکمیل Webhook Normalization برای Comment، Message، Postback و Read</option><option value="#m13-009">M13-009 — اصلاح Comment Automation به Private Reply واقعی</option><option value="#m13-010">M13-010 — پیام‌های تعاملی: Text، Postback Button و Link Button</option><option value="#m13-011">M13-011 — Opening Private Reply → Postback → Reveal و Follow Gate مشروط</option><option value="#m13-012">M13-012 — تکمیل Automation: Post Scope، DM Trigger، Public Reply و Follow-up</option><option value="#m13-013">M13-013 — بازیابی Commentهای از دست‌رفته و Sync تاریخچه Conversation</option><option value="#m13-014">M13-014 — سطح کامل Frontend برای قابلیت‌های واقعاً پشتیبانی‌شده</option><option value="#m13-015">M13-015 — Compliance، App Review و گیت نهایی Production</option>
+          <option value="#production-matrix">ماتریس تست Production</option>
+        </select>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn" onclick="window.print()">چاپ / ذخیره PDF</button>
+        <button class="btn" onclick="resetChecks()">پاک کردن تیک‌های تست</button>
+        <button class="btn" onclick="expandProgress()">نمایش پیشرفت تست‌ها</button>
+      </div>
+
+      <div class="summary-grid">
+        <div class="stat"><strong>15</strong><span>تسک اصلی M13</span></div>
+        <div class="stat"><strong>3</strong><span>عملیات مجزای پیام: Direct / Private / Public</span></div>
+        <div class="stat"><strong>15</strong><span>سناریوی Production در ماتریس نهایی</span></div>
+        <div class="stat"><strong>0</strong><span>Secret مجاز در Browser / Job Payload / Log</span></div>
+      </div>
+
+      <section class="chapter" id="flows">
+        <div class="chapter-head"><div><span class="eyebrow">CORE FLOWS</span><h2>جریان‌های کلیدی که باید بعد از M13 قابل تست باشند</h2></div></div>
+        <div class="card">
+          <h3>۱) Comment Automation صحیح</h3>
+          <div class="flow">
+            <span>Comment</span><b>←</b><span>Webhook / Reconciliation</span><b>←</b>
+            <span>Automation Match</span><b>←</b><span>Global Private Reply Claim</span><b>←</b>
+            <span>Private Reply</span>
+          </div>
+          <p class="small">نکته: first-contact ناشی از Comment نباید با Direct Message معمولی اشتباه گرفته شود.</p>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3>۲) Opening → Postback → Reveal</h3>
+          <div class="flow">
+            <span>Private Reply + Button</span><b>←</b><span>User Click</span><b>←</b>
+            <span>Postback Validation</span><b>←</b><span>Optional Follow Gate</span><b>←</b>
+            <span>Direct Message Reveal</span>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3>۳) Multi-account isolation</h3>
+          <div class="flow">
+            <span>Workspace</span><b>←</b><span>ConnectedAccount A</span><b>→</b><span>Conversation A</span>
+            <span style="opacity:.55">|</span>
+            <span>ConnectedAccount B</span><b>→</b><span>Conversation B</span>
+          </div>
+          <p class="small">حتی اگر Participant ID یکی باشد، Thread و Token و Automation نباید بین دو اکانت مخلوط شود.</p>
+        </div>
+        <div class="callout note">
+          <strong>قاعده مهم:</strong> OpenReply در M13 فقط مرجع رفتار است. هر قابلیت باید اول با قرارداد رسمی و فعلی Meta در M13-001 تأیید شود.
+        </div>
+      </section>
+
+      
+<section class="chapter" id="m13-001">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-001</span>
+      <h2>بازبینی قرارداد فعلی Meta و اینستاگرام</h2>
+    </div>
+    <span class="pill">پیش‌نیاز قطعی</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> قبل از هر تغییر Production، تمام فرض‌های Qasedak درباره Instagram Login، توکن‌ها، Messaging، Private Reply، Webhook، Conversations API، Media، Insights، App Review و محدودیت‌های سیاستی با مستندات رسمی و فعلی Meta دوباره تثبیت می‌شوند.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>ماتریس رسمی قابلیت‌ها و محدودیت‌ها بر اساس نسخه فعلی Meta.</li>
+<li>تفکیک قابلیت‌های پشتیبانی‌شده، خارج از Scope، نیازمند App Review/Advanced Access و قابلیت‌های غیرقابل اتکا.</li>
+<li>تعیین دقیق Graph host/version، permissionها، token typeها، messaging windowها و webhook fieldهای معتبر.</li>
+<li>اصلاح مستندات قدیمی پروژه در صورت تغییر قرارداد Meta.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>اگر مستندات قدیمی پروژه بگویند ارسال پیام فقط از مسیر Facebook Login ممکن است ولی قرارداد فعلی Meta مسیر Instagram Login را پشتیبانی کند، این تسک مرجع نهایی را اصلاح می‌کند و تسک‌های بعدی فقط بر اساس نتیجه جدید جلو می‌روند.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-001-1"><span>برای هر capability یک لینک رسمی Meta و تاریخ بررسی ثبت شده باشد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-001-2"><span>هیچ capability مهم با عبارت مبهم «احتمالاً پشتیبانی می‌شود» رها نشده باشد؛ باید Supported / Unsupported / Conditional مشخص باشد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-001-3"><span>نسخه Graph API و permissionهای مورد نیاز در یک نقطه مرجع ثبت شده باشند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-001-4"><span>Follow Status، Human Agent، Private Reply و Conversations API صریحاً تعیین تکلیف شده باشند.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> اگر بعد از این تسک هنوز چند سند داخلی درباره یک قابلیت حرف متناقض بزنند، M13-001 کامل نشده است.</div>
+</section>
+
+<section class="chapter" id="m13-002">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-002</span>
+      <h2>اتصال تمام گفتگوها و Automationها به اکانت دقیق اینستاگرام</h2>
+    </div>
+    <span class="pill">اصلاح معماری حیاتی</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> هر رویداد، Conversation، Reply و Automation باید به ConnectedAccount دقیق خودش متصل باشد؛ نه فقط Workspace و نه «اولین اکانت فعال».</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>افزودن ChannelAccountId / ConnectedAccountId به هویت کانال.</li>
+<li>تفکیک Conversationهای یک Participant یکسان در دو اکانت Instagram.</li>
+<li>ارسال Reply فقط با Token همان اکانتی که Conversation متعلق به آن است.</li>
+<li>اجرای Automation فقط برای اکانت مربوط به همان Event.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>در یک Workspace دو اکانت @shop_a و @shop_b متصل‌اند. کاربر 12345 به هر دو DM می‌دهد. باید دو Conversation مستقل ایجاد شود. Reply از Conversation مربوط به @shop_a هرگز نباید با توکن @shop_b ارسال شود.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-002-1"><span>دو اکانت Instagram را به یک Workspace وصل کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-002-2"><span>با یک حساب Instagram واحد به هر دو اکانت DM بفرست.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-002-3"><span>در Inbox باید دو Thread مستقل ببینی.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-002-4"><span>از هر Thread پاسخ بده و بررسی کن پاسخ از همان اکانت دریافت‌کننده ارسال شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-002-5"><span>Automation فعال روی Account A نباید روی Event متعلق به Account B اجرا شود.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> ادغام دو Thread، ارسال پیام از اکانت اشتباه، یا اجرای Automation بین دو Account یک شکست Critical است.</div>
+</section>
+
+<section class="chapter" id="m13-003">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-003</span>
+      <h2>Graph Transport نسخه‌دار و خطاهای استاندارد</h2>
+    </div>
+    <span class="pill">زیرساخت Meta</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> تمام ارتباط با Graph API از یک زیرساخت استاندارد، versioned، قابل تست و secret-safe عبور کند؛ ولی clientهای تخصصی Media/Messaging/Insights جدا باقی بمانند.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Graph API version و host مرکزی.</li>
+<li>URI builder مشترک و HttpClientهای typed/named.</li>
+<li>Parser واحد برای code/subcode/fbtrace_id.</li>
+<li>طبقه‌بندی TokenExpired، Permission، RateLimit، MessagingWindow، Timeout و خطاهای transient.</li>
+<li>حذف Token و Secret از log و URLهای گزارش‌شده.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>اگر Meta برای یک درخواست کد 190 برگرداند، سیستم باید آن را به خطای Token Invalid/Expired نگاشت کند و fbtrace_id را برای عیب‌یابی نگه دارد؛ بدون اینکه access token در log ظاهر شود.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-003-1"><span>با تغییر یک تنظیم Graph version، تمام endpointهای versioned باید همان نسخه را استفاده کنند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-003-2"><span>خطای 429/RateLimit باید از Permission یا TokenExpired قابل تشخیص باشد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-003-3"><span>Timeout و cancellation باید رفتار مشخص داشته باشند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-003-4"><span>در logها به‌دنبال access_token و Authorization header بگرد؛ نباید وجود داشته باشد.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> ساخت URLهای Meta به‌صورت پراکنده، error handling متفاوت در clientها، یا نشت Token یعنی این لایه ناقص است.</div>
+</section>
+
+<section class="chapter" id="m13-004">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-004</span>
+      <h2>صف کارهای زمان‌بندی‌شده و پایدار روی PostgreSQL</h2>
+    </div>
+    <span class="pill">Restart-safe</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> کارهای زمان‌دار مثل Token Refresh، Follower Snapshot، Reconciliation، Read Fallback و Follow-up بعد از Restart یا Crash از بین نروند.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Job پایدار با idempotency key، due time، attempt و status.</li>
+<li>Lease/claim اتمیک برای چند worker.</li>
+<li>Retry با backoff و terminal/dead-letter state.</li>
+<li>بازیابی job بعد از Crash یا پایان lease.</li>
+<li>Payload بدون access token یا Meta DTO.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>یک Follow-up برای ۱۰ دقیقه بعد ثبت می‌شود. سرویس را دقیقه ۵ خاموش و دقیقه ۱۲ روشن می‌کنی. Job باید بعد از Restart یک‌بار اجرا شود؛ نه گم شود و نه دوبار ارسال شود.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-004-1"><span>یک job زمان‌دار بساز و قبل از due time سرویس را Restart کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-004-2"><span>worker را بعد از claim شدن job Kill کن؛ بعد از lease expiry باید worker دیگر آن را بگیرد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-004-3"><span>دو worker همزمان نباید یک job را دوبار اجرا کنند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-004-4"><span>یک خطای transient بساز و افزایش attempts/backoff را بررسی کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-004-5"><span>DB payload را بررسی کن؛ access token نباید ذخیره شده باشد.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> گم شدن Job بعد Restart، اجرای دوباره، یا ذخیره Secret در جدول jobها Critical است.</div>
+</section>
+
+<section class="chapter" id="m13-005">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-005</span>
+      <h2>تکمیل چرخه اتصال اکانت، Profile، Webhook Subscription و Token Refresh</h2>
+    </div>
+    <span class="pill">Account lifecycle</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> اتصال Instagram از یک OAuth ساده به چرخه کامل Connection تبدیل شود: هویت حرفه‌ای صحیح، Profile، subscription health، OAuth state امن و refresh خودکار Token.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>OAuth state کوتاه‌عمر، workspace-bound، integrity-protected و replay-resistant.</li>
+<li>تشخیص professional account identity صحیح برای Messaging/Webhook.</li>
+<li>ذخیره username، display name، avatar و metadata امن.</li>
+<li>Subscription/Resubscribe و health وضعیت webhook.</li>
+<li>Refresh خودکار Token نزدیک انقضا با lock/account claim.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>کاربر اتصال Instagram را از Workspace A شروع می‌کند. اگر callback را با state دستکاری‌شده یا در Workspace B مصرف کند، اتصال باید رد شود. اتصال معتبر باید Profile و وضعیت subscription را بدون نمایش Token در UI نشان دهد.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-005-1"><span>state معتبر را فقط یک‌بار مصرف کن؛ replay باید رد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-005-2"><span>state متعلق به Workspace A را در Workspace B امتحان کن؛ باید رد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-005-3"><span>بعد اتصال، username/avatar و ConnectedAccount درست نمایش داده شوند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-005-4"><span>subscription را عمداً خراب کن و عملیات repair/resubscribe را تست کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-005-5"><span>انقضای نزدیک Token را شبیه‌سازی کن و rotation اتمیک را بررسی کن.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> OAuth state قابل replay، refresh همزمان ناسازگار، یا اتصال به ID اشتباه از مشکلات امنیتی جدی است.</div>
+</section>
+
+<section class="chapter" id="m13-006">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-006</span>
+      <h2>کاتالوگ Media و انتخاب Post/Reel واقعی</h2>
+    </div>
+    <span class="pill">Media</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> Qasedak بتواند Post/Reel/Video/Carouselهای اکانت متصل را به‌صورت محدود و صفحه‌بندی‌شده بخواند تا Automation به Media واقعی bind شود.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Media client تخصصی با cursor pagination.</li>
+<li>مدل Qasedak برای caption، media type، permalink، thumbnail، likes/comments و timestamp.</li>
+<li>Hard cap برای جلوگیری از پیمایش بی‌نهایت.</li>
+<li>API امن برای Post Picker بر اساس ConnectedAccountId.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>در Automation Builder اکانت @shop_a انتخاب می‌شود و سپس فقط پست‌های همان اکانت برای انتخاب Trigger نمایش داده می‌شوند؛ پست‌های @shop_b نباید وارد لیست شوند.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-006-1"><span>Media یک اکانت را با page size کوچک بخوان و cursor بعدی را تست کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-006-2"><span>Reel، Image، Video و Carousel را از نظر type mapping بررسی کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-006-3"><span>Media URL یا thumbnail مفقود نباید کل صفحه را خراب کند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-006-4"><span>با ConnectedAccount متعلق به Workspace دیگر درخواست بده؛ باید رد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-006-5"><span>تعداد بسیار زیاد Media نباید hard cap را دور بزند.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> مخلوط شدن Media بین اکانت‌ها، loop صفحه‌بندی، یا expose شدن Meta DTO مستقیم به frontend نشانه نقص است.</div>
+</section>
+
+<section class="chapter" id="m13-007">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-007</span>
+      <h2>Insights، آمار Media و تاریخچه Follower</h2>
+    </div>
+    <span class="pill">Analytics</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> آمار قابل پشتیبانی Meta برای Media و رشد Followers در Qasedak ذخیره و نمایش داده شود، با graceful degradation وقتی permission یا metric وجود ندارد.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Insights client با metricهای معتبر بر اساس media type.</li>
+<li>bounded concurrency برای چند درخواست insight.</li>
+<li>Follower snapshot روزانه برای هر ConnectedAccount.</li>
+<li>تمایز داده observed از backfilled/derived.</li>
+<li>Overview API برای media totals، follower count و history.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>اگر Insights یک Reel metric خاص را ندهد، Media همچنان در کاتالوگ دیده شود و UI فقط همان metric را unavailable نشان دهد؛ نه اینکه کل صفحه خطا شود.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-007-1"><span>permission Insights را حذف/محدود کن؛ Media catalog باید سالم بماند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-007-2"><span>دو snapshot برای یک account/day نباید رکورد تکراری بسازند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-007-3"><span>Observed value نباید با derived value ضعیف‌تر overwrite شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-007-4"><span>تاریخچه دو Account یک Workspace باید کاملاً جدا بماند.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> خرابی کامل dashboard به‌خاطر یک metric unavailable یا overwrite شدن snapshot معتبر، طراحی مطلوب نیست.</div>
+</section>
+
+<section class="chapter" id="m13-008">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-008</span>
+      <h2>تکمیل Webhook Normalization برای Comment، Message، Postback و Read</h2>
+    </div>
+    <span class="pill">Event pipeline</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> Webhook خام Meta پس از HMAC و Durable Inbox به Eventهای تمیز Qasedak تبدیل شود؛ بدون ورود DTOهای Meta به ماژول‌های دیگر.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Comment event با ConnectedAccount دقیق، mediaId و original_media_id.</li>
+<li>Postback event مستقل.</li>
+<li>Read/Seen event مستقل طبق contract فعلی.</li>
+<li>فیلتر echo، self event، deleted، unsupported و attachment-only طبق policy.</li>
+<li>حفظ unknown fragment برای observability.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>Meta یک comment مربوط به boosted media با original_media_id می‌فرستد. Qasedak باید بتواند آن را به Automation مربوط به پست اصلی وصل کند، بدون اینکه raw Meta JSON وارد Automations شود.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-008-1"><span>یک webhook معتبر را دوبار ارسال کن؛ inbox/effect نباید duplicate شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-008-2"><span>Signature اشتباه باید قبل از business logic رد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-008-3"><span>echo/self message نباید Automation را trigger کند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-008-4"><span>Postback و Read باید Event جدا و قابل correlation تولید کنند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-008-5"><span>payload ناشناخته باید observable باشد ولی سیستم را crash نکند.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> اجرای business logic سنگین داخل endpoint webhook، نشت DTO یا trigger شدن Automation با echo از مشکلات جدی است.</div>
+</section>
+
+<section class="chapter" id="m13-009">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-009</span>
+      <h2>اصلاح Comment Automation به Private Reply واقعی</h2>
+    </div>
+    <span class="pill">Critical correctness</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> Comment → DM دیگر از مسیر Direct Message عادی انجام نشود؛ اولین تماس Comment باید از operation مخصوص Private Reply با comment identity انجام شود.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>سه operation مجزا: Direct Message، Comment Private Reply و Public Comment Reply.</li>
+<li>Global semantic claim برای ConnectedAccountId + CommentId + PrivateReply.</li>
+<li>Policy boundary برای window/rules فعلی Meta.</li>
+<li>ثبت outcome مستقل برای Public Reply و Private Reply.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>دو Automation روی کلمه «قیمت» فعال‌اند و یک Comment «قیمت؟» می‌رسد. هر دو ممکن است match شوند، ولی فقط یک Private Reply مجاز است. Claim سراسری باید قبل از تماس با Meta جلوی ارسال دوم را بگیرد.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-009-1"><span>دو Automation همزمان را روی یک Comment match کن؛ فقط یک Private Reply ارسال شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-009-2"><span>همان webhook را دوباره ارسال کن؛ Private Reply دوم نباید ایجاد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-009-3"><span>Reconciliation همان Comment را بعداً پیدا کند؛ باز هم نباید reply دوم بزند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-009-4"><span>Public Reply failure نباید Private Reply موفق را تکرار کند و برعکس.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-009-5"><span>ارسال باید با comment_id انجام شود، نه participant id.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> دو Private Reply برای یک Comment یا استفاده از recipient.id برای first-contact comment یک شکست مستقیم این تسک است.</div>
+</section>
+
+<section class="chapter" id="m13-010">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-010</span>
+      <h2>پیام‌های تعاملی: Text، Postback Button و Link Button</h2>
+    </div>
+    <span class="pill">Interactive messaging</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> ارسال Direct/Private Reply فقط متن ساده نباشد و قالب‌های تعاملی پشتیبانی‌شده به قراردادهای داخلی Qasedak تبدیل شوند.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Plain text.</li>
+<li>Postback button.</li>
+<li>Web URL button.</li>
+<li>Validation مرکزی برای طول متن، URL، payload و تعداد button.</li>
+<li>Typed success شامل provider message identity.</li>
+<li>Fallback کنترل‌شده فقط برای خطاهایی که safe هستند.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>Private Reply اولیه می‌گوید «برای دریافت لینک بزن» و یک دکمه Postback دارد. کلیک کاربر Postback event تولید می‌کند و ادامه Flow را فعال می‌کند.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-010-1"><span>حداکثر طول متن/button/payload را در boundary تست کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-010-2"><span>URL نامعتبر باید قبل از Meta رد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-010-3"><span>response موفق باید provider message id را ثبت کند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-010-4"><span>برای Private Reply مصرف‌شده یا expired نباید fallback با ارسال Private Reply دوم انجام شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-010-5"><span>Token نباید در error detail UI یا log نمایش داده شود.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> Fallbackی که محدودیت یک‌بار Private Reply را دور بزند یا validation را به Meta واگذار کند خطرناک است.</div>
+</section>
+
+<section class="chapter" id="m13-011">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-011</span>
+      <h2>Opening Private Reply → Postback → Reveal و Follow Gate مشروط</h2>
+    </div>
+    <span class="pill">مشروط به Meta</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> Flow تعاملی کامل شود: Comment، Private Reply اولیه، کلیک دکمه، correlation امن و سپس Direct Message reveal. Follow Gate فقط در صورت پشتیبانی رسمی قرارداد فعلی Meta فعال می‌شود.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Correlation opaque/signed یا persisted برای Postback.</li>
+<li>اعتبارسنجی Workspace، ConnectedAccount، Automation Version و intended operation.</li>
+<li>Direct-message reveal idempotent.</li>
+<li>Read fallback زمان‌بندی‌شده در صورت پشتیبانی.</li>
+<li>Relationship/follow lookup سه‌حالته فقط اگر Meta واقعاً اجازه دهد.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>کاربر روی پست «کلمه GUIDE را کامنت کن» می‌نویسد GUIDE. سیستم یک Private Reply با دکمه «دریافت راهنما» می‌فرستد. پس از کلیک، Postback اعتبارسنجی و یک Direct Message شامل لینک راهنما ارسال می‌شود.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-011-1"><span>payload postback را دستکاری کن؛ continuation باید رد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-011-2"><span>payload Account A را روی Account B مصرف کن؛ باید رد شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-011-3"><span>Postback را دوبار ارسال کن؛ reveal فقط یک‌بار باشد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-011-4"><span>race بین Read Fallback و Postback نباید دو reveal ایجاد کند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-011-5"><span>اگر Follow Status در M13-001 Unsupported شد، فقط Follow Gate غیرفعال باشد و opening/postback/reveal سالم بماند.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> اعتماد به payload قابل جعل، reveal دوباره، یا استفاده از scraping برای Follow Status غیرقابل قبول است.</div>
+</section>
+
+<section class="chapter" id="m13-012">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-012</span>
+      <h2>تکمیل Automation: Post Scope، DM Trigger، Public Reply و Follow-up</h2>
+    </div>
+    <span class="pill">Automation parity</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> قابلیت‌های اصلی Automation تکمیل شوند بدون اینکه evaluator به شبکه، ساعت واقعی، Token یا randomness وابسته شود.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Trigger بر اساس Comment یا inbound DM.</li>
+<li>Specific Post / Any Post / original-media mapping.</li>
+<li>Keyword / Any Word / Whole Word / Every Comment.</li>
+<li>Public reply، Direct/Private Reply، reveal و follow-up.</li>
+<li>ذخیره configuration در Definition Version.</li>
+<li>انتخاب reply pool یک‌بار و persist برای retry قابل بازتولید.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>Automation فقط روی Reel شماره X فعال است؛ اگر متن Comment شامل کلمه کامل «قیمت» بود Public Reply بزند و Private flow را شروع کند، سپس ۳۰ دقیقه بعد در صورت معتبر بودن window یک Follow-up ارسال کند.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-012-1"><span>Comment مشابه روی Post دیگری نباید Automation specific-post را اجرا کند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-012-2"><span>whole-word «pro» نباید داخل «product» اشتباه match شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-012-3"><span>DM trigger با provider message id باید idempotent باشد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-012-4"><span>Follow-up بعد Restart فقط یک‌بار اجرا شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-012-5"><span>Automation Version قدیمی باید رفتار خودش را حفظ کند حتی اگر Definition بعداً ویرایش شود.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> network call داخل evaluator، randomness تکرارنشدنی یا trigger شدن automation روی media/account اشتباه شکست معماری است.</div>
+</section>
+
+<section class="chapter" id="m13-013">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-013</span>
+      <h2>بازیابی Commentهای از دست‌رفته و Sync تاریخچه Conversation</h2>
+    </div>
+    <span class="pill">Recovery &amp; sync</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> Webhook تنها منبع حقیقت نباشد؛ Comment یا Conversationهایی که به هر دلیل از webhook وارد نشده‌اند به‌صورت محدود، idempotent و account-aware بازیابی شوند.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Phase A: Comment reconciliation برای mediaهای فعال.</li>
+<li>Phase B: Conversations API history import.</li>
+<li>cursor/hard cap و rate-limit-aware scheduling.</li>
+<li>dedup بین webhook و reconciliation.</li>
+<li>import/upsert از طریق قرارداد Conversations؛ بدون نوشتن مستقیم Instagram Infrastructure در schema آن.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>در زمان قطعی سرویس یک Comment وارد Meta شده ولی webhook به Qasedak نرسیده. Reconciliation بعدی آن را می‌یابد و همان pipeline عادی را اجرا می‌کند، ولی اگر webhook دیرتر برسد اثر دوم ایجاد نمی‌شود.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-013-1"><span>یک webhook را عمداً نرسان و ببین reconciliation Comment را recover می‌کند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-013-2"><span>بعد از recovery همان webhook را بفرست؛ duplicate effect نباید رخ دهد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-013-3"><span>History sync را دوبار اجرا کن؛ Messageهای provider id یکسان نباید duplicate شوند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-013-4"><span>manual resync فقط در Workspace/Account مجاز اجرا شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-013-5"><span>Instagram Infrastructure نباید مستقیم جدول Conversations را تغییر دهد.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> ساخت pipeline دوم برای Automation یا duplicate شدن history بعد resync نشان می‌دهد ادغام درست انجام نشده است.</div>
+</section>
+
+<section class="chapter" id="m13-014">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-014</span>
+      <h2>سطح کامل Frontend برای قابلیت‌های واقعاً پشتیبانی‌شده</h2>
+    </div>
+    <span class="pill">Frontend</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> تمام capabilityهای تأییدشده M13 از طریق APIهای authenticated و UI موجود Qasedak قابل استفاده باشند، بدون expose کردن Meta DTO، Token یا feature جعلی.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Account/Profile/Subscription health.</li>
+<li>Media picker و Analytics.</li>
+<li>Sync status و manual resync.</li>
+<li>Automation Builder با account/post/trigger/opening/reveal/link/public reply/follow-up.</li>
+<li>stateهای Unsupported، Permission Missing، Disconnected، Unhealthy و Temporary Failure.</li>
+<li>Penpot-governed UI.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>اگر Follow Gate طبق M13-001 پشتیبانی نشود، UI نباید یک سوییچ فعال و فریبنده نشان دهد؛ باید آن را حذف یا با توضیح صحیح غیرفعال کند، در حالی که بقیه Automation Builder کار می‌کند.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-014-1"><span>Account selector باید همیشه ConnectedAccount دقیق را نگه دارد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-014-2"><span>با Permission Missing صفحه نباید Generic 500 بدهد؛ state مشخص نمایش دهد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-014-3"><span>هیچ access token یا raw Meta payload در DevTools Network response نباشد.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-014-4"><span>Responsive و RTL را روی صفحه‌های Instagram/Automation بررسی کن.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-014-5"><span>UI نباید Ads API، Publishing یا Human Agent automation خارج Scope را نمایش دهد.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> کنترل فعال برای feature unsupported، API call مستقیم Browser به Meta یا نشت Token در response یک شکست جدی است.</div>
+</section>
+
+<section class="chapter" id="m13-015">
+  <div class="chapter-head">
+    <div>
+      <span class="eyebrow">M13-015</span>
+      <h2>Compliance، App Review و گیت نهایی Production</h2>
+    </div>
+    <span class="pill">Final gate</span>
+  </div>
+  <div class="callout goal"><strong>هدف:</strong> در پایان، کل M13 با تست‌های deterministic، PostgreSQL واقعی، mocked Meta، runbook و ماتریس compliance قابل اثبات باشد.</div>
+
+  <div class="grid2">
+    <article class="card">
+      <h3>چه چیزی به Qasedak اضافه می‌شود؟</h3>
+      <ul><li>Contract test برای همه Graph adapterها و webhook fixtureها.</li>
+<li>E2E برای multi-account، Private Reply concurrency، restart، retry و sync.</li>
+<li>Metrics برای Graph، token refresh، subscriptions، queue، sends، automation و rate limits.</li>
+<li>Runbook Production و App Review/Advanced Access checklist.</li>
+<li>ماتریس شش‌حالته وضعیت هر capability.</li></ul>
+    </article>
+    <article class="card example">
+      <h3>مثال کاربردی</h3>
+      <p>قبل از release، یک سناریوی کامل comment → opening private reply → postback → reveal → follow-up با Meta mock و PostgreSQL واقعی اجرا می‌شود، سپس smoke محدود Production مطابق runbook انجام می‌گیرد.</p>
+    </article>
+  </div>
+
+  <article class="card testbox">
+    <h3>چک‌لیست تست در Production / Staging</h3>
+    <div class="checks"><label class="check"><input type="checkbox" data-check="M13-015-1"><span>همه adapterها در CI بدون live Meta call تست شوند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-015-2"><span>Testcontainers با PostgreSQL واقعی برای race/idempotency اجرا شود.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-015-3"><span>ماتریس نهایی هر capability را در یکی از ۶ وضعیت طبقه‌بندی کند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-015-4"><span>production-only verificationها صریحاً از CI جدا باشند.</span></label>
+<label class="check"><input type="checkbox" data-check="M13-015-5"><span>هیچ قابلیت صرفاً به‌خاطر وجود در OpenReply «اجباری» محسوب نشود.</span></label></div>
+  </article>
+
+  <div class="callout danger"><strong>نشانه خرابی:</strong> اگر release به live Meta call در CI وابسته باشد، capabilityهای unsupported مخفی شوند، یا runbook production نداشته باشیم، M13 کامل نیست.</div>
+</section>
+
+
+      <h2 class="section-title" id="production-matrix">ماتریس تست Production / Staging</h2>
+      <p>این سناریوها را بعد از تکمیل تسک‌های مربوطه به‌عنوان Smoke و Regression دستی نگه دار. برای عملیات مخرب یا Rate Limit بهتر است ابتدا Staging/Meta test accounts استفاده شود.</p>
+      <div class="matrix">
+        <table>
+          <thead><tr><th>کد</th><th>سناریو</th><th>روش اجرا</th><th>نتیجه مورد انتظار</th></tr></thead>
+          <tbody><tr><td><code>P01</code></td><td>ایزولیشن دو اکانت</td><td>دو ConnectedAccount در یک Workspace + یک Participant مشترک</td><td>دو Conversation مستقل؛ Reply و Automation فقط روی Account صحیح</td></tr>
+<tr><td><code>P02</code></td><td>OAuth State</td><td>شروع اتصال در Workspace A و مصرف callback دستکاری‌شده/Workspace B</td><td>رد کامل؛ هیچ account/token جدید ایجاد نشود</td></tr>
+<tr><td><code>P03</code></td><td>Webhook Replay</td><td>ارسال دوباره payload معتبر با Event ID یکسان</td><td>یک ingestion/effect منطقی؛ بدون پیام یا Automation تکراری</td></tr>
+<tr><td><code>P04</code></td><td>Private Reply Race</td><td>دو Automation همزمان روی Comment یکسان</td><td>فقط یک Private Reply بر اساس claim سراسری</td></tr>
+<tr><td><code>P05</code></td><td>Public + Private independence</td><td>Public Reply را fail کن، Private Reply را موفق نگه دار</td><td>Private Reply تکرار نشود؛ outcomeها مستقل باشند</td></tr>
+<tr><td><code>P06</code></td><td>Restart Job</td><td>خاموش کردن سرویس بعد claim و قبل complete</td><td>بعد lease recovery فقط یک اجرا</td></tr>
+<tr><td><code>P07</code></td><td>Token Refresh</td><td>Token نزدیک expiry + دو worker</td><td>یک rotation موفق و atomic؛ بدون corruption</td></tr>
+<tr><td><code>P08</code></td><td>Media Scope</td><td>Automation روی Post X و Comment مشابه روی Post Y</td><td>فقط X trigger شود</td></tr>
+<tr><td><code>P09</code></td><td>Postback Tamper</td><td>تغییر payload/correlation دکمه</td><td>رد continuation و ثبت event امن</td></tr>
+<tr><td><code>P10</code></td><td>Reveal Race</td><td>Postback و read fallback تقریباً همزمان</td><td>فقط یک reveal</td></tr>
+<tr><td><code>P11</code></td><td>Missed Comment Recovery</td><td>Webhook Comment را عمداً از دست بده</td><td>Reconciliation آن را یک‌بار وارد pipeline کند</td></tr>
+<tr><td><code>P12</code></td><td>Conversation Resync</td><td>History sync را دو بار اجرا کن</td><td>هیچ Message تکراری ایجاد نشود</td></tr>
+<tr><td><code>P13</code></td><td>Permission Degradation</td><td>مجوز Insights را از دسترس خارج کن</td><td>Media/Profile سالم؛ فقط Analytics محدود شود</td></tr>
+<tr><td><code>P14</code></td><td>Rate Limit</td><td>Mock/واقعی محدود RateLimit provider</td><td>retry/backoff کنترل‌شده؛ بدون storm</td></tr>
+<tr><td><code>P15</code></td><td>Secret Leakage Audit</td><td>Log + DB job payload + API response + Browser Network</td><td>هیچ access token/client secret در خروجی‌ها نباشد</td></tr></tbody>
+        </table>
+      </div>
+
+      <section class="chapter" id="release">
+        <div class="chapter-head"><div><span class="eyebrow">GO-LIVE</span><h2>چک‌لیست نهایی قبل از Production</h2></div><span class="pill">Release Gate</span></div>
+        <div class="grid2">
+          <article class="card">
+            <h3>امنیت و ایزولیشن</h3>
+            <div class="checks">
+              <label class="check"><input type="checkbox" data-check="release-1"><span>هیچ Token یا Client Secret در Browser response، job payload یا log وجود ندارد.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-2"><span>Cross-workspace و wrong-account درخواست‌ها 100٪ رد می‌شوند.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-3"><span>OAuth state tamper/replay و Postback tamper تست شده‌اند.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-4"><span>Global Private Reply claim در race واقعی/آزمایشی اثبات شده است.</span></label>
+            </div>
+          </article>
+          <article class="card">
+            <h3>پایداری و بازیابی</h3>
+            <div class="checks">
+              <label class="check"><input type="checkbox" data-check="release-5"><span>Restart/Crash job recovery تست شده است.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-6"><span>Webhook redelivery و reconciliation race duplicate effect ایجاد نمی‌کند.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-7"><span>Token refresh همزمان و subscription repair تست شده‌اند.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-8"><span>Conversation history resync کاملاً idempotent است.</span></label>
+            </div>
+          </article>
+          <article class="card">
+            <h3>محصول و UX</h3>
+            <div class="checks">
+              <label class="check"><input type="checkbox" data-check="release-9"><span>Frontend فقط capabilityهای تأییدشده Meta را نشان می‌دهد.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-10"><span>Permission/Disconnected/Unhealthy/Temporary Failure stateها قابل تشخیص‌اند.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-11"><span>RTL، Responsive و Penpot mapping صفحه‌های تغییرکرده بررسی شده‌اند.</span></label>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Compliance و عملیات</h3>
+            <div class="checks">
+              <label class="check"><input type="checkbox" data-check="release-12"><span>App Review / Advanced Access مورد نیاز ثبت و اخذ شده است.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-13"><span>هر قابلیت در ماتریس نهایی شش‌حالته طبقه‌بندی شده است.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-14"><span>Metrics و alertهای Graph/Queue/Token/Webhook/Automation قابل مشاهده‌اند.</span></label>
+              <label class="check"><input type="checkbox" data-check="release-15"><span>Production smoke runbook اجرا و نتیجه ثبت شده است.</span></label>
+            </div>
+          </article>
+        </div>
+        <div class="callout note"><strong>پیشنهاد عملی:</strong> برای هر تست Production، زمان، Workspace ID، ConnectedAccount ID، Event/Comment/Message ID و نتیجه را ثبت کن؛ اما Token و Secret را هرگز داخل گزارش تست قرار نده.</div>
+      </section>
+
+      <section class="chapter">
+        <div class="chapter-head"><div><span class="eyebrow">REFERENCE</span><h2>نگاشت سریع قابلیت‌ها به تسک‌ها</h2></div></div>
+        <div class="matrix">
+          <table>
+            <thead><tr><th>قابلیت</th><th>تسک اصلی</th><th>وابستگی عملی</th></tr></thead>
+            <tbody>
+              <tr><td>Meta contract و محدودیت‌ها</td><td><code>M13-001</code></td><td>مرجع تمام M13</td></tr>
+              <tr><td>Multi-account isolation</td><td><code>M13-002</code></td><td>پایه Conversation و Automation</td></tr>
+              <tr><td>Graph transport/error taxonomy</td><td><code>M13-003</code></td><td>تمام adapterها</td></tr>
+              <tr><td>Durable Jobs</td><td><code>M13-004</code></td><td>Refresh / Snapshot / Follow-up / Reconciliation</td></tr>
+              <tr><td>OAuth/Profile/Subscription/Refresh</td><td><code>M13-005</code></td><td>Account lifecycle</td></tr>
+              <tr><td>Media/Post Picker</td><td><code>M13-006</code></td><td>Post-scoped automation</td></tr>
+              <tr><td>Insights/Follower History</td><td><code>M13-007</code></td><td>Analytics</td></tr>
+              <tr><td>Comment/Postback/Read events</td><td><code>M13-008</code></td><td>Interactive flow</td></tr>
+              <tr><td>Private Reply correctness</td><td><code>M13-009</code></td><td>Comment automation</td></tr>
+              <tr><td>Buttons/Templates</td><td><code>M13-010</code></td><td>Opening/Reveal</td></tr>
+              <tr><td>Postback Reveal / Follow Gate</td><td><code>M13-011</code></td><td>Follow Gate مشروط</td></tr>
+              <tr><td>Automation parity</td><td><code>M13-012</code></td><td>DM/Post/Public/Follow-up</td></tr>
+              <tr><td>Recovery/History Sync</td><td><code>M13-013</code></td><td>Missed events</td></tr>
+              <tr><td>Frontend</td><td><code>M13-014</code></td><td>فقط قابلیت‌های verified</td></tr>
+              <tr><td>Compliance/Final Gate</td><td><code>M13-015</code></td><td>Go-live</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="footer">
+        Qasedak M13 Handbook · تهیه‌شده برای استفاده در پیاده‌سازی، Staging و Production QA<br>
+        فونت اصلی: Vazirmatn (در صورت دسترسی مرورگر به Google Fonts؛ در غیر این صورت فونت محلی Vazirmatn یا Tahoma استفاده می‌شود)
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const KEY='qasedak-m13-handbook-checks-v1';
+function loadChecks(){
+  let s={}; try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  document.querySelectorAll('input[type=checkbox][data-check]').forEach(el=>{el.checked=!!s[el.dataset.check]})
+}
+function saveChecks(){
+  const s={}; document.querySelectorAll('input[type=checkbox][data-check]').forEach(el=>s[el.dataset.check]=el.checked);
+  localStorage.setItem(KEY,JSON.stringify(s));
+}
+function resetChecks(){
+  if(!confirm('تمام تیک‌های ثبت‌شده پاک شوند؟')) return;
+  localStorage.removeItem(KEY); document.querySelectorAll('input[type=checkbox]').forEach(x=>x.checked=false);
+}
+function expandProgress(){
+  const all=[...document.querySelectorAll('input[type=checkbox][data-check]')];
+  const done=all.filter(x=>x.checked).length;
+  alert(`پیشرفت چک‌لیست: ${done} از ${all.length} مورد (${Math.round(done*100/Math.max(all.length,1))}٪)`);
+}
+document.addEventListener('change',e=>{if(e.target.matches('input[type=checkbox][data-check]')) saveChecks()});
+loadChecks();
+</script>
+</body>
+</html>

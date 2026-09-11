@@ -1619,7 +1619,7 @@ classified truthfully and excluded from the supported parity claim.
 **Suggested commit:** `test(instagram): validate openreply parity and meta compliance`
 
 ## M14-001 — Freeze automation operations and recovery contract
-**Status:** TODO
+**Status:** DONE (2026-09-11)
 
 **Outcome:** Define the operator-facing execution taxonomy, ownership boundaries and allowed recovery/disposition matrix before adding APIs or UI.
 
@@ -1632,6 +1632,8 @@ classified truthfully and excluded from the supported parity claim.
 **Completion contract:** Graphify evidence recorded; contract/status/action matrix is deterministic; architecture decision recorded only if a real boundary changes; contract/unit tests pin the allowed recovery rules; docs/state/handoff/manifest gates pass.
 
 **Suggested commit:** `docs(operations): define automation recovery contract`
+
+**Completion record (2026-09-11):** DONE. Canonical contract at `docs/product/automation-operations-recovery-contract.md`; executable projection `AutomationOperationsPolicy` (Automations Application, pure/I-O-free) pinned by 15 unit tests (Automations unit suite 209/209 green). Key frozen rules: `BlindResendAllowed == false` for every state; `Attempting`/`Uncertain` never retry/resend/cancel; only proven pre-provider `Failed` slots allow `RetrySafeLocalFailure`; `Scheduled` slots require joined scheduled-work authority for cancellation; unknown enum values fail closed; closed recovery vocabulary with no generic Retry/Resend/ForceSend; field-exposure classes redact token/provider-payload/customer-text; dispositions are idempotent/conflict-safe/stale-aware and never rewrite execution truth; workspace-scoped reads + operator-only dispositions. Graphify 0.9.26 code-only fallback, all six M14-001 queries A–F recorded. No ADR required (no boundary change; noted in DECISIONS). No M14-002 work started.
 
 ## M14-002 — Expose workspace-scoped automation run and effect history
 **Status:** TODO

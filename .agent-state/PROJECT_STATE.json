@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "project": "Qasedak",
-  "updatedAt": "2026-09-08T14:30:18.556186+00:00",
+  "updatedAt": "2026-09-11T04:12:36.329700+00:00",
   "architecture": "Modular Monolith + Clean Architecture per module",
   "currentMilestone": "M14",
-  "currentTask": "M14-001",
-  "lastCompletedTask": "M13-015",
+  "currentTask": "M14-002",
+  "lastCompletedTask": "M14-001",
   "completedTasks": [
     "M00-001",
     "M00-002",
@@ -78,13 +78,14 @@
     "M13-012",
     "M13-013",
     "M13-014",
-    "M13-015"
+    "M13-015",
+    "M14-001"
   ],
   "graphify": {
     "required": true,
     "status": "healthy",
     "version": "0.9.26",
-    "lastEvidence": "PLAN-M14",
+    "lastEvidence": "M14-001 recorded: healthy, graphify 0.9.26, refresh graphify . --update --no-viz --code-only; graphify cluster-only ., all six M14-001 queries A-F (run/action state machine writers+readers; effect/claim retry boundaries; scheduled follow-up/dead-letter authority; workspace/exact-account authorization; field/identifier exposure inventory; retry/resume paths and safe recovery matrix)",
     "sourceCommit": null,
     "mode": "code-only (local AST; no LLM API key available for doc semantic extraction)",
     "outputs": [
@@ -165,9 +166,23 @@
     "m13015Delivery": "production deploy green: immutable exact-SHA image, backup, no migration, PostgreSQL/API/Web healthy, safe webhook-negative smoke passed, no rollback, no deploy-log Meta startup traffic"
   },
   "nextActions": [
-    "M14-001 is registered and remains TODO. Run its own preflight/lock only when explicitly authorized; no M14 implementation has started."
+    "M14-001 is DONE. M14-002 (execution-history API) is registered and has NOT started: no preflight, no lock, no implementation."
   ],
-  "lastInstruction": "PLAN-M14 completed: M13 remains complete; M14 Automation Operations & Safe Recovery is registered; currentTask=M14-001 TODO; lastCompletedTask=M13-015; Graphify PLAN-M14 A-F recorded; no M14 implementation, lock, Penpot edit or deployment occurred.",
+  "lastInstruction": {
+    "taskId": "M14-001",
+    "outcome": "DONE",
+    "completedAtUtc": "2026-09-11T04:12:36.329715+00:00",
+    "summary": "Froze operator-facing automation execution/recovery contract: canonical doc docs/product/automation-operations-recovery-contract.md + executable AutomationOperationsPolicy (pure, I/O-free, Automations Application) pinned by 15 unit tests (209/209 green). No-blind-resend preserved for Attempting/Uncertain; only proven pre-provider Failed allows safe local retry; unknown values fail closed; no API/persistence/UI/provider work. Graphify 0.9.26 code-only, all six queries A-F recorded. No ADR required.",
+    "verification": {
+      "focusedTests": "dotnet test tests/Qasedak.Modules.Automations.UnitTests -> 209/209 passed",
+      "format": "dotnet format Qasedak.slnx --verify-no-changes -> clean",
+      "architecture": "check_architecture.py PASSED (36 projects, 6 business modules)",
+      "fullVerify": "pending at finalization"
+    },
+    "adr": "none required (no architectural boundary change)",
+    "nextTask": "M14-002",
+    "nextTaskStatus": "TODO - NOT started"
+  },
   "m13009PrivateReply": "DONE-2026-09-07: fresh first-party verification (Send a Private Reply to a Commenter + IG Comment reference, developers.facebook.com, 2026-09-07) pinned Private Reply = POST /<IG_ID>/messages with recipient.comment_id + message.text, Bearer IG User token, basic + manage_comments, success {recipient_id,message_id}, one reply per commenter, 7 days from comment CREATION time, Live during broadcast only; stale POST /<COMMENT_ID>/private_replies assumption disproven/corrected (HANDOFF + contract §3.4); FromId not required (null never blocks); three distinct operations DirectMessage/PrivateReply/PublicCommentReply (public edge POST /{comment_id}/replies, no consumer yet — M13-012); composition-root dispatch TriggerKind.CommentCreated + SendDirectMessage intent → AutomationPrivateReplyBridge → CommentPrivateReplyCoordinator (origin CommentId, exact account/token, policy first, then claim, then provider attempt); global semantic claim instagram.comment_effects migration 20260906232403 (additive, UNIQUE ConnectedAccountId+ProviderCommentId+EffectType, owner {automationId}|{version}|{triggerEventId}|{actionIndex}, Reserved→Attempting→Succeeded/TerminalFailed/Uncertain, irreversible Attempting before Meta call, zero second provider calls ever after attempt incl. timeout/5xx/crash/redelivery/reconciliation); exact 7-day via focused ICommentReferenceReader GET /{comment_id}?fields=timestamp (never in webhook HTTP path), one-sided notification guard fallback documented, entry.time never claimed as creation time, Live never uses 7-day rule; AutomationRun terminal slot statuses Suppressed/Uncertain/TerminalFailed + Finished run state; token only in Bearer header, adapter token-echo redaction, shared M13-003 parser null code/subcode fix; backend 935/935 (Instagram unit 398 incl. 69 effect tests, PG 48 incl. 13 claim-ledger, API E2E 117 incl. 11 CommentToPrivateReplyAutomationFlowTests); format/architecture clean; frontend untouched",
   "m13008Deployment": {
     "sha": "b223862495a346a392898f11fd7bb38010dbe8e0",

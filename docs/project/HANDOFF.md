@@ -1,5 +1,30 @@
 # Current handoff
 
+## 2026-09-11 - M14-001 DONE: operations/recovery contract frozen; M14-002 next (TODO, NOT started)
+
+M14-001 is complete. The operator-facing automation execution and recovery contract is frozen as both a canonical document and an executable, test-pinned policy. No API, persistence, UI, or provider work was added.
+
+### M14-001 deliverables
+
+- **Canonical contract:** `docs/product/automation-operations-recovery-contract.md` — execution taxonomy (run/slot/scheduled-work states with owning module, provider-mutation certainty, terminality, operator actionability, safe exposed status strings), recovery/action matrix, safe-retry vs forbidden-resend classification, disposition semantics (idempotent, conflict-safe, stale-target-aware, never rewriting execution truth), field-exposure classes (`SafeList` / `SafeDetailOnly` / `InternalOnly` / `NeverExpose`), failure taxonomy (stable codes only; codes never control retryability), and the workspace/exact-account authorization contract.
+- **Executable form:** `backend/Modules/Automations/Qasedak.Modules.Automations.Application/AutomationOperationsPolicy.cs` (pure, I/O-free). Key rules: every policy has `BlindResendAllowed == false`; `Attempting`/`Uncertain` never offer retry/resend/cancel; only `Failed` (proven pre-provider) allows `RetrySafeLocalFailure`; `Scheduled` slots require joined scheduled-work authority for cancellation; unknown enum values fail closed; the vocabulary contains no generic Retry/Resend/ForceSend verb.
+- **Tests:** 15 contract tests in `backend/tests/Qasedak.Modules.Automations.UnitTests/AutomationOperationsPolicyTests.cs`; full Automations unit suite 209/209 green.
+- **Graphify:** 0.9.26 healthy (code-only fallback, no LLM key); refresh + all six M14-001 queries A–F recorded in `.agent-state/GRAPHIFY_EVIDENCE.md`.
+- **ADR:** none required — no boundary change; recorded in `docs/project/DECISIONS.md`.
+
+### M14-002 read-only packet
+
+- **Task:** expose bounded, workspace-scoped automation execution-history APIs (run list/detail per workspace + automation), consuming `AutomationOperationsPolicy` projections rather than re-deriving semantics from enum names.
+- **Hard requirements from M14-001:** workspace-scoped authorization before any read; exact-account authorization where account-adjacent data appears; expose only `SafeList`/`SafeDetailOnly` fields (§5 of the contract); stable failure codes only, no exception/provider prose; unknown future enum values fail closed (`UnknownUnsupported` projections); never expose raw scheduled-work payloads, tokens, or customer message/comment text; `Attempting`/`Uncertain` surfaces are read+acknowledge only; no resend/retry endpoints beyond what a future contract revision explicitly allows.
+- **Repository gap to close:** `IAutomationRunRepository` has point lookups but no bounded workspace query projection — add the smallest query boundary the endpoints need (M13-style: PostgreSQL, workspace filter, bounded page size, no cross-module Infrastructure references).
+- **Non-goals:** no scheduled-work diagnostics endpoints (M14-003), no disposition persistence/API (M14-004), no frontend (M14-006/007), no provider calls from any read path.
+- **Suggested commit (from tracker):** `feat(automations): expose execution history`
+
+### Verification status for M14-001
+
+- Focused: `dotnet test tests/Qasedak.Modules.Automations.UnitTests` 209/209 green; `dotnet format --verify-no-changes` clean; `check_architecture.py` PASSED (36 projects).
+- Remaining gates run at finalization: docs/state/environment-contract/penpot-sync checks, `verify.py --full` where supported.
+
 ## 2026-09-08 - M13 complete; PLAN-M14 accepted; M14-001 next (TODO)
 
 M13-001 through M13-015 are complete and deployed. M14 is now registered as **Automation Operations & Safe Recovery**. This planning session does not start implementation: M14-001 is TODO, no lock is acquired and no product code/Penpot design has been changed.

@@ -30,6 +30,16 @@
 > `docs/architecture/` sequence; it is unrelated to the legacy DECISIONS.md
 > ADR-010 row (migrations).
 
+## 2026-09-11 - M14-001: no ADR required
+
+M14-001 (automation operations/recovery contract) introduced no architectural boundary change: the
+executable operator projection `AutomationOperationsPolicy` lives inside the existing Automations
+Application layer, references only the Automations Domain and the BuildingBlocks scheduling
+abstraction, adds no persistence, no transport boundary, no cross-module dependency and no new
+externally visible contract. The contract freezes operator semantics over existing state machines;
+it does not move ownership of any state. Per the task rule ("create an ADR only if the task
+discovers and adopts a genuine architectural boundary change"), no ADR was created.
+
 ## Open decisions requiring human input
 
 None currently. The former open decision "Behpardakht Mellat current official merchant documentation" was resolved when the vendor reference `docs/vendor/behpardakht/BEHPARDAKHT-IPG-v1.29-EN.md` entered the repo and the live transport shipped against it (see ADR-009). Remaining Mellat items are operational go-live prerequisites, not architectural decisions: real terminal credentials, Shaparak registration of the deployment host, and a staging smoke test (documented in docs/08 §6).

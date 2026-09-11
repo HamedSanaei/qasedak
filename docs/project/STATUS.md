@@ -1,10 +1,21 @@
 # Project status
 
 **Project:** Qasedak
-**Current milestone:** M14 — Automation Operations & Safe Recovery (PLANNED)
-**Current task:** M14-001 - Freeze automation operations and recovery contract (TODO)
-**Last completed:** M13-015 (2026-09-08)
-**Product implementation:** M13 is complete and deployed. M14 is registered as planning only; no M14 implementation has started.
+**Current milestone:** M14 — Automation Operations & Safe Recovery (IN PROGRESS)
+**Current task:** M14-002 — not started
+**Last completed:** M14-001 (2026-09-11)
+**Product implementation:** M14-001 froze the operator-facing automation execution/recovery contract (canonical document + executable `AutomationOperationsPolicy` + pinned unit tests). No API, persistence, or UI work has started.
+
+## 2026-09-11 - M14-001 complete: automation operations and recovery contract frozen
+
+**Outcome:** M14-001 is DONE. The operator-facing execution taxonomy, recovery/action matrix, retry classification, disposition semantics, correlation-identifier exposure classes, failure taxonomy and authorization contract are now normative for M14-002..004 and the future operations console.
+
+- Canonical contract: `docs/product/automation-operations-recovery-contract.md` (derived from the actual `AutomationRun`/`AutomationActionStatus`/`ScheduledWorkStatus` state machines; no state invented).
+- Executable form: `backend/Modules/Automations/Qasedak.Modules.Automations.Application/AutomationOperationsPolicy.cs` — pure, deterministic, I/O-free operator projection (run/slot/scheduled-work classification, closed recovery vocabulary with **no** generic Retry/Resend/ForceSend, fail-closed unknown states, field-exposure classes redacting token/provider-payload/customer-text, disposition concurrency). Blind resend is `false` for every policy; `Attempting`/`Uncertain` never offer retry; only proven pre-provider `Failed` slots allow safe local retry.
+- Pinned by 15 unit tests in `AutomationOperationsPolicyTests` (all 209 Automations unit tests green).
+- Graphify 0.9.26 (code-only fallback, no LLM key): refresh + all six M14-001 queries A–F recorded in `.agent-state/GRAPHIFY_EVIDENCE.md`.
+- No ADR required: no architectural boundary changed — the policy lives inside the existing Automations Application layer and introduces no new dependency, persistence, or transport boundary (recorded in `docs/project/DECISIONS.md`).
+- M14-002 (execution-history APIs) is **TODO and NOT started**.
 
 ## 2026-09-08 - PLAN-M14 accepted; M14-001 is next and TODO
 
