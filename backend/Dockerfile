@@ -5,7 +5,7 @@ COPY . .
 RUN dotnet restore Qasedak.slnx
 RUN dotnet publish Qasedak.Api/Qasedak.Api.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS final
 # curl is used only by the container healthcheck; keep the runtime image otherwise minimal.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
